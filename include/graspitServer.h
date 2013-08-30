@@ -34,6 +34,8 @@
 #include <iostream>
 #include <vector>
 
+#include "egPlanner.h"
+
 class Body;
 class Robot;
 class EGPlanner;
@@ -128,6 +130,8 @@ private:
   bool next();
 
   bool setCameraOrigin();
+
+  void analyzeGrasp(const GraspPlanningState * gps);
 
 
 // not finished yet:

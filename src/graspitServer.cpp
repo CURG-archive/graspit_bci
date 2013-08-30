@@ -62,7 +62,8 @@ ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
       connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
       connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
       connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
-      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));      
+      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));
+	  connect(graspItGUI->getIVmgr(), SIGNAL( analyzeGrasp(const GraspPlanningState *) ), this, SLOT(analyzeGrasp(const GraspPlanningState*)));       
       setSocket( sock );
 }
 
@@ -1218,3 +1219,11 @@ for(unsigned int l_i = 0; l_i < listLen; ++l_i)
   
   return true;
 }
+
+
+void ClientSocket::analyzeGrasp(const GraspPlanningState * gps)
+{  
+	QTextStream os(this);
+	os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+}
+

@@ -37,6 +37,7 @@
 
 #include "search.h"
 
+
 class Hand;
 class Body;
 class GraspPlanningState;

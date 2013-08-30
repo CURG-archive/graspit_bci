@@ -1,4 +1,4 @@
-//######################################################################
+	//######################################################################
 //
 // GraspIt!
 // Copyright (C) 2002-2009  Columbia University in the City of New York.
@@ -34,6 +34,7 @@
 #include <qstring.h>
 #include <qwidget.h>
 #include "material.h"
+#include "egPlanner.h"
 #include <QTimer>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <QThread>
@@ -252,9 +253,13 @@ public slots:
 signals:
   //! Signal that planner grasps should be processed or sent out for execution
   void processWorldPlanner(int solutionIndex);
+
   //! Signal that object recognition system should be rerun
   void runObjectRecognition();
   void sendString(const QString & s);
+
+  // determine reachability of the grasp at this index
+  void analyzeGrasp(const GraspPlanningState * gps);
 
 public:
   IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);
@@ -270,7 +275,7 @@ public:
   void next();
 
 
-
+  void emitAnalyzeGrasp(const GraspPlanningState * gps) {emit analyzeGrasp(gps); }
   void emitRunObjectRecognition(){emit runObjectRecognition();}
   void emitProcessWorldPlanner(int i){emit processWorldPlanner(i);}
   void emitSendString(const QString & s){emit sendString(s);}
