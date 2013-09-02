@@ -421,7 +421,7 @@ IVmgr::drawWorstCaseWrenches()
 	forceScale = sqrt(forceScale);
 	double torqueScale = minWrench[3]*minWrench[3] + minWrench[4]*minWrench[4] + minWrench[5]*minWrench[5];
 	torqueScale = sqrt(torqueScale);
-	double scale = 5.0 / std::max(forceScale, torqueScale);
+	double scale = 5.0 / std::max<double>(forceScale, torqueScale);
 
     // The worst case disturbance wrench is the opposite of the minWrench
 	for (int i=0; i<6; i++) {

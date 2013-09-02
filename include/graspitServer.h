@@ -131,7 +131,7 @@ private:
 
   bool setCameraOrigin();
 
-  void analyzeGrasp(const GraspPlanningState * gps);
+  
 
 
 // not finished yet:
@@ -143,7 +143,7 @@ private slots:
   void outputPlannerResults(int solutionIndex);
   void runObjectRecognition();
   void sendString(const QString & message);
-  
+  void analyzeGrasp(const GraspPlanningState * gps);
 /*! Deletes this instance of ClientSocket */ 
   void connectionClosed() { delete this;}
   

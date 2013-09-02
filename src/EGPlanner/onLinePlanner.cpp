@@ -376,7 +376,7 @@ OnLinePlanner::graspLoop()
 				DBGP("Similar to old candidate");
 				delete insertState;
 			} else {
-				emit graspItGUI->getIVmgr()->emitAnalyzeGrasp(mCandidateList.back());
+				graspItGUI->getIVmgr()->emitAnalyzeGrasp(mCandidateList.back());
 				mCandidateList.sort(GraspPlanningState::compareStates);//CHANGED! was compareStates
 				while (mCandidateList.size() > CANDIDATE_BUFFER_SIZE) {
 					delete mCandidateList.back();

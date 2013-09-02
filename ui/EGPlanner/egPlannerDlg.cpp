@@ -174,9 +174,30 @@ namespace bci_experiment{
       }
   }
   
+
+  Body * getOrAddExperimentTable()
+  {
+    QString bodyName("experiment_table");
+    Body * tableBody= getObjectByName(bodyName);
+    if(tableBody)
+      return tableBody;
+    return addToWorld("models/obstacles/","Obstacle", bodyName+".xml");
+  }
+
   void setObjectCentral(Body * b)
   {
-    moveAllBodies(b->getTran().inverse());
+    transf centralize(Quaternion::IDENTITY, -b->getTran().translation());
+    
+    moveAllBodies(centralize);
+    Body * table = getOrAddExperimentTable();
+    table->setTran(centralize);
+    SoNodeList l;
+    unsigned int listLen = SoTransform::getByName("PointCloudTransform", l);
+    if(listLen = 1)
+    {
+      SoTransform * tran = static_cast<SoTransform*>(l[0]);
+      centralize.toSoTransform(tran);
+    }
   }
 
   void sendString(const QString & s)
@@ -201,22 +222,20 @@ namespace bci_experiment{
     w->toggleCollisions(true, target, h);
   }
   
-  Body * getOrAddExperimentTable()
-  {
-    QString bodyName("experiment_table");
-    Body * tableBody= getObjectByName(bodyName);
-    if(tableBody)
-      return tableBody;
-    return addToWorld("models/obstacles/","Obstacle", bodyName+".xml");
     
-  }
+  
 
-  void disableTableObjectCollisions()
+  void setTableObjectCollisions(bool setting)
   {
     World * w = getWorld();
     Body * experiment_table = getOrAddExperimentTable();
     for (int i = 0; i < w->getNumGB(); ++i)
-      w->toggleCollisions(false, experiment_table, w->getGB(i));
+      w->toggleCollisions(setting, experiment_table, w->getGB(i));
+  }
+
+  void disableTableObjectCollisions()
+  {
+    setTableObjectCollisions(false);
   }
 
 
@@ -1040,8 +1059,9 @@ void EigenGraspPlannerDlg::loadGraspsToHandviewWindow()
 						     (grasps[gNum])->getFinalGraspPlanningState());
       
       s->setObject(mHand->getGrasp()->getObject());
-      mPlanner->addSolution(s);
-      
+      if(mPlanner->addSolution(s)){
+        graspItGUI->getIVmgr()->emitAnalyzeGrasp(s);        
+      }
       viewWindow->addView(*s, gNum);     
       viewWindow->getViewWindow()->show();        
     }    
@@ -1050,6 +1070,10 @@ void EigenGraspPlannerDlg::loadGraspsToHandviewWindow()
 
 void EigenGraspPlannerDlg::initializeTarget()
 {
+  bci_experiment::sendSetTarget(mObject);
+  bci_experiment::disableNontargetCollisions(mHand, mObject);
+  bci_experiment::disableTableObjectCollisions();  
+
   //Initialize Handview Window
   initializeHandviewWindow();
   
@@ -1073,9 +1097,8 @@ void EigenGraspPlannerDlg::initializeTarget()
   timer.start();
   graspItGUI->getIVmgr()->setFocus();    
   graspItGUI->getIVmgr()->setActiveWindow();
-  bci_experiment::disableNontargetCollisions(mHand, mObject);
-  bci_experiment::disableTableObjectCollisions();  
-  bci_experiment::sendSetTarget(mObject);
+
+  
 }
 
 

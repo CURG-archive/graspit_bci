@@ -457,22 +457,22 @@ ClientSocket::readClient()
 
 void ClientSocket::setGraspAttribute()
 {		
-		double graspIdentifier = strPtr->toDouble();
-		strPtr += 1;
-		QString attributeString = *strPtr;
-		strPtr += 1;
-		double value = strPtr->toDouble();
-		strPtr += 1;
-		for(int i = 0; i < currentWorldPlanner()->getListSize(); i++ )
-		{
-			const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
-			if (gs->getAttribute("graspIdentifier") == attributeString.toInt())
-			{
-			  currentWorldPlanner()->setGraspAttribute(i, "testResult", value); 
-			}
-		}
-		
-
+  double graspIdentifier = strPtr->toDouble();
+  strPtr += 1;
+  QString attributeString = *strPtr;
+  strPtr += 1;
+  double value = strPtr->toDouble();
+  strPtr += 1;
+  for(int i = 0; i < currentWorldPlanner()->getListSize(); i++ )
+    {
+      const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
+      if (gs->getAttribute("graspId") == graspIdentifier)
+	{
+	  currentWorldPlanner()->setGraspAttribute(i, 
+						   attributeString, 
+						   value); 
+	}
+    }		
 }
 
 /*!
@@ -825,7 +825,7 @@ ClientSocket::outputPlannerResults(int solution_index)
   //WARNING:: THIS IS NOT REALLY THREADSAFE BECAUSE THE PLANNER KEEPS RUNNING
   //FIXME
   //os << currentWorldPlanner()->getListSize() << "\n";
-  os << '{';
+  os << "doGrasp {";
   //  for(int solution_index =0; solution_index < currentWorldPlanner()->getListSize(); ++solution_index)
   // {
   os << *(currentWorldPlanner()->getGrasp(solution_index)) << ',';      
@@ -861,7 +861,7 @@ ClientSocket::outputCurrentGrasp()
   GraspPlanningState g(graspItGUI->getIVmgr()->getWorld()->getCurrentHand());
   g.setPostureType(POSE_DOF, false);
   g.saveCurrentHandState();
-  os << '{';
+  os << "doGrasp{";
   os << g <<',';
  
   os << '}';
@@ -1140,6 +1140,8 @@ bool ClientSocket::setCameraOrigin()
 
 bool ClientSocket::addPointCloud()
 {  
+  
+  
   bool ok = false;  
   
   bool has_colors = true;
@@ -1147,14 +1149,53 @@ bool ClientSocket::addPointCloud()
   double pointNum = convertToNumber(strPtr++, &lineStrList, ok);
   if (!ok)
     return false;  
-  
-  SoSeparator * coords_sep = new SoSeparator();
-  SoCoordinate3 * coord = new SoCoordinate3();  
-  SoPointSet * pointSet = new SoPointSet();
-  SoDrawStyle * drawStyle = new SoDrawStyle();  
+  SoNodeList l;
+  SoCoordinate3 * coord;
+  SoMaterial * mat;
+
+  unsigned int listLen = SoCoordinate3::getByName("PointCloudCoordinates", l);
+  if (listLen < 1)
+  {
+    SoSeparator * coords_sep = new SoSeparator();
+    SoTransform * coord_tran = new SoTransform();
+    coord_tran->setName("PointCloudTransform");
+    coord = new SoCoordinate3();  
+    coord->setName("PointCloudCoordinates");
+    SoPointSet * pointSet = new SoPointSet();
+    SoDrawStyle * drawStyle = new SoDrawStyle(); 
+    coords_sep->addChild(coord_tran);
+    coords_sep->addChild(coord);
+    mat = new SoMaterial();
+    mat->setName("PointCloudColorMaterial");
+    SoMaterialBinding * matBinding = new SoMaterialBinding();
+    matBinding->value = SoMaterialBinding::PER_PART;    
+    
+    coords_sep->addChild(mat);
+    coords_sep->addChild(matBinding);
+    
+    drawStyle->pointSize = 3;
+    coords_sep->addChild(drawStyle);
+    coords_sep->addChild(pointSet);
+    graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);  
+  }  else if (listLen > 1)
+  {
+    std::cout << "More than 1 Point Cloud coordinate node. What the heck!\n";
+  }
+  else{
+    coord = static_cast<SoCoordinate3 *>(l[0]);
+    SoNodeList l2;
+    unsigned int listLen2 = SoMaterial::getByName("PointCloudColorMaterial", l2);
+    if (listLen2 != 1){
+      std::cout << "Wrong number of Point Cloud Materials: " << listLen2 << "\n";
+      return false;
+    }
+    mat = static_cast<SoMaterial *>(l2[0]);
+  }
+
   std::vector<SbVec3f> points;
   std::vector<SbColor> colors;    
   points.reserve(pointNum);
+  colors.reserve(pointNum);
   //std::vector<SoSeparator *> points(pointNum);
   
   for(int pointIndex = 0; pointIndex < pointNum; ++pointIndex)
@@ -1172,8 +1213,6 @@ bool ClientSocket::addPointCloud()
     points.push_back(SbVec3f(x,y,z));
   
     
-  if (has_colors)
-  {
     
   
     double r = convertToNumber(strPtr++, &lineStrList, ok)/255.0;    
@@ -1189,33 +1228,9 @@ bool ClientSocket::addPointCloud()
     
     colors.push_back(SbColor(r,g,b));
   }
-  }
+  
   coord->point.setValues(0,points.size(), &points[0]);  
-  coords_sep->addChild(coord);
-  if(has_colors)
-  {
-    SoMaterial * mat = new SoMaterial();
-    SoMaterialBinding * matBinding = new SoMaterialBinding();
-    matBinding->value = SoMaterialBinding::PER_PART;    
-    mat->diffuseColor.setValues(0,colors.size(), &colors[0]);
-    coords_sep->addChild(mat);
-    coords_sep->addChild(matBinding);
-  } 
-  drawStyle->pointSize = 3;
-  coords_sep->addChild(drawStyle);
-  coords_sep->addChild(pointSet);
-  SoNodeList l;
-
-  unsigned int listLen = SoNode::getByName("PointCloud", l);
-  
-  if (listLen > 1)
-    std::cout<< "More than one pointcloud! " << listLen <<" \n";
-  
-for(unsigned int l_i = 0; l_i < listLen; ++l_i)
-   graspItGUI->getIVmgr()->getWorld()->getIVRoot()->removeChild(l[l_i]);  
-  
-  coords_sep->setName("PointCloud");
-  graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);
+  mat->diffuseColor.setValues(0,colors.size(), &colors[0]);            
   
   return true;
 }

@@ -247,7 +247,7 @@ bool HandViewWindow::addView(HandObjectState& s, int i)
 //Used to go directly to a choice
 void HandViewWindow::setCurrentView(int num)
 {
-  if (num > maxViewSize)
+  if (num > maxViewSize - 1)
     return;
   if (currentPreview >= 0)
     views[currentPreview]->getViewWindow()->move(views[currentPreview]->getViewWindow()->x(),views[currentPreview]->getViewWindow()->y()+10);

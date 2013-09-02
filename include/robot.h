@@ -30,6 +30,7 @@
 #ifndef ROBOT_H
 
 #include <vector>
+#include <algorithm>
 #include <map>
 #include <QTextStream>
 #include <QString>
@@ -564,9 +565,9 @@ double Robot::jointLimitDist() const
 	for (int c=0; c<numChains; c++) {
 		for (int j=0; j<chainVec[c]->getNumJoints(); j++) {
 			double val = chainVec[c]->getJoint(j)->getVal();
-			dist = std::min( chainVec[c]->getJoint(j)->getMax() - val, 
+			dist = std::min<double>( chainVec[c]->getJoint(j)->getMax() - val, 
 							 val - chainVec[c]->getJoint(j)->getMin() );
-			minDist = std::min(dist, minDist);
+			minDist = std::min<double>(dist, minDist);
 		}
 	}
 	return minDist;
