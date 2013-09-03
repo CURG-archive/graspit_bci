@@ -37,7 +37,7 @@
 #include "grasp.h"
 #include "eigenGrasp.h"
 #include "matvec3D.h"
-#include "graspitgui.h"
+#include "graspitGUI.h"
 #include "ivmgr.h"
 
 //#define GRASPITDBG
@@ -205,7 +205,7 @@ OnLinePlanner::stateDistance(const GraspPlanningState *s1, const GraspPlanningSt
 	really sure this is needed anymore, might be replaced in the future.
 */
 double
-OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &handTran)
+OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &handTran, bool useAlignment)
 {
 	double max_angle = M_PI / 4.0;
 	double max_dist = 50.0;
@@ -219,7 +219,7 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 	
 	//get change in terms of approach direction
 	changeTran = mHand->getApproachTran() * changeTran * mHand->getApproachTran().inverse();
-
+  //double dotZ = (mHand->getApproachTran()*handTran).affine().row(2) * (mHand->getApproachTran()*solTran).affine().transpose().row(2);
 	//get angular change
 	double angle; vec3 axis;
 	changeTran.rotation().ToAngleAxis(angle, axis);
@@ -233,6 +233,10 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 	} else {
 		f = 1.0;
 	}
+  double angleMod = 1.0;
+  if (axis.z() < 0)
+    angleMod = -1.0;
+
 	approach.z() = 0;
 	double dist = approach.len();
 
@@ -242,8 +246,14 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 	angle = fabs(angle) / max_angle ;
 	dist = dist / max_dist;
 	//DBGP("Angle " << angle << "; dist " << dist << std::endl);
-	return f * std::max(angle, dist);
+  double alignment_score = 1.0;
+  if (useAlignment) alignment_score = .001+(axis.z() * angleMod);
+  
+	return f * std::max(angle, dist)/alignment_score;
 }
+
+
+
 
 /*! Keeps the list of solutions sorted according to some metric */
 void
@@ -255,9 +265,10 @@ OnLinePlanner::updateSolutionList()
 	//re-compute distance between current hand position and solutions. 
 	for ( it = mBestList.begin(); it != mBestList.end(); it++ )	{
 		stateTran = (*it)->getTotalTran();
-		//compute distance between each solution and current hand position
-		double dist = distanceOutsideApproach(stateTran, currentHandTran);
-		if (dist < 0) dist = -dist;
+		//compute distance between each solution and current hand position	
+    double dist = distanceOutsideApproach(stateTran, currentHandTran, true);
+		if (dist < 0) dist = -dist;        
+    dist += 1000 * (1-(*it)->getAttribute("testResult"));    
 		(*it)->setDistance(dist);
 		if (mMarkSolutions) {
 			if (dist<1) (*it)->setIVMarkerColor(1-dist, dist, 0);
@@ -268,7 +279,22 @@ OnLinePlanner::updateSolutionList()
 	//sort list according to distance from current hand position
 	mBestList.sort(GraspPlanningState::compareStatesDistances);
 	//keep only best in list
-	while (mBestList.size() > SOLUTION_BUFFER_SIZE) {
+  std::list<GraspPlanningState *>::iterator it2 = mBestList.begin();
+  
+  for(int i = 0; it2 != mBestList.end(); ++it2)
+  {
+      if ((*it2)->getAttribute("testResult") == 0)
+      break;
+    
+    if(i >= SOLUTION_BUFFER_SIZE)
+    {
+      delete *it2;
+      mBestList.erase(it2);
+    }
+      ++i;
+  }  
+  
+	while (mBestList.size() > 2*SOLUTION_BUFFER_SIZE) {
 		delete mBestList.back();
 		mBestList.pop_back();
 	}
@@ -327,6 +353,7 @@ OnLinePlanner::mainLoop()
 		//of what hand is being used at what time
 		s->changeHand( mRefHand, true );//CHANGED! to mSolutionClone from mRefHand
 		mBestList.push_back(s);
+    graspItGUI->getIVmgr()->emitAnalyzeGrasp(s);
 		if (mMarkSolutions) {
 			mHand->getWorld()->getIVRoot()->addChild( s->getIVRoot() );
 		}
@@ -376,6 +403,7 @@ OnLinePlanner::graspLoop()
 				DBGP("Similar to old candidate");
 				delete insertState;
 			} else {
+				graspItGUI->getIVmgr()->emitAnalyzeGrasp(mCandidateList.back());
 				mCandidateList.sort(GraspPlanningState::compareStates);//CHANGED! was compareStates
 				while (mCandidateList.size() > CANDIDATE_BUFFER_SIZE) {
 					delete mCandidateList.back();
@@ -390,6 +418,9 @@ OnLinePlanner::graspLoop()
 	render();
 	//DBGP("Grasp loop done");
 }
+
+
+
 
 int
 OnLinePlanner::getFCBufferSize() const

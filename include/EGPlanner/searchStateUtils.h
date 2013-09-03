@@ -27,10 +27,15 @@ streamtype & operator<<( streamtype & os,  const HandObjectState & vs)
 template <class streamtype>
 streamtype & operator<<( streamtype & os,  const GraspPlanningState & vs)
 {
+  std::vector<double> dofs(vs.getHand()->getNumDOF(),0);
+  vs.readPosture()->getHandDOF(&dofs[0]);
+
   os << vs.readPosition()->getCoreTran().rotation().w << ' ' << vs.readPosition()->getCoreTran().rotation().x << ' ' << vs.readPosition()->getCoreTran().rotation().y << ' ' << vs.readPosition()->getCoreTran().rotation().z << ' '
-     << vs.readPosition()->getCoreTran().translation().x() << ' ' << vs.readPosition()->getCoreTran().translation().y() << ' ' << vs.readPosition()->getCoreTran().translation().z() << ' ' 
-     << *vs.readPosture() 
-     << vs.getEpsilonQuality() <<' ' << vs.getVolume();
+     << vs.readPosition()->getCoreTran().translation().x() << ' ' << vs.readPosition()->getCoreTran().translation().y() << ' ' << vs.readPosition()->getCoreTran().translation().z() << ' ' ;
+  for (int i = 0; i < vs.getHand()->getNumDOF(); ++i)
+      os << dofs[i] <<" " ;
+     //<< *vs.readPosture() 
+     os << vs.getEpsilonQuality() <<' ' << vs.getVolume();
   
   const std::vector<double> * qm = vs.getQualityMeasures();
   

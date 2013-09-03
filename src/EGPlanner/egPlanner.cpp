@@ -437,6 +437,18 @@ EGPlanner::getGrasp(int i)
 }
 
 void 
+EGPlanner::setGraspAttribute(int i, const QString & attribute, double value)
+{
+  assert (i>=0 && i<(int)mBestList.size());
+  std::list<GraspPlanningState*>::iterator it = mBestList.begin();
+  for (int k=0; k<i; k++) {
+    it++;
+  }
+  (*it)->setAttribute(attribute, value);
+}
+
+
+void 
 EGPlanner::showGrasp(int i)
 {
 	assert (i>=0 && i<getListSize());
@@ -536,6 +548,12 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
 	}
 	if (add) {
 		list->push_back(s);
+    if (!s->hasAttribute("graspId"))
+    {
+		  s->addAttribute("graspId", mCurrentStep);
+		  s->addAttribute("testResult", 0);
+    }
+		
 	}
 	return add;
 }
@@ -551,6 +569,8 @@ EGPlanner::setStatStream(std::ostream *out) const
 
 bool 
 EGPlanner::addSolution(GraspPlanningState *s)
-{ 
-  return addToListOfUniqueSolutions(s,&mBestList,0.2);
+{   
+  bool addResult = addToListOfUniqueSolutions(s,&mBestList,0.2);  
+  mCurrentStep +=1;
+  return addResult;
 }
