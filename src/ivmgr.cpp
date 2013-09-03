@@ -68,6 +68,7 @@
 #include <Inventor/nodes/SoCoordinate4.h>
 #include <Inventor/nodes/SoComplexity.h>
 #include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoCylinder.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -81,6 +82,7 @@
 #include <Inventor/nodes/SoNurbsCurve.h>
 #include <Inventor/nodes/SoOrthographicCamera.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoAnnotation.h>
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoSelection.h>
@@ -90,11 +92,15 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoText2.h>
 #include <Inventor/nodes/SoFile.h>
+
 #include <Inventor/sensors/SoIdleSensor.h>
 #include <Inventor/sensors/SoNodeSensor.h>
 #include <Inventor/SoSceneManager.h>
+#include <Inventor/Elements/SoCacheElement.h>
+#include <Inventor/nodes/SoCallback.h>
 #include <Inventor/Qt/SoQt.h>
 #include <QTimer>
+#include <QtOpenGL/QGLWidget>
 
 #include "pointers.dat"
 #include "ivmgr.h"
@@ -110,6 +116,7 @@
 #include "world.h"
 #include "mainWindow.h"
 #include "matvec3D.h"
+
 //hmmm not sure this is right
 #include "graspitGUI.h"
 
@@ -213,6 +220,27 @@ StereoViewer::StereoViewer(QWidget *parent) : SoQtExaminerViewer(parent)
 IVmgr *IVmgr::ivmgr = 0;
 
 
+void 
+disableZCulling(void * userdata, SoAction * action)
+{
+    //if (action->isOfType(SoGLRenderAction::getClassTypeId())) {
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_CULL_FACE);
+      SoCacheElement::invalidate(action->getState());
+  //}
+}
+
+void 
+enableZCulling(void * userdata, SoAction * action)
+{
+    //if (action->isOfType(SoGLRenderAction::getClassTypeId())) {
+      glEnable(GL_DEPTH_TEST);
+      glEnable(GL_CULL_FACE);
+      SoCacheElement::invalidate(action->getState());
+  //}
+}
+
+
 /*!
   Initializes the IVmgr instance.  It creates a new World that is the main
   world that the user interacts with.  It creates the examiner viewer that
@@ -287,6 +315,35 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   myViewer->setSceneGraph(sceneRoot);
   myViewer->setTransparencyType(SoGLRenderAction::DELAYED_BLEND);
   myViewer->setBackgroundColor(SbColor(1,1,1));
+  
+  SoAnnotation * hudSeparator = new SoAnnotation;
+  hudSeparator->renderCaching=SoSeparator::CacheEnabled::OFF;
+  hudSeparator->setName("hud");
+  sceneRoot->addChild(hudSeparator);
+  SoOrthographicCamera * pcam = new SoOrthographicCamera;
+  pcam->position = SbVec3f(0, 0, 10);
+  pcam->nearDistance = 0.1;
+  pcam->farDistance = 30;
+  
+  hudSeparator->addChild(pcam);
+  std::cout << " Camera height " << pcam->height.getValue() << "\n";
+  std::cout << " aspectRatio " << pcam->aspectRatio.getValue() << "\n";
+
+  SoCallback * disableZTestNode = new SoCallback();
+  disableZTestNode->setCallback(disableZCulling);
+  hudSeparator->addChild(disableZTestNode);
+  // Adds a green cone to demonstrate static geometry.
+/*
+  SoMaterial * greenmaterial = new SoMaterial;
+  greenmaterial->diffuseColor.setValue(0, 1.0, 0.0);
+  greenmaterial->transparency = 0.0;
+  hudSeparator->addChild(greenmaterial);
+  //SoTransform * testTran = new SoTransform;
+  //testTran->translation.setValue(0,100000,0);
+  //hudSeparator->addChild(testTran);
+  hudSeparator->addChild(new SoCone);
+*/
+
 
   myViewer->viewAll();
   mDBMgr = NULL;
@@ -420,7 +477,7 @@ IVmgr::drawWorstCaseWrenches()
 	forceScale = sqrt(forceScale);
 	double torqueScale = minWrench[3]*minWrench[3] + minWrench[4]*minWrench[4] + minWrench[5]*minWrench[5];
 	torqueScale = sqrt(torqueScale);
-	double scale = 5.0 / std::max(forceScale, torqueScale);
+	double scale = 5.0 / std::max<double>(forceScale, torqueScale);
 
     // The worst case disturbance wrench is the opposite of the minWrench
 	for (int i=0; i<6; i++) {
@@ -2286,4 +2343,34 @@ IVmgr::next()
 {
   getWorld()->emitNext();
   return;
+}
+
+SoSeparator *  makeCircleSep(const QString & name)
+{
+  SoSeparator * circleSep = new SoSeparator;
+  circleSep->setName(name.toStdString().c_str());
+  SoTransform * circTran = new SoTransform;
+  circTran->rotation.setValue(SbVec3f(1,0,0),-M_PI/2);
+  circleSep->addChild(circTran);
+  circleSep->addChild(new SoMaterial);
+  circleSep->addChild(new SoCone);
+  static_cast<SoSeparator *>(SoSeparator::getByName("hud"))->addChild(circleSep);
+
+  return circleSep;
+}
+
+void
+IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color)
+{
+   x = x* myViewer->getViewportRegion().getViewportAspectRatio(); 
+  QString circleSepName(circleName + "sep");
+  SoSeparator * circleSep = static_cast<SoSeparator *>(SoSeparator::getByName(circleSepName.toStdString().c_str()));
+  if(!circleSep)
+    circleSep = makeCircleSep(circleName + "sep");
+  SoTransform * circTran = static_cast<SoTransform * >(circleSep->getChild(0));
+  circTran->translation.setValue(x,y,0);
+  SoMaterial * circMat = static_cast<SoMaterial * >(circleSep->getChild(1));
+  circMat->diffuseColor.setValue(color);
+  SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
+  circGeom->bottomRadius = radius;
 }

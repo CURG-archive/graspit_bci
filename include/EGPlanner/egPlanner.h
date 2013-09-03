@@ -212,13 +212,16 @@ public:
 	virtual int getListSize(){return mBestList.size();}
 	//! Clears the list of solutions mBestList.
 	virtual void clearSolutions();
+	
+	//! Set Attribute of grasp;
+	void setGraspAttribute(int i, const QString & attribute, double value);
 
 	int getCurrentStep(){return mCurrentStep;}
 	Hand *getHand(){return mHand;}
 
 	//! The time elapsed since the last reset
 	double getRunningTime();
-
+	
 	//! Can be used to set what kind of information is used from the "target state"
 	bool setInput(unsigned char input, bool on = true);
 	//! Sets the "target state" that is used as a model during the search

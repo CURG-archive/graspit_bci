@@ -184,14 +184,18 @@ class HandViewWindow{
   //! Index of current Handview stored in the previewWindow
   int currentPreview;
 
+  QRect geom_;
 
 public:
   //! the window containing the thumbnail views
   QFrame * handViewWindow;
 
   //! Constructor
-  HandViewWindow(QWidget * parent, Hand * h);
+  HandViewWindow(QWidget * parent, Hand * h, const QRect & geom);
   ~HandViewWindow(){
+    for (int i = 0; i < views.size(); ++i)
+      delete views[i];
+    delete cloneHand; 
     delete handViewWindow;
   }
   //! Actually adds views at loop of initialization

@@ -54,11 +54,19 @@ IVRoot(NULL), IVHandGeometry(NULL), IVObjectGeometry(NULL)
   viewWin = &parentWindow;
 
   //set up IV root
-  IVRoot = new SoSeparator(); 
+  IVRoot = new SoSeparator();
+  SoCamera * cameraTest = mainViewer_->getCamera();
+  SoCamera * camera = static_cast<SoCamera *>(mainViewer_->getCamera()->copy());
+  camera->scaleHeight(.7);
+  camera->nearDistance = .1;
+  camera->farDistance=1e5;
+  camera->orientation.connectFrom(&mainViewer_->getCamera()->orientation);
+  camera->position.connectFrom(&mainViewer_->getCamera()->position);
+  camera->setName("ViewCamera");
   viewViewer->setSceneGraph(IVRoot);
   
   //Set up camera tied to main view camera
-  IVRoot->addChild( mainViewer_->getCamera());
+  IVRoot->addChild(camera);
   
   //Set up lighting to be the same as the main view's lighting
   SoRotation *lightDir = new SoRotation;
@@ -77,7 +85,6 @@ IVRoot(NULL), IVHandGeometry(NULL), IVObjectGeometry(NULL)
   IVObjectGeometry = static_cast<SoSeparator*>(h->getGrasp()->getObject()->getIVRoot()->copy(false));
   IVRoot->addChild(IVObjectGeometry);  
   viewViewer->setBackgroundColor(SbColor(1.0,1.0,1.0));
-  
 }
 
 
@@ -142,7 +149,16 @@ void  copyLinkTransforms(Hand * h, SoSeparator * handIVRoot)
 bool
 HandView::update(HandObjectState & s, Hand & cloneHand)
 {
-  
+  double testResult = s.getAttribute("testResult");
+  if(testResult > 0.0)
+  {
+    viewViewer->setBackgroundColor(SbColor(.8,1,.8));
+  }
+  else if(testResult < -1.0)
+  {
+    viewViewer->setBackgroundColor(SbColor(1,0.8,0.8));
+  }
+
   //need to activate the collision on the copied hand using the cloned hand
   //container object
   cloneHand.getWorld()->toggleCollisions(true, &cloneHand, s.getObject()); 
@@ -151,12 +167,14 @@ HandView::update(HandObjectState & s, Hand & cloneHand)
   s.execute(&cloneHand);
     
   copyLinkTransforms(&cloneHand, IVHandGeometry);
+  SoCamera * camera = static_cast<SoCamera*>(IVRoot->getChild(0));
+
   mainViewer_->render();
   viewViewer->render();
   
   //disable collisions between clone hand and everything  
   cloneHand.getWorld()->toggleCollisions(false, &cloneHand);       
-
+  
   return true;
 }
 
@@ -202,14 +220,14 @@ HandView::getViewWindow()
 
 //HandViewWindow:
 //Set the HandViewWindow which contains he views themselves
-HandViewWindow::HandViewWindow(QWidget * parent, Hand * h):currentPreview(-1), maxViewSize(3), cloneHand(new Hand(h->getWorld(), "newHand"))
+HandViewWindow::HandViewWindow(QWidget * parent, Hand * h, const QRect & geom):currentPreview(-1), maxViewSize(3), cloneHand(new Hand(h->getWorld(), "newHand")), geom_(geom)
 {
   
   handViewWindow = new QFrame(NULL);
   handViewWindow->setWindowFlags(Qt::WindowStaysOnTopHint);
   
   //handViewWindow->resize(QSize(900,100));
-   handViewWindow->setGeometry(QRect(10, 600, 950, 540));
+   handViewWindow->setGeometry(geom_);
    handViewWindow->setFrameStyle(QFrame::Box | QFrame::Raised); 
    handViewWindow->setLineWidth(4);
    grid = new QGridLayout(handViewWindow,3,1);//Set the second parameter to 1 for single column
@@ -247,7 +265,7 @@ bool HandViewWindow::addView(HandObjectState& s, int i)
 //Used to go directly to a choice
 void HandViewWindow::setCurrentView(int num)
 {
-  if (num > maxViewSize)
+  if (num > maxViewSize - 1)
     return;
   if (currentPreview >= 0)
     views[currentPreview]->getViewWindow()->move(views[currentPreview]->getViewWindow()->x(),views[currentPreview]->getViewWindow()->y()+10);
