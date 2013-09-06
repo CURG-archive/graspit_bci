@@ -395,6 +395,18 @@ ClientSocket::readClient()
       std::cout << line.toStdString() << std::endl;
       graspItGUI->getIVmgr()->blinkBackground();
     }
+    else if ((*strPtr) == "setBackgroundColor"){
+      ++strPtr;
+      bool ok;
+      double r = strPtr->toDouble(&ok);
+      ++strPtr;
+      double g = strPtr->toDouble(&ok);
+      ++strPtr;
+      double b = strPtr->toDouble(&ok);
+      ++strPtr;
+      graspItGUI->getIVmgr()->getViewer()->setBackgroundColor(SbColor(r,g,b));
+    }
+
     else if ((*strPtr) == "getPlannerTarget"){
       strPtr+=1;
       QTextStream os (this) ;
@@ -474,8 +486,14 @@ void ClientSocket::drawCircle()
   double g = strPtr->toDouble(&ok);
   strPtr++;
   double b = strPtr->toDouble(&ok);
+  strPtr++;
+  double thickness = strPtr->toDouble(&ok);
+  strPtr++;
+  double transparency = strPtr->toDouble(&ok);
+  
 
-  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, SbColor(r,g,b));
+
+  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, SbColor(r,g,b), thickness, transparency);
 }
 
 void ClientSocket::setGraspAttribute()
