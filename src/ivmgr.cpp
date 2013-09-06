@@ -225,7 +225,7 @@ disableZCulling(void * userdata, SoAction * action)
 {
     //if (action->isOfType(SoGLRenderAction::getClassTypeId())) {
       glDisable(GL_DEPTH_TEST);
-      glEnable(GL_CULL_FACE);
+      glDisable(GL_CULL_FACE);
       SoCacheElement::invalidate(action->getState());
   //}
 }
@@ -323,12 +323,14 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   SoOrthographicCamera * pcam = new SoOrthographicCamera;
   pcam->position = SbVec3f(0, 0, 10);
   pcam->nearDistance = 0.1;
-  pcam->farDistance = 30;
+  pcam->farDistance = 11;
   
   hudSeparator->addChild(pcam);
   std::cout << " Camera height " << pcam->height.getValue() << "\n";
   std::cout << " aspectRatio " << pcam->aspectRatio.getValue() << "\n";
-
+  SoLightModel * hudLightModel = new SoLightModel;
+  hudLightModel->model=SoLightModel::Model::BASE_COLOR;
+  hudSeparator->addChild(hudLightModel);
   SoCallback * disableZTestNode = new SoCallback();
   disableZTestNode->setCallback(disableZCulling);
   hudSeparator->addChild(disableZTestNode);
@@ -2353,14 +2355,18 @@ SoSeparator *  makeCircleSep(const QString & name)
   circTran->rotation.setValue(SbVec3f(1,0,0),-M_PI/2);
   circleSep->addChild(circTran);
   circleSep->addChild(new SoMaterial);
-  circleSep->addChild(new SoCone);
+  SoCone * circGeom(new SoCone);
+  circGeom->removePart(SoCone::Part::BOTTOM);
+  circleSep->addChild(circGeom);
+  
   static_cast<SoSeparator *>(SoSeparator::getByName("hud"))->addChild(circleSep);
 
   return circleSep;
 }
 
 void
-IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color)
+IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color,
+                   double thickness, double transparency)
 {
    x = x* myViewer->getViewportRegion().getViewportAspectRatio(); 
   QString circleSepName(circleName + "sep");
@@ -2368,9 +2374,11 @@ IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, 
   if(!circleSep)
     circleSep = makeCircleSep(circleName + "sep");
   SoTransform * circTran = static_cast<SoTransform * >(circleSep->getChild(0));
-  circTran->translation.setValue(x,y,0);
+  circTran->translation.setValue(x,y, -2*(1-thickness));
   SoMaterial * circMat = static_cast<SoMaterial * >(circleSep->getChild(1));
   circMat->diffuseColor.setValue(color);
+  circMat->transparency.setValue(transparency);
   SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
   circGeom->bottomRadius = radius;
+  //circGeom->height = 1/thickness;
 }

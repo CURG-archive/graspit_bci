@@ -331,7 +331,8 @@ public:
 #endif
   void setStereoWindow(QWidget *parent);
 
-  void drawCircle(const QString & stringName, double x, double y, float scale, SbColor & color); 
+  void drawCircle(const QString & stringName, double x, double y, float scale, SbColor & color,
+                  double transparency, double thickness); 
 
   //! Current State of BCI planner
   BciPlanningState bciPlanningState;
