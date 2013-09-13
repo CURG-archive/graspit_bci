@@ -101,8 +101,8 @@ private:
 		states. It looks just at position (not posture) and ignores changes along 
 		the approach direction of the hand.*/
 	double stateDistance(const GraspPlanningState *s1, const GraspPlanningState *s2);
-	double distanceOutsideApproach(const transf &solTran, const transf &handTran);
-	void updateSolutionList();
+	
+	
 
 	void resetParameters();
 	/*! The main loop here is divided into two parts. The mainLoop() itself manages 
@@ -138,4 +138,6 @@ public:
 	ActionType getAction();
 	void showGrasp(int i);
 	void executeGrasp(int i);
+        void updateSolutionList();
+        double distanceOutsideApproach(const transf &solTran, const transf &handTran, bool useApproach = false);
 };

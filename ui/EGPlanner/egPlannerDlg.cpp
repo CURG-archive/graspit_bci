@@ -53,6 +53,7 @@
 #include "guidedPlanner.h"
 #include "loopPlanner.h"
 #include <QPainter>
+#include <QDesktopWidget>
 
 //Graspit DB stuff
 #include "DBase/graspit_db_grasp.h"
@@ -105,16 +106,17 @@ namespace bci_experiment{
     return newBody;
   }
   
-  void highlightBody(Body * b)
+  void highlightBody(Body * b, SbColor & color)
   {    
     b->getIVMat()->emissiveColor.setIgnored(false);
-    b->getIVMat()->emissiveColor.setValue(1.0,0.0,0.0);
-    
+    b->getIVMat()->emissiveColor.setValue(color);
+    b->getIVMat()->transparency.setIgnored(true);
   }
   
   void unhighlightBody(Body * b)
   {
     b->getIVMat()->emissiveColor.setIgnored(true);
+    b->getIVMat()->transparency.setIgnored(false);
   }
 
   int getGraspableBodyIndex(Body * b)
@@ -155,11 +157,32 @@ namespace bci_experiment{
     GraspableBody * nextBody = getNextGraspableBody(b);
     if(nextBody)
       {
-	    unhighlightBody(b);
-	    highlightBody(nextBody);
+        highlightBody(b, SbColor(1,0,0));
+	      highlightBody(nextBody, SbColor(0,1,0));
       }
     return nextBody;
   }
+  
+  bool unhighlightAll()
+  {
+    for(int i = 0; i < getWorld()->getNumGB(); ++i)
+    {
+      unhighlightBody(getWorld()->getGB(i));
+    }
+    return true;
+  }
+
+  bool highlightAll()
+  {
+    for(int i = 0; i < getWorld()->getNumGB(); ++i)
+    {
+      highlightBody(getWorld()->getGB(i), SbColor(1,0,0));
+    }
+    return true;
+  }
+  
+
+
 
   void moveBody(Body * b, const transf & relTran)
   {
@@ -170,7 +193,7 @@ namespace bci_experiment{
   {
     for(int b_ind = 0; b_ind < getWorld()->getNumGB(); ++b_ind)
       {
-	moveBody(getWorld()->getGB(b_ind), relTran);
+	      moveBody(getWorld()->getGB(b_ind), relTran);
       }
   }
   
@@ -181,23 +204,24 @@ namespace bci_experiment{
     Body * tableBody= getObjectByName(bodyName);
     if(tableBody)
       return tableBody;
-    return addToWorld("models/obstacles/","Obstacle", bodyName+".xml");
+    return addToWorld("models/objects/","Obstacle", bodyName+".xml");
   }
 
   void setObjectCentral(Body * b)
   {
-    transf centralize(Quaternion::IDENTITY, -b->getTran().translation());
-    
-    moveAllBodies(centralize);
     Body * table = getOrAddExperimentTable();
+    moveAllBodies(table->getTran().inverse());
+    transf centralize(Quaternion::IDENTITY, -b->getTran().translation());        
+    moveAllBodies(centralize);
+    
     table->setTran(centralize);
     SoNodeList l;
     unsigned int listLen = SoTransform::getByName("PointCloudTransform", l);
-    if(listLen = 1)
+    if(listLen == 1)
     {
       SoTransform * tran = static_cast<SoTransform*>(l[0]);
       centralize.toSoTransform(tran);
-    }
+    }    
   }
 
   void sendString(const QString & s)
@@ -268,39 +292,90 @@ namespace bci_experiment{
   void viewTarget(Body * b)
   {    
     graspItGUI->getIVmgr()->getViewer()->getCamera()->viewAll(b->getIVRoot(), graspItGUI->getIVmgr()->getViewer()->getViewportRegion(), 1.0);    
-  }
-
-  class CircleDrawer : public QWidget
-  {
-  
-  public:
-    CircleDrawer(QWidget * parent) : QWidget(parent)
-    {
-    }
+    Body * tableBody= getObjectByName("experiment_table");
+    SbVec3f table_z = tableBody->getTran().affine().transpose().row(2).toSbVec3f();
     
-      
-  protected:
-  void paintEvent(QPaintEvent *)
- {
-    static int frameNo = 1; 
-    QPainter painter(this);
-    int diameter = width()/2;
-    painter.translate(width() / 2, height() / 2);
-    painter.setPen(QPen(QColor(0, 0, 0, 127), 3));
-    painter.drawEllipse(-diameter/ 2.0, -diameter / 2.0,
-                                            diameter, diameter);
-    std::cout << "painted" <<std::endl;
+    
+    
+    graspItGUI->getIVmgr()->getViewer()->getCamera()->pointAt(SbVec3f(0,0,0), table_z);
   }
-  };
 
-  QWidget * addCircleDrawer()
+  void resetHandCollisions(Hand * h, bool setting, std::vector<bool> & collisionStatus)
   {
-    CircleDrawer * circleDrawer = new CircleDrawer(graspItGUI->getIVmgr()->getViewer()->getWidget());
-    circleDrawer->setObjectName("circle_drawer");
-    circleDrawer->resize(graspItGUI->getIVmgr()->getViewer()->getWidget()->size());
-    circleDrawer->setStyleSheet("background:transparent;");
-    circleDrawer->setAttribute(Qt::WA_TranslucentBackground);
-    return circleDrawer;
+    World * w = getWorld();
+    
+    Body * experiment_table = getOrAddExperimentTable();
+    collisionStatus.push_back(!w->collisionsAreOff(h, experiment_table));
+    w->toggleCollisions(setting, h, experiment_table);
+
+    for (int i = 0; i < w->getNumGB(); ++i)
+    {
+      collisionStatus.push_back(!w->collisionsAreOff(h, w->getGB(i)));
+      w->toggleCollisions(setting, h, w->getGB(i));
+    }
+  }
+
+  bool setCollisionState(Hand * h, std::vector<bool> & collisionStatus)
+  {
+    World * w = getWorld();    
+    if(collisionStatus.size() != w->getNumGB() + 1)
+      return false;
+    
+    Body * experiment_table = getOrAddExperimentTable();
+    w->toggleCollisions(collisionStatus[0], h, experiment_table);
+    for (int i = 0; i < w->getNumGB(); ++i)
+    {      
+      w->toggleCollisions(collisionStatus[i+1], h, w->getGB(i));
+    }
+    return true;
+  }
+
+  int getNumHandCollisions(Hand * h)
+  {
+    CollisionReport colReport;
+    std::vector<Body *> body_list;
+    h->getBodyList(&body_list);
+    getWorld()->getCollisionReport(&colReport, &body_list);
+    return colReport.size();    
+  }
+
+  bool testPreGraspCollisions(Hand * h, float pregrasp_dist)
+  {
+    h->autoGrasp(false, -2.0, true);
+    h->approachToContact(pregrasp_dist, false);
+    return (getNumHandCollisions(h));
+  }
+
+  bool testGraspCollisions(Hand * h, const GraspPlanningState * s)
+  {
+    bool result = false;
+    std::vector<bool> currentCollisionState;
+    resetHandCollisions(h, true, currentCollisionState);
+    s->execute(h);
+    World * w = getWorld();
+    w->toggleCollisions(false, h, s->getObject());
+    if(getNumHandCollisions(h))
+      result = true;
+    if(testPreGraspCollisions(h, -50.0))
+      result = true;
+
+    setCollisionState(h, currentCollisionState);
+    return result;    
+  }
+
+
+  bool setPointcloudTransparency(double transparency)
+  {
+    SoMaterial * mat = static_cast<SoMaterial *>(SoMaterial::getByName("PointCloudColorMaterial"));
+    if(!mat)
+      return false;
+    mat->transparency = transparency;
+    return true;
+  }
+
+  void printTestResult(const GraspPlanningState & s)
+  {
+    std::cout << "graspID: " << s.getAttribute("graspId") <<  " Test Result: " <<s.getAttribute("testResult") << "\n";
   }
 
 } 
@@ -312,6 +387,8 @@ void EigenGraspPlannerDlg::exitButton_clicked()
 
 void EigenGraspPlannerDlg::init()
 { 
+
+  this->setWindowState(Qt::WindowMinimized);
   energyBox->insertItem("Hand Contacts");
   energyBox->insertItem("Potential Quality");
   energyBox->insertItem("Contacts AND Quality");
@@ -371,21 +448,8 @@ void EigenGraspPlannerDlg::init()
 
   inputGloveBox->setEnabled(FALSE);
   inputLoadButton->setEnabled(FALSE);
-/*  circleDraw = bci_experiment::addCircleDrawer();
-  QTimer * drawTimer = new QTimer(this);
-  drawTimer->setInterval(100);
-  connect(drawTimer, SIGNAL(timeout()),
-          this, SLOT(redrawCircles()));
-  drawTimer->start();
-  */
-  bciStageFrame = new BciStageFrame;  
-  bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, INITIALIZATION_PHASE);
-  graspItGUI->getMainWindow()->mWindow->move(0, 0);
-  graspItGUI->getMainWindow()->mWindow->resize(1070, 940);
-  QPoint globalPosition = graspItGUI->getIVmgr()->getViewer()->getNormalWidget()->mapToGlobal(QPoint(0,graspItGUI->getIVmgr()->getViewer()->getNormalWidget()->size().height()));  
-  globalPosition.rx() = (graspItGUI->getMainWindow()->mWindow->size().width() - bciStageFrame->size().width())/2;
-  bciStageFrame->move(globalPosition);
-  
+ 
+  graspItGUI->getMainWindow()->mWindow->setWindowState(Qt::WindowMinimized);
   fprintf(stderr,"INIT DONE \n");
 }
 
@@ -474,6 +538,24 @@ void EigenGraspPlannerDlg::setMembers( Hand *h, GraspableBody *b )
 
   updateVariableLayout();
   updateInputLayout();  
+  QRect geom;
+  if(qApp->desktop()->screenCount() > 1)
+    geom = QRect(1280.0,0,1280,1024);
+  else
+    geom = QRect(0.0,0,1280,1024);
+  bciStageFrame = new BciStageFrame();  
+  viewWindow = new HandViewWindow(parentWidget(), mHand, geom,graspItGUI->getIVmgr()->getViewer()->getSceneGraph(), bciStageFrame);
+  graspItGUI->getMainWindow()->mWindow->resize(10,10);
+  viewWindow->getViewWindow()->setActiveWindow();
+
+  
+  bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, INITIALIZATION_PHASE);
+  
+  
+  //bciStageFrame->move(geom.x() + geom.width()/2 - bciStageFrame->width()/2, 0);
+ 
+
+  QTimer::singleShot(100, this, SLOT(plannerTimedUpdate()));
 }
 
 // ----------------------------------- Search State and variable layout management -------------------------------
@@ -708,8 +790,9 @@ void EigenGraspPlannerDlg::plannerUpdate()
 
 void EigenGraspPlannerDlg::updateResults(bool render, bool execute)
 {
+  {
   assert(mPlanner);
-
+  assert(viewWindow);  
   if (execute) assert( mPlanner->getType() == PLANNER_ONLINE);
 
   QString nStr;
@@ -776,14 +859,25 @@ void EigenGraspPlannerDlg::updateResults(bool render, bool execute)
   }
   if(d!=0)
     {
+      bool unlock = false;
+      if (!mPlanner->mListAttributeMutex.locked())
+      {
+        mPlanner->mListAttributeMutex.lock();
+        unlock = true;
+      }
       for(int mDisplayStateNum = 0; mDisplayStateNum < d; ++mDisplayStateNum){
 	//  std::cout << "Resizing View\n";
-	viewWindow->addView(*const_cast<GraspPlanningState*>(mPlanner->getGrasp(mDisplayStateNum)), mDisplayStateNum);
+	    viewWindow->addView(*const_cast<GraspPlanningState*>(mPlanner->getGrasp((mDisplayState + mDisplayStateNum)%10)), mDisplayStateNum);
 	// viewWindow->getViewWindow()->setFocus();
 	// viewWindow->getViewWindow()->update();      
       }
+      if (unlock)
+        mPlanner->mListAttributeMutex.unlock();
     }
-  viewWindow->setCurrentView(mDisplayState);
+  }//end lock scope
+
+  graspItGUI->getIVmgr()->emitAnalyzeNextGrasp();
+  //viewWindow->setCurrentView(mDisplayState);
 }
 
 // ----------------------------- Settings management ---------------------------
@@ -947,6 +1041,7 @@ void EigenGraspPlannerDlg::plannerNext()
       {
        graspItGUI->getIVmgr()->getViewer()->viewAll();
 	     graspItGUI->getIVmgr()->emitRunObjectRecognition();
+       mHand->setTransparency(1);
 	     break;
       }
     case OBJECT_SELECTION_PHASE:
@@ -1021,16 +1116,9 @@ void EigenGraspPlannerDlg::initializeHandviewWindow()
 	//Open view window
 	if(viewWindow)
 	  {       
-	    delete viewWindow;
-	  }
-        viewWindow = new HandViewWindow(parentWidget(), mHand);
-        viewWindow->handViewWindow->resize(1070,745);        
-        QPoint globalPosition = bciStageFrame->mapToGlobal(QPoint(0,bciStageFrame->size().height()));
-        std::cout << "Global view window height " << globalPosition.y() << std::endl;
-        globalPosition.rx() = 0;
-        //QPoint localPosition = viewWindow->handViewWindow->parentWidget()->mapFromGlobal(globalPosition);
-        //std::cout << "Local view window height " << localPosition.y() << std::endl;
-        viewWindow->handViewWindow->move(globalPosition);
+      viewWindow->clearViews();
+	    viewWindow->initViews(mHand);
+	  }             
 }
 
 
@@ -1050,7 +1138,10 @@ void EigenGraspPlannerDlg::loadGraspsToHandviewWindow()
   // Using the found model, retrieve the grasps
   std::vector<db_planner::Grasp*> grasps;
   mDbMgr->GetGrasps(*modelList[modelList.size()-1], GraspitDBGrasp::getHandDBName(mHand).toStdString(), &grasps);
-
+  HandObjectState hs(mHand);
+  hs.setPositionType(StateType::SPACE_COMPLETE);
+  hs.setPostureType(StateType::POSE_DOF);
+  hs.saveCurrentHandState();
   // Load the grasps into the grasp planner list.        
   unsigned int numGrasps = std::min<unsigned int>(grasps.size(), 10);
   for (unsigned int gNum = 0; gNum < numGrasps; ++gNum)
@@ -1059,12 +1150,29 @@ void EigenGraspPlannerDlg::loadGraspsToHandviewWindow()
 						     (grasps[gNum])->getFinalGraspPlanningState());
       
       s->setObject(mHand->getGrasp()->getObject());
-      if(mPlanner->addSolution(s)){
-        graspItGUI->getIVmgr()->emitAnalyzeGrasp(s);        
-      }
-      viewWindow->addView(*s, gNum);     
+      s->setRefTran(mHand->getGrasp()->getObject()->getTran());
+      float testResult = -2*bci_experiment::testGraspCollisions(mHand, s);
+      s->addAttribute("graspId", gNum);
+      s->addAttribute("testResult", testResult);
+      //bci_experiment::printTestResult(*s);
+      mPlanner->addSolution(s);
+  }
+  if (numGrasps){
+    graspItGUI->getIVmgr()->emitAnalyzeNextGrasp();        
+    std::cout<< "emitted analyze grasp\n";
+  }
+  hs.execute(mHand);
+  dynamic_cast<OnLinePlanner *>(mPlanner)->updateSolutionList();
+  
+  for(int i = 0; i < std::min<unsigned int>(mPlanner->getListSize(), 10); ++i)
+  {
+      viewWindow->addView(*const_cast<GraspPlanningState*>(mPlanner->getGrasp(i)), i);     
       viewWindow->getViewWindow()->show();        
-    }    
+      viewWindow->getViewWindow()->update();
+  } 
+
+  viewWindow->getViewWindow()->sizeIncrement();
+
 }
 
 
@@ -1089,9 +1197,10 @@ void EigenGraspPlannerDlg::initializeTarget()
   
   // Load the grasps into the grasp planner list.        
   loadGraspsToHandviewWindow();
-  
+  mPlanner->getGrasp(0)->execute(mHand);
   //Draw new first grasp
   updateResults(true, false);
+  
   std::ofstream time_out("grasp_timing.txt", std::ios_base::out | std::ios_base::app);
   time_out << "Object: " << mObject->getName().toStdString() << "\n";  
   timer.start();
@@ -1116,7 +1225,9 @@ void EigenGraspPlannerDlg::plannerExec()
 	bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, OBJECT_SELECTION_PHASE);
 		
 	GraspableBody * gb = bci_experiment::getWorld()->getGB(0);
-	bci_experiment::highlightBody(gb);
+  bci_experiment::highlightAll();
+  bci_experiment::setPointcloudTransparency(.2);
+	bci_experiment::highlightBody(gb, SbColor(0,1,0));
   if(gb)
 	  updateObject(gb);  
 	
@@ -1124,12 +1235,14 @@ void EigenGraspPlannerDlg::plannerExec()
       }
     case OBJECT_SELECTION_PHASE:
       {
-  bci_experiment::unhighlightBody(mObject);
+  bci_experiment::unhighlightAll();
+  bci_experiment::setPointcloudTransparency(0);
 	bci_experiment::setObjectCentral(mObject);
 	initializeTarget();
 	bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, INITIAL_REVIEW_PHASE);  
 	realignHand(mHand);        
   bci_experiment::viewHand(mHand);
+  mHand->setTransparency(0.0);
 	break;
       }
 
@@ -1187,6 +1300,15 @@ void EigenGraspPlannerDlg::plannerExec()
 
 void EigenGraspPlannerDlg::resetStateMachine()
 {
+  if (mPlanner)
+  {
+    stopPlanner();
+    delete mPlanner;
+    mPlanner = NULL;
+  }
+  if(viewWindow)
+    viewWindow->clearViews();
+
   realignHand(mHand);
   bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, INITIALIZATION_PHASE);
 }
@@ -1277,6 +1399,7 @@ void EigenGraspPlannerDlg::plannerStart_clicked()
 void EigenGraspPlannerDlg::plannerTypeBox_activated( const QString & )
 {
   if (mPlanner) {
+    mHand->getWorld()->setCurrentPlanner(NULL);
     delete mPlanner;
     mPlanner = NULL;
   }
@@ -1431,6 +1554,18 @@ void EigenGraspPlannerDlg::inputLoadButton_clicked()
 }
 
 
+void EigenGraspPlannerDlg::plannerTimedUpdate()
+{
+  if(mPlanner && viewWindow)
+  {
+    if(graspItGUI->getIVmgr()->bciPlanningState == INITIAL_REVIEW_PHASE)
+    {
+      dynamic_cast<OnLinePlanner *>(mPlanner)->updateSolutionList();
+      updateResults(true, false);
+    }
+  }
+  QTimer::singleShot(1000, this, SLOT(plannerTimedUpdate()));
+}
 
 
 

@@ -214,8 +214,7 @@ protected:
   //! Stops all the joints that affect a link that is in contact
   void stopJointsFromLink(Link *link, double *desiredJointVals, int *stoppedJoints);
 
-  //! Adds all of the bodies that make up this robot to the given vector
-  virtual void getBodyList(std::vector<Body*> *bodies);
+
 
   friend void KinematicChain::updateLinkPoses();
   friend void KinematicChain::attachRobot(Robot *r,const transf &offsetTr);
@@ -484,6 +483,9 @@ protected:
 
   //! Returns a vector of all links associated with this robot
   void getAllLinks(std::vector<DynamicBody *> &allLinkVec);
+
+  //! Adds all of the bodies that make up this robot to the given vector
+  virtual void getBodyList(std::vector<Body*> *bodies);
 
   //! Computes a smooth trajectory so that a given chain goes through a set of poses
   void setChainEndTrajectory(std::vector<transf>& traj,int chainNum);

@@ -151,6 +151,8 @@ public:
 
 	void addParameter(QString name, double value);
 	void removeParameter(QString name);
+  bool hasParameter(const QString & name) const;
+
 
 	void setAllConfidences(double c);
 	void setAllFixed(bool f);
@@ -329,6 +331,7 @@ public:
 	double getAttribute(QString name) const {return mAttributes->getParameter(name);}
 	void addAttribute(QString name, double value) {mAttributes->addParameter(name, value);}
 	void removeAttribute(QString name){mAttributes->removeParameter(name);}
+  bool hasAttribute(const QString & name) const{return mAttributes->hasParameter(name);}
 
 	SoSeparator * copyHandStateIV();
 

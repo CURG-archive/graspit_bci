@@ -232,5 +232,6 @@ public:
 	void setStatStream(std::ostream *out) const;
   //! Add grasp to solution list
   bool addSolution(GraspPlanningState *s);
+  QMutex mListAttributeMutex;
 };
 #endif

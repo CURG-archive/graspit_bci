@@ -191,14 +191,20 @@ VariableSet::getParameter (QString name) const
 	return it->get();
 }
 
-void
-VariableSet::addParameter(QString name, double value)
+bool
+VariableSet::hasParameter(const QString & name) const
 {
-	std::vector<SearchParameter>::iterator it;
-	for(it = mParameters.begin(); it!=mParameters.end(); it++) {
+  std::vector<SearchParameter>::const_iterator it;
+  for(it = mParameters.begin(); it!=mParameters.end(); it++) {
 		if ( it->name() == name ) break;
 	}
-	if (it!=mParameters.end()) {
+	return(it!=mParameters.end());
+}
+
+void
+VariableSet::addParameter(QString name, double value)
+{	
+	if (hasParameter(name)) {
 		DBGA("Parameter " << name.latin1() << " already present!");
 		assert(0);
 		return;

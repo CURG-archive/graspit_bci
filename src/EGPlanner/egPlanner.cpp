@@ -24,7 +24,7 @@
 //######################################################################
 
 #include <Inventor/sensors/SoIdleSensor.h>
-
+#include <QMutexLocker>
 #include "egPlanner.h"
 #include "searchState.h"
 #include "searchEnergy.h"
@@ -523,6 +523,7 @@ EGPlanner::stateDistance(const GraspPlanningState *s1, const GraspPlanningState 
 bool
 EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlanningState*> *list, double distance)
 {
+ QMutexLocker lock(&mListAttributeMutex);
 	std::list<GraspPlanningState*>::iterator it;
 	it = list->begin();
 	bool add = true;
@@ -548,11 +549,14 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
 	}
 	if (add) {
 		list->push_back(s);
-		s->addAttribute("graspId", mCurrentStep);
-		s->addAttribute("testResult", -1);
+    if (!s->hasAttribute("graspId"))
+    {
+		  s->addAttribute("graspId", mCurrentStep);
+		  s->addAttribute("testResult", 0);
+    }
 		
-	}
-	return add;
+	}  
+	return add;  
 }
 
 void 

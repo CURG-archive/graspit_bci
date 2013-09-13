@@ -48,7 +48,7 @@
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/fields/SoSFVec3f.h>
-
+#include <QMutexLocker>
 
 //helper function to get current world planner
 EGPlanner* currentWorldPlanner(){ return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();}
@@ -60,10 +60,6 @@ ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
 {
       connect( this, SIGNAL(readyRead()), SLOT(readClient()) );
       connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
-      connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
-      connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
-      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));
-	  connect(graspItGUI->getIVmgr(), SIGNAL( analyzeGrasp(const GraspPlanningState *) ), this, SLOT(analyzeGrasp(const GraspPlanningState*)));       
       setSocket( sock );
 }
 
@@ -395,6 +391,18 @@ ClientSocket::readClient()
       std::cout << line.toStdString() << std::endl;
       graspItGUI->getIVmgr()->blinkBackground();
     }
+    else if ((*strPtr) == "setBackgroundColor"){
+      ++strPtr;
+      bool ok;
+      double r = strPtr->toDouble(&ok);
+      ++strPtr;
+      double g = strPtr->toDouble(&ok);
+      ++strPtr;
+      double b = strPtr->toDouble(&ok);
+      ++strPtr;
+      graspItGUI->getIVmgr()->getViewer()->setBackgroundColor(SbColor(r,g,b));
+    }
+
     else if ((*strPtr) == "getPlannerTarget"){
       strPtr+=1;
       QTextStream os (this) ;
@@ -451,8 +459,48 @@ ClientSocket::readClient()
 	setGraspAttribute();
       	
     }
-
+    else if ((*strPtr) == "drawCircle"){
+      strPtr += 1;
+	    drawCircle();  
+    }
+    else if ((*strPtr) == "connectToPlanner")
+    {
+      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeGrasp(const GraspPlanningState *) ), this, SLOT(analyzeGrasp(const GraspPlanningState*)));
+      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeNextGrasp() ), this, SLOT(analyzeNextGrasp()));       
+      connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
+      connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
+      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));	  
+      QTextStream os(this);
+      os << "1 \n";
+      os.flush();
+    }
   }
+}
+
+void ClientSocket::drawCircle()
+{
+  QString circleName = *strPtr;
+  strPtr++;
+  bool ok;
+  double x = .9*(2*strPtr->toDouble(&ok) - 1);
+  strPtr++;
+  double y = .9*(2*strPtr->toDouble(&ok) - 1);
+  strPtr++;
+  double radius = strPtr->toDouble(&ok);
+  strPtr++;
+  double r = strPtr->toDouble(&ok);
+  strPtr++;
+  double g = strPtr->toDouble(&ok);
+  strPtr++;
+  double b = strPtr->toDouble(&ok);
+  strPtr++;
+  double thickness = strPtr->toDouble(&ok);
+  strPtr++;
+  double transparency = strPtr->toDouble(&ok);
+  
+
+
+  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, SbColor(r,g,b), thickness, transparency);
 }
 
 void ClientSocket::setGraspAttribute()
@@ -463,16 +511,24 @@ void ClientSocket::setGraspAttribute()
   strPtr += 1;
   double value = strPtr->toDouble();
   strPtr += 1;
+  if (!currentWorldPlanner())
+    return;
+  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
   for(int i = 0; i < currentWorldPlanner()->getListSize(); i++ )
     {
       const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
-      if (gs->getAttribute("graspId") == graspIdentifier)
-	{
-	  currentWorldPlanner()->setGraspAttribute(i, 
-						   attributeString, 
-						   value); 
-	}
-    }		
+    if (gs->getAttribute("graspId") == graspIdentifier)
+  	  {
+
+	    currentWorldPlanner()->setGraspAttribute(i, 
+			                                			   attributeString, 
+						                                    value); 
+      std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attreibuteString " << value << "\n";
+
+    }
+  }
+  lock.unlock();
+  analyzeNextGrasp();
 }
 
 /*!
@@ -1240,5 +1296,27 @@ void ClientSocket::analyzeGrasp(const GraspPlanningState * gps)
 {  
 	QTextStream os(this);
 	os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+  std::cout << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
 }
 
+void ClientSocket::analyzeNextGrasp()
+{  
+  std::cout << "Emitted analyze next grasp\n";  
+  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
+  if(currentWorldPlanner())
+  {  
+  for(int i = 0; i < currentWorldPlanner()->getListSize(); ++i)
+  {
+    const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
+    //if(gs->getAttribute("testResult") == -0.5)
+     // break;
+    if(gs->getAttribute("testResult") == 0.0)
+    {
+   //   currentWorldPlanner()->setGraspAttribute(i, "testResult", -0.5);
+      analyzeGrasp(gs);
+      break;
+    }
+  }	 
+  }
+   
+}
