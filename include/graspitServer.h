@@ -34,6 +34,8 @@
 #include <iostream>
 #include <vector>
 
+#include "egPlanner.h"
+
 class Body;
 class Robot;
 class EGPlanner;
@@ -102,6 +104,7 @@ private:
   void sendBodyName(Body* bod);
   void computeNewVelocities(double ts);
   void moveDynamicBodies(double ts);
+  void setGraspAttribute();
 
   void sendRobotName(Robot* rob);
   void sendDOFVals(Robot *rob);
@@ -127,6 +130,9 @@ private:
   bool next();
 
   bool setCameraOrigin();
+  void drawCircle();
+  
+  
 
 
 // not finished yet:
@@ -138,10 +144,10 @@ private slots:
   void outputPlannerResults(int solutionIndex);
   void runObjectRecognition();
   void sendString(const QString & message);
-  
+  void analyzeGrasp(const GraspPlanningState * gps);
 /*! Deletes this instance of ClientSocket */ 
   void connectionClosed() { delete this;}
-  
+  void analyzeNextGrasp();
 };
 
 //! TCP server that listens for connections and spawns new ClientSockets 

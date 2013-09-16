@@ -24,7 +24,7 @@
 //######################################################################
 
 #include <Inventor/sensors/SoIdleSensor.h>
-
+#include <QMutexLocker>
 #include "egPlanner.h"
 #include "searchState.h"
 #include "searchEnergy.h"
@@ -437,6 +437,18 @@ EGPlanner::getGrasp(int i)
 }
 
 void 
+EGPlanner::setGraspAttribute(int i, const QString & attribute, double value)
+{
+  assert (i>=0 && i<(int)mBestList.size());
+  std::list<GraspPlanningState*>::iterator it = mBestList.begin();
+  for (int k=0; k<i; k++) {
+    it++;
+  }
+  (*it)->setAttribute(attribute, value);
+}
+
+
+void 
 EGPlanner::showGrasp(int i)
 {
 	assert (i>=0 && i<getListSize());
@@ -511,6 +523,7 @@ EGPlanner::stateDistance(const GraspPlanningState *s1, const GraspPlanningState 
 bool
 EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlanningState*> *list, double distance)
 {
+ QMutexLocker lock(&mListAttributeMutex);
 	std::list<GraspPlanningState*>::iterator it;
 	it = list->begin();
 	bool add = true;
@@ -536,8 +549,14 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
 	}
 	if (add) {
 		list->push_back(s);
-	}
-	return add;
+    if (!s->hasAttribute("graspId"))
+    {
+		  s->addAttribute("graspId", mCurrentStep);
+		  s->addAttribute("testResult", 0);
+    }
+		
+	}  
+	return add;  
 }
 
 void 
@@ -551,6 +570,8 @@ EGPlanner::setStatStream(std::ostream *out) const
 
 bool 
 EGPlanner::addSolution(GraspPlanningState *s)
-{ 
-  return addToListOfUniqueSolutions(s,&mBestList,0.2);
+{   
+  bool addResult = addToListOfUniqueSolutions(s,&mBestList,0.2);  
+  mCurrentStep +=1;
+  return addResult;
 }

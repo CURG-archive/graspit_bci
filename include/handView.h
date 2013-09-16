@@ -2,6 +2,8 @@
 #define HANDVIEW_H_
 
 #include <Q3MainWindow>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 //#include <QMainWindow>
 #include <QString>
 #include <QObject>
@@ -94,7 +96,6 @@
 #include "body.h"
 
 #include "EGPlanner/searchState.h"
-
 class SoQtRenderArea;
 class SoQtExaminerViewer;
 class SoCoordinate3;
@@ -127,9 +128,11 @@ private:
 
   //! The Examiner View used to initializr the views
   SoQtExaminerViewer * mainViewer_;
+  SoCamera * camera_;
 
   //! Copy the hand geometry
   void setupIVHandGeometry(Hand * h);
+  int stateID_;
 public:
 
   //! Constructor for the HandView
@@ -170,11 +173,13 @@ class HandViewWindow{
 
   //! The layout for the thumbnail views
   QGridLayout * grid;
-
+  QHBoxLayout * hbox;
+  QVBoxLayout * vbox1;
+  QVBoxLayout * vbox2;
   //! The container for the layout for the preview (created so that we
   //   can use more than one preview window if so desired with different graphics applied)
   QGridLayout * previewGrid;
-
+  QWidget * stageFrame_;
   //! MaxViewSize - protect against over access on number of loaded thumbnail views
   unsigned int maxViewSize;
 
@@ -184,19 +189,24 @@ class HandViewWindow{
   //! Index of current Handview stored in the previewWindow
   int currentPreview;
 
+  QRect geom_;
 
 public:
   //! the window containing the thumbnail views
   QFrame * handViewWindow;
-
-  //! Constructor
-  HandViewWindow(QWidget * parent, Hand * h);
+  QFrame * viewHolder;
+  //! ConstructorNUL
+  HandViewWindow(QWidget * parent, Hand * h, const QRect & geom, SoNode * IVRoot = NULL, QWidget * stageFrame = NULL);
+  void initViews(Hand * h);
   ~HandViewWindow(){
+    for (int i = 0; i < views.size(); ++i)
+      delete views[i];
+    delete cloneHand; 
     delete handViewWindow;
   }
   //! Actually adds views at loop of initialization
   bool addView(HandObjectState & s, int i);
-
+  void clearViews();
   //! Simple getter for the viewWindow associated with our object
   QFrame* getViewWindow(){
     return handViewWindow;

@@ -145,6 +145,7 @@ public slots:
   void processNext();
   void processExec();
   void redrawCircles();
+  void plannerTimedUpdate();
 };
 
 #endif

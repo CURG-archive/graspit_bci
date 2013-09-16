@@ -48,6 +48,11 @@
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/fields/SoSFVec3f.h>
+#include <QMutexLocker>
+
+//helper function to get current world planner
+EGPlanner* currentWorldPlanner(){ return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();}
+
 
 
 ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
@@ -55,9 +60,6 @@ ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
 {
       connect( this, SIGNAL(readyRead()), SLOT(readClient()) );
       connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
-      connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
-      connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
-      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));      
       setSocket( sock );
 }
 
@@ -389,6 +391,18 @@ ClientSocket::readClient()
       std::cout << line.toStdString() << std::endl;
       graspItGUI->getIVmgr()->blinkBackground();
     }
+    else if ((*strPtr) == "setBackgroundColor"){
+      ++strPtr;
+      bool ok;
+      double r = strPtr->toDouble(&ok);
+      ++strPtr;
+      double g = strPtr->toDouble(&ok);
+      ++strPtr;
+      double b = strPtr->toDouble(&ok);
+      ++strPtr;
+      graspItGUI->getIVmgr()->getViewer()->setBackgroundColor(SbColor(r,g,b));
+    }
+
     else if ((*strPtr) == "getPlannerTarget"){
       strPtr+=1;
       QTextStream os (this) ;
@@ -439,7 +453,82 @@ ClientSocket::readClient()
       removeBodies(true);
             
     }
+    else if ((*strPtr) == "setGraspAttribute"){
+      	strPtr += 1;
+	verifyInput(3);
+	setGraspAttribute();
+      	
+    }
+    else if ((*strPtr) == "drawCircle"){
+      strPtr += 1;
+	    drawCircle();  
+    }
+    else if ((*strPtr) == "connectToPlanner")
+    {
+      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeGrasp(const GraspPlanningState *) ), this, SLOT(analyzeGrasp(const GraspPlanningState*)));
+      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeNextGrasp() ), this, SLOT(analyzeNextGrasp()));       
+      connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
+      connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
+      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));	  
+      QTextStream os(this);
+      os << "1 \n";
+      os.flush();
+    }
   }
+}
+
+void ClientSocket::drawCircle()
+{
+  QString circleName = *strPtr;
+  strPtr++;
+  bool ok;
+  double x = .9*(2*strPtr->toDouble(&ok) - 1);
+  strPtr++;
+  double y = .9*(2*strPtr->toDouble(&ok) - 1);
+  strPtr++;
+  double radius = strPtr->toDouble(&ok);
+  strPtr++;
+  double r = strPtr->toDouble(&ok);
+  strPtr++;
+  double g = strPtr->toDouble(&ok);
+  strPtr++;
+  double b = strPtr->toDouble(&ok);
+  strPtr++;
+  double thickness = strPtr->toDouble(&ok);
+  strPtr++;
+  double transparency = strPtr->toDouble(&ok);
+  
+  SbColor circleColor(r,g,b);
+  
+  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
+}
+
+void ClientSocket::setGraspAttribute()
+{		
+  double graspIdentifier = strPtr->toDouble();
+  strPtr += 1;
+  QString attributeString = *strPtr;
+  strPtr += 1;
+  double value = strPtr->toDouble();
+  strPtr += 1;
+  if (!currentWorldPlanner())
+    return;
+  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
+  for(int i = 0; i < currentWorldPlanner()->getListSize(); i++ )
+    {
+      const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
+    if (gs->getAttribute("graspId") == graspIdentifier)
+  	  {
+
+	    currentWorldPlanner()->setGraspAttribute(i, 
+			                                			   attributeString, 
+						                                    value); 
+      std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attreibuteString " << value << "\n";
+
+    }
+  }
+  lock.unlock();
+  analyzeNextGrasp();
 }
 
 /*!
@@ -778,8 +867,6 @@ ClientSocket::updatePlannerParams(QStringList & qsl)
   return;
 }
 
-//helper function to get current world planner
-EGPlanner* currentWorldPlanner(){ return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();}
 
 void
 ClientSocket::outputPlannerResults(int solution_index)
@@ -794,7 +881,7 @@ ClientSocket::outputPlannerResults(int solution_index)
   //WARNING:: THIS IS NOT REALLY THREADSAFE BECAUSE THE PLANNER KEEPS RUNNING
   //FIXME
   //os << currentWorldPlanner()->getListSize() << "\n";
-  os << '{';
+  os << "doGrasp {";
   //  for(int solution_index =0; solution_index < currentWorldPlanner()->getListSize(); ++solution_index)
   // {
   os << *(currentWorldPlanner()->getGrasp(solution_index)) << ',';      
@@ -830,7 +917,7 @@ ClientSocket::outputCurrentGrasp()
   GraspPlanningState g(graspItGUI->getIVmgr()->getWorld()->getCurrentHand());
   g.setPostureType(POSE_DOF, false);
   g.saveCurrentHandState();
-  os << '{';
+  os << "doGrasp{";
   os << g <<',';
  
   os << '}';
@@ -1109,6 +1196,8 @@ bool ClientSocket::setCameraOrigin()
 
 bool ClientSocket::addPointCloud()
 {  
+  
+  
   bool ok = false;  
   
   bool has_colors = true;
@@ -1116,14 +1205,53 @@ bool ClientSocket::addPointCloud()
   double pointNum = convertToNumber(strPtr++, &lineStrList, ok);
   if (!ok)
     return false;  
-  
-  SoSeparator * coords_sep = new SoSeparator();
-  SoCoordinate3 * coord = new SoCoordinate3();  
-  SoPointSet * pointSet = new SoPointSet();
-  SoDrawStyle * drawStyle = new SoDrawStyle();  
+  SoNodeList l;
+  SoCoordinate3 * coord;
+  SoMaterial * mat;
+
+  unsigned int listLen = SoCoordinate3::getByName("PointCloudCoordinates", l);
+  if (listLen < 1)
+  {
+    SoSeparator * coords_sep = new SoSeparator();
+    SoTransform * coord_tran = new SoTransform();
+    coord_tran->setName("PointCloudTransform");
+    coord = new SoCoordinate3();  
+    coord->setName("PointCloudCoordinates");
+    SoPointSet * pointSet = new SoPointSet();
+    SoDrawStyle * drawStyle = new SoDrawStyle(); 
+    coords_sep->addChild(coord_tran);
+    coords_sep->addChild(coord);
+    mat = new SoMaterial();
+    mat->setName("PointCloudColorMaterial");
+    SoMaterialBinding * matBinding = new SoMaterialBinding();
+    matBinding->value = SoMaterialBinding::PER_PART;    
+    
+    coords_sep->addChild(mat);
+    coords_sep->addChild(matBinding);
+    
+    drawStyle->pointSize = 3;
+    coords_sep->addChild(drawStyle);
+    coords_sep->addChild(pointSet);
+    graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);  
+  }  else if (listLen > 1)
+  {
+    std::cout << "More than 1 Point Cloud coordinate node. What the heck!\n";
+  }
+  else{
+    coord = static_cast<SoCoordinate3 *>(l[0]);
+    SoNodeList l2;
+    unsigned int listLen2 = SoMaterial::getByName("PointCloudColorMaterial", l2);
+    if (listLen2 != 1){
+      std::cout << "Wrong number of Point Cloud Materials: " << listLen2 << "\n";
+      return false;
+    }
+    mat = static_cast<SoMaterial *>(l2[0]);
+  }
+
   std::vector<SbVec3f> points;
   std::vector<SbColor> colors;    
   points.reserve(pointNum);
+  colors.reserve(pointNum);
   //std::vector<SoSeparator *> points(pointNum);
   
   for(int pointIndex = 0; pointIndex < pointNum; ++pointIndex)
@@ -1141,8 +1269,6 @@ bool ClientSocket::addPointCloud()
     points.push_back(SbVec3f(x,y,z));
   
     
-  if (has_colors)
-  {
     
   
     double r = convertToNumber(strPtr++, &lineStrList, ok)/255.0;    
@@ -1158,33 +1284,39 @@ bool ClientSocket::addPointCloud()
     
     colors.push_back(SbColor(r,g,b));
   }
-  }
+  
   coord->point.setValues(0,points.size(), &points[0]);  
-  coords_sep->addChild(coord);
-  if(has_colors)
-  {
-    SoMaterial * mat = new SoMaterial();
-    SoMaterialBinding * matBinding = new SoMaterialBinding();
-    matBinding->value = SoMaterialBinding::PER_PART;    
-    mat->diffuseColor.setValues(0,colors.size(), &colors[0]);
-    coords_sep->addChild(mat);
-    coords_sep->addChild(matBinding);
-  } 
-  drawStyle->pointSize = 3;
-  coords_sep->addChild(drawStyle);
-  coords_sep->addChild(pointSet);
-  SoNodeList l;
-
-  unsigned int listLen = SoNode::getByName("PointCloud", l);
-  
-  if (listLen > 1)
-    std::cout<< "More than one pointcloud! " << listLen <<" \n";
-  
-for(unsigned int l_i = 0; l_i < listLen; ++l_i)
-   graspItGUI->getIVmgr()->getWorld()->getIVRoot()->removeChild(l[l_i]);  
-  
-  coords_sep->setName("PointCloud");
-  graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);
+  mat->diffuseColor.setValues(0,colors.size(), &colors[0]);            
   
   return true;
+}
+
+
+void ClientSocket::analyzeGrasp(const GraspPlanningState * gps)
+{  
+	QTextStream os(this);
+	os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+  std::cout << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+}
+
+void ClientSocket::analyzeNextGrasp()
+{  
+  std::cout << "Emitted analyze next grasp\n";  
+  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
+  if(currentWorldPlanner())
+  {  
+  for(int i = 0; i < currentWorldPlanner()->getListSize(); ++i)
+  {
+    const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
+    //if(gs->getAttribute("testResult") == -0.5)
+     // break;
+    if(gs->getAttribute("testResult") == 0.0)
+    {
+   //   currentWorldPlanner()->setGraspAttribute(i, "testResult", -0.5);
+      analyzeGrasp(gs);
+      break;
+    }
+  }	 
+  }
+   
 }

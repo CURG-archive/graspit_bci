@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>720</width>
-    <height>53</height>
+    <width>853</width>
+    <height>340</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,9 +23,9 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>0</y>
-     <width>241</width>
-     <height>51</height>
+     <y>170</y>
+     <width>855</width>
+     <height>170</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -117,10 +117,15 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>241</width>
-      <height>21</height>
+      <y>10</y>
+      <width>855</width>
+      <height>50</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Current Stage</string>
@@ -133,9 +138,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>20</y>
-      <width>241</width>
-      <height>31</height>
+      <y>0</y>
+      <width>855</width>
+      <height>170</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -146,7 +151,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>17</pointsize>
+      <pointsize>60</pointsize>
      </font>
     </property>
     <property name="text">
@@ -160,10 +165,10 @@
   <widget class="QFrame" name="CurrentStageArea_2">
    <property name="geometry">
     <rect>
-     <x>240</x>
+     <x>0</x>
      <y>0</y>
-     <width>241</width>
-     <height>51</height>
+     <width>426</width>
+     <height>170</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -249,10 +254,15 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>241</width>
-      <height>21</height>
+      <y>10</y>
+      <width>426</width>
+      <height>50</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Button 1</string>
@@ -266,8 +276,8 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>241</width>
-      <height>31</height>
+      <width>426</width>
+      <height>170</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -278,11 +288,14 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>17</pointsize>
+      <pointsize>35</pointsize>
      </font>
     </property>
     <property name="text">
      <string>Button_1_stage</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -292,10 +305,10 @@
   <widget class="QFrame" name="CurrentStageArea_3">
    <property name="geometry">
     <rect>
-     <x>480</x>
+     <x>426</x>
      <y>0</y>
-     <width>241</width>
-     <height>51</height>
+     <width>426</width>
+     <height>170</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -377,14 +390,19 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QLabel" name="currentStageAreaLabel_3">
+   <widget class="QLabel" name="button2AreaLabel">
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>241</width>
-      <height>21</height>
+      <y>10</y>
+      <width>414</width>
+      <height>50</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Button 2</string>
@@ -398,8 +416,8 @@
      <rect>
       <x>0</x>
       <y>20</y>
-      <width>241</width>
-      <height>31</height>
+      <width>426</width>
+      <height>170</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -410,21 +428,20 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>17</pointsize>
+      <pointsize>35</pointsize>
      </font>
     </property>
     <property name="text">
      <string>Button_2_stage</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
-  <zorder>CurrentStageArea</zorder>
-  <zorder>CurrentStageArea_2</zorder>
-  <zorder>CurrentStageArea_3</zorder>
-  <zorder>currentStageAreaLabel_3</zorder>
  </widget>
  <resources/>
  <connections/>

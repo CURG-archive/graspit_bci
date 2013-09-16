@@ -30,6 +30,7 @@
 #ifndef ROBOT_H
 
 #include <vector>
+#include <algorithm>
 #include <map>
 #include <QTextStream>
 #include <QString>
@@ -213,8 +214,7 @@ protected:
   //! Stops all the joints that affect a link that is in contact
   void stopJointsFromLink(Link *link, double *desiredJointVals, int *stoppedJoints);
 
-  //! Adds all of the bodies that make up this robot to the given vector
-  virtual void getBodyList(std::vector<Body*> *bodies);
+
 
   friend void KinematicChain::updateLinkPoses();
   friend void KinematicChain::attachRobot(Robot *r,const transf &offsetTr);
@@ -484,6 +484,9 @@ protected:
   //! Returns a vector of all links associated with this robot
   void getAllLinks(std::vector<DynamicBody *> &allLinkVec);
 
+  //! Adds all of the bodies that make up this robot to the given vector
+  virtual void getBodyList(std::vector<Body*> *bodies);
+
   //! Computes a smooth trajectory so that a given chain goes through a set of poses
   void setChainEndTrajectory(std::vector<transf>& traj,int chainNum);
 
@@ -564,9 +567,9 @@ double Robot::jointLimitDist() const
 	for (int c=0; c<numChains; c++) {
 		for (int j=0; j<chainVec[c]->getNumJoints(); j++) {
 			double val = chainVec[c]->getJoint(j)->getVal();
-			dist = std::min( chainVec[c]->getJoint(j)->getMax() - val, 
+			dist = std::min<double>( chainVec[c]->getJoint(j)->getMax() - val, 
 							 val - chainVec[c]->getJoint(j)->getMin() );
-			minDist = std::min(dist, minDist);
+			minDist = std::min<double>(dist, minDist);
 		}
 	}
 	return minDist;
