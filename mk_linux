@@ -4,7 +4,7 @@ cd qhull
 make
 cd ..
 export GRASPIT=$PWD
-export CGDB_MODEL_ROOT=~/ros/rosbuild_src/RearmGraspit/cgdb
+export CGDB_MODEL_ROOT=$GRASPIT/cgdb
 echo $GRASPIT
 echo $CGDB_MODEL_ROOT
 #if libraries are not installed on the standard path variable, add them here.

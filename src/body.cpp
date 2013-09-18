@@ -714,6 +714,19 @@ Body::setTransparency(float t)
   IVMat->transparency = t;
 }
 
+
+SoMFColor Body::getEmissiveColor() const
+{
+  return IVMat->emissiveColor;
+}
+
+
+void
+Body::setEmissiveColor(SoMFColor color)
+{
+  IVMat->emissiveColor = color;
+}
+
   
 /*!
   Set the current material of the body to mat

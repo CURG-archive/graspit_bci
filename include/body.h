@@ -32,7 +32,7 @@
 #include <QString>
 #include <list>
 #include <vector>
-
+#include <Inventor/fields/SoMFColor.h>
 #include "worldElement.h"
 #include "contact.h"
 
@@ -293,6 +293,11 @@ public:
   float getTransparency() const;
   //! Sets the transparency of this body for rendering
   void setTransparency(float t);
+
+  //! Returns the emissiveColor of this body for rendering
+  SoMFColor getEmissiveColor() const;
+  //! Sets the emissiveColor of this body for rendering
+  void setEmissiveColor(SoMFColor color);
 
   //! Shows or hides the friction cones for this body
   void showFrictionCones(bool on, int vc=0);

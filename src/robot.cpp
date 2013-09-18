@@ -492,7 +492,7 @@ Robot::cloneFrom(Robot *original)
 	mEigenGrasps = new EigenGraspInterface(original->getEigenGrasps());
 
 	//no glove interface
-	mGloveInterface = NULL;
+    mGloveInterface = NULL;
 	this->mUseCyberGlove = false;
 }
 
@@ -508,6 +508,21 @@ Robot::setTransparency(float t)
 			getChain(i)->getLink(l)->setTransparency(t);
 		}
 	}
+}
+
+
+/*! Sets the emissive color of all the links that make up this robot,
+as well as the base
+*/
+void
+Robot::setEmissiveColor(SoMFColor color)
+{
+    base->setEmissiveColor(color);
+    for (int i=0; i<getNumChains(); i++) {
+        for (int l=0; l<getChain(i)->getNumLinks(); l++) {
+            getChain(i)->getLink(l)->setEmissiveColor(color);
+        }
+    }
 }
 
 /*! Sets the name \a newName for the robot, as well as derived names of the form

@@ -131,6 +131,8 @@ private:
 
   bool setCameraOrigin();
   void drawCircle();
+  bool setBodyColor();
+  bool setRobotColor();
   
   
 

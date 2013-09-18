@@ -1320,3 +1320,66 @@ void ClientSocket::analyzeNextGrasp()
   }
    
 }
+
+bool ClientSocket::setRobotColor()
+{
+
+    bool ok = false;
+    verifyInput(4);
+
+    double r = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+    double g = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+    double b = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+
+    SbColor color(r,g,b);
+    SoMFColor colorField;
+    colorField.setValuesPointer(3,&color);
+
+    std::vector<Robot *> robVec;
+    readRobotIndList(robVec);
+
+    for(unsigned int i = 0; i < robVec.size(); ++i)
+    {
+        robVec[i]->setEmissiveColor(colorField);
+    }
+
+    return true;
+
+
+}
+
+bool ClientSocket::setBodyColor()
+{
+    bool ok = false;
+    verifyInput(5);
+    std::vector<Robot *> robVec;
+    readRobotIndList(robVec);
+
+    double bodyNum = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+    double r = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+    double g = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+    double b = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    if (!ok)
+      return false;
+
+    SbColor color(r,g,b);
+    SoMFColor colorField;
+    colorField.setValuesPointer(3,&color);
+
+    World * world = graspItGUI->getIVmgr()->getWorld();
+    world->getBody(bodyNum)->setEmissiveColor(colorField);
+
+    return true;
+}
