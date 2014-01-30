@@ -151,6 +151,7 @@ private slots:
 /*! Deletes this instance of ClientSocket */ 
   void connectionClosed() { delete this;}
   void analyzeNextGrasp();
+  void analyzeApproachDir(GraspPlanningState * gs);
 };
 
 //! TCP server that listens for connections and spawns new ClientSockets 

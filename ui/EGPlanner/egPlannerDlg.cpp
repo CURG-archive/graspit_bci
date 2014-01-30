@@ -547,7 +547,8 @@ void EigenGraspPlannerDlg::setMembers( Hand *h, GraspableBody *b )
   viewWindow = new HandViewWindow(parentWidget(), mHand, geom,graspItGUI->getIVmgr()->getViewer()->getSceneGraph(), bciStageFrame);
   graspItGUI->getMainWindow()->mWindow->resize(10,10);
   viewWindow->getViewWindow()->setActiveWindow();
-
+//  Qt::WindowFlags flags = viewWindow->getViewWindow()->windowFlags();
+ // viewWindow->getViewWindow()->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
   
   bciStageFrame->setBCIState(&graspItGUI->getIVmgr()->bciPlanningState, INITIALIZATION_PHASE);
   
@@ -1155,6 +1156,7 @@ void EigenGraspPlannerDlg::loadGraspsToHandviewWindow()
       float testResult = -2*bci_experiment::testGraspCollisions(mHand, s);
       s->addAttribute("graspId", gNum);
       s->addAttribute("testResult", testResult);
+      s->addAttribute("testTime", 0);
       //bci_experiment::printTestResult(*s);
       mPlanner->addSolution(s);
   }
@@ -1559,9 +1561,17 @@ void EigenGraspPlannerDlg::inputLoadButton_clicked()
   updateInputLayout();
 }
 
+void EigenGraspPlannerDlg::analyzeApproachDir()
+{
+  GraspPlanningState * gs = new GraspPlanningState(mHand);
+  gs->setPostureType(POSE_DOF, false);
+  gs->saveCurrentHandState();
+  graspItGUI->getIVmgr()->emitAnalyzeApproachDir(gs);
+}
 
 void EigenGraspPlannerDlg::plannerTimedUpdate()
 {
+  analyzeApproachDir();
   if(mPlanner && viewWindow)
   {
     if(graspItGUI->getIVmgr()->bciPlanningState == INITIAL_REVIEW_PHASE)

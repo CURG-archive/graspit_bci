@@ -4,10 +4,10 @@
 
 #----------------------general settings--------------------
 
-QT +=  qt3support opengl
+QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-
+QMAKE_CXXFLAGS += -std=c++0x
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin
@@ -98,7 +98,9 @@ HEADERS	+= include/barrett.h \
 	include/FitParabola.h \
 	include/shadow.h \
      include/handView.h \
+    include/graspitProtobufServer.h \
     ui/EGPlanner/binarycommandview.h
+    
 
 
 SOURCES	+= src/arch.cpp \
@@ -173,7 +175,8 @@ SOURCES	+= src/arch.cpp \
 	src/EGPlanner/onLineGraspInterface.cpp \
 	src/EGPlanner/listPlanner.cpp \
      src/handView.cpp \
-    ui/EGPlanner/binarycommandview.cpp
+    src/graspitProtobufServer.cpp
+   
 
 
 #--------------------------------------- Implementations of the collision interface ---------------------------------
@@ -232,8 +235,8 @@ HEADERS += ui/mainWindow.h \
 	ui/Planner/plannerdlg.h \
 	ui/EGPlanner/egPlannerDlg.h \
 	ui/EGPlanner/compliantPlannerDlg.h \
-        ui/EGPlanner/bciStageFrame.h \
-        ui/EGPlanner/binarycommandView.h
+     ui/EGPlanner/bciStageFrame.h \
+     ui/EGPlanner/binarycommandView.h
 
 SOURCES += ui/mainWindow.cpp \
 	ui/archBuilderDlg.cpp \
@@ -250,7 +253,7 @@ SOURCES += ui/mainWindow.cpp \
 	ui/Planner/plannerdlg.cpp \
 	ui/EGPlanner/egPlannerDlg.cpp \
 	ui/EGPlanner/compliantPlannerDlg.cpp \
-        ui/EGPlanner/binarycommandView.cpp
+      ui/EGPlanner/binarycommandView.cpp
 
 #-------------------------------------- images and resources -------------------------------------------------------
 
@@ -355,4 +358,13 @@ mosek {
 	DEFINES += MOSEK_QP
 	SOURCES += src/math/mosek_qp.cpp
 	HEADERS += src/math/mosek_qp.h
+}
+
+
+protobuf {
+  # add message files here
+  PROTOS = Drawable.proto GraspitMessage.proto
+  # add message path here
+  PROTOPATH = ./protocols
+  include(protobuf.pri) 
 }

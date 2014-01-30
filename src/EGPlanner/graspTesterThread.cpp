@@ -29,6 +29,7 @@
 #include "graspTesterThread.h"
 #include "searchState.h"
 #include "searchEnergy.h"
+#include "grasp.h"
 
 //#define GRASPITDBG
 #include "debug.h"
@@ -80,8 +81,8 @@ GraspTester::mainLoop()
 		//save the final grasping position that has resulted from autograsp
 		s->setPositionType(SPACE_COMPLETE);
 		s->setPostureType(POSE_DOF);
-		//save the current transform in absolute terms
-		s->setRefTran(transf::IDENTITY);
+		//save the current transform with respect to the target object
+    s->setRefTran(mHand->getGrasp()->getObject()->getTran());
 		s->saveCurrentHandState();
 		postSolution(s);
 		DBGP("Tester posting a solution at iteration " << s->getItNumber());

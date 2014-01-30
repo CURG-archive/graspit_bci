@@ -6,7 +6,7 @@ LANGUAGE	= C++
 #comment out this line for compiling in Release mode
 #usually, compiling in Release mode delivers a significant gain in performance
 #in MS Visual Studio *also* set the project mode to Release
-CONFIG += graspitdbg
+#CONFIG += graspitdbg
 
 #select collision detection engine
 #possible values: graspit_collision
@@ -47,6 +47,6 @@ win32 {
 }
 
 #------------------GraspIt! core files---------------------
-
+CONFIG += protobuf
 include(graspit-core.pro)
 

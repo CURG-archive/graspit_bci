@@ -553,6 +553,7 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
     {
 		  s->addAttribute("graspId", mCurrentStep);
 		  s->addAttribute("testResult", 0);
+      s->addAttribute("testTime", 0);
     }
 		
 	}  
