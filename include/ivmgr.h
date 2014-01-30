@@ -261,6 +261,7 @@ signals:
   // determine reachability of the grasp at this index
   void analyzeGrasp(const GraspPlanningState * gps);
   void analyzeNextGrasp();
+  void analyzeApproachDir(GraspPlanningState * gs);
 public:
   IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);
   ~IVmgr();
@@ -282,6 +283,7 @@ public:
   void emitSendString(const QString & s){emit sendString(s);}
   void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0,0.0,0.0));
   void deselectBody(Body *b);
+  void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
   /*! 
     Returns a pointer to the main World that the user interacts with through

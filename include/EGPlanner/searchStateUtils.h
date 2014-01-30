@@ -29,9 +29,15 @@ streamtype & operator<<( streamtype & os,  const GraspPlanningState & vs)
 {
   std::vector<double> dofs(vs.getHand()->getNumDOF(),0);
   vs.readPosture()->getHandDOF(&dofs[0]);
-  
-  assert(vs.getObject());
-  os << vs.getObject()->getName().toStdString().c_str() <<' ' <<vs.readPosition()->getCoreTran().rotation().w << ' ' << vs.readPosition()->getCoreTran().rotation().x << ' ' << vs.readPosition()->getCoreTran().rotation().y << ' ' << vs.readPosition()->getCoreTran().rotation().z << ' '
+  std::string object_name;
+  if(vs.getObject())
+  {
+    object_name = vs.getObject()->getName().toStdString();
+  }
+  else{
+  object_name = "None";
+  }
+  os << object_name.c_str() <<' ' <<vs.readPosition()->getCoreTran().rotation().w << ' ' << vs.readPosition()->getCoreTran().rotation().x << ' ' << vs.readPosition()->getCoreTran().rotation().y << ' ' << vs.readPosition()->getCoreTran().rotation().z << ' '
      << vs.readPosition()->getCoreTran().translation().x() << ' ' << vs.readPosition()->getCoreTran().translation().y() << ' ' << vs.readPosition()->getCoreTran().translation().z() << ' ' ;
   for (int i = 0; i < vs.getHand()->getNumDOF(); ++i)
       os << dofs[i] <<" " ;

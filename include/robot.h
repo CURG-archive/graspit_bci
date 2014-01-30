@@ -464,7 +464,7 @@ protected:
   void setTransparency(float t);
 
   //! Sets the emissiveColor of the entire robot to the given value
-  void setEmissiveColor(SoMFColor color);
+  void setEmissiveColor(SbColor &color);
 
    //! Returns the default translational velocity (mm/sec) for the robot.
   double getDefaultTranslVel() const {return defaultTranslVel;}

@@ -722,9 +722,10 @@ SoMFColor Body::getEmissiveColor() const
 
 
 void
-Body::setEmissiveColor(SoMFColor color)
+Body::setEmissiveColor(SbColor & color)
 {
-  IVMat->emissiveColor = color;
+  IVMat->emissiveColor.setIgnored(false);
+  IVMat->emissiveColor.setValue(color);
 }
 
   

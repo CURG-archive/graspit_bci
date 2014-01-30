@@ -515,7 +515,7 @@ Robot::setTransparency(float t)
 as well as the base
 */
 void
-Robot::setEmissiveColor(SoMFColor color)
+Robot::setEmissiveColor(SbColor & color)
 {
     base->setEmissiveColor(color);
     for (int i=0; i<getNumChains(); i++) {

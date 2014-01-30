@@ -50,6 +50,7 @@ matlab
 workspace
 unit_tests
 
+
 *~
 #*#
 worlds/*M7*
@@ -67,3 +68,12 @@ worlds/*M7*
 *.lai
 *.la
 *.a
+
+# QHull compiled files
+qhull/q_eg
+qhull/q_egtest
+qhull/qhull
+qhull/rbox
+
+#image collection file that is rebuilt by qmake each time
+ui/qmake_image_collection.cpp

@@ -235,6 +235,7 @@ maxViewSize(3), cloneHand(new Hand(h->getWorld(), "newHand")), geom_(geom), grid
   
   
   handViewWindow = new QFrame(NULL);
+  handViewWindow->setWindowFlags(Qt::WindowStaysOnTopHint);
   viewHolder = new QFrame(NULL);
   handViewWindow->setGeometry(geom);
   hbox = new QHBoxLayout(handViewWindow);
