@@ -17,7 +17,7 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
 
     request.mutable_grasp()->set_graspid(gps->getAttribute("graspId"));
 
-    request.mutable_grasp()->mutable_object()->set_name(gps->getObject()->name());
+    request.mutable_grasp()->mutable_object()->set_name(gps->getObject()->getName());
 
 
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_x(gps->getObject()->getTran().translation().x());
