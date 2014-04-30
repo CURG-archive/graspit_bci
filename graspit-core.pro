@@ -22,8 +22,8 @@ DEPENDPATH += src src/Collision include include/math include/Planner include/EGP
 
 HEADERS	+= include/barrett.h \
 	include/body.h \
-	include/bbox.h \
-	include/bbox_inl.h \
+        include/bBox.h \
+        include/bBox_inl.h \
 	include/contact.h \
 	include/contactSetting.h \
 	include/debug.h \
@@ -114,7 +114,7 @@ HEADERS	+= include/barrett.h \
 
 SOURCES	+= src/arch.cpp \
 	src/barrett.cpp \
-	src/bbox.cpp \
+        src/bBox.cpp \
 	src/body.cpp \
 	src/contact.cpp \
 	src/contactSetting.cpp \
@@ -388,9 +388,9 @@ mosek {
 #-------------------------------------- Protobuf Messages -------------------------------------------------------------
 protobuf {
   # add message files here
-  PROTOS = Drawable.proto GraspitMessage.proto
+  PROTOS = Drawable.proto Renderable.proto GraspitMessage.proto
   # add message path here
-  PROTOPATH = ./protocols
+  PROTOPATH = $$PWD/protocols
   include(protobuf.pri)
 }
 
@@ -417,6 +417,7 @@ bci_experiment {
               src/BCI/states/graspSelectionState.cpp \
               src/BCI/states/confirmationState.cpp \ 
               src/Servers/graspitProtobufServer.cpp \
+              src/Servers/RenderableProtoDrawer.cpp \
               ui/BCI/binaryCommandView.cpp \
               ui/BCI/bciControlWindow.cpp \
               ui/BCI/handView.cpp \
@@ -447,6 +448,7 @@ bci_experiment {
                include/BCI/utils/plannerTools.h \
                include/BCI/onlinePlannerController.h \
                include/Servers/graspitProtobufServer.h \ 
+               include/Servers/RenderableProtoDrawer.h \
                include/BCI/uiTools.h \
                include/BCI/state.h \
                include/BCI/BCIStateMachine.h \

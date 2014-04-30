@@ -9,7 +9,7 @@ HEADERS += include/lapack_wrappers.h
 
 # ---------------------- General libraries and utilities ----------------------------------
 
-LIBS	+= qhull/libqhull.a -L$(COINDIR)/lib -lSoQt -lCoin -lGL -lpthread
+LIBS	+= $$PWD/qhull/libqhull.a -L$(COINDIR)/lib -lSoQt -lCoin -lGL -lpthread
 
 MOC_DIR = .moc
 OBJECTS_DIR = .obj

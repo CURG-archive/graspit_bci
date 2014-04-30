@@ -9,8 +9,10 @@ GraspitProtobufConnection::GraspitProtobufConnection(QObject *parent, QTcpSocket
                                                      unsigned int maximum_len) :
     QObject(parent),
     sock(socket),
-    max_len(maximum_len)
+    maxLen(maximum_len),
+    rereadLatency(100)
 {
+    sock->setReadBufferSize(maxLen);
     connect(sock, SIGNAL(readyRead()),this,SLOT(parseMessage()));
     msg = new GraspitProtobufMessage;
 }
@@ -23,20 +25,86 @@ GraspitProtobufConnection::~GraspitProtobufConnection()
 
 void GraspitProtobufConnection::parseMessage()
 {
-  if (!readMessage()){
+    if (!readMessage()){
       DBGP("GraspitProtobufConnection::parseMessage::Failed to parse message")
       return;
   }
-  DrawableFrame drawableFrame = msg->drawable_frame();
-  BCIService::getInstance()->emitDrawableFrame(&drawableFrame);
+    if(msg->has_drawable_frame())
+    {
+        DrawableFrame drawableFrame = msg->drawable_frame();
+        BCIService::getInstance()->emitDrawableFrame(&drawableFrame);
+    }
+    if(msg->has_renderable())
+    {
+        if(msg->renderable().has_pointcloud())
+        {
+            msg->renderable().pointcloud();
+        }
+    }
 }
 
 bool GraspitProtobufConnection::readMessage()
 {
+    // If a retry is pending, don't continue
+   if(tryRereadTimer.isActive())
+        return false;
 
-   QByteArray inputByteArray = sock->readAll();
+   quint32 message_length = getMessageSize(); // The expected message size
 
-   return msg->ParseFromArray(inputByteArray.data(), inputByteArray.size());
+
+   bool readSucceeded = false;
+
+
+   // Test if there is a valid message in the buffer
+   if(message_length && sock->bytesAvailable() >= message_length)
+   {
+       // Read the message data and try to parse it.
+       QByteArray inputByteArray = sock->read(message_length);
+       readSucceeded = msg->ParseFromArray(inputByteArray.data(), inputByteArray.size());
+
+       if(!readSucceeded)
+       {
+           DBGA("GraspitProtobufServer::Failed to parse message with size "
+                << inputByteArray.size());
+       }
+   }
+   int readDelay = readSucceeded ? 1:rereadLatency;
+   if(sock->bytesAvailable())
+   {
+       scheduleReread(readDelay);
+   }
+   return readSucceeded;
+}
+
+
+void GraspitProtobufConnection::scheduleReread(int readLatency){
+   tryRereadTimer.setSingleShot(true);
+   tryRereadTimer.setInterval(readLatency);
+   connect(&tryRereadTimer, SIGNAL(timeout()), this, SLOT(parseMessage()));
+   tryRereadTimer.start();
+}
+
+quint32 GraspitProtobufConnection::getMessageSize()
+{
+    // Try to read the message size prefix
+    google::protobuf::uint32 message_length = 0;
+    unsigned int prefix_length = sizeof(message_length);
+    QByteArray prefix = sock->peek(prefix_length);
+    if(prefix_length == prefix.size())
+    {
+        google::protobuf::io::CodedInputStream::ReadLittleEndian32FromArray(reinterpret_cast<unsigned char *>(prefix.data()),
+                                                                            &message_length);
+        sock->seek(prefix_length);
+
+        //If the message size is greater than the read buffer, fail noisily
+        if(message_length > maxLen)
+        {
+            DBGA("GraspitProtobufServer::Message size > socket buffer size");
+            return 0;
+        }
+
+    }
+    return message_length;
 }
 
 
