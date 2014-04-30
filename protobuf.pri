@@ -13,7 +13,7 @@
 # the current directory where protoc is run. If you need to include additional
 # paths specify the PROTOPATH variable
 #
-PROTO_OUTPUT = gen_proto
+PROTO_OUTPUT = $$PWD/gen_proto
 VPATH += $$PROTOPATH $$PROTO_OUTPUT
 INCLUDEPATH += $$PROTO_OUTPUT
 LIBS += /usr/lib/libprotobuf.so

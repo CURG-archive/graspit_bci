@@ -26,8 +26,8 @@ HEADERS += include/Servers/rosRPCZClient.h
 
 SOURCES += src/Servers/rosRPCZClient.cpp 
 
-LIBS += -Lrpcz/build/src/rpcz -lrpcz
-LIBS += -Lrpcz/build/graspit_rcpz/cpp/ -lgraspit_pb
+LIBS += -L$$PWD/rpcz/build/src/rpcz -lrpcz
+LIBS += -L$$PWD/rpcz/build/graspit_rcpz/cpp/ -lgraspit_pb
 
 
 

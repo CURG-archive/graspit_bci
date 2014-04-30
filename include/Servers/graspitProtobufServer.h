@@ -1,6 +1,8 @@
 #ifndef GRASPITPROTOBUFSERVER_H
 #define GRASPITPROTOBUFSERVER_H
 #include <QtNetwork>
+#include <QTimer>
+#include "RenderableProtoDrawer.h"
 class GraspitProtobufMessage;
 class DrawableFrame;
 
@@ -16,9 +18,27 @@ signals:
     void updateFrame(DrawableFrame & drawing);
 
 private:
-  QTcpSocket * sock;
-  unsigned int max_len;
-  GraspitProtobufMessage * msg;
+    //! Individual Socket connection
+    QTcpSocket *sock;
+
+    //! Maximum size of socket's buffer
+    unsigned int maxLen;
+
+    //! Graspit message to read into
+    GraspitProtobufMessage *msg;
+
+    //! Timer to reread if more bits are needed or a partial message has been recieved.
+    QTimer tryRereadTimer;
+
+    //! Delay at which we should retry parsing the message if not enough data is available.
+    int rereadLatency;
+
+    //! Schedule an attempt to parse data in the buffer if necessary.
+    void scheduleReread(int readLatency);
+
+
+    //! Read the message size prefix
+    quint32 getMessageSize();
 
 private slots:
     //! Read the message and act on it.
