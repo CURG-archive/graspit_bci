@@ -11,9 +11,9 @@ ObjectRecognitionStub::ObjectRecognitionStub(rpcz::rpc_channel * channel):
 {
     connect(
         this,
-        SIGNAL(addToWorld(const QString, const QString )),
+        SIGNAL(addToWorld(const QString, const QString, const QString )),
         bci_experiment::OnlinePlannerController::getInstance(),
-        SLOT(addToWorld(const QString , const QString )));
+        SLOT(addToWorld(const QString , const QString, const QString )));
 
     connect(
         this,
@@ -44,8 +44,8 @@ void ObjectRecognitionStub::callbackImpl()
 
 void ObjectRecognitionStub::addObject(GraspableObject object)
 {
-    QString  objectName(QString::fromStdString(object.name()) + ".xml");
-
+    QString  modelName(QString::fromStdString(object.model()) + ".xml");
+    QString objectName(QString::fromStdString(object.name()));
     //Body b = addToWorld(objectName);
 
     //b.setName(objectName);
@@ -64,7 +64,7 @@ void ObjectRecognitionStub::addObject(GraspableObject object)
     std::stringstream s;
     s << object_pose;
     QString stringPose(QString::fromStdString(s.str()));
-    emit addToWorld(objectName, stringPose);
+    emit addToWorld(modelName, objectName, stringPose);
 }
 
 

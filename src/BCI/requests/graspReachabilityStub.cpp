@@ -10,7 +10,7 @@
 #include "body.h"
 #include "robot.h"
 #include "debug.h"
-
+#include <QFileInfo>
 GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel * channel)
     :graspReachability_stub(channel, "CheckGraspReachabilityService")
 {
@@ -26,7 +26,10 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->set_graspid(gps->getAttribute("graspId"));
 
     request.mutable_grasp()->mutable_object()->set_name(gps->getObject()->getName());
+    QString filename = gps->getObject()->getFilename();
+    QFileInfo modelFileInfo(filename);
 
+    request.mutable_grasp()->mutable_object()->set_model(modelFileInfo.baseName());
 
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_x(gps->getObject()->getTran().translation().x());
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_y(gps->getObject()->getTran().translation().y());
@@ -65,6 +68,7 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     float ry = finalHandTransform.rotation().y;
     float rz = finalHandTransform.rotation().z;
 
+
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_x(tx);
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_y(ty);
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_z(tz);
@@ -72,6 +76,17 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_x(rx);
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_y(ry);
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_z(rz);
+
+    double moveDist = -50.0;
+    transf pregraspHandTransform = (translate_transf(vec3(0,0,moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
+    tx = pregraspHandTransform.translation().x();
+    ty = pregraspHandTransform.translation().y();
+    tz = pregraspHandTransform.translation().z();
+    rw = pregraspHandTransform.rotation().w;
+    rx = pregraspHandTransform.rotation().x;
+    ry = pregraspHandTransform.rotation().y;
+    rz = pregraspHandTransform.rotation().z;
+
 
     request.mutable_grasp()->mutable_pre_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_x(tx);
     request.mutable_grasp()->mutable_pre_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_y(ty);

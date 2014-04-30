@@ -380,7 +380,7 @@ namespace bci_experiment
       BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp()));
     }
 
-   void OnlinePlannerController::addToWorld(const QString model_filename, const QString object_pose_string)
+   void OnlinePlannerController::addToWorld(const QString model_filename, const QString object_name, const QString object_pose_string)
     {
         std::stringstream s;
         s << object_pose_string.toStdString();
@@ -398,7 +398,7 @@ namespace bci_experiment
         if(b)
         {
             b->setTran(object_pose);
-            b->setName(model_filename);
+            b->setName(object_name);
         }
     }
 

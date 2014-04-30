@@ -4,6 +4,7 @@
 #include "searchState.h"
 #include "body.h"
 #include "robot.h"
+#include <QFileInfo>
 
 ExecuteGraspStub::ExecuteGraspStub(rpcz::rpc_channel * channel)
     :executeGrasp_stub(channel, "ExecuteGraspService")
@@ -18,7 +19,10 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->set_graspid(gps->getAttribute("graspId"));
 
     request.mutable_grasp()->mutable_object()->set_name(gps->getObject()->getName());
+    QString filename = gps->getObject()->getFilename();
+    QFileInfo modelFileInfo(filename);
 
+    request.mutable_grasp()->mutable_object()->set_model(modelFileInfo.baseName());
 
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_x(gps->getObject()->getTran().translation().x());
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_y(gps->getObject()->getTran().translation().y());

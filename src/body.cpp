@@ -1417,8 +1417,8 @@ DynamicBody::setCoG(const position &newCoG)
 {
 	CoG = newCoG;  
 	resetDynamics();
-	axesTranToCOG->translation.setValue(CoG.x(), CoG.y(), CoG.z());
-	//axesTranToCOG->translation.setValue(0,0,0);
+    //axesTranToCOG->translation.setValue(CoG.x(), CoG.y(), CoG.z());
+    axesTranToCOG->translation.setValue(0,0,0);
 }
 
 /*! The max radius can be thought of as the largest distance from the center

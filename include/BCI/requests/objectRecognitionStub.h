@@ -15,7 +15,7 @@ public:
     ObjectRecognitionStub(rpcz::rpc_channel * channel);
 
 signals:
-    void addToWorld(const QString model_filename, const QString object_pose);
+    void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
     void clearGB();
 
 protected:

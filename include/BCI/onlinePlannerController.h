@@ -104,7 +104,7 @@ namespace bci_experiment{
             bool setPlannerToReady();
             void analyzeNextGrasp();
 
-            void addToWorld(const QString model_filename, const QString object_pose);
+            void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
             void clearObjects();
 
     };
