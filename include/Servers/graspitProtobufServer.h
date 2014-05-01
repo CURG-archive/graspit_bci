@@ -11,7 +11,7 @@ class GraspitProtobufConnection : public QObject
     Q_OBJECT
 public:
     GraspitProtobufConnection(QObject * parent, QTcpSocket * socket,
-                              unsigned int maximum_len = 5000);
+                              unsigned int maximum_len = 38575230);
     ~GraspitProtobufConnection();
 
 signals:

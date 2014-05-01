@@ -56,7 +56,7 @@ public:
      * @param renderable  The proto message containing the renderable
      * @return True if the rendering succeeds.
      */
-    virtual bool render(Renderable & renderable);
+    virtual bool render(Renderable & renderable, QString & renderableRootName);
 };
 
 class PointCloudRenderer : public Renderer
@@ -98,7 +98,8 @@ class RenderableProtoDrawer : public QObject
      * \brief renderMessage  Render a proto message containing multiple geometry types
      * \param renderable     The proto message containing the renderable.
      */
-    void renderMessage(Renderable & renderable);
+    public:
+        void renderMessage(Renderable & renderable);
 };
 
 #endif // RENDERABLEPROTODRAWER_H

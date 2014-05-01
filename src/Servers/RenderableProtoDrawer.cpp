@@ -80,9 +80,10 @@ SoSeparator *Renderer::getRenderRoot(SbName &childName, Renderable &renderable)
     return ivRoot;
 }
 
-bool Renderer::render(Renderable &renderable)
+bool Renderer::render(Renderable &renderable, QString & renderableRootName)
 {
-    SbName renderableSeparatorName(this->className());
+    SbName renderableSeparatorName(renderableRootName.toStdString().c_str());
+    DBGA("Meta object name:" << renderableRootName.toStdString());
     SoSeparator * ivRoot = getRenderRoot(renderableSeparatorName, renderable);
     if(ivRoot)
         return renderImpl(ivRoot, renderable);
@@ -125,18 +126,18 @@ void PointCloudRenderer::setScale(SoSeparator *ivRoot, Renderable &renderable)
 {
     float factor = 1.0;
 
-    if(!renderable.pointcloud().has_units())
+    if(renderable.pointcloud().has_units())
     {
-        factor = renderable.pointcloud().units();
+        factor = 1000.0/renderable.pointcloud().units();
     }
 
 
-    if (ivRoot->getChild(1)->getTypeId() != SoScale::getClassTypeId())
+    if (ivRoot->getNumChildren() < 2 || ivRoot->getChild(1)->getTypeId() != SoScale::getClassTypeId())
     {
         ivRoot->insertChild(new SoScale(),1);
     }
 
-    SoScale * cloudScale = static_cast<SoScale *>(ivRoot->getChild(3));
+    SoScale * cloudScale = static_cast<SoScale *>(ivRoot->getChild(1));
     cloudScale->setName("PointCloudScale");
     cloudScale->scaleFactor.setValue(factor, factor, factor);
 }
@@ -154,7 +155,7 @@ bool PointCloudRenderer::renderImpl(SoSeparator *ivRoot, Renderable &renderable)
     {
         createNodes(ivRoot, renderable);
     }
-
+    setScale(ivRoot, renderable);
     //Get the nodes to insert the point data into.
     SoMaterial * mat = static_cast<SoMaterial *>(ivRoot->getChild(3));
     SoCoordinate3 * coord =
@@ -191,6 +192,7 @@ void RenderableProtoDrawer::renderMessage(Renderable &renderable)
     if(renderable.has_pointcloud())
     {
         PointCloudRenderer renderer;
-        renderer.render(renderable);
+        QString ivRootName("PointCloudRoot");
+        renderer.render(renderable,ivRootName);
     }
 }

@@ -36,10 +36,7 @@ void GraspitProtobufConnection::parseMessage()
     }
     if(msg->has_renderable())
     {
-        if(msg->renderable().has_pointcloud())
-        {
-            msg->renderable().pointcloud();
-        }
+        RenderableProtoDrawer().renderMessage(*msg->mutable_renderable());
     }
 }
 
@@ -58,6 +55,9 @@ bool GraspitProtobufConnection::readMessage()
    // Test if there is a valid message in the buffer
    if(message_length && sock->bytesAvailable() >= message_length)
    {
+       //Move input cursor forward to beginning of message
+       sock->seek(sizeof(message_length));
+
        // Read the message data and try to parse it.
        QByteArray inputByteArray = sock->read(message_length);
        readSucceeded = msg->ParseFromArray(inputByteArray.data(), inputByteArray.size());
@@ -67,6 +67,10 @@ bool GraspitProtobufConnection::readMessage()
            DBGA("GraspitProtobufServer::Failed to parse message with size "
                 << inputByteArray.size());
        }
+   }
+   else
+   {
+       DBGA("GraspitProtobufConnection:readMessage -- Available message size too small: " << sock->bytesAvailable())
    }
    int readDelay = readSucceeded ? 1:rereadLatency;
    if(sock->bytesAvailable())
@@ -92,14 +96,13 @@ quint32 GraspitProtobufConnection::getMessageSize()
     QByteArray prefix = sock->peek(prefix_length);
     if(prefix_length == prefix.size())
     {
+
         google::protobuf::io::CodedInputStream::ReadLittleEndian32FromArray(reinterpret_cast<unsigned char *>(prefix.data()),
                                                                             &message_length);
-        sock->seek(prefix_length);
-
         //If the message size is greater than the read buffer, fail noisily
         if(message_length > maxLen)
         {
-            DBGA("GraspitProtobufServer::Message size > socket buffer size");
+            DBGA("GraspitProtobufServer::Message size > socket buffer size: " << message_length);
             return 0;
         }
 
@@ -119,7 +122,7 @@ void GraspitProtobufServer::onConnection()
 {
 
     QTcpSocket *clientQTcpSocketConnection = nextPendingConnection();
-
+    DBGA("GraspitProtobufServer::onConnection:: new connection");
     GraspitProtobufConnection *newGraspitProtobufConnection = new GraspitProtobufConnection(NULL, clientQTcpSocketConnection);
     connect(clientQTcpSocketConnection, SIGNAL(disconnected()),newGraspitProtobufConnection, SLOT(deleteLater()));
 }
