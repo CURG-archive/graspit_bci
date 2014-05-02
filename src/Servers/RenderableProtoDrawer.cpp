@@ -83,7 +83,6 @@ SoSeparator *Renderer::getRenderRoot(SbName &childName, Renderable &renderable)
 bool Renderer::render(Renderable &renderable, QString & renderableRootName)
 {
     SbName renderableSeparatorName(renderableRootName.toStdString().c_str());
-    DBGA("Meta object name:" << renderableRootName.toStdString());
     SoSeparator * ivRoot = getRenderRoot(renderableSeparatorName, renderable);
     if(ivRoot)
         return renderImpl(ivRoot, renderable);

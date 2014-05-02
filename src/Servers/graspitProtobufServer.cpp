@@ -68,10 +68,7 @@ bool GraspitProtobufConnection::readMessage()
                 << inputByteArray.size());
        }
    }
-   else
-   {
-       DBGA("GraspitProtobufConnection:readMessage -- Available message size too small: " << sock->bytesAvailable())
-   }
+
    int readDelay = readSucceeded ? 1:rereadLatency;
    if(sock->bytesAvailable())
    {
