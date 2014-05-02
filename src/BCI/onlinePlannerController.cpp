@@ -413,7 +413,6 @@ namespace bci_experiment
         {
             b->setTran(object_pose);
             b->setName(object_name);
-            BCIService::getInstance()->emitObjectAddedToWorld();
         }
 
     }

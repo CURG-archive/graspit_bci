@@ -38,9 +38,6 @@ public:
     void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
     void emitRunObjectRecognition(){}
 
-    void emitObjectAddedToWorld() {emit objectAddedToWorld();}
-
-
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
     //called when active planner is updated
@@ -82,8 +79,6 @@ signals:
     void runObjectRecognitionSignal();
     void getCameraOriginSignal();
     void checkGraspReachabilitySignal();
-
-    void objectAddedToWorld();
 
 
     //! Signal to planner to execute
