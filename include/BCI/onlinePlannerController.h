@@ -58,7 +58,7 @@ namespace bci_experiment{
 
             GraspableBody* getCurrentTarget();
             GraspableBody * incrementCurrentTarget();
-
+            void setCurrentTarget(GraspableBody * gb);
             Hand * getHand();
             Hand * getGraspDemoHand();
             const GraspPlanningState * getGrasp(int index);
@@ -106,6 +106,7 @@ namespace bci_experiment{
 
             void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
             void clearObjects();
+            void targetRemoved();
 
     };
 

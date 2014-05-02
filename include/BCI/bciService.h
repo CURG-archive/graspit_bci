@@ -38,7 +38,7 @@ public:
     void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
     void emitRunObjectRecognition(){}
 
-    void emitSendString(const QString & s){emit sendString(s);}
+    void emitObjectAddedToWorld() {emit objectAddedToWorld();}
 
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
@@ -82,6 +82,8 @@ signals:
     void runObjectRecognitionSignal();
     void getCameraOriginSignal();
     void checkGraspReachabilitySignal();
+
+    void objectAddedToWorld();
 
 
     //! Signal to planner to execute

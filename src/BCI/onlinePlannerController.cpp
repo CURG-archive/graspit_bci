@@ -154,15 +154,29 @@ namespace bci_experiment
     {
         if(!currentTarget && getWorld()->getNumGB())
         {
-            currentTarget = getWorld()->getGB(0);
+            setCurrentTarget(getWorld()->getGB(0));
         }
         return currentTarget;
     }
 
     GraspableBody* OnlinePlannerController::incrementCurrentTarget()
     {
-        currentTarget = world_element_tools::getNextGraspableBody(currentTarget);
+        GraspableBody *newTarget = world_element_tools::getNextGraspableBody(currentTarget);
+        setCurrentTarget(newTarget);
         return currentTarget;
+    }
+
+    void OnlinePlannerController::setCurrentTarget(GraspableBody *gb)
+    {
+        if(currentTarget && currentTarget != gb)
+            disconnect(currentTarget, SIGNAL(destroyed()),this,SLOT(targetRemoved()));
+
+        if(gb)
+        {
+            currentTarget = gb;
+            connect(currentTarget, SIGNAL(destroyed()), this, SLOT(targetRemoved()));
+        }
+
     }
 
 
@@ -399,7 +413,9 @@ namespace bci_experiment
         {
             b->setTran(object_pose);
             b->setName(object_name);
+            BCIService::getInstance()->emitObjectAddedToWorld();
         }
+
     }
 
    void OnlinePlannerController::clearObjects()
@@ -407,5 +423,11 @@ namespace bci_experiment
        while(getWorld()->getNumGB() > 0)
            getWorld()->destroyElement(getWorld()->getGB(0), true);
 
+   }
+
+   void OnlinePlannerController::targetRemoved()
+   {
+        currentTarget = NULL;
+        getCurrentTarget();
    }
 }

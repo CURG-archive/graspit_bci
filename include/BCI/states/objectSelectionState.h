@@ -29,6 +29,7 @@ public slots:
 
     void onNext();
     void onSelect();
+    void onNewObjectFound();
 
 };
 

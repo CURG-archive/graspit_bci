@@ -5,6 +5,10 @@
 #include "ivmgr.h"
 #include "world.h"
 #include "BCI/onlinePlannerController.h"
+#include "BCI/bciService.h"
+
+using bci_experiment::WorldController;
+using bci_experiment::OnlinePlannerController;
 
 ObjectRecognitionStub::ObjectRecognitionStub(rpcz::rpc_channel * channel):
     objectRecognition_stub(channel, "ObjectRecognitionService", true)
@@ -12,13 +16,13 @@ ObjectRecognitionStub::ObjectRecognitionStub(rpcz::rpc_channel * channel):
     connect(
         this,
         SIGNAL(addToWorld(const QString, const QString, const QString )),
-        bci_experiment::OnlinePlannerController::getInstance(),
+        OnlinePlannerController::getInstance(),
         SLOT(addToWorld(const QString , const QString, const QString )));
 
     connect(
         this,
         SIGNAL(clearGB()),
-        bci_experiment::OnlinePlannerController::getInstance(),
+        OnlinePlannerController::getInstance(),
         SLOT(clearObjects()));
 }
 

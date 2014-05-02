@@ -1,3 +1,7 @@
+
+#ifndef OBJECT_RECOGNITION_STUB_H
+#define OBJECT_RECOGNITION_STUB_H
+
 #include "BCI/requests/requestStub.h"
 #include "run_recognition.rpcz.h"
 #include "run_recognition.pb.h"
@@ -28,7 +32,7 @@ private:
     graspit_rpcz::ObjectRecognitionResponse response;
 
     void addObject(GraspableObject object);
-    //Body * addToWorld(const QString & model_filename);
-
 
 };
+
+#endif // OBJECT_RECOGNITION_STUB_H

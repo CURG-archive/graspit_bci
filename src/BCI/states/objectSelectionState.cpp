@@ -15,6 +15,8 @@ ObjectSelectionState::ObjectSelectionState(BCIControlWindow *_bciControlWindow,
 {
     objectSelectionView = new ObjectSelectionView(this,bciControlWindow->currentFrame);
     objectSelectionView->hide();
+    //this->addSelfTransition(BCIService::getInstance(), SIGNAL(objectAddedToWorld()),this, SLOT(onNewObjectFound()));
+    this->addSelfTransition(getWorld(), SIGNAL(numElementsChanged()), this, SLOT(onNewObjectFound()));
 }
 
 
@@ -45,4 +47,15 @@ void ObjectSelectionState::onNext()
 void ObjectSelectionState::onSelect()
 {
     BCIService::getInstance()->emitGoToNextState1();
+}
+
+void ObjectSelectionState::onNewObjectFound()
+{
+    GraspableBody *currentTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
+
+    if(currentTarget)
+    {
+        WorldController::getInstance()->highlightCurrentBody(currentTarget);
+    }
+
 }
