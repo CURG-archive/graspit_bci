@@ -22,7 +22,6 @@ void ActivateRefinementState::onEntry(QEvent *e)
     activeRefinementView->show();
     bciControlWindow->currentState->setText("Active Refinement State");
     onPlannerUpdated();
-    OnlinePlannerController::getInstance()->setPlannerToRunning();
 }
 
 

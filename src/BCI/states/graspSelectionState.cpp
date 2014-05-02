@@ -39,6 +39,7 @@ void GraspSelectionState::onEntry(QEvent *e)
     //OnlinePlannerController::getInstance()->setPlannerToReady();
     //called so that view will show best grasp from database
     onPlannerUpdated();
+    OnlinePlannerController::getInstance()->setPlannerToRunning();
 }
 
 
@@ -59,8 +60,11 @@ void GraspSelectionState::onPlannerUpdated()
 
     if(bestGrasp)
     {
-        graspSelectionView->showSelectedGrasp(hand, bestGrasp);
+        graspSelectionView->showSelectedGrasp(hand,bestGrasp);
+        QString graspID;
+        bciControlWindow->currentState->setText("Planner Updated: " + graspID.setNum(bestGrasp->getAttribute("graspId")) );
     }
+    OnlinePlannerController::getInstance()->analyzeNextGrasp();
 
 }
 
