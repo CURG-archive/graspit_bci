@@ -23,6 +23,7 @@ void ConfirmationState::onEntry(QEvent *e)
     confirmationView->setCurrentGrasp(hand,grasp);
     confirmationView->show();
     bciControlWindow->currentState->setText("Confirmation State");
+    OnlinePlannerController::getInstance()->setPlannerToPaused();
 }
 
 
