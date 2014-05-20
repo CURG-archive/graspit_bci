@@ -20,7 +20,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     ObjectRecognitionState *objectRecognitionState = new ObjectRecognitionState(bciControlWindow);
     ObjectSelectionState *objectSelectionState = new ObjectSelectionState(bciControlWindow);
     GraspSelectionState *initialGraspSelectionState = new GraspSelectionState(bciControlWindow);
-    OnlinePlanningState * onlinePlanningState = new OnlinePlanningState(bciControlWindow);
+    //OnlinePlanningState * onlinePlanningState = new OnlinePlanningState(bciControlWindow);
     ActivateRefinementState *activateRefinementState = new ActivateRefinementState(bciControlWindow);
     GraspSelectionState *finalGraspSelectionState = new GraspSelectionState(bciControlWindow);
     ConfirmationState *confirmationState = new ConfirmationState(bciControlWindow);
@@ -40,7 +40,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
 
     finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()),confirmationState);
 
-    onlinePlanningState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
+    //onlinePlanningState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
 
     confirmationState->addTransition(bciService, SIGNAL(goToNextState1()), executionState);
     confirmationState->addTransition(bciService, SIGNAL(goToNextState2()), initialGraspSelectionState);
@@ -55,7 +55,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     stateMachine.addState(initialGraspSelectionState);
     stateMachine.addState(activateRefinementState);
     stateMachine.addState(finalGraspSelectionState);
-    stateMachine.addState(onlinePlanningState);
+    //stateMachine.addState(onlinePlanningState);
     stateMachine.addState(confirmationState);
     stateMachine.addState(executionState);
     stateMachine.addState(stoppedExecutionState);
