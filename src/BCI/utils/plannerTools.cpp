@@ -92,7 +92,7 @@ namespace bci_experiment
 
         void importGraspsFromDBMgr( OnLinePlanner * mPlanner, db_planner::DatabaseManager * mDbMgr)
         {
-            Hand*mHand = mPlanner->getRefHand();
+            Hand*mHand = mPlanner->getHand();
 
             // Get corresponding model from database
             std::vector<db_planner::Model*> modelList;
