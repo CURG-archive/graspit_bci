@@ -17,7 +17,9 @@ HandView::HandView(SoQtExaminerViewer *mainViewer, Hand * h, QFrame &parentWindo
      mainViewer_(mainViewer),
      IVRoot(new SoSeparator()),
      stateID_(-1),
-     parentWindow(&parentWindow)
+     parentWindow(&parentWindow),
+     handName_(""),
+     objectName_("")
 {
   IVRoot->setName("HandviewRoot");
   IVRoot->ref();
@@ -27,18 +29,16 @@ HandView::HandView(SoQtExaminerViewer *mainViewer, Hand * h, QFrame &parentWindo
 
   ivCamera = initIVCamera();
   SoTransformSeparator *lightSep = initIVLightSeparator();
-  IVHandGeometry = initIVHandGeometry(h);
-  IVObjectGeometry = initIVObjectGeometry(h);
+  IVHandGeometry = NULL;
+  IVObjectGeometry = NULL;
 
   IVRoot->addChild(ivCamera);
   IVRoot->addChild(lightSep);
-  IVRoot->addChild(IVHandGeometry);
-  IVRoot->addChild(IVObjectGeometry);
+  updateGeom(*h);
 
   handViewSoQtRenderArea->setSceneGraph(IVRoot);
 
 }
-
 
 
 /*!
@@ -54,8 +54,17 @@ HandView::HandView(SoQtExaminerViewer *mainViewer, Hand * h, QFrame &parentWindo
 */
 SoSeparator * HandView::initIVHandGeometry(Hand * h)
 {
+
+  //remove if existing
+  if(this->IVHandGeometry && this->handName_.compare(h->getName()))
+  {
+      IVRoot->removeChild(IVRoot->findChild(this->IVHandGeometry));
+  }
+  if(!this->handName_.compare(h->getName()))
+      return this->IVHandGeometry;
+  this->handName_ = h->getName();
   //Set up the scene graphs for the hand geometry
-  SoSeparator *IVHandGeometry = new SoSeparator;
+  IVHandGeometry = new SoSeparator;
   IVHandGeometry->setName("HandViewIVHandGeometry");
   //copy palm geometry
   IVHandGeometry->addChild(h->getPalm()->getIVRoot()->copy(false));
@@ -69,14 +78,27 @@ SoSeparator * HandView::initIVHandGeometry(Hand * h)
   {
     IVHandGeometry->addChild(links[i]->getIVRoot()->copy(false));
   }
-
+  IVRoot->addChild(IVHandGeometry);
   return IVHandGeometry;
 }
 
 SoSeparator * HandView::initIVObjectGeometry(Hand * h)
 {
-    return static_cast<SoSeparator*>(h->getGrasp()->getObject()->getIVRoot()->copy(false));
+    //remove if existing
+    //remove if existing
+    if(this->IVObjectGeometry && this->objectName_.compare(h->getGrasp()->getObject()->getName()))
+    {
+        IVRoot->removeChild(IVRoot->findChild(this->IVObjectGeometry));
+    }
+    if(!this->objectName_.compare(h->getGrasp()->getObject()->getName()))
+        return this->IVObjectGeometry;
+    this->objectName_ = h->getGrasp()->getObject()->getName();
+    this->IVObjectGeometry = static_cast<SoSeparator*>(h->getGrasp()->getObject()->getIVRoot()->copy(false));
+
+    IVRoot->addChild(IVObjectGeometry);
+    return this->IVObjectGeometry;
 }
+
 
 SoTransformSeparator * HandView::initIVLightSeparator()
 {
@@ -92,6 +114,9 @@ SoTransformSeparator * HandView::initIVLightSeparator()
 SoCamera * HandView::initIVCamera()
 {
     SoCamera * camera_ = static_cast<SoCamera *>(mainViewer_->getCamera()->copy());
+    //camera_->position.connectFrom(&mainViewer_->getCamera()->position);
+    //camera_->orientation.connectFrom(&mainViewer_->getCamera()->orientation);
+
     camera_->scaleHeight(.7);
     camera_->nearDistance = .1;
     camera_->farDistance=1e5;
@@ -141,6 +166,12 @@ void  HandView::copyLinkTransforms(Hand * h, SoSeparator * handIVRoot)
   
 }
 
+void HandView::updateGeom(Hand & cloneHand)
+{
+    initIVObjectGeometry(&cloneHand);
+    initIVHandGeometry(&cloneHand);
+}
+
 /*
   Updates the current scene graph to represent the a new hand/object relationship.
   This does not copy the current scene graph but instead updates the positions
@@ -152,6 +183,8 @@ void HandView::update(const GraspPlanningState & s, Hand & cloneHand)
 {
   double testResult = s.getAttribute("testResult");
   double stateID = s.getAttribute("graspId");
+  updateGeom(cloneHand);
+
 
   if(testResult > 0.0)
   {

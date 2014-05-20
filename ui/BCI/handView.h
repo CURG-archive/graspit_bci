@@ -133,6 +133,9 @@ private:
 
   int stateID_;
 
+  QString objectName_;
+  QString handName_;
+
   //---------------Constructor Helpers-------------------
   SoSeparator * initIVHandGeometry(Hand * h);
   SoSeparator *initIVObjectGeometry(Hand * h);
@@ -143,13 +146,13 @@ private:
   void copyLinkTransforms(Hand * h, SoSeparator * handIVRoot);
   void copyIVTran(SoSeparator * parentNode, const SoTransform & ivTran);
 
-
 public:
 
   HandView(SoQtExaminerViewer *mainViewer, Hand * h, QFrame &parentWindow, QString viewName);
    
   void update(const GraspPlanningState & s, Hand & cloneHand);
 
+  void updateGeom(Hand & h);
 
   //---------------Getters/Setters-----------------------
   QString getViewName();
