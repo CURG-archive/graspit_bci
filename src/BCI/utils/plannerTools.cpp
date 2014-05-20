@@ -30,8 +30,8 @@ namespace bci_experiment
         bool testGraspCollisions(Hand * h, const GraspPlanningState * s)
         {
           bool result = false;
-          std::vector<bool> currentCollisionState;
-          resetHandCollisions(h, true, currentCollisionState);
+          //std::vector<bool> currentCollisionState;
+          //resetHandCollisions(h, true, currentCollisionState);
           s->execute(h);
           World * w = getWorld();
           w->toggleCollisions(false, h, s->getObject());
@@ -39,8 +39,8 @@ namespace bci_experiment
             result = true;
           if(testPreGraspCollisions(h, -50.0))
             result = true;
-
-          setCollisionState(h, currentCollisionState);
+          w->toggleCollisions(true, h, s->getObject());
+          //setCollisionState(h, currentCollisionState);
           return result;
         }
 
