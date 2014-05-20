@@ -70,7 +70,7 @@ namespace bci_experiment{
             // Perform any validation or processing that should update
             // the planner or it's visualizations periodically
             //void plannerTimedUpdate();
-            void initializeTarget(Hand * currentHand, GraspableBody * targetObject);
+            void initializeTarget();
 
             void incrementGraspIndex();
 

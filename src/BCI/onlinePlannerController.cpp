@@ -118,8 +118,7 @@ namespace bci_experiment
 
 
 
-    void OnlinePlannerController::initializeTarget(Hand * currentHand,
-                                                   GraspableBody * targetObject)
+    void OnlinePlannerController::initializeTarget()
     {
       setAllowedPlanningCollisions();
         
