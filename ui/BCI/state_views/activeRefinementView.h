@@ -26,6 +26,8 @@ public slots:
     void onRotLong();
 
     
+protected:
+    virtual void showEvent(QShowEvent *);
 private:
     HandView *handView;
     Ui::ActiveRefinementView *ui;

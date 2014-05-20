@@ -14,13 +14,12 @@ ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
     connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
     connect(ui->buttonRotLat, SIGNAL(clicked()), this, SLOT(onRotLat()));
     connect(ui->buttonRotLong, SIGNAL(clicked()), this, SLOT(onRotLong()));
-
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
 
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QFrame *parentWindow = this->ui->previewFrame;
     QString viewName = QString("current best grasp");
-    handView = new HandView(mainViewer,h,*parentWindow, viewName);
+    //handView = new HandView(mainViewer,h,*parentWindow, viewName);
     createHandView();
     showSelectedGrasp(h,NULL);
 }
@@ -50,6 +49,10 @@ void ActiveRefinementView::onRotLat()
 void ActiveRefinementView::onRotLong()
 {
    BCIService::getInstance()->emitRotLong();
+}
+void ActiveRefinementView::showEvent(QShowEvent *)
+{
+    this->handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
 }
 
 void ActiveRefinementView::showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState)
