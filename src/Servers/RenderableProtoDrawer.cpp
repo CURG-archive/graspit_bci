@@ -73,7 +73,7 @@ SoSeparator *Renderer::getRenderRoot(SbName &childName, Renderable &renderable)
         SbName frameName(renderable.renderableframe().c_str());
         ivRoot = getOrAddSeparator(ivRoot, frameName);
     }
-    if(ivRoot)
+    if(ivRoot && childName.getLength() > 0)
     {
         ivRoot = getOrAddSeparator(ivRoot, childName);
     }
@@ -121,10 +121,20 @@ bool PointCloudRenderer::createNodes(SoSeparator *ivRoot, Renderable &renderable
     return true;
 }
 
+float PointCloudRenderer::getProtoScale(Renderable & renderable)
+{
+    float factor = 1.0;
+    if(renderable.pointcloud().has_units())
+    {
+        factor = 1000.0/renderable.pointcloud().units();
+    }
+    return factor;
+}
+
 void PointCloudRenderer::setScale(SoSeparator *ivRoot, Renderable &renderable)
 {
     float factor = 1.0;
-
+    factor = getProtoScale(renderable);
     if(renderable.pointcloud().has_units())
     {
         factor = 1000.0/renderable.pointcloud().units();
@@ -144,10 +154,7 @@ void PointCloudRenderer::setScale(SoSeparator *ivRoot, Renderable &renderable)
 bool PointCloudRenderer::renderImpl(SoSeparator *ivRoot, Renderable &renderable)
 {
     //Being here without a point cloud is a bug.
-    assert(renderable.has_pointcloud());
-
-    //Unpack the pointcloud just for future code berevity
-    const PointCloudXYZRGB & pc(renderable.pointcloud());
+    assert(renderable.has_pointcloud() || renderable.has_pointcloud2());
 
     //Create the node subtree of the renderable if necessary.
     if(!ivRoot->getNumChildren())
@@ -163,6 +170,24 @@ bool PointCloudRenderer::renderImpl(SoSeparator *ivRoot, Renderable &renderable)
     //Read the point data into Inventor structures.
     std::vector<SbVec3f> points;
     std::vector<SbColor> colors;
+    int point_size = fillPointList(renderable, points,colors);
+    //If points were parsed or the input meant to send no points,
+    //set the new point cloud points and colors.
+    if(points.size() || !point_size)
+    {
+        //Insert the inventor structures in to the
+        coord->point.setValues(0,points.size(), &points[0]);
+        mat->diffuseColor.setValues(0,colors.size(), &colors[0]);
+    }
+    return points.size() > 0;
+}
+
+int PointCloudRenderer::fillPointList(Renderable & renderable,
+                                       std::vector<SbVec3f> &points,
+                                       std::vector<SbColor> &colors)
+{
+    //Unpack the pointcloud just for future code berevity
+    const PointCloudXYZRGB & pc(renderable.pointcloud());
     int pointNum = pc.points_size();
     points.reserve(pointNum);
     colors.reserve(pointNum);
@@ -173,15 +198,101 @@ bool PointCloudRenderer::renderImpl(SoSeparator *ivRoot, Renderable &renderable)
         const PointXYZRGB & pc_colored_point(pc.points(i));
         const PointXYZ & pc_point(pc_colored_point.point());
         const ColorRGB & pc_color(pc_colored_point.color());
-
+        if (std::isnan(pc_point.x()))
+            continue;
         //Put the data in the data structures
         points.push_back(SbVec3f(pc_point.x(), pc_point.y(), pc_point.z()));
         colors.push_back(SbColor(pc_color.red(), pc_color.green(), pc_color.blue()));
     }
+    return pointNum;
 
-    //Insert the inventor structures in to the
-    coord->point.setValues(0,points.size(), &points[0]);
-    mat->diffuseColor.setValues(0,colors.size(), &colors[0]);
+}
+
+float PointCloud2Renderer::getProtoScale(Renderable &renderable)
+{
+    float factor = 1.0;
+    if(renderable.pointcloud2().has_units())
+    {
+        factor = 1000.0/renderable.pointcloud2().units();
+    }
+    return factor;
+
+}
+
+int PointCloud2Renderer::fillPointList(Renderable & renderable,
+                                        std::vector<SbVec3f> &points,
+                                       std::vector<SbColor> &colors)
+{
+    const PointCloud2 & pc(renderable.pointcloud2());
+
+    int pointNum = pc.height()*pc.width();
+    points.reserve(pointNum);
+    colors.reserve(pointNum);
+    QByteArray dataArray;
+    char * rawData = const_cast<char *>(pc.data().c_str());
+
+    for(int i = 0; i < pointNum; ++i)
+    {
+
+        dataArray.fromRawData(rawData,4);
+        float x = *reinterpret_cast<float *> (rawData);
+
+        rawData += 4;
+
+        float y = *reinterpret_cast<float *> (rawData);
+
+        rawData += 4;
+
+        float z = *reinterpret_cast<float *> (rawData);
+        rawData += 8;
+        float blue = *reinterpret_cast<unsigned char *>(rawData)/255.0;
+        rawData += 1;
+        float green = *reinterpret_cast<unsigned char *>(rawData)/255.0;
+        rawData += 1;
+        float red = *reinterpret_cast<unsigned char *>(rawData)/255.0;
+        rawData += 14;
+        if(!std::isnan(x))
+        {
+            points.push_back(SbVec3f(x, y, z));
+            colors.push_back(SbColor(red, green, blue));
+        }
+    }
+    return pointNum;
+}
+
+
+bool FrameRenderer::renderImpl(SoSeparator * ivRoot, Renderable &renderable)
+{
+    SoSeparator * worldIVRoot = GraspItGUI::getInstance()->getIVmgr()->getWorld()->getIVRoot();
+    SbName pc2Name("PointCloudRoot2");
+    SoNodeList pointCloud2 = getChildByName(worldIVRoot, pc2Name);
+
+    assert(renderable.has_renderableframe());
+    SbName frameName(renderable.renderableframe().c_str());
+    ivRoot = getOrAddSeparator(worldIVRoot, frameName);
+    SoTransform * tran;
+
+    if(ivRoot->getNumChildren() && ivRoot->getChild(0)->getTypeId() == SoTransform::getClassTypeId())
+    {
+        tran = static_cast<SoTransform *>(ivRoot->getChild(0));
+        DBGA("IVRoot child number: " << ivRoot->getNumChildren());
+    }
+    else
+    {
+        tran = new SoTransform();
+        ivRoot->insertChild(tran, 0);
+    }
+    Quaternion q(renderable.frame().orientation().w(),renderable.frame().orientation().x(),
+                 renderable.frame().orientation().y(),renderable.frame().orientation().z());
+    tran->rotation.setValue(q.toSbRotation());
+    float units = 1.0;
+
+    if(renderable.frame().has_units())
+        units = 1000.0/renderable.frame().units();
+
+    tran->translation.setValue(renderable.frame().translation().x() * units,
+                               renderable.frame().translation().y() * units,
+                               renderable.frame().translation().z() * units);
     return true;
 }
 
@@ -193,5 +304,17 @@ void RenderableProtoDrawer::renderMessage(Renderable &renderable)
         PointCloudRenderer renderer;
         QString ivRootName("PointCloudRoot");
         renderer.render(renderable,ivRootName);
+    }
+    if(renderable.has_pointcloud2())
+    {
+        PointCloud2Renderer renderer;
+        QString ivRootName("PointCloudRoot2");
+        renderer.render(renderable,ivRootName);
+    }
+    if(renderable.has_frame())
+    {
+        FrameRenderer renderer;
+        QString emptyName = "";
+        renderer.render(renderable, emptyName);
     }
 }

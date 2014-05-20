@@ -89,8 +89,43 @@ class PointCloudRenderer : public Renderer
      * @return True if the rendering succeeds.
      */
     virtual bool renderImpl(SoSeparator *ivRoot, Renderable &renderable);
+    /*!
+     * \brief fillPointList Fills the points and colors structures with data
+     *        from the renderable
+     * \param points - vector of points to fill
+     * \param colors - vector of colors to fill
+     * \return number of points if read succeeded
+     */
+    virtual int fillPointList(Renderable & renderable, std::vector<SbVec3f> & points,
+                               std::vector<SbColor> & colors);
+
+    virtual float getProtoScale(Renderable & renderable);
+};
+
+class PointCloud2Renderer : public PointCloudRenderer
+{
+    typedef Renderable_PointCloud2 PointCloud2;
+
+    /*!
+     * \brief fillPointList Fills the points and colors structures with data
+     *        from the renderable
+     * \param points - vector of points to fill
+     * \param colors - vector of colors to fill
+     * \return number of points if read succeeded
+     */
+    virtual int fillPointList(Renderable & renderable,
+                              std::vector<SbVec3f> &points, std::vector<SbColor> &colors);
+    virtual float getProtoScale(Renderable & renderable);
 
 };
+
+class FrameRenderer : public Renderer
+{
+public:
+
+    virtual bool renderImpl(SoSeparator * ivRoot, Renderable &renderable);
+};
+
 
 class RenderableProtoDrawer : public QObject
 {
