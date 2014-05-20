@@ -2,14 +2,14 @@
 #define GRASPSELECTIONSTATE_H
 
 
-#include "BCI/state.h"
+#include "BCI/states/handRotationState.h"
 
 #include <QSignalTransition>
 #include "debug.h"
 #include "BCI/bciControlWindow.h"
 #include "BCI/state_views/graspSelectionView.h"
 
-class GraspSelectionState:public State
+class GraspSelectionState: public HandRotationState
 {
     Q_OBJECT
 
@@ -20,8 +20,7 @@ public:
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
 
-private:
-    BCIControlWindow *bciControlWindow;
+protected:
     GraspSelectionView *graspSelectionView;
 
 public slots:
