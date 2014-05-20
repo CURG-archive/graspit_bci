@@ -26,7 +26,7 @@ GraspitProtobufConnection::~GraspitProtobufConnection()
 void GraspitProtobufConnection::parseMessage()
 {
     if (!readMessage()){
-      DBGP("GraspitProtobufConnection::parseMessage::Failed to parse message")
+      DBGA("GraspitProtobufConnection::parseMessage::Failed to parse message")
       return;
   }
     if(msg->has_drawable_frame())
@@ -51,7 +51,7 @@ bool GraspitProtobufConnection::readMessage()
 
    bool readSucceeded = false;
 
-
+    unsigned int bytesAvailable = sock->bytesAvailable();
    // Test if there is a valid message in the buffer
    if(message_length && sock->bytesAvailable() >= message_length)
    {
