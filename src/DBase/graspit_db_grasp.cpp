@@ -183,7 +183,7 @@ QString GraspitDBGrasp::getHandDBName(Hand* h)
 		hand_db_name = QString("WILLOW_GRIPPER");
 	}else if(handName == QString("McGrip")){
 		hand_db_name = QString("MC_GRIP");
-  }else if(handName == QString("NewBarrett")){
+  }else if(handName.split(' ')[0] == QString("NewBarrett")){
     if(material == h->getWorld()->getMaterialIdx("rubber")){
       hand_db_name = QString("NEW_BARRETT_RUBBER");
     }   
