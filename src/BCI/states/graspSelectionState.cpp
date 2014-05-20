@@ -39,7 +39,6 @@ void GraspSelectionState::onEntry(QEvent *e)
     //OnlinePlannerController::getInstance()->setPlannerToReady();
     //called so that view will show best grasp from database
     onPlannerUpdated();
-    OnlinePlannerController::getInstance()->setPlannerToRunning();
 }
 
 
