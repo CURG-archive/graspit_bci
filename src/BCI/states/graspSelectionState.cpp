@@ -5,8 +5,8 @@
 using bci_experiment::OnlinePlannerController;
 
 
-GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow,QState* parent):
-    State("GraspSelectionState", parent),bciControlWindow(_bciControlWindow)
+GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QState* parent):
+    HandRotationState("GraspSelectionState",_bciControlWindow, parent)
 {
     /* What should next do?
 
