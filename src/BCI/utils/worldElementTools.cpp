@@ -213,7 +213,12 @@ void realignHand(Hand * h)
   h->quickOpen(1.0);
   if(h->getGrasp()->getObject()){
     approachDist = 300;
+    bool collisionsWereOn = !getWorld()->collisionsAreOff(h, h->getGrasp()->getObject());
+    if(collisionsWereOn)
+        getWorld()->toggleCollisions(false, h, h->getGrasp()->getObject());
     alignHandToObject(h, h->getGrasp()->getObject(), approachDist);
+    if(collisionsWereOn)
+        getWorld()->toggleCollisions(true, h, h->getGrasp()->getObject());
   }
   else
     {
