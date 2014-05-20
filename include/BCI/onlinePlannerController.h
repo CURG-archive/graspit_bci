@@ -90,9 +90,8 @@ namespace bci_experiment{
             unsigned int currentGraspIndex;
             OnLinePlanner * currentPlanner;
             Hand * graspDemonstrationHand;
-
             bool setAllowedPlanningCollisions();
-
+            bool setPlannerTargets();
 
     private slots:
             void plannerTimedUpdate();
