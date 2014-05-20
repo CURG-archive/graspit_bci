@@ -51,6 +51,8 @@ public slots:
 
 
     
+protected:
+    virtual void showEvent(QShowEvent *);
 private:
      void showSpinner();
      void hideSpinner();

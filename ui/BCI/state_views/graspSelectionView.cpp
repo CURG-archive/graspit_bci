@@ -43,6 +43,11 @@ void GraspSelectionView::onBack()
     BCIService::getInstance()->emitGoToPreviousState();
 }
 
+void GraspSelectionView::showEvent(QShowEvent *)
+{
+    handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+}
+
 ///////////////////////////////////////////////////
 //hide/show spinner and handView
 void GraspSelectionView::showSpinner()
