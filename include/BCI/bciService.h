@@ -115,6 +115,9 @@ signals:
     void analyzeApproachDir(GraspPlanningState * gps);
 
 
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *evt);
+
 private:
         static BCIService * bciServiceInstance;
         BCIService();

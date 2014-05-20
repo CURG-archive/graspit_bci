@@ -1,6 +1,8 @@
 #include "BCI/bciService.h"
 #include "BCI/BCIStateMachine.h"
 
+#include <QKeyEvent>
+
 BCIService * BCIService::bciServiceInstance = NULL;
 
 BCIService* BCIService::getInstance()
@@ -8,6 +10,7 @@ BCIService* BCIService::getInstance()
     if(!bciServiceInstance)
     {
         bciServiceInstance = new BCIService();
+        QApplication::instance()->installEventFilter(bciServiceInstance);
     }
 
     return bciServiceInstance;
@@ -25,6 +28,20 @@ void BCIService::init(BCIControlWindow *bciControlWindow)
     bciStateMachine->start();
 }
 
+bool BCIService::eventFilter(QObject * obj, QEvent* evt)
+{
+    if(evt->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(evt);
+        if(keyEvent->key() == Qt::Key::Key_Z)
+            runObjectRecognition(NULL, NULL);
+            return true;
+    }
+    else
+    {
+            return QObject::eventFilter(obj, evt);
+    }
+}
 
 
 
