@@ -121,7 +121,7 @@ namespace bci_experiment
                                        (grasps[gNum])->getFinalGraspPlanningState());
 
                 s->setObject(mHand->getGrasp()->getObject());
-                s->setRefTran(mHand->getGrasp()->getObject()->getTran());
+                s->setRefTran(mHand->getGrasp()->getObject()->getTran(), false);
                 float testResult = -2*bci_experiment::planner_tools::testGraspCollisions(mHand, s);
                 s->addAttribute("graspId", gNum);
                 s->addAttribute("testResult", testResult);
