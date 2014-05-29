@@ -561,10 +561,10 @@ Robot::addApproachGeometry()
 	arrow->coneRadius = (float)2.6;
 	arrow->coneHeight = (float)5.5;
 	SoTransform *arrowTran = new SoTransform();
-	arrowTran->rotation.setValue(SbVec3f(1,0,0),(float)(M_PI/2.0));
+    arrowTran->rotation.setValue(SbVec3f(1,0,0),(float)(M_PI/2.0));
 	IVApproachRoot->addChild(arrowTran);
 	IVApproachRoot->addChild(arrow);
-	getBase()->getIVRoot()->addChild(IVApproachRoot);	
+    getBase()->getIVRoot()->insertChild(IVApproachRoot,1);
 }
 
 /*! Adds a visual marker that shows where on the robot the Flock of Birds
