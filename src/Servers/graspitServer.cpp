@@ -510,7 +510,7 @@ void ClientSocket::drawCircle()
   
   SbColor circleColor(r,g,b);
   
-  //graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
+  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
 }
 
 void ClientSocket::drawCursor()

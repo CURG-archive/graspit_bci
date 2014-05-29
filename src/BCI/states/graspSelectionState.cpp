@@ -20,7 +20,7 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
       and which grasp is shown most prominantly in any grasp preview pane.
     */
 
-    addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
+    //addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
     addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
     connect(this, SIGNAL(entered()), OnlinePlannerController::getInstance(), SLOT(setPlannerToReady()));
     graspSelectionView = new GraspSelectionView(bciControlWindow->currentFrame);

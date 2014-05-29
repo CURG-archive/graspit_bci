@@ -310,6 +310,11 @@ public:
 #endif
   void setStereoWindow(QWidget *parent);
 
+  void drawCircle(const QString & stringName, double x, double y, float scale, SbColor & color,
+                  double transparency, double thickness);
+
+
+
 };
 
 class BackgroundBlinker : public QThread{

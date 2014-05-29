@@ -8,13 +8,14 @@ using bci_experiment::WorldController;
 ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWindow,QState* parent):
     HandRotationState("ActivateRefinementState",_bciControlWindow, parent)
 {
-    addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(BCIService::getInstance(), SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
     connect(this, SIGNAL(entered()),OnlinePlannerController::getInstance(), SLOT(setPlannerToRunning()));
     connect(this, SIGNAL(exited()), OnlinePlannerController::getInstance(), SLOT(setPlannerToPaused()));
 
     activeRefinementView = new ActiveRefinementView(bciControlWindow->currentFrame);
     activeRefinementView->hide();
 }
+
 
 
 void ActivateRefinementState::onEntry(QEvent *e)

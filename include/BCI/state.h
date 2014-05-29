@@ -14,15 +14,17 @@ public:
 
     QString name() const { return m_name; }
     QString prefix() const { return m_prefix; }
+    void addSelfTransition(QObject * sender, const char * signal, const QObject *receiver, const char *slot  );
 
 public slots:
     void setName( const QString& name ) { m_name = name; }
     void setPrefix( const QString& prefix ) { m_prefix = prefix; }    
 
+
 protected:
     virtual void onEntry( QEvent* e );
     virtual void onExit( QEvent* e );
-    void addSelfTransition(QObject * sender, const char * signal, const QObject *receiver, const char *slot  );
+
 
 
 protected:

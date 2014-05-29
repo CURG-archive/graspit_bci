@@ -1979,3 +1979,39 @@ void IVmgr::setStereo(bool s)
 void IVmgr::flipStereo()
 {
 }
+
+SoSeparator *  makeCircleSep(const QString & name)
+{
+  SoSeparator * circleSep = new SoSeparator;
+  circleSep->setName(name.toStdString().c_str());
+  SoTransform * circTran = new SoTransform;
+  circTran->rotation.setValue(SbVec3f(1,0,0),-M_PI/2);
+  circleSep->addChild(circTran);
+  circleSep->addChild(new SoMaterial);
+  SoCone * circGeom(new SoCone);
+  circGeom->removePart(SoCone::BOTTOM);
+  circleSep->addChild(circGeom);
+
+  static_cast<SoSeparator *>(SoSeparator::getByName("hud"))->addChild(circleSep);
+
+  return circleSep;
+}
+
+void
+IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color,
+                   double thickness, double transparency)
+{
+   x = x* myViewer->getViewportRegion().getViewportAspectRatio();
+  QString circleSepName(circleName + "sep");
+  SoSeparator * circleSep = static_cast<SoSeparator *>(SoSeparator::getByName(circleSepName.toStdString().c_str()));
+  if(!circleSep)
+    circleSep = makeCircleSep(circleName + "sep");
+  SoTransform * circTran = static_cast<SoTransform * >(circleSep->getChild(0));
+  circTran->translation.setValue(x,y, -2*(1-thickness));
+  SoMaterial * circMat = static_cast<SoMaterial * >(circleSep->getChild(1));
+  circMat->diffuseColor.setValue(color);
+  circMat->transparency.setValue(transparency);
+  SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
+  circGeom->bottomRadius = radius;
+  //circGeom->height = 1/thickness;
+}
