@@ -79,7 +79,7 @@ namespace bci_experiment{
 
 
 
-        private:
+    private:
 
             static OnlinePlannerController * onlinePlannerController;
 

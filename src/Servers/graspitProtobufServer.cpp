@@ -26,7 +26,7 @@ GraspitProtobufConnection::~GraspitProtobufConnection()
 void GraspitProtobufConnection::parseMessage()
 {
     if (!readMessage()){
-      DBGA("GraspitProtobufConnection::parseMessage::Failed to parse message")
+      DBGP("GraspitProtobufConnection::parseMessage::Failed to parse message");
       return;
   }
     if(msg->has_drawable_frame())
@@ -108,7 +108,7 @@ quint32 GraspitProtobufConnection::getMessageSize()
 }
 
 
-GraspitProtobufServer::GraspitProtobufServer(unsigned int port_num, QObject * parent ) :
+GraspitProtobufServer::GraspitProtobufServer(unsigned int port_num, QObject * parent ):
     QTcpServer(parent)
 {
     connect(this, SIGNAL(newConnection()), this, SLOT(onConnection()));

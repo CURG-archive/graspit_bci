@@ -1,5 +1,6 @@
 #include "BCI/bciService.h"
 #include "BCI/BCIStateMachine.h"
+#include "debug.h"
 
 #include <QKeyEvent>
 
