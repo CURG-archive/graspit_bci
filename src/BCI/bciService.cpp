@@ -35,7 +35,44 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(evt);
         if(keyEvent->key() == Qt::Key::Key_Z)
             runObjectRecognition(NULL, NULL);
-            return true;
+
+        if(keyEvent->key() == Qt::Key::Key_N)
+        {
+            if(OnlinePlannerController::getInstance() && world_element_tools::getWorld()->getCurrentPlanner())
+            {
+
+
+                OnlinePlannerController::getInstance()->incrementGraspIndex();
+                OnlinePlannerController::getInstance()->getCurrentGrasp()->execute(
+                            OnlinePlannerController::getInstance()->getGraspDemoHand());
+                DBGA("set next graspfrom key press");
+                return true;
+            }
+        }    
+        if(keyEvent->key() == Qt::Key::Key_C)
+        {
+            if(OnlinePlannerController::getInstance())
+            {
+                if(OnlinePlannerController::getInstance()->getCurrentGrasp()){
+                    DBGA("emitted check grasp from key press");
+                    checkGraspReachability(OnlinePlannerController::getInstance()->getCurrentGrasp(), NULL, NULL);
+                }
+                else
+                {
+                    DBGA("couldn't find grasp to check");
+                }
+            }
+
+        }
+        if(keyEvent->key() == Qt::Key::Key_T)
+        {
+            if(OnlinePlannerController::getInstance())
+            {
+                OnlinePlannerController::getInstance()->toggleTimedUpdate();
+                DBGA("Planner timed update running: " << OnlinePlannerController::getInstance()->timedUpdateRunning);
+            }
+        }
+        return true;
     }
     else
     {
