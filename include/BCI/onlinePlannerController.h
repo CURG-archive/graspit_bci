@@ -63,7 +63,10 @@ namespace bci_experiment{
             Hand * getGraspDemoHand();
             const GraspPlanningState * getGrasp(int index);
             const GraspPlanningState * getCurrentGrasp();
-
+            bool timedUpdateRunning;
+            bool stopTimedUpdate();
+            bool startTimedUpdate();
+            bool toggleTimedUpdate();
 
             void connectToPlannerUpdateSignal();
 

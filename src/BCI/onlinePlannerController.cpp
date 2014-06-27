@@ -92,9 +92,11 @@ namespace bci_experiment
                 //updateResults(true, false);
             }
         }
-
-        BCIService::getInstance()->onPlannerUpdated();
-        QTimer::singleShot(1000, this, SLOT(plannerTimedUpdate()));
+        if(timedUpdateRunning)
+        {
+            BCIService::getInstance()->onPlannerUpdated();
+            QTimer::singleShot(1000, this, SLOT(plannerTimedUpdate()));
+        }
     }
 
 
@@ -374,6 +376,29 @@ namespace bci_experiment
     {
         return getGrasp(currentGraspIndex);
     }
+
+    bool OnlinePlannerController::stopTimedUpdate()
+    {
+        timedUpdateRunning = false;
+        return false;
+    }
+
+    bool OnlinePlannerController::startTimedUpdate()
+    {
+        timedUpdateRunning = true;
+        plannerTimedUpdate();
+        return true;
+    }
+
+    bool OnlinePlannerController::toggleTimedUpdate()
+    {
+        if(timedUpdateRunning)
+            stopTimedUpdate();
+        else
+            startTimedUpdate();
+        return timedUpdateRunning;
+    }
+
 
 
     void OnlinePlannerController::analyzeNextGrasp()
