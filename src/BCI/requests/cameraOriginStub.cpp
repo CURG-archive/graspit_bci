@@ -4,6 +4,8 @@
 #include "graspitGUI.h"
 #include "ivmgr.h"
 #include <Inventor/nodes/SoCamera.h>
+#include "world.h"
+#include "robot.h"
 
 CameraOriginStub::CameraOriginStub(rpcz::rpc_channel * channel)
     :cameraOrigin_stub(channel, "CameraOriginService")
@@ -22,7 +24,7 @@ void CameraOriginStub::callbackImpl()
     float x = response.cameraorigin().position().x();
     float y = response.cameraorigin().position().y();
     float z = response.cameraorigin().position().z();
-    transf t(mat3::IDENTITY, vec3(x,y,z));
+    transf t(mat3::IDENTITY, 1.5*vec3(x,y,z));
     graspItGUI->getIVmgr()->setCameraTransf(t);
     graspItGUI->getIVmgr()->getViewer()->getCamera()->pointAt(SbVec3f(0,0,0), SbVec3f(0,0,1));
 }

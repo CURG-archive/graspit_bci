@@ -477,4 +477,10 @@ namespace bci_experiment
         currentTarget = NULL;
         getCurrentTarget();
    }
+
+   void OnlinePlannerController::sortGrasps()
+   {
+       currentPlanner->updateSolutionList();
+   }
+
 }

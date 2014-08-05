@@ -79,6 +79,7 @@ namespace bci_experiment{
 
 
 
+            void sortGrasps();
     private:
 
             static OnlinePlannerController * onlinePlannerController;

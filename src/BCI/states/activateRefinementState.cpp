@@ -36,6 +36,7 @@ void ActivateRefinementState::onExit(QEvent *e)
 
 void ActivateRefinementState::onPlannerUpdated(QEvent * e)
 {
+    OnlinePlannerController::getInstance()->sortGrasps();
     const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
 

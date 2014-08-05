@@ -183,10 +183,15 @@ QString GraspitDBGrasp::getHandDBName(Hand* h)
 		hand_db_name = QString("WILLOW_GRIPPER");
 	}else if(handName == QString("McGrip")){
 		hand_db_name = QString("MC_GRIP");
-  }else if(handName.split(' ')[0] == QString("NewBarrett")){
+  }else if(handName == QString("MicoGripper"))
+    {
+        hand_db_name = QString("MICO_GRIPPER");
+    }
+    else if(handName.split(' ')[0] == QString("NewBarrett")){
     if(material == h->getWorld()->getMaterialIdx("rubber")){
       hand_db_name = QString("NEW_BARRETT_RUBBER");
-    }   
+    }
+
 	}else {
 		std::cout << "Wrong hand name detected: " << handName.latin1() << 
 			".  Acceptable GRASPIT_hand_names are: Barrett, HumanHand20DOF, Pr2Gripper" << std::endl;

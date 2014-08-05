@@ -56,6 +56,7 @@ void GraspSelectionState::onPlannerUpdated()
 {
     const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
+    OnlinePlannerController::getInstance()->sortGrasps();
 
     if(bestGrasp)
     {
