@@ -2001,7 +2001,7 @@ void
 IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color,
                    double thickness, double transparency)
 {
-   x = x* myViewer->getViewportRegion().getViewportAspectRatio();
+  //x = x* myViewer->getViewportRegion().getViewportAspectRatio();
   QString circleSepName(circleName + "sep");
   SoSeparator * circleSep = static_cast<SoSeparator *>(SoSeparator::getByName(circleSepName.toStdString().c_str()));
   if(!circleSep)
@@ -2012,6 +2012,6 @@ IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, 
   circMat->diffuseColor.setValue(color);
   circMat->transparency.setValue(transparency);
   SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
-  circGeom->bottomRadius = radius;
+  circGeom->bottomRadius = 2*radius;
   //circGeom->height = 1/thickness;
 }
