@@ -133,7 +133,18 @@ GraspitCollision::activatePair(const Body* body1, const Body* body2, bool active
 		DBGP("Disable pair: " << model1 << " -- " << model2);
 		mDisabledMap.insert( std::pair<const CollisionModel*, const CollisionModel*>(model1, model2) );
 	} else {
-		//remove from list
+		//remove from list        
+        DisabledIterator rangeIt;
+        std::pair<DisabledIterator, DisabledIterator> range;
+
+       range = mDisabledMap.equal_range(model1);
+       for (rangeIt = range.first; rangeIt != range.second; rangeIt++) {
+           if (rangeIt->second == model2) {
+                mDisabledMap.erase(rangeIt);
+                return;
+           }
+       }
+
 	}
 }
 
