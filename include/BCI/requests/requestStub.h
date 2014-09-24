@@ -26,6 +26,7 @@ public:
            {
                sendRequestImpl();
                std::cout << "REQUEST SENT" << std::endl;
+               return true;
            }
            catch(rpcz::rpc_error &e)
            {
@@ -35,6 +36,7 @@ public:
            {
                std::cout << "NON RPCZ Error: " << e.what() << std::endl;
            }
+        return false;
     }
 
     void callback()

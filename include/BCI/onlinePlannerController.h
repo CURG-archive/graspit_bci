@@ -60,8 +60,10 @@ namespace bci_experiment{
             GraspableBody * incrementCurrentTarget();
             void setCurrentTarget(GraspableBody * gb);
             Hand * getHand();
+            Hand *getRefHand();
             Hand * getGraspDemoHand();
             const GraspPlanningState * getGrasp(int index);
+            const unsigned int getNumGrasps();
             const GraspPlanningState * getCurrentGrasp();
             bool timedUpdateRunning;
             bool stopTimedUpdate();

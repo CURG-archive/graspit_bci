@@ -46,19 +46,19 @@ public:
     //ros server calls
 
 
-    void runObjectRecognition(QObject * callbackReceiver , const char * slot);
+    bool runObjectRecognition(QObject * callbackReceiver , const char * slot);
 
 
-    void getCameraOrigin(QObject * callbackReceiver, const char * slot);
+    bool getCameraOrigin(QObject * callbackReceiver, const char * slot);
 
 
 
-    void checkGraspReachability(const GraspPlanningState * state,
+    bool checkGraspReachability(const GraspPlanningState * state,
                                             QObject * callbackReceiver,
                                             const char * slot);
 
 
-    void executeGrasp(const GraspPlanningState * gps,
+    bool executeGrasp(const GraspPlanningState * gps,
                                   QObject * callbackReceiver,
                                   const char * slot);
 
