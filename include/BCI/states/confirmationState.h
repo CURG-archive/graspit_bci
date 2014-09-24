@@ -16,6 +16,8 @@ public:
      virtual void onExit(QEvent *e);
 
 
+public slots:
+    void onNextGrasp(QEvent *e=NULL);
 private:
     ConfirmationView* confirmationView;
     BCIControlWindow *bciControlWindow;

@@ -41,8 +41,6 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
         {
             if(OnlinePlannerController::getInstance() && world_element_tools::getWorld()->getCurrentPlanner())
             {
-
-
                 OnlinePlannerController::getInstance()->incrementGraspIndex();
                 OnlinePlannerController::getInstance()->getCurrentGrasp()->execute(
                             OnlinePlannerController::getInstance()->getGraspDemoHand());
@@ -83,30 +81,30 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
 
 
 
-void BCIService::runObjectRecognition(QObject * callbackReceiver ,
+bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
                                       const char * slot)
 {
-    rosServer.runObjectRecognition(callbackReceiver, slot);
+    return rosServer.runObjectRecognition(callbackReceiver, slot);
 }
 
-void BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
+bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
 {
-    rosServer.getCameraOrigin(callbackReceiver, slot);
+    return rosServer.getCameraOrigin(callbackReceiver, slot);
 }
 
 
-void BCIService::checkGraspReachability(const GraspPlanningState * state,
+bool BCIService::checkGraspReachability(const GraspPlanningState * state,
                                         QObject * callbackReceiver,
                                         const char * slot)
 {
-    rosServer.checkGraspReachability(state, callbackReceiver, slot);
+    return rosServer.checkGraspReachability(state, callbackReceiver, slot);
 }
  
-void BCIService::executeGrasp(const GraspPlanningState * gps, 
+bool BCIService::executeGrasp(const GraspPlanningState * gps,
 			      QObject * callbackReceiver,
 			      const char * slot)
 {
-    rosServer.executeGrasp(gps);
+    return rosServer.executeGrasp(gps, callbackReceiver, slot);
 }
 
 

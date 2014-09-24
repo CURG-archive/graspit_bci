@@ -1,7 +1,7 @@
 #include "BCI/states/objectSelectionState.h"
 #include "BCI/bciService.h"
 #include "BCI/state_views/objectSelectionView.h"
-
+#include "graspitGUI.h"
 
 using bci_experiment::world_element_tools::getWorld;
 using bci_experiment::OnlinePlannerController;
@@ -16,6 +16,8 @@ ObjectSelectionState::ObjectSelectionState(BCIControlWindow *_bciControlWindow,
     objectSelectionView = new ObjectSelectionView(this,bciControlWindow->currentFrame);
     objectSelectionView->hide();
     this->addSelfTransition(getWorld(), SIGNAL(numElementsChanged()), this, SLOT(onNewObjectFound()));
+    this->addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRunVision()));
+
 }
 
 
@@ -25,9 +27,18 @@ void ObjectSelectionState::onEntry(QEvent *e)
     WorldController::getInstance()->highlightAllBodies();
     GraspableBody *currentTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
     WorldController::getInstance()->highlightCurrentBody(currentTarget);
-    bciControlWindow->currentState->setText("Object Selection State");
+    bciControlWindow->currentState->setText("Object Selection");
 }
 
+void ObjectSelectionState::onRunVision(QEvent * e)
+{
+    BCIService::getInstance()->runObjectRecognition(this, SLOT(onVisionFinished()));
+}
+
+void ObjectSelectionState::onVisionFinished(QEvent * e)
+{
+    graspItGUI->getIVmgr()->blinkBackground();
+}
 
 void ObjectSelectionState::onExit(QEvent *e)
 {

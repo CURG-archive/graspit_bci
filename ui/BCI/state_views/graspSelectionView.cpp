@@ -14,7 +14,8 @@ GraspSelectionView::GraspSelectionView(QWidget *parent) :
 
     connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
     connect(ui->buttonRefineGrasp, SIGNAL(clicked()), this, SLOT(onRefineGrasp()));
-    connect(ui->buttonBack, SIGNAL(clicked()), this, SLOT(onBack()));
+    connect(ui->buttonRotateLat, SIGNAL(clicked()), this, SLOT(onRotateLat()));
+    connect(ui->buttonRotateLong, SIGNAL(clicked()), this, SLOT(onRotateLong()));
 
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
@@ -33,14 +34,19 @@ void GraspSelectionView::onRefineGrasp()
     BCIService::getInstance()->emitGoToNextState2();
 }
 
+void GraspSelectionView::onRotateLong()
+{
+    BCIService::getInstance()->emitRotLong();
+}
+
 void GraspSelectionView::onOk()
 {
     BCIService::getInstance()->emitGoToNextState1();
 }
 
-void GraspSelectionView::onBack()
+void GraspSelectionView::onRotateLat()
 {
-    BCIService::getInstance()->emitGoToPreviousState();
+    BCIService::getInstance()->emitRotLat();
 }
 
 void GraspSelectionView::showEvent(QShowEvent *)

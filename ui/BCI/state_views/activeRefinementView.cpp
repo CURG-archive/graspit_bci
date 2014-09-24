@@ -14,14 +14,16 @@ ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
     connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
     connect(ui->buttonRotLat, SIGNAL(clicked()), this, SLOT(onRotLat()));
     connect(ui->buttonRotLong, SIGNAL(clicked()), this, SLOT(onRotLong()));
+    connect(ui->buttonNextGrasp, SIGNAL(clicked()), this, SLOT(onNextGrasp()));
+
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
 
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    QFrame *parentWindow = this->ui->previewFrame;
     QString viewName = QString("current best grasp");
     //handView = new HandView(mainViewer,h,*parentWindow, viewName);
     createHandView();
     showSelectedGrasp(h,NULL);
+    showNextGrasp(h,NULL);
 }
 
 
@@ -30,10 +32,11 @@ void ActiveRefinementView::createHandView()
 {
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
 
-    QFrame *parentWindow = this->ui->previewFrame;
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     QString viewName = QString("current best grasp");
-    handView = new HandView(mainViewer,h,*parentWindow,viewName);
+    QString nextViewName = QString("next grasp");
+    currentGraspView = new HandView(mainViewer, h, *this->ui->previewFrame, viewName);
+    nextGraspView = new HandView(mainViewer, h, *this->ui->previewNextFrame, nextViewName);
 }
 
 void ActiveRefinementView::onOk()
@@ -52,15 +55,28 @@ void ActiveRefinementView::onRotLong()
 }
 void ActiveRefinementView::showEvent(QShowEvent *)
 {
-    this->handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    this->currentGraspView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
 }
 
 void ActiveRefinementView::showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState)
 {
     if(graspPlanningState)
     {
-        handView->update(*graspPlanningState, *hand);
+        currentGraspView->update(*graspPlanningState, *hand);
     }
+}
+
+void ActiveRefinementView::showNextGrasp(Hand * hand,  const GraspPlanningState *graspPlanningState)
+{
+    if(graspPlanningState)
+    {
+        nextGraspView->update(*graspPlanningState, *hand);
+    }
+}
+
+void ActiveRefinementView::onNextGrasp()
+{
+    BCIService::getInstance()->emitNext();
 }
 
 ActiveRefinementView::~ActiveRefinementView()

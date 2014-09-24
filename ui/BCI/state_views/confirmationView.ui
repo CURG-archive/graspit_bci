@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>269</width>
-    <height>287</height>
+    <width>300</width>
+    <height>868</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QFrame" name="previewFrame">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>20</y>
-     <width>191</width>
-     <height>151</height>
+     <x>0</x>
+     <y>0</y>
+     <width>301</width>
+     <height>311</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -32,11 +32,19 @@
   <widget class="QPushButton" name="buttonBack">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>230</y>
-     <width>98</width>
-     <height>27</height>
+     <x>30</x>
+     <y>460</y>
+     <width>221</width>
+     <height>81</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 155, 155);</string>
    </property>
    <property name="text">
     <string>Back</string>
@@ -45,11 +53,19 @@
   <widget class="QPushButton" name="buttonOk">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>190</y>
-     <width>98</width>
-     <height>27</height>
+     <x>30</x>
+     <y>350</y>
+     <width>221</width>
+     <height>81</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(195, 255, 192);</string>
    </property>
    <property name="text">
     <string>Ok</string>

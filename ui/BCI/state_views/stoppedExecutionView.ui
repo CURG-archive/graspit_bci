@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>287</height>
+    <width>300</width>
+    <height>868</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,11 +16,19 @@
   <widget class="QPushButton" name="buttonContinueExecution">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>100</y>
-     <width>151</width>
-     <height>27</height>
+     <x>40</x>
+     <y>50</y>
+     <width>221</width>
+     <height>81</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(195, 255, 192);</string>
    </property>
    <property name="text">
     <string>Continue Execution</string>
@@ -29,11 +37,19 @@
   <widget class="QPushButton" name="buttonStartOver">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>160</y>
-     <width>171</width>
-     <height>27</height>
+     <x>40</x>
+     <y>180</y>
+     <width>221</width>
+     <height>81</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 155, 155);</string>
    </property>
    <property name="text">
     <string>Start Planning Over</string>

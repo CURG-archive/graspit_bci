@@ -17,6 +17,7 @@ class ActiveRefinementView : public QWidget
 public:
     explicit ActiveRefinementView(QWidget *parent = 0);
     void showSelectedGrasp(Hand *hand,const GraspPlanningState *graspPlanningState);
+    void showNextGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
     ~ActiveRefinementView();
 
 
@@ -24,12 +25,14 @@ public slots:
     void onOk();
     void onRotLat();
     void onRotLong();
+    void onNextGrasp();
 
     
 protected:
     virtual void showEvent(QShowEvent *);
 private:
-    HandView *handView;
+    HandView *currentGraspView;
+    HandView *nextGraspView;
     Ui::ActiveRefinementView *ui;
     void createHandView();
 };

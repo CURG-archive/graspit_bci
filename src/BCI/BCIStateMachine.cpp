@@ -42,12 +42,17 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     initialGraspSelectionState->addTransition(bciService, SIGNAL(next()), activateRefinementState);
 
 
-    activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
-    activateRefinementState->addTransition(bciService, SIGNAL(exec()), confirmationState);
+    activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
+    activateRefinementState->addTransition(bciService, SIGNAL(exec()), finalGraspSelectionState);
+
 
     finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()),confirmationState);
     finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()),confirmationState);
+    finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
     finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
+    QString nextButtonLabel("Next Grasp");
+    finalGraspSelectionState->setNextButtonLabel(nextButtonLabel);
+    finalGraspSelectionState->stateName = "Final Selection";
 
     //onlinePlanningState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
 

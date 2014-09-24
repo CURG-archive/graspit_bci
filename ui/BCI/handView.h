@@ -141,7 +141,7 @@ private:
   SoSeparator *initIVObjectGeometry(Hand * h);
   SoTransformSeparator *initIVLightSeparator();
   SoCamera *initIVCamera();
-
+  Hand * mHand();
   //---------------Update Helpers------------------------
   void copyLinkTransforms(Hand * h, SoSeparator * handIVRoot);
   void copyIVTran(SoSeparator * parentNode, const SoTransform & ivTran);

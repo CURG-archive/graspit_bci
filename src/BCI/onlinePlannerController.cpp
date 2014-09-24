@@ -123,14 +123,19 @@ namespace bci_experiment
     void OnlinePlannerController::initializeTarget()
     {
         setAllowedPlanningCollisions();
+        bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
 
         disableShowContacts();
         //start planner
-        currentPlanner->resetPlanner();
+        targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
 
+        currentPlanner->resetPlanner();
+        targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
         // Download grasps from database and load them in to the planner
         initializeDbInterface();
+        targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
         currentPlanner->updateSolutionList();
+        targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
         // Set the hand to it's highest ranked grasp
         if(currentPlanner->getListSize())
         {
@@ -139,7 +144,7 @@ namespace bci_experiment
             else
                 currentPlanner->getRefHand()->setTran(currentPlanner->getHand()->getTran());
         }
-
+        targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
         // Realign the hand with respect to the object, moving the hand back to its
         // pregrasp pose. Use the real hand because it's collisions are set appropriately
 
@@ -283,6 +288,7 @@ namespace bci_experiment
         if(currentTarget && (!mDbMgr || currentPlanner->getState() != READY || currentTarget != currentPlanner->getHand()->getGrasp()->getObject()))
         {
             initializeTarget();
+            bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
             plannerTimedUpdate();
         }
       else{
@@ -328,6 +334,11 @@ namespace bci_experiment
         currentGraspIndex = (currentGraspIndex + 1)%(currentPlanner->getListSize());
     }
 
+    Hand * OnlinePlannerController::getRefHand()
+    {
+        return currentPlanner->getRefHand();
+    }
+
 
     Hand * OnlinePlannerController::getHand()
     {
@@ -370,6 +381,13 @@ namespace bci_experiment
         }
         return NULL;
 
+    }
+
+    const unsigned int OnlinePlannerController::getNumGrasps()
+    {
+        if (currentPlanner)
+            return currentPlanner->getListSize();
+        return 0;
     }
 
     const GraspPlanningState * OnlinePlannerController::getCurrentGrasp()

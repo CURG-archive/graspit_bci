@@ -711,7 +711,22 @@ Body::getTransparency() const
 void
 Body::setTransparency(float t)
 {
-  IVMat->transparency = t;
+    SoSearchAction *sa = new SoSearchAction;
+    sa->setInterest(SoSearchAction::ALL);
+    sa->setType(SoMaterial::getClassTypeId());
+    sa->apply(IVGeomRoot);
+
+    if (sa->getPaths().getLength() == 0) {
+        return;
+    } else {
+        for (int i=0; i<sa->getPaths().getLength(); i++) {
+            SoMaterial * mat = dynamic_cast<SoMaterial * >(sa->getPaths()[i]->getTail());
+            if (!mat)
+                    return;
+            mat->transparency.setValue(t);
+        }
+    }
+    delete sa;
 }
 
 

@@ -9,6 +9,7 @@
 #include <searchState.h>
 #include "BCI/utils/worldElementTools.h"
 #include "SoRing.h"
+#include <Inventor/SbColor.h>
 
 using bci_experiment::world_element_tools::getWorld;
 using bci_experiment::world_element_tools::getObjectByName;
@@ -92,12 +93,14 @@ namespace bci_experiment
         }
 
         // Create a new node set representing an axis grounded at an object
-        SoSeparator * createNewGuideAxis(std::string axisName, const vec3 & ringEuler)
+        SoSeparator * createNewGuideAxis(std::string axisName, const vec3 & ringEuler, SbColor & color)
         {
             SoSeparator * axisSep = new SoSeparator(3);
             SoMaterial * axisMat = new SoMaterial();
             axisMat->transparency = 0.0;
-            axisMat->ambientColor.setValue(1.0,0.0,0.0);
+            axisMat->ambientColor.setValue(color);
+            axisMat->emissiveColor.setValue(color);
+            axisMat->diffuseColor.setValue(color);
             SoTransform * axisTran = new SoTransform();
             SoRing * axisGeom = new SoRing();
             axisGeom->sweepAngle = 360.0;
@@ -142,8 +145,12 @@ namespace bci_experiment
             SoTransform * objectTransform = new SoTransform();
             objectTransform->setName("BCIGuideTransform");
             //Create new guide axes
-            SoSeparator * xAxisSep =  createNewGuideAxis("XAxisGuide", vec3(0,M_PI/2,0));
-            SoSeparator * zAxisSep = createNewGuideAxis("ZAxisGuide", vec3(0,0,0));
+            SbColor pink;
+            pink.setValue(1,.7,1);
+            SbColor blue;
+            blue.setValue(.5,.5,1);
+            SoSeparator * xAxisSep =  createNewGuideAxis("XAxisGuide", vec3(0,M_PI/2,0), pink);
+            SoSeparator * zAxisSep = createNewGuideAxis("ZAxisGuide", vec3(0,0,0), blue);
 
             //Add children to root
             guideSeparator->addChild(objectTransform);

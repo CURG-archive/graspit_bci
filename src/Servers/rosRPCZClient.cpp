@@ -15,27 +15,27 @@ RosRPCZClient::RosRPCZClient():
 }
 
 
-void RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char * slot)
+bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char * slot)
 {
-    objectRecognitionStub.sendRequest(callbackReceiver, slot);
+    return objectRecognitionStub.sendRequest(callbackReceiver, slot);
 }
 
-void RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot)
+bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot)
 {
-    cameraOriginStub.sendRequest(callbackReceiver, slot);
+    return cameraOriginStub.sendRequest(callbackReceiver, slot);
 }
 
-void RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
+bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
 {    
     graspReachabilityStub.buildRequest(gps);
-    graspReachabilityStub.sendRequest(callbackReceiver, slot);
+    return graspReachabilityStub.sendRequest(callbackReceiver, slot);
 }
 
 
-void RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
+bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
 {
   executeGraspStub.buildRequest(gps);
-  executeGraspStub.sendRequest(callbackReceiver, slot);
+  return executeGraspStub.sendRequest(callbackReceiver, slot);
 }
 
 

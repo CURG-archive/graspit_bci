@@ -11,7 +11,7 @@ StoppedExecutionState::StoppedExecutionState(BCIControlWindow *_bciControlWindow
 void StoppedExecutionState::onEntry(QEvent *e)
 {
     stoppedExecutionView->show();
-    bciControlWindow->currentState->setText("Execution State");
+    bciControlWindow->currentState->setText("Execution");
 }
 
 

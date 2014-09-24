@@ -31,6 +31,8 @@ public slots:
     void onSelect();
     void onNewObjectFound();
 
+    void onRunVision(QEvent *e = NULL);
+    void onVisionFinished(QEvent *e = NULL);
 };
 
 #endif // OBJECTSELECTIONSTATE_H
