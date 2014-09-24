@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<world>
+	<obstacle>
+		<filename>models/obstacles/experiment_table.xml</filename>
+		<transform>
+			<fullTransform>(+1 +0 +0 +0)[-13.5577 +3.7645e-05 -255.522]</fullTransform>
+		</transform>
+	</obstacle>
+	<graspableBody>
+		<filename>models/object_database/all.xml</filename>
+		<transform>
+			<fullTransform>(+1 +0 +0 +0)[+4.93081 +58.2653 -257.847]</fullTransform>
+		</transform>
+	</graspableBody>
+	<graspableBody>
+		<filename>models/object_database/gillette_shaving_gel.xml</filename>
+		<transform>
+			<fullTransform>(+1 +0 +0 +0)[+125.222 -4.32993e-05 -257.847]</fullTransform>
+		</transform>
+	</graspableBody>
+	<graspableBody>
+		<filename>models/object_database/gillette_shaving_gel.xml</filename>
+		<transform>
+			<fullTransform>(+1 +0 +0 +0)[-132.839 -0.000211084 -257.157]</fullTransform>
+		</transform>
+	</graspableBody>
+	<robot>
+		<filename>models/robots/MicoGripper/MicoGripper.xml</filename>
+		<dofValues>+0 +0 +0 +0 </dofValues>
+		<transform>
+			<fullTransform>(+1 +0 +0 +0)[+3.73654 +0 +252.542]</fullTransform>
+		</transform>
+	</robot>
+	<camera>
+		<position>-767.759 -1028.92 +295.28</position>
+		<orientation>+0.547645 -0.190362 -0.245846 +0.776793</orientation>
+		<focalDistance>+1358.82</focalDistance>
+	</camera>
+</world>
