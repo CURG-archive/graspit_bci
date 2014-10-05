@@ -10,7 +10,7 @@ class Request :public QObject
 public:
     Request():_rpc(NULL){}
 
-    void sendRequest(QObject * callbackReceiver = NULL, const char * slot = NULL)
+    bool sendRequest(QObject * callbackReceiver = NULL, const char * slot = NULL)
     {
         if(_rpc == NULL)
             _rpc = new rpcz::rpc();
