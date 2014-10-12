@@ -213,8 +213,7 @@ graspit_collision {
 	SOURCES	+= src/Collision/Graspit/collisionModel.cpp \
 			   src/Collision/Graspit/collisionAlgorithms.cpp \
 			   src/Collision/Graspit/graspitCollision.cpp
-} else {
-	error("Collision detection method not specified")
+}else{
 }
 
 #--------------------------------------- User interface: main window and dialogs ---------------------------------
