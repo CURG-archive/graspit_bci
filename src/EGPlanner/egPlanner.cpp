@@ -49,7 +49,7 @@ PROF_DECLARE(EG_PLANNER);
 
 #define BEST_LIST_SIZE 20
 
-EGPlanner::EGPlanner(Hand *h)
+EGPlanner::EGPlanner(Hand *h): mListAttributeMutex(QMutex::Recursive)
 {
 	mHand = h;
 	init();

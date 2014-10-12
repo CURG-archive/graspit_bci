@@ -178,13 +178,15 @@ void HandView::updateGeom(Hand & cloneHand)
   of the bodies in the scenegraph by updating the SoTransform node associated with
   each body. See CopyLinkTransforms for more details. 
 */
+#include "debug.h"
 
 void HandView::update(const GraspPlanningState & s, Hand & cloneHand)
 {
   double testResult = s.getAttribute("testResult");
   double stateID = s.getAttribute("graspId");
   updateGeom(cloneHand);
-
+  std::string objectName = s.getObject()->getName().toStdString();
+  DBGA("HandView::update::object name" << objectName);
 
   if(testResult > 0.0)
   {
@@ -236,6 +238,16 @@ QString HandView::getViewName()
 {
   return viewName_;
 }
+
+#include <QGLWidget>
+
+void HandView::getSnapShot()
+{
+    QGLWidget * glWidget = dynamic_cast<QGLWidget *>(this->handViewSoQtRenderArea->getGLWidget());
+    QImage image = glWidget->grabFrameBuffer();
+    image.format();
+}
+
 
 HandView::~HandView()
 {

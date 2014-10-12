@@ -214,7 +214,7 @@ public:
 	virtual void clearSolutions();
 	
 	//! Set Attribute of grasp;
-	void setGraspAttribute(int i, const QString & attribute, double value);
+    virtual void setGraspAttribute(int i, const QString & attribute, double value);
 
 	int getCurrentStep(){return mCurrentStep;}
 	Hand *getHand(){return mHand;}

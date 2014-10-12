@@ -259,7 +259,11 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 }
 
 
-
+void OnLinePlanner::setGraspAttribute(int i, const QString &attribute, double value)
+{
+    EGPlanner::setGraspAttribute(i, attribute, value);
+    this->updateSolutionList();
+}
 
 /*! Keeps the list of solutions sorted according to some metric */
 void

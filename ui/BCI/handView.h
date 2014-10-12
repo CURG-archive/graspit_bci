@@ -154,6 +154,8 @@ public:
 
   void updateGeom(Hand & h);
 
+  void getSnapShot();
+
   //---------------Getters/Setters-----------------------
   QString getViewName();
 

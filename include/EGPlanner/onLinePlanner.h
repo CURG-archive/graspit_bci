@@ -139,6 +139,7 @@ public:
 	ActionType getAction();
 	void showGrasp(int i);
 	void executeGrasp(int i);
+    virtual void setGraspAttribute(int i, const QString &attribute, double value);
     void updateSolutionList();
     double distanceOutsideApproach(const transf &solTran, const transf &handTran, bool useApproach = true);
     Hand * getSolutionClone(){return mSolutionClone;}

@@ -122,6 +122,7 @@ void GraspReachabilityStub::callbackImpl()
 
             currentWorldPlanner->setGraspAttribute(i,attribute, reachabilityScore);
             std::cout << "SetGraspAttribute graspId " << response.graspid() << " attributeString " << reachabilityScore << "\n";
+            break;
         }
     }
 }
