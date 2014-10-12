@@ -541,12 +541,11 @@ void ClientSocket::setGraspAttribute()
   	  {
 
         currentWorldPlanner()->setGraspAttribute(i,attributeString, value);
-      std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
-
+        std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
+        break;
     }
   }
-  lock.unlock();
-  analyzeNextGrasp();
+   analyzeNextGrasp();
 }
 
 /*!
