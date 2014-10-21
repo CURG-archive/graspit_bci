@@ -33,11 +33,17 @@ namespace bci_experiment
         }
     }
 
-
+    QMutex OnlinePlannerController::createLock;
     OnlinePlannerController * OnlinePlannerController::onlinePlannerController = NULL;
 
     OnlinePlannerController* OnlinePlannerController::getInstance()
     {
+        if(createLock.locked())
+        {
+            assert(0);
+            return NULL;
+        }
+        QMutexLocker lock(&createLock);
         if(!onlinePlannerController)
         {            
             onlinePlannerController = new OnlinePlannerController();
@@ -57,6 +63,7 @@ namespace bci_experiment
         graspDemonstrationHand(NULL)
     {
         currentPlanner = planner_tools::createDefaultPlanner();
+        connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()));
     }
 
 
@@ -83,7 +90,7 @@ namespace bci_experiment
         {
             // Notify someone to analyze the current approach direction
             analyzeApproachDir();
-
+            analyzeNextGrasp();
             // If the planner is itself not updating the order of the solution list
             if(!currentPlanner->isRunning())
             {
@@ -92,9 +99,9 @@ namespace bci_experiment
                 //updateResults(true, false);
             }
         }
+        BCIService::getInstance()->onPlannerUpdated();
         if(timedUpdateRunning)
         {
-            BCIService::getInstance()->onPlannerUpdated();
             QTimer::singleShot(1000, this, SLOT(plannerTimedUpdate()));
         }
     }
@@ -276,7 +283,7 @@ namespace bci_experiment
 
         if(currentPlanner->getState()==READY)
         {
-            currentPlanner->startPlanner();
+            currentPlanner->startThread();
             plannerTimedUpdate();
         }
         return true;

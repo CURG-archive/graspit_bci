@@ -26,8 +26,13 @@ public:
 
 
         setupUi(this);
-    }
 
+    }
+public slots:
+    void redraw()
+    {
+        this->bciWorldView->redraw();
+    }
 };
 
 

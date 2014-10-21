@@ -78,6 +78,8 @@ EGPlanner::init()
 	mState = INIT;
 	mUsesClone = false;
 	mOut = NULL;
+    renderer = new EGPlannerRenderer();
+
 }
 
 EGPlanner::~EGPlanner()
@@ -400,23 +402,23 @@ EGPlanner::pausePlanner()
 }
 
 void
-EGPlanner::render()
+EGPlanner::render(Hand * h)
 {
-	if (mMultiThread) {
+//    if (QThread::currentThread() != mHand->getWorld()->thread()) {
 		//for now, multi-threaded planners are not allowed to render
 		//rendering should only be done by the main thread
-		return;
-	}
+//		return;
+//	}
 	if (mRenderType == RENDER_BEST) {
 		if ( mBestList.empty() ) return;
 		if ( mLastRenderState == mBestList.front() ) return;		
 		mLastRenderState = mBestList.front();
-		mBestList.front()->execute();
+        mBestList.front()->execute(h);
 	} else if (mRenderType == RENDER_LEGAL) {
 		if (mRenderCount >= 20) {
 			DBGP("Render: geom is " << mHand->getRenderGeometry() );
 			mRenderCount = 0;
-			if ( mCurrentState && mCurrentState->isLegal() ) mCurrentState->execute();
+            if ( mCurrentState && mCurrentState->isLegal() ) mCurrentState->execute(h);
 		} else mRenderCount++;
 	} else if (mRenderType==RENDER_ALWAYS) {
 		mCurrentState->execute();

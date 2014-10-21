@@ -17,6 +17,7 @@
 #include "database.h"
 #include "DBase/graspit_db_model.h"
 #include "DBase/graspit_db_grasp.h"
+#include <QMutex>
 
 //class OnLinePlanner * op;
 class GraspableBody;
@@ -70,11 +71,9 @@ namespace bci_experiment{
             bool startTimedUpdate();
             bool toggleTimedUpdate();
 
-            void connectToPlannerUpdateSignal();
+            //void connectToPlannerUpdateSignal();
 
-            // Perform any validation or processing that should update
-            // the planner or it's visualizations periodically
-            //void plannerTimedUpdate();
+
             void initializeTarget();
 
             void incrementGraspIndex();
@@ -85,10 +84,11 @@ namespace bci_experiment{
     private:
 
             static OnlinePlannerController * onlinePlannerController;
+            static QMutex createLock;
+
 
             OnlinePlannerController(QObject *parent = 0);
             void initializeDbInterface();
-
 
 
             db_planner::SqlDatabaseManager * mDbMgr;
@@ -99,7 +99,14 @@ namespace bci_experiment{
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();
 
+    signals:
+            void render();
+
+
+
     private slots:
+            // Perform any validation or processing that should update
+            // the planner or it's visualizations periodically
             void plannerTimedUpdate();
 
     public slots:
@@ -112,7 +119,7 @@ namespace bci_experiment{
             void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
             void clearObjects();
             void targetRemoved();
-
+            void emitRender(){emit render();}
     };
 
 }

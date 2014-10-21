@@ -50,6 +50,7 @@
 OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
 {
 	mSolutionClone = NULL;
+    mProgressClone = NULL;
     mMarkSolutions = false;
 	mCurrentBest = NULL;
 	mSimAnn->setParameters(ANNEAL_ONLINE);
@@ -63,21 +64,17 @@ OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
 
 	//the on-line planner ALWAYS uses a clone for the search but the original hand is saved as the reference hand
 	mRefHand = h;
-	createAndUseClone();//after this point mHand now points to a new clone
+    createProgressClone();
+    //createAndUseClone();//after this point mHand now points to a new clone
 	//in case that later we might want to see what the clone is doing
 	mHand->setRenderGeometry(true);
 	//but for now it is hidden
-	showClone(false);
+    //showClone(false);
 
 	//hack - I need a better way to handle collisions when the planner is using a clone
 	//we have three hands we need to take care of: the original hand, this clone and the parallel tester's clone
 	//some of the collisions are turned off by createAndUseClone(), but not this one
-	mHand->getWorld()->toggleCollisions(false, mGraspTester->getHand(), mHand);
-	//so we can distinguish between the two clones
-	mGraspTester->getHand()->setName( mGraspTester->getHand()->getName() + QString(" th") );//this hand is never put in scene graph, for behind the scenes stuff?
-	mHand->setName( mHand->getName() + QString(" pl") );
-    mHand->setTransparency(0.97);//Make the planner hand barely visible just so the user can see something is going on.
-	//this class will actually be used to set the DOF's of the refHand if we are actually performing
+    //this class will actually be used to set the DOF's of the refHand if we are actually performing
 	//grasping tasks.
 	mInterface = new OnLineGraspInterface(mRefHand);
 }
@@ -173,16 +170,70 @@ OnLinePlanner::resetPlanner()
 	return true;
 }
 
+void OnLinePlanner::createProgressClone()
+{
+
+    if(mProgressClone) {
+        DBGA("Solution clone exists already!");
+        return;
+    }
+
+    mProgressClone = new Hand(mRefHand->getWorld(), "Solution clone");
+    mProgressClone->cloneFrom(mRefHand);//CHANGED! was mHand - for some reason this makes setting transparency not tied to mHand??
+    mProgressClone->setTransparency(0.95);//Make the clone that shows the solutions slightly transparent so we can still see the object below it.
+    mProgressClone->showVirtualContacts(false);
+    mProgressClone->setRenderGeometry(true);
+    //solution clone is always added to scene graph
+    mHand->getWorld()->addRobot(mProgressClone, true);
+    mHand->getWorld()->toggleCollisions(false, mProgressClone);
+    mProgressClone->setTran( mRefHand->getTran() );//CHANGED!  was mHand
+}
+
+void OnLinePlanner::createAndUseClone()
+{
+    SimAnnPlanner::createAndUseClone();    
+    mHand->getWorld()->toggleCollisions(false, mGraspTester->getHand(), mHand);
+    //so we can distinguish between the two clones
+    mGraspTester->getHand()->setName( mGraspTester->getHand()->getName() + QString(" th") );//this hand is never put in scene graph, for behind the scenes stuff?
+    mHand->setName( mHand->getName() + QString(" pl") );
+    mHand->setTransparency(0.8);//Make the planner hand barely visible just so the user can see something is going on.
+
+}
+
+void OnLinePlanner::startThread()
+{
+    setState(INIT);
+    SimAnnPlanner::startThread();
+    mGraspTester->startPlanner();
+
+    //this->mHand->moveToThread(this);
+    //mHand->getWorld()->toggleCollisions(true, mHand);
+    showClone(false);
+    showSolutionClone(true);
+    SimAnnPlanner::startPlanner();
+    setRenderType(RENDER_LEGAL);
+    setState(RUNNING);
+    DBGA("Started on-line planner");
+}
+
+
 void
 OnLinePlanner::startPlanner()
 {
+    createAndUseClone();
+    //mHand->getWorld()->toggleCollisions(true, mHand);
 	DBGP("Starting on-line planner");
-	mRefHand->setTransparency(0.7);
-	SimAnnPlanner::startPlanner();
-	mGraspTester->startPlanner();
-	showClone(true);
-	showSolutionClone(true);
+    mRefHand->setTransparency(0.7);
+    SimAnnPlanner::startPlanner();
+    mGraspTester->startPlanner();
+    mGraspTester->setRenderType(RENDER_NEVER);
+    showClone(true);
+    showSolutionClone(true);
+
+    DBGA("Started on-line planner");
 }
+
+
 
 void
 OnLinePlanner::pausePlanner()
@@ -432,8 +483,19 @@ OnLinePlanner::graspLoop()
 		}
 	}
 
-	if (mCurrentStep % 100 == 0) emit update();
-	render();
+    if (mCurrentStep % 50 == 0)
+        {
+        mProgressClone->getWorld()->toggleCollisions(true, mProgressClone);
+        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mRefHand);
+        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mHand);
+        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mSolutionClone);
+        render(mProgressClone);
+        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone);
+        emit update();
+        //emit signalRender(this);
+    }
+
+
 	//DBGP("Grasp loop done");
 }
 

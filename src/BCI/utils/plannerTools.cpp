@@ -112,6 +112,8 @@ namespace bci_experiment
             mDbMgr->GetGrasps(*modelList.back(), GraspitDBGrasp::getHandDBName(mHand).toStdString(), &grasps);
 
             mHand->saveState();
+            bool collisionState = getWorld()->collisionsAreOff(mPlanner->getHand());
+            getWorld()->toggleCollisions(true, mPlanner->getHand());
             bool targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
             // Load the grasps into the grasp planner list.
             unsigned int numGrasps = std::min<unsigned int>(grasps.size(), 10);
@@ -140,6 +142,7 @@ namespace bci_experiment
             mPlanner->updateSolutionList();
             targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
             //needed to return hand to aligned with object, since it was used to testGraspCollisions
+            getWorld()->toggleCollisions(!collisionState, mPlanner->getHand());
             mHand->restoreState();
             targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
 

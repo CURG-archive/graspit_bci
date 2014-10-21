@@ -7,7 +7,7 @@ BCIWorldView::BCIWorldView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    SoQtRenderArea * renderArea = new SoQtRenderArea(this, " ",true);
+    renderArea = new SoQtRenderArea(this, " ",true);
     SoSeparator * bciWorldViewRoot = new SoSeparator;
     bciWorldViewRoot->setName("BCIWorldViewRoot");
     SoMaterial * soMaterial = new SoMaterial;
@@ -35,6 +35,11 @@ BCIWorldView::BCIWorldView(QWidget *parent) :
     renderArea->scheduleRedraw();
     renderArea->render();
     renderArea->show();
+}
+
+void BCIWorldView::redraw()
+{
+    renderArea->render();
 }
 
 BCIWorldView::~BCIWorldView()

@@ -3,11 +3,19 @@
 #include "debug.h"
 
 #include <QKeyEvent>
+#include <QMutex>
 
 BCIService * BCIService::bciServiceInstance = NULL;
+QMutex BCIService::createLock;
 
 BCIService* BCIService::getInstance()
 {
+    if(createLock.locked())
+    {
+        assert(0);
+        return NULL;
+    }
+    QMutexLocker lock(&createLock);
     if(!bciServiceInstance)
     {
         bciServiceInstance = new BCIService();
@@ -25,7 +33,9 @@ BCIService::BCIService()
 void BCIService::init(BCIControlWindow *bciControlWindow)
 {
     //builds and starts a qtStateMachine
-    BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);
+    BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);    
+    connect(this, SIGNAL(plannerUpdated()), bciControlWindow, SLOT(redraw()));
+    connect(OnlinePlannerController::getInstance(), SIGNAL(render()), bciControlWindow, SLOT(redraw()));
     bciStateMachine->start();
 }
 

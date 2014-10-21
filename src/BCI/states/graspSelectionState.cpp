@@ -90,6 +90,10 @@ void GraspSelectionState::onPlannerUpdated()
         QString graspID;
         bciControlWindow->currentState->setText(stateName + ": Grasp: " + graspID.setNum(bestGrasp->getAttribute("graspId")) );
     }
+    else
+    {
+        DBGA("GraspSelectionState::onPlannerUpdated::No best grasp found");
+    }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
 
 }

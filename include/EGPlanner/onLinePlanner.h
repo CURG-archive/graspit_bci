@@ -72,6 +72,10 @@ private:
 
 	//! This clone is used just to show the best solution currently available; mostly for debugging
 	Hand *mSolutionClone;
+
+    //! This clone hand is used to show the current hand progress
+    Hand *mProgressClone;
+
 	//! If this flag is set, the planner will show a visual indicator of each solution grasp it finds
 	bool mMarkSolutions;
 	//! How far the current solution is from the hand 
@@ -119,9 +123,9 @@ public:
 	virtual PlannerType getType(){return PLANNER_ONLINE;}
     virtual Hand * getRefHand(){return mRefHand;}
 
-	void startPlanner();
-	void pausePlanner();
-	bool resetPlanner();
+    virtual void startPlanner();
+    virtual void pausePlanner();
+    virtual bool resetPlanner();
 
 	double getSolutionDistance() const {return mSolutionDistance;}
 	double getObjectDistance() const {return mObjectDistance;}
@@ -144,4 +148,7 @@ public:
     double distanceOutsideApproach(const transf &solTran, const transf &handTran, bool useApproach = true);
     Hand * getSolutionClone(){return mSolutionClone;}
     GraspTester * getGraspTester(){return mGraspTester;}
+    virtual void startThread();
+    virtual void createAndUseClone();
+    void createProgressClone();
 };

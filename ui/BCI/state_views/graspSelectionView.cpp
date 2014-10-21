@@ -71,9 +71,15 @@ void GraspSelectionView::hideSpinner()
 void GraspSelectionView::showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState)
 {
     hideSpinner();
+
     if(graspPlanningState)
     {
         handView->update(*graspPlanningState, *hand);
+        DBGA("GraspSelectionView::showSelectedGrasp::Showing grasp:" << graspPlanningState->getItNumber());
+    }
+    else
+    {
+        DBGA("GraspSelectionView::showSelectedGrasp::No grasp");
     }
 }
 

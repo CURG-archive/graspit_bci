@@ -5,7 +5,7 @@
 
 #include "BCI/worldController.h"
 #include "Servers/rosRPCZClient.h"
-
+#include <QMutex>
 class GraspableBody;
 class DrawableFrame;
 class GraspPlanningState;
@@ -40,8 +40,6 @@ public:
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
-    //called when active planner is updated
-    void onPlannerUpdated(){emit plannerUpdated();}
 
     //ros server calls
 
@@ -65,6 +63,10 @@ public:
     static BCIService* getInstance();
 
     void init(BCIControlWindow *bciControlWindow);
+public slots:
+    //called when active planner is updated
+    void onPlannerUpdated(){emit plannerUpdated();}
+
 signals:
 
     //tell state machine to go to next state
@@ -114,12 +116,12 @@ signals:
     void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
 
-
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);
 
 private:
         static BCIService * bciServiceInstance;
+        static QMutex createLock;
         BCIService();
 
         RosRPCZClient rosServer;

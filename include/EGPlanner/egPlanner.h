@@ -92,10 +92,6 @@ protected:
 	//! The last rendered state
 	const GraspPlanningState *mLastRenderState;
 
-	//! A decision is made whether to put in a redraw request to the scene graph.
-	/*! WARNING: when multi-threaded, it is best to avoid ALL rendering 
-		requests issued from inside the planner. */
-	void render();
 
 	//! Time elapsed since last reset, in seconds.
 	double mRunningTime;
@@ -175,7 +171,7 @@ public:
 	virtual void stopPlanner();
 
 	//! Tells the planner to create and use a clone of the hand passed to the constructor
-	void createAndUseClone();
+    virtual void createAndUseClone();
 
 	//! Add (and thus render) or remove (and thus hide) the clone from the world scene graph.
 	virtual void showClone(bool s);
@@ -232,6 +228,11 @@ public:
 	void setStatStream(std::ostream *out) const;
   //! Add grasp to solution list
   bool addSolution(GraspPlanningState *s);
+  //! A decision is made whether to put in a redraw request to the scene graph.
+  /*! WARNING: when multi-threaded, it is best to avoid ALL rendering
+      requests issued from inside the planner. */
+  void render(Hand * h = NULL);
+
   QMutex mListAttributeMutex;
 };
 #endif
