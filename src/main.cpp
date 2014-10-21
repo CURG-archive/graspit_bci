@@ -81,8 +81,7 @@ int main(int argc, char **argv)
   //default
   GraspItServer server(4765);
   unsigned int portNumber = 4766;
-  GraspitProtobufServer protobufServer(portNumber);
- 
+  GraspitProtobufServer protobufServer(portNumber); 
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 

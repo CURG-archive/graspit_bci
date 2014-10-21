@@ -28,11 +28,12 @@
  */
 
 #ifndef GRASPITSERVER_HXX
-#include <q3serversocket.h>
-#include <q3socket.h>
+#include <QTcpSocket>
+#include <QTcpServer>
 #include <qstringlist.h>
 #include <iostream>
 #include <vector>
+
 
 #include "egPlanner.h"
 
@@ -71,7 +72,7 @@ class transf;
   the input.
 
 */
-class ClientSocket : public Q3Socket
+class ClientSocket : public QObject
 {
   Q_OBJECT
     
@@ -82,11 +83,16 @@ public:
     connectionClosed signal to the connectionClosed slot.  Sets the socket
     to use \a sock .
   */
-  ClientSocket( int sock, QObject *parent=0, const char *name=0 );
+  ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len = 500);
   
   ~ClientSocket();
   
 private:
+  //! Individual Socket connection
+  QTcpSocket *sock;
+
+  //! Maximum size of socket's buffer
+  unsigned int maxLen;
 
   //! The current line of text read from the socket
   QString line;
@@ -160,18 +166,21 @@ private slots:
   port and if a connection is requested, it creates a new ClientSocket, which
   will handle all communication.
 */
-class GraspItServer : public Q3ServerSocket
+class GraspItServer : public QThread
 {
   Q_OBJECT
   //  std::vector<SocketNotifier *> snVec;
+  unsigned int port_num;
+  QTcpServer* server;
 
- public:
-  GraspItServer(Q_UINT16 port, int backlog = 1, QObject *parent = 0,
-		const char *name = 0);
+public:
+  GraspItServer(unsigned int port_num, QObject *parent = 0);
 
   /*! Stub */
-  ~GraspItServer() {}
-  void newConnection(int socket);
+  ~GraspItServer() {delete server;}
+public slots:
+  void onConnection();
+  void run();
 };
 #define GRASPITSERVER_HXX
 #endif
