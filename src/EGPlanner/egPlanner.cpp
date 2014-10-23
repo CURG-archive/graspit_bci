@@ -38,6 +38,7 @@
 #include "eigenGrasp.h" //for glove input
 #include "collisionInterface.h"
 #include "grasp.h"
+#include "EGPlanner/EGPlannerRenderer.h"
 
 //#define GRASPITDBG
 #include "debug.h"
@@ -54,6 +55,7 @@ EGPlanner::EGPlanner(Hand *h): mListAttributeMutex(QMutex::Recursive)
 	mHand = h;
 	init();
 	mEnergyCalculator = new SearchEnergy();
+
 }
 
 /*! Also sets the state of the planner to INIT, which is default
@@ -79,6 +81,7 @@ EGPlanner::init()
 	mUsesClone = false;
 	mOut = NULL;
     renderer = new EGPlannerRenderer();
+    connect(this, SIGNAL(signalRender(EGPlanner*)), renderer, SLOT(render(EGPlanner*)));
 
 }
 
@@ -92,6 +95,7 @@ EGPlanner::~EGPlanner()
 	if (mCurrentState) delete mCurrentState;
 	if (mTargetState) delete mTargetState;
 	if (mIdleSensor) delete mIdleSensor;
+    if(renderer) delete renderer;
 }
 
 /*! Set the current state of the planner. It will accept any state, as
@@ -121,7 +125,7 @@ EGPlanner::getState()
 	PlannerState s = mState;
 	if (mMultiThread) mControlMutex.unlock();
 	return s;
-}
+ }
 
 /*! This is the part of resetPlanner() that can also be called while
 	the planner is running to cause it to start from the beginning,
@@ -284,10 +288,10 @@ void EGPlanner::threadLoop()
 		PlannerState s = getState();
 		switch(s) {
 			case INIT:
-//				sleep(0.1);
+                sleep(0.1);
 				break;
 			case READY:
-//				sleep(0.1);
+                sleep(0.1);
 				break;
 			case RUNNING:
 				mainLoop();

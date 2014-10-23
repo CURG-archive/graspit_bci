@@ -19,7 +19,7 @@ class BCIService:public QObject
     Q_OBJECT
 
 public:
-
+    ~BCIService(){delete rosServer;}
     void emitGoToNextState1(){emit goToNextState1();}
     void emitGoToNextState2(){emit goToNextState2();}
     void emitGoToPreviousState(){emit goToPreviousState();}
@@ -124,7 +124,7 @@ private:
         static QMutex createLock;
         BCIService();
 
-        RosRPCZClient rosServer;
+        RosRPCZClient * rosServer;
 
 
 };

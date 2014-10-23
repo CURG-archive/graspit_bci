@@ -83,7 +83,7 @@ public:
     connectionClosed signal to the connectionClosed slot.  Sets the socket
     to use \a sock .
   */
-  ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len = 500);
+  ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len = 3000);
   
   ~ClientSocket();
   

@@ -13,8 +13,10 @@ public:
     bool sendRequest(QObject * callbackReceiver = NULL, const char * slot = NULL)
     {
         if(_rpc == NULL)
+        {
+            DBGA("Creating rpc connection");
             _rpc = new rpcz::rpc();
-
+        }
         if(_rpc->get_status() !=  rpcz::status::INACTIVE)
             DBGA("ERROR:Incorrect status");
         if(callbackReceiver)

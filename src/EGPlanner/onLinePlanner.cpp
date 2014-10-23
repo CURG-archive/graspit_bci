@@ -64,13 +64,13 @@ OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
 
 	//the on-line planner ALWAYS uses a clone for the search but the original hand is saved as the reference hand
 	mRefHand = h;
+    createSolutionClone();
     createProgressClone();
     //createAndUseClone();//after this point mHand now points to a new clone
 	//in case that later we might want to see what the clone is doing
 	mHand->setRenderGeometry(true);
 	//but for now it is hidden
     //showClone(false);
-
 	//hack - I need a better way to handle collisions when the planner is using a clone
 	//we have three hands we need to take care of: the original hand, this clone and the parallel tester's clone
 	//some of the collisions are turned off by createAndUseClone(), but not this one
@@ -102,6 +102,7 @@ OnLinePlanner::resetParameters()
 void
 OnLinePlanner::createSolutionClone()
 {
+
 	if(mSolutionClone) {
 		DBGA("Solution clone exists already!");
 		return;
@@ -178,14 +179,23 @@ void OnLinePlanner::createProgressClone()
         return;
     }
 
-    mProgressClone = new Hand(mRefHand->getWorld(), "Solution clone");
+    mProgressClone = new Hand(mRefHand->getWorld(), "Progress clone");
     mProgressClone->cloneFrom(mRefHand);//CHANGED! was mHand - for some reason this makes setting transparency not tied to mHand??
     mProgressClone->setTransparency(0.95);//Make the clone that shows the solutions slightly transparent so we can still see the object below it.
     mProgressClone->showVirtualContacts(false);
     mProgressClone->setRenderGeometry(true);
     //solution clone is always added to scene graph
-    mHand->getWorld()->addRobot(mProgressClone, true);
-    mHand->getWorld()->toggleCollisions(false, mProgressClone);
+    World * w = mHand->getWorld();
+    w->addRobot(mProgressClone, true);
+    unsigned int numRob = w->getNumRobots();
+    for (int r = 0; r < numRob; ++ r)
+    {
+        if (mProgressClone == w->getRobot(r))
+            continue;
+        w->toggleCollisions(false, mProgressClone, w->getRobot(r));
+    }
+    mProgressClone->getWorld()->toggleCollisions(true, mProgressClone);
+
     mProgressClone->setTran( mRefHand->getTran() );//CHANGED!  was mHand
 }
 
@@ -484,17 +494,13 @@ OnLinePlanner::graspLoop()
 	}
 
     if (mCurrentStep % 50 == 0)
-        {
-        mProgressClone->getWorld()->toggleCollisions(true, mProgressClone);
-        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mRefHand);
-        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mHand);
-        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone, mSolutionClone);
-        render(mProgressClone);
-        mProgressClone->getWorld()->toggleCollisions(false, mProgressClone);
+    {
         emit update();
         //emit signalRender(this);
     }
 
+
+    render(mProgressClone);
 
 	//DBGP("Grasp loop done");
 }

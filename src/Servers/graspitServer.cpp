@@ -240,6 +240,8 @@ ClientSocket::readClient()
     line.truncate(line.length()-1); //strip newline character
     lineStrList =
       QStringList::split(' ',line);
+    if (!lineStrList.size() > 0)
+        return;
     strPtr = lineStrList.begin();
 
 #ifdef GRASPITDBG

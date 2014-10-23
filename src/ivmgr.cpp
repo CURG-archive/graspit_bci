@@ -274,7 +274,7 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
 
   // Create the viewer
   myViewer = new StereoViewer(parent);
-
+  myViewer->setDoubleBuffer(true);
   //this->setFocusProxy(myViewer->getWidget());
 
   sceneRoot = new SoSeparator;

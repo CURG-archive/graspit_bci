@@ -42,6 +42,7 @@ class Body;
 class GraspPlanningState;
 class SoSensor;
 class SearchEnergy;
+class EGPlannerRenderer;
 
 enum PlannerState{INIT, READY, RUNNING, DONE, EXITED, STARTING_THREAD};
 
@@ -150,6 +151,8 @@ signals:
 		termination user command or by exceeding mMaxSteps or mMaxTime.*/
 	void complete();
 
+    void signalRender(EGPlanner * planner);
+
 public:
 	//! The constructor is desigend NOT to be called by sub-classes.
 	EGPlanner(Hand *h);
@@ -234,5 +237,6 @@ public:
   void render(Hand * h = NULL);
 
   QMutex mListAttributeMutex;
+  EGPlannerRenderer * renderer;
 };
 #endif

@@ -16,18 +16,19 @@ class RosRPCZClient
 
 public:
     RosRPCZClient();
+    ~RosRPCZClient();
     bool runObjectRecognition(QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool getCameraOrigin(QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
 
 private:
-    rpcz::application _application;
+    rpcz::application * _application;
 
-    GraspReachabilityStub graspReachabilityStub;
-    ObjectRecognitionStub objectRecognitionStub;
-    CameraOriginStub cameraOriginStub;
-    ExecuteGraspStub executeGraspStub;
+    GraspReachabilityStub * graspReachabilityStub;
+    ObjectRecognitionStub *objectRecognitionStub;
+    CameraOriginStub *cameraOriginStub;
+    ExecuteGraspStub *executeGraspStub;
 
 };
 

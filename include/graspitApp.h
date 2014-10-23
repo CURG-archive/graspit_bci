@@ -49,7 +49,7 @@ class GraspItApp : public QApplication
 
   /*! Returns the name of this class. */
   const char *className() const { return "GraspItApp"; }
-
+  virtual bool notify(QObject *obj, QEvent *evt);
   static void showSplash();
   static void closeSplash();
 

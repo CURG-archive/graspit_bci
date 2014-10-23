@@ -18,6 +18,7 @@ BCIService* BCIService::getInstance()
     QMutexLocker lock(&createLock);
     if(!bciServiceInstance)
     {
+        DBGA("Building a BCIService")
         bciServiceInstance = new BCIService();
         QApplication::instance()->installEventFilter(bciServiceInstance);
     }
@@ -27,7 +28,9 @@ BCIService* BCIService::getInstance()
 
 BCIService::BCIService()
 {
-
+DBGA("Built BCIService");
+//rosServer = NULL;
+    rosServer = new RosRPCZClient();
 }
 
 void BCIService::init(BCIControlWindow *bciControlWindow)
@@ -94,12 +97,24 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
 bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
                                       const char * slot)
 {
-    return rosServer.runObjectRecognition(callbackReceiver, slot);
+    return false;
+    if(!rosServer)
+    {
+        DBGA("invalid ros server");
+        return false;
+    }
+    return rosServer->runObjectRecognition(callbackReceiver, slot);
 }
 
 bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
-{
-    return rosServer.getCameraOrigin(callbackReceiver, slot);
+{    
+    return false;
+    if(!rosServer)
+    {
+        DBGA("invalid ros server");
+        return false;
+    }
+    return rosServer->getCameraOrigin(callbackReceiver, slot);
 }
 
 
@@ -107,14 +122,26 @@ bool BCIService::checkGraspReachability(const GraspPlanningState * state,
                                         QObject * callbackReceiver,
                                         const char * slot)
 {
-    return rosServer.checkGraspReachability(state, callbackReceiver, slot);
+return false;
+    if(!rosServer)
+    {
+        DBGA("invalid ros server");
+        return false;
+    }
+    return rosServer->checkGraspReachability(state, callbackReceiver, slot);
 }
  
 bool BCIService::executeGrasp(const GraspPlanningState * gps,
 			      QObject * callbackReceiver,
 			      const char * slot)
 {
-    return rosServer.executeGrasp(gps, callbackReceiver, slot);
+return false;
+    if(!rosServer)
+    {
+        DBGA("invalid ros server");
+        return false;
+    }
+    return rosServer->executeGrasp(gps, callbackReceiver, slot);
 }
 
 
