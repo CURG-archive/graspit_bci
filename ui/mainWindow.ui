@@ -17,9 +17,9 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>84</y>
+     <y>86</y>
      <width>879</width>
-     <height>626</height>
+     <height>624</height>
     </rect>
    </property>
    <layout class="QVBoxLayout">
@@ -179,7 +179,7 @@
     <rect>
      <x>116</x>
      <y>0</y>
-     <width>229</width>
+     <width>224</width>
      <height>32</height>
     </rect>
    </property>
@@ -206,9 +206,9 @@
   <widget class="Q3ToolBar" name="ToolbarDynamics">
    <property name="geometry">
     <rect>
-     <x>345</x>
+     <x>340</x>
      <y>0</y>
-     <width>210</width>
+     <width>205</width>
      <height>32</height>
     </rect>
    </property>
@@ -233,9 +233,9 @@
   <widget class="Q3ToolBar" name="graspToolbar">
    <property name="geometry">
     <rect>
-     <x>555</x>
+     <x>545</x>
      <y>0</y>
-     <width>185</width>
+     <width>175</width>
      <height>32</height>
     </rect>
    </property>
@@ -267,7 +267,7 @@
     <rect>
      <x>0</x>
      <y>32</y>
-     <width>755</width>
+     <width>804</width>
      <height>29</height>
     </rect>
    </property>
@@ -397,7 +397,7 @@
      <x>0</x>
      <y>0</y>
      <width>879</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="fileMenu">
@@ -1029,6 +1029,9 @@
    </property>
    <property name="shortcut">
     <string>F8</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
    </property>
    <property name="name" stdset="0">
     <cstring>selectToolAction</cstring>
