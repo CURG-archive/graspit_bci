@@ -216,6 +216,7 @@ void OnLinePlanner::startThread()
     SimAnnPlanner::startThread();
     mGraspTester->startPlanner();
 
+    mRefHand->setTransparency(0.7);
     //this->mHand->moveToThread(this);
     //mHand->getWorld()->toggleCollisions(true, mHand);
     showClone(false);
