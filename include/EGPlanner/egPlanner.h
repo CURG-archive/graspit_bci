@@ -65,7 +65,7 @@ class EGPlanner : public QThread
 {
 	Q_OBJECT
 protected:
-	EGPlanner(){}
+    EGPlanner():mListAttributeMutex(QMutex::Recursive){}
 	//!Contains initialization that is COMMON between this and all subclasses. 
 	/*! Class-specific initialization will go in the constructor. */
 	void init();
