@@ -20,7 +20,7 @@ RosRPCZClient::RosRPCZClient():
     }
     graspReachabilityStub = new GraspReachabilityStub(channel);
     sleep(.1);
-    channel = _application->create_rpc_channel("tcp://localhost:5562");
+    channel = _application->create_rpc_channel("tcp://localhost:5561");
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -29,7 +29,16 @@ RosRPCZClient::RosRPCZClient():
     objectRecognitionStub = new ObjectRecognitionStub(channel);
 
 
-    channel = _application->create_rpc_channel("tcp://localhost:5563");
+    channel = _application->create_rpc_channel("tcp://localhost:5561");
+    if(!channel)
+    {
+        DBGA("Failed to create channel");
+    }
+    sleep(.1);
+    objectRetrievalStub = new ObjectRecognitionStub(channel,"RetrieveObjectsService");
+
+
+    channel = _application->create_rpc_channel("tcp://localhost:5561");
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -37,7 +46,7 @@ RosRPCZClient::RosRPCZClient():
     cameraOriginStub = new CameraOriginStub(channel);
     sleep(.1);
 
-    channel = _application->create_rpc_channel("tcp://localhost:5564");
+    channel = _application->create_rpc_channel("tcp://localhost:5561");
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -49,6 +58,17 @@ RosRPCZClient::RosRPCZClient():
 
 }
 
+bool RosRPCZClient::runObjectRetrieval(QObject * callbackReceiver, const char * slot)
+{
+    if(!objectRetrievalStub)
+    {
+        DBGA("Tried to send invalid objectRetrievalStub");
+        return false;
+    }
+    DBGA("Sent objectRetrievalStub");
+
+    return objectRetrievalStub->sendRequest(callbackReceiver, slot);
+}
 
 bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char * slot)
 {

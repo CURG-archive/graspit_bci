@@ -92,12 +92,20 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
     }
 }
 
-
+bool BCIService::runObjectRetreival(QObject * callbackReceiver,
+                                    const char * slot)
+{
+    if(!rosServer)
+    {
+        DBGA("invalid ros server");
+        return false;
+    }
+    return rosServer->runObjectRetrieval(callbackReceiver, slot);
+}
 
 bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
                                       const char * slot)
 {
-    return false;
     if(!rosServer)
     {
         DBGA("invalid ros server");
@@ -107,8 +115,7 @@ bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
 }
 
 bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
-{    
-    return false;
+{        
     if(!rosServer)
     {
         DBGA("invalid ros server");
@@ -122,7 +129,6 @@ bool BCIService::checkGraspReachability(const GraspPlanningState * state,
                                         QObject * callbackReceiver,
                                         const char * slot)
 {
-return false;
     if(!rosServer)
     {
         DBGA("invalid ros server");
@@ -135,7 +141,6 @@ bool BCIService::executeGrasp(const GraspPlanningState * gps,
 			      QObject * callbackReceiver,
 			      const char * slot)
 {
-return false;
     if(!rosServer)
     {
         DBGA("invalid ros server");

@@ -11,7 +11,9 @@ using bci_experiment::WorldController;
 ObjectSelectionState::ObjectSelectionState(BCIControlWindow *_bciControlWindow,
                                            QState* parent):
     State("ObjectSelectionState", parent),
-    bciControlWindow(_bciControlWindow)
+    bciControlWindow(_bciControlWindow),
+    visionRunning(false)
+
 {
     objectSelectionView = new ObjectSelectionView(this,bciControlWindow->currentFrame);
     objectSelectionView->hide();
@@ -26,18 +28,41 @@ void ObjectSelectionState::onEntry(QEvent *e)
     objectSelectionView->show();
     WorldController::getInstance()->highlightAllBodies();
     GraspableBody *currentTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
+    BCIService::getInstance()->getCameraOrigin(NULL,NULL);
+
     WorldController::getInstance()->highlightCurrentBody(currentTarget);
-    bciControlWindow->currentState->setText("Object Selection");
+
+
+    if(BCIService::getInstance()->runObjectRetreival(this, SLOT(onVisionFinished())))
+    {
+        visionRunning = true;
+        bciControlWindow->currentState->setText("Object Selection: Running Recognition");
+    }
+    else
+        bciControlWindow->currentState->setText("Object Selection: Failed");
 }
 
 void ObjectSelectionState::onRunVision(QEvent * e)
 {
-    BCIService::getInstance()->runObjectRecognition(this, SLOT(onVisionFinished()));
+
+    if(!visionRunning)
+    {
+        if(BCIService::getInstance()->runObjectRecognition(this, SLOT(onVisionFinished())))
+        {
+            bciControlWindow->currentState->setText("Object Selection: Running Recognition");
+            visionRunning = true;
+        }
+        else
+            bciControlWindow->currentState->setText("Object Selection: Failed");
+    }
+
 }
 
-void ObjectSelectionState::onVisionFinished(QEvent * e)
+void ObjectSelectionState::onVisionFinished()
 {
+    bciControlWindow->currentState->setText("Object Selection: Running Finished");
     graspItGUI->getIVmgr()->blinkBackground();
+    visionRunning = false;
 }
 
 void ObjectSelectionState::onExit(QEvent *e)
@@ -56,6 +81,12 @@ void ObjectSelectionState::onNext()
 
 void ObjectSelectionState::onSelect()
 {
+    //if (visionRunning)
+    //{
+     //   SbColor warnColor(1,.3,.3);
+     //   graspItGUI->getIVmgr()->blinkBackground(30, 2, warnColor);
+     //   return;
+    //}
     BCIService::getInstance()->emitGoToNextState1();
 }
 

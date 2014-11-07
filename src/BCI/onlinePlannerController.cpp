@@ -490,10 +490,12 @@ namespace bci_experiment
       const GraspPlanningState * graspToEvaluate = currentPlanner->getGrasp(firstUnevaluatedIndex);
       assert(graspToEvaluate->getAttribute("testResult") == 0.0);
       //Request analysis and ask to be called gain when analysis is completed.
-      lock.unlock();
+
       DBGA("Analyze Grasp time elapsed: " << currentTime -  QDateTime::currentDateTime().toTime_t());
-      currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
-      BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp()));
+      if(BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp())))
+        currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
+      lock.unlock();
+
       DBGA("checkGraspReachability: " << currentTime -  QDateTime::currentDateTime().toTime_t());
     }
 

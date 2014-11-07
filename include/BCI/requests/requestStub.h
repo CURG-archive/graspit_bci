@@ -18,7 +18,10 @@ public:
             _rpc = new rpcz::rpc();
         }
         if(_rpc->get_status() !=  rpcz::status::INACTIVE)
+        {
             DBGA("ERROR:Incorrect status");
+            return false;
+         }
         if(callbackReceiver)
         {
             connect(this, SIGNAL(requestComplete()), callbackReceiver, slot);

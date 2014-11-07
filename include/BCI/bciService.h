@@ -42,7 +42,7 @@ public:
 
 
     //ros server calls
-
+    bool runObjectRetreival(QObject *callbackReceiver, const char *slot);
 
     bool runObjectRecognition(QObject * callbackReceiver , const char * slot);
 

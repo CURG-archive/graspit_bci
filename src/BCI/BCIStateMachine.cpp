@@ -17,7 +17,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     bciControlWindow(_bciControlWindow),
     bciService(_bciService)
 {
-    ObjectRecognitionState *objectRecognitionState = new ObjectRecognitionState(bciControlWindow);
+
     ObjectSelectionState *objectSelectionState = new ObjectSelectionState(bciControlWindow);
     GraspSelectionState *initialGraspSelectionState = new GraspSelectionState(bciControlWindow);
     //OnlinePlanningState * onlinePlanningState = new OnlinePlanningState(bciControlWindow);
@@ -26,9 +26,6 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     ConfirmationState *confirmationState = new ConfirmationState(bciControlWindow);
     ExecutionState *executionState = new ExecutionState(bciControlWindow);
     StoppedExecutionState *stoppedExecutionState = new StoppedExecutionState(bciControlWindow);
-
-    //Add all state transistions that are not self transitions----------------------------
-    objectRecognitionState->addTransition(bciService,SIGNAL(goToNextState1()), objectSelectionState);
 
 
     objectSelectionState->addTransition(bciService,SIGNAL(goToNextState1()), initialGraspSelectionState);
@@ -66,11 +63,10 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
 
 
     stoppedExecutionState->addTransition(bciService, SIGNAL(goToNextState1()), executionState);
-    stoppedExecutionState->addTransition(bciService, SIGNAL(goToNextState2()), objectRecognitionState);
+    stoppedExecutionState->addTransition(bciService, SIGNAL(goToNextState2()), objectSelectionState);
     stoppedExecutionState->addTransition(bciService, SIGNAL(exec()), executionState);
-    stoppedExecutionState->addTransition(bciService, SIGNAL(next()), objectRecognitionState);
+    stoppedExecutionState->addTransition(bciService, SIGNAL(next()), objectSelectionState);
 
-    stateMachine.addState(objectRecognitionState);
     stateMachine.addState(objectSelectionState);
     stateMachine.addState(initialGraspSelectionState);
     stateMachine.addState(activateRefinementState);
@@ -80,7 +76,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     stateMachine.addState(executionState);
     stateMachine.addState(stoppedExecutionState);
 
-    stateMachine.setInitialState(objectRecognitionState);
+    stateMachine.setInitialState(objectSelectionState);
 }
 
 void BCIStateMachine::start()

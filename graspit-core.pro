@@ -7,7 +7,7 @@
 QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++0x -g
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin

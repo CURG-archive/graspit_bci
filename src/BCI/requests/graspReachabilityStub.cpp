@@ -107,6 +107,7 @@ void GraspReachabilityStub::callbackImpl()
 {
     QString attribute = QString("testResult");
     EGPlanner* currentWorldPlanner = graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();
+    QMutexLocker lock(&currentWorldPlanner->mListAttributeMutex);
     for(int i = 0; i < currentWorldPlanner->getListSize(); i++ )
     {
         const GraspPlanningState * gps = currentWorldPlanner->getGrasp(i);
