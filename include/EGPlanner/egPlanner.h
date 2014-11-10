@@ -42,7 +42,6 @@ class Body;
 class GraspPlanningState;
 class SoSensor;
 class SearchEnergy;
-class EGPlannerRenderer;
 
 enum PlannerState{INIT, READY, RUNNING, DONE, EXITED, STARTING_THREAD};
 
@@ -237,6 +236,5 @@ public:
   void render(Hand * h = NULL);
 
   QMutex mListAttributeMutex;
-  EGPlannerRenderer * renderer;
 };
 #endif

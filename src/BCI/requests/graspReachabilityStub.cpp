@@ -11,6 +11,8 @@
 #include "robot.h"
 #include "debug.h"
 #include <QFileInfo>
+
+
 GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel * channel)
     :graspReachability_stub(channel, "CheckGraspReachabilityService")
 {

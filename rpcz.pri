@@ -111,6 +111,8 @@ SOURCES += rpcz/src/rpcz/application.cc  \
             rpcz/build/graspit_rcpz/cpp/run_recognition.rpcz.h\
             rpcz/build/graspit_rcpz/cpp/execute_grasp.rpcz.h\
             rpcz/build/graspit_rcpz/cpp/execute_grasp.pb.h \
+            rpcz/build/graspit_rcpz/cpp/get_option_selection.rpcz.h\
+            rpcz/build/graspit_rcpz/cpp/get_option_selection.pb.h \
             rpcz/build/graspit_rcpz/cpp/grasp.rpcz.h\
             rpcz/build/graspit_rcpz/cpp/grasp.pb.h
 
@@ -127,6 +129,8 @@ SOURCES += rpcz/src/rpcz/application.cc  \
              rpcz/build/graspit_rcpz/cpp/run_recognition.rpcz.cc \
             rpcz/build/graspit_rcpz/cpp/execute_grasp.rpcz.cc\
             rpcz/build/graspit_rcpz/cpp/execute_grasp.pb.cc \
+            rpcz/build/graspit_rcpz/cpp/get_option_selection.rpcz.cc\
+            rpcz/build/graspit_rcpz/cpp/get_option_selection.pb.cc \
             rpcz/build/graspit_rcpz/cpp/grasp.rpcz.cc\
             rpcz/build/graspit_rcpz/cpp/grasp.pb.cc
 
