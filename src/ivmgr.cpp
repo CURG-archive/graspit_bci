@@ -2013,5 +2013,6 @@ IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, 
   circMat->transparency.setValue(transparency);
   SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
   circGeom->bottomRadius = 2*radius;
+  emit reDraw();
   //circGeom->height = 1/thickness;
 }

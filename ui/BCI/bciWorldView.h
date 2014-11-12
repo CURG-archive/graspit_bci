@@ -28,8 +28,8 @@ class BCIWorldView : public QWidget
 public:
     explicit BCIWorldView(QWidget *parent = 0);
     ~BCIWorldView();
-    void redraw();
 public slots:
+    void redraw();
     void drawGuides();
     
 private:

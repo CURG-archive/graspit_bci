@@ -8,7 +8,7 @@
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
 
-class EGPlannerRenderer : public QObject
+class ForceRenderer : public QObject
 {
     Q_OBJECT
 

@@ -250,7 +250,7 @@ public slots:
 signals:
   //! Signal that planner grasps should be processed or sent out for execution
   void processWorldPlanner(int solutionIndex);
-
+  void reDraw();
 
 public:
   IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);

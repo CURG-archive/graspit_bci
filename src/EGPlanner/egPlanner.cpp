@@ -38,7 +38,6 @@
 #include "eigenGrasp.h" //for glove input
 #include "collisionInterface.h"
 #include "grasp.h"
-#include "EGPlanner/EGPlannerRenderer.h"
 
 //#define GRASPITDBG
 #include "debug.h"
@@ -79,9 +78,7 @@ EGPlanner::init()
 	mMultiThread = false;
 	mState = INIT;
 	mUsesClone = false;
-	mOut = NULL;
-    renderer = new EGPlannerRenderer();
-    connect(this, SIGNAL(signalRender(EGPlanner*)), renderer, SLOT(render(EGPlanner*)));
+	mOut = NULL;    
 
 }
 
@@ -95,7 +92,6 @@ EGPlanner::~EGPlanner()
 	if (mCurrentState) delete mCurrentState;
 	if (mTargetState) delete mTargetState;
 	if (mIdleSensor) delete mIdleSensor;
-    if(renderer) delete renderer;
 }
 
 /*! Set the current state of the planner. It will accept any state, as

@@ -236,7 +236,6 @@ public:
       requests issued from inside the planner. */
   void render(Hand * h = NULL);
 
-  QMutex mListAttributeMutex;
-  EGPlannerRenderer * renderer;
+  QMutex mListAttributeMutex;  
 };
 #endif

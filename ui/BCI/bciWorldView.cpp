@@ -17,6 +17,8 @@ BCIWorldView::BCIWorldView(QWidget *parent) :
 
     SoNode *ivRoot = graspItGUI->getIVmgr()->getViewer()->getSceneGraph();
 
+    connect(graspItGUI->getIVmgr(), SIGNAL(reDraw()), this, SLOT(redraw()));
+
     soMaterial->diffuseColor.setValue(1,0,0);
 
     lightDir->rotation.connectFrom(&graspItGUI->getIVmgr()->getViewer()->getCamera()->orientation);
