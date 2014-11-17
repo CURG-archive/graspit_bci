@@ -3,6 +3,7 @@
 #include <QImage>
 #include <QByteArray>
 #include <QBuffer>
+#include <BCI/bciService.h>
 
 
 OptionSelectionStub::OptionSelectionStub(rpcz::rpc_channel * channel)
@@ -11,14 +12,16 @@ OptionSelectionStub::OptionSelectionStub(rpcz::rpc_channel * channel)
 }
 
 
-void OptionSelectionStub::buildRequest(const std::vector<QString> & stringList,
-                                       const std::vector<QImage*> & imageList,
-                                       const std::vector<QString> descriptionList,
+void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
+                                       const std::vector<QString> & stringList,
+                                       const std::vector<float> & imageCosts,
+                                       const std::vector<QString> & descriptionList,
                                        const float minimumConfidence)
 {
   // Check that the number of descriptions matches the number of options
   if(imageList.size() + stringList.size() != descriptionList.size())
       assert(0);
+
   request.clear_compressedimageoptions();
   request.clear_imageoptions();
   request.clear_stringoptions();
@@ -31,13 +34,16 @@ void OptionSelectionStub::buildRequest(const std::vector<QString> & stringList,
       QByteArray ba;
       QBuffer buffer(&ba);
       buffer.open(QIODevice::WriteOnly);
-      img->save(buffer, "PNG");
+      img->save(&buffer, "PNG");
       request.add_compressedimageoptions();
       graspit_rpcz::GetOptionSelectionRequest_CompressedImageOption * cio = request.mutable_compressedimageoptions(i);
+
       std::string * image_data = cio->mutable_option()->mutable_data();
       image_data->copy(ba.data(),ba.size());
       *(cio->mutable_option()->mutable_format()) = "png";
-      cio->mutable_description()->mutable_description()->copy(descriptionList[descriptionIterator++]);
+      QString s;
+      *(cio->mutable_description()->mutable_description()) = descriptionList[descriptionIterator++].toStdString();
+      cio->mutable_description()->set_cost(imageCosts[descriptionIterator]);
   }
   request.set_minimumconfidencelevel(minimumConfidence);
 }
@@ -49,5 +55,11 @@ void OptionSelectionStub::sendRequestImpl()
 
 void OptionSelectionStub::callbackImpl()
 {
-return;
+    std::vector<float> interestLevel;
+    for (int i = 0; i < response.interestlevel_size(); ++i)
+        interestLevel.push_back(response.interestlevel().Get(i));
+    unsigned int option = response.selectedoption();
+    float confidence = response.confidence();
+    BCIService::getInstance()->emitOptionChoice(option, confidence, interestLevel);
+    return;
 }

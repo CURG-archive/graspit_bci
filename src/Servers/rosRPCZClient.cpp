@@ -3,6 +3,7 @@
 #include "BCI/bciService.h"
 #include "EGPlanner/searchState.h"
 #include "debug.h"
+#include <string>
 
 RosRPCZClient::RosRPCZClient():
     _application(NULL),
@@ -13,14 +14,17 @@ RosRPCZClient::RosRPCZClient():
 {
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
-    rpcz::rpc_channel * channel = _application->create_rpc_channel("tcp://localhost:5561");
+    std::string urlString = "tcp://localhost:5561";
+
+    rpcz::rpc_channel * channel = _application->create_rpc_channel(urlString);
+
     if(!channel)
     {
         DBGA("Failed to create channel");
     }
     graspReachabilityStub = new GraspReachabilityStub(channel);
     sleep(.1);
-    channel = _application->create_rpc_channel("tcp://localhost:5561");
+    channel = _application->create_rpc_channel(urlString);
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -29,7 +33,7 @@ RosRPCZClient::RosRPCZClient():
     objectRecognitionStub = new ObjectRecognitionStub(channel);
 
 
-    channel = _application->create_rpc_channel("tcp://localhost:5561");
+    channel = _application->create_rpc_channel(urlString);
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -38,7 +42,7 @@ RosRPCZClient::RosRPCZClient():
     objectRetrievalStub = new ObjectRecognitionStub(channel,"RetrieveObjectsService");
 
 
-    channel = _application->create_rpc_channel("tcp://localhost:5561");
+    channel = _application->create_rpc_channel(urlString);
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -46,7 +50,7 @@ RosRPCZClient::RosRPCZClient():
     cameraOriginStub = new CameraOriginStub(channel);
     sleep(.1);
 
-    channel = _application->create_rpc_channel("tcp://localhost:5561");
+    channel = _application->create_rpc_channel(urlString);
     if(!channel)
     {
         DBGA("Failed to create channel");
@@ -54,6 +58,17 @@ RosRPCZClient::RosRPCZClient():
 
     executeGraspStub = new ExecuteGraspStub(channel);
     sleep(.3);
+
+    channel = _application->create_rpc_channel(urlString);
+    if(!channel)
+    {
+        DBGA("Failed to create channel");
+    }
+
+    optionSelectionStub = new OptionSelectionStub(channel);
+    sleep(.3);
+
+
     DBGA("Finished building RosRPCZClient");
 
 }
@@ -118,6 +133,13 @@ bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callb
   return executeGraspStub->sendRequest(callbackReceiver, slot);
 }
 
+bool RosRPCZClient::sendOptionChoices(std::vector<QImage*> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
+                                      float minimumConfidence,  QObject * callbackReceiver, const char * slot)
+{
+    std::vector<QString> stringList;
+    optionSelectionStub->buildRequest(imageOptions, stringList, imageCosts, imageDescriptions, minimumConfidence);
+    return optionSelectionStub->sendRequest(callbackReceiver, slot);
+}
 
 RosRPCZClient::~RosRPCZClient()
 {

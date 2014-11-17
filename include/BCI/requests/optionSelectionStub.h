@@ -19,7 +19,7 @@ class OptionSelectionStub : public Request
     Q_OBJECT
 public:
     OptionSelectionStub(rpcz::rpc_channel * channel);
-    void buildRequest(const std::vector<QString> & stringList, const std::vector<QImage> & imageList,
+    void buildRequest(const std::vector<QImage*> & imageList, const std::vector<QString> & stringList, const std::vector<float> & imageCosts,
                       const std::vector<QString> & descriptionList, const float minimumConfidence);
 
 protected:

@@ -6,10 +6,14 @@
 #include "BCI/worldController.h"
 #include "Servers/rosRPCZClient.h"
 #include <QMutex>
+#include <vector>
+class QImage;
+class QString;
 class GraspableBody;
 class DrawableFrame;
 class GraspPlanningState;
 class BCIControlWindow;
+
 
 using namespace bci_experiment;
 
@@ -40,6 +44,10 @@ public:
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
+    void emitOptionChoice(unsigned int option, float confidence,
+                          std::vector<float> & interestLevel);
+
+
 
     //ros server calls
     bool runObjectRetreival(QObject *callbackReceiver, const char *slot);
@@ -59,6 +67,10 @@ public:
     bool executeGrasp(const GraspPlanningState * gps,
                                   QObject * callbackReceiver,
                                   const char * slot);
+
+    bool sendOptionChoices(std::vector<QImage*> & images,
+                           std::vector<QString> & optionDescriptions,
+                           std::vector<float> &imageCosts, float minimumConfidence);
 
     static BCIService* getInstance();
 
@@ -115,6 +127,8 @@ signals:
     void analyzeGrasp(const GraspPlanningState * gps);
     void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
+    void optionChoice(unsigned int option, float confidence,
+                      std::vector<float> & interestLevel);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);

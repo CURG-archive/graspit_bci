@@ -8,6 +8,7 @@
 #include "BCI/requests/cameraOriginStub.h"
 #include "BCI/requests/graspReachabilityStub.h"
 #include "BCI/requests/executeGraspStub.h"
+#include "BCI/requests/optionSelectionStub.h"
 
 using namespace graspit_rpcz;
 class GraspPlanningState;
@@ -22,7 +23,8 @@ public:
     bool getCameraOrigin(QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
-
+    bool sendOptionChoices(std::vector<QImage*> & imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
+                           float minimumConfidence,  QObject * callbackReceiver = NULL, const char * slot = NULL);
 private:
     rpcz::application * _application;
 
@@ -31,7 +33,7 @@ private:
     ObjectRecognitionStub *objectRetrievalStub;
     CameraOriginStub *cameraOriginStub;
     ExecuteGraspStub *executeGraspStub;
-
+    OptionSelectionStub *optionSelectionStub;
 };
 
 #endif // ROSRPCZCLIENT_H
