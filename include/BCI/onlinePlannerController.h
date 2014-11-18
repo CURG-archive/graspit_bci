@@ -64,7 +64,7 @@ namespace bci_experiment{
             Hand *getRefHand();
             Hand * getGraspDemoHand();
             const GraspPlanningState * getGrasp(int index);
-            const unsigned int getNumGrasps();
+            unsigned int getNumGrasps();
             const GraspPlanningState * getCurrentGrasp();
             bool timedUpdateRunning;
             bool stopTimedUpdate();

@@ -391,7 +391,7 @@ namespace bci_experiment
 
     }
 
-    const unsigned int OnlinePlannerController::getNumGrasps()
+    unsigned int OnlinePlannerController::getNumGrasps()
     {
         if (currentPlanner)
             return currentPlanner->getListSize();
