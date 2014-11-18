@@ -46,7 +46,7 @@ private:
 	//! This is the body representation in GraspIt
 	GraspableBody* mGraspableBody;
 public:
-	GraspitDBModel() : mGraspableBody(NULL), mGeometryLoaded(false){}
+    GraspitDBModel() :  mGeometryLoaded(false), mGraspableBody(NULL){}
 	~GraspitDBModel();
 	//! Calls the super and also sets the mGeometryLoaded flag
 	int load(World* w);
