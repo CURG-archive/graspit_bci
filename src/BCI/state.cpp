@@ -84,7 +84,7 @@ void State::generateImageOptions(bool debug)
         QImage *img = new QImage(640,480, QImage::Format_RGB32);
         QString imgText = QString("Choice: ") + QString::number(i);
         setImageText(img, imgText,
-                     Qt::black);
+                     Qt::white);
 
 
         imageOptions.push_back(img);
@@ -127,7 +127,7 @@ void State::setImageText(QImage *image, QString &text,
     painter.setPen(fontColor); // The font color comes from user select on a QColorDialog
     painter.setFont(font); // The font size comes from user input
     painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawText(image->size(), Qt::AlignCenter, text);  // Draw a number on the image
+    painter.drawText(image->rect(), Qt::AlignCenter, text);  // Draw a number on the image
 }
 
 
