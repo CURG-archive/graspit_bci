@@ -34,14 +34,17 @@ protected:
     virtual void setImageText(QImage * image, QString & text,
                               const QColor & fontColor);
     virtual void generateImageOptions(bool debug = true);
-
+    virtual void generateStringImageOptions(bool debug = true);
 
 protected:
     QString m_name;
     QString m_prefix;
     std::vector<QImage *> imageOptions;
     std::vector<QString> imageDescriptions;
-    std::vector<float> imageCosts;
+
+    std::vector<QString> stringOptions;
+    std::vector<float> defaultCosts;
+    std::vector<float> imageCosts;    
 };
 
 

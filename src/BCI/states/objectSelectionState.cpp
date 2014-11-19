@@ -2,6 +2,7 @@
 #include "BCI/bciService.h"
 #include "BCI/state_views/objectSelectionView.h"
 #include "graspitGUI.h"
+#include <QGLWidget>
 
 using bci_experiment::world_element_tools::getWorld;
 using bci_experiment::OnlinePlannerController;
@@ -37,9 +38,14 @@ void ObjectSelectionState::onEntry(QEvent *e)
     {
         visionRunning = true;
         bciControlWindow->currentState->setText("Object Selection: Running Recognition");
+         onVisionFinished();
     }
     else
+    {
+        visionRunning = false;
         bciControlWindow->currentState->setText("Object Selection: Failed");
+        onVisionFinished();
+    }
 }
 
 void ObjectSelectionState::onRunVision(QEvent * e)
@@ -56,6 +62,7 @@ void ObjectSelectionState::onRunVision(QEvent * e)
             bciControlWindow->currentState->setText("Object Selection: Failed");
     }
 
+
 }
 
 void ObjectSelectionState::onVisionFinished()
@@ -63,6 +70,37 @@ void ObjectSelectionState::onVisionFinished()
     bciControlWindow->currentState->setText("Object Selection: Running Finished");
     graspItGUI->getIVmgr()->blinkBackground();
     visionRunning = false;
+
+    sendOptionChoice();
+}
+
+void ObjectSelectionState::generateImageOptions(bool debug)
+{
+    imageOptions.clear();
+    imageDescriptions.clear();
+    imageCosts.clear();
+
+    stringOptions.push_back(QString("Rerun Object Detection"));
+
+    generateStringImageOptions(debug);
+    imageDescriptions.push_back(stringOptions[0]);
+    imageCosts.push_back(.5);
+
+    for(int i = 0; i < graspItGUI->getIVmgr()->getWorld()->getNumGB(); ++i)
+    {
+        GraspableBody *newTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
+        WorldController::getInstance()->highlightCurrentBody(newTarget);
+        OnlinePlannerController::getInstance()->emitRender();
+        QGLWidget * glwidget = static_cast<QGLWidget *>(graspItGUI->getIVmgr()->getViewer()->getGLWidget());
+        QImage fb = glwidget->grabFrameBuffer();
+        QImage * img = new QImage(fb);
+        imageOptions.push_back(img);
+        imageCosts.push_back(.25);
+        imageDescriptions.push_back(QString("Select target:") + newTarget->getName());
+        if(debug)
+            img->save(QString("img") + QString::number(imageOptions.size() - 1) + QString(".png"));
+    }
+
 }
 
 void ObjectSelectionState::onExit(QEvent *e)

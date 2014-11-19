@@ -1,6 +1,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 #include <QObject>
+#include <QThread>
 #include "rpcz/rpcz.hpp"
 #include "debug.h"
 
@@ -24,7 +25,8 @@ public:
          }
         if(callbackReceiver)
         {
-            connect(this, SIGNAL(requestComplete()), callbackReceiver, slot);
+            //! This callback will be triggered by the rpcz thread, so it cannot be a direct connection
+            connect(this, SIGNAL(requestComplete()), callbackReceiver, slot, Qt::QueuedConnection);
 
         }
            try
@@ -50,6 +52,8 @@ public:
         callbackImpl();
         delete _rpc;
         _rpc = new(rpcz::rpc);
+        if(this->thread() == this->thread()->currentThread())
+            std::cout << "RESPONSE FROM WRONG THREAD" << std::endl;
         emit requestComplete();
     }
 

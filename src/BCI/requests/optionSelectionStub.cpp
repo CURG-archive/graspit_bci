@@ -26,7 +26,7 @@ void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
   request.clear_imageoptions();
   request.clear_stringoptions();
 
-  unsigned int descriptionIterator;
+
 
   for(int i = 0; i < imageList.size(); ++i)
   {
@@ -40,10 +40,9 @@ void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
 
       std::string * image_data = cio->mutable_option()->mutable_data();
       image_data->copy(ba.data(),ba.size());
-      *(cio->mutable_option()->mutable_format()) = "png";
-      QString s;
-      *(cio->mutable_description()->mutable_description()) = descriptionList[descriptionIterator++].toStdString();
-      cio->mutable_description()->set_cost(imageCosts[descriptionIterator]);
+      *(cio->mutable_option()->mutable_format()) = "png";      
+      *(cio->mutable_description()->mutable_description()) = descriptionList[i].toStdString();
+      cio->mutable_description()->set_cost(imageCosts[i]);
   }
   request.set_minimumconfidencelevel(minimumConfidence);
 }
