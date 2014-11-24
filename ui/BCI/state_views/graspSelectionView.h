@@ -43,6 +43,7 @@ public:
     explicit GraspSelectionView(QWidget *parent = 0);
     void showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState);
     ~GraspSelectionView();
+    HandView * getHandView(){return handView;}
 
 public slots:
     void onRefineGrasp();
