@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with GraspIt!.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Author(s):  Andrew T. Miller 
+// Author(s):  Andrew T. Miller
 //
 // $Id: graspitApp.h,v 1.3.4.1 2009/07/23 21:17:42 cmatei Exp $
 //
@@ -49,7 +49,7 @@ class GraspItApp : public QApplication
 
   /*! Returns the name of this class. */
   const char *className() const { return "GraspItApp"; }
-  virtual bool notify(QObject *obj, QEvent *evt);
+//  virtual bool notify(QObject *obj, QEvent *evt);
   static void showSplash();
   static void closeSplash();
 

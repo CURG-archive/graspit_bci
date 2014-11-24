@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with GraspIt!.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Author(s): Andrew T. Miller 
+// Author(s): Andrew T. Miller
 //
 // $Id: main.cpp,v 1.12.2.2 2009/07/24 15:33:45 cmatei Exp $
 //
@@ -60,28 +60,28 @@ int main(int argc, char **argv)
 {
 #ifdef GRASPITDBG
 #ifdef Q_WS_WIN
-  AllocConsole(); 
-  freopen("conin$", "r", stdin); 
-  freopen("conout$", "w", stdout); 
-  freopen("conout$", "w", stderr); 
+  AllocConsole();
+  freopen("conin$", "r", stdin);
+  freopen("conout$", "w", stdout);
+  freopen("conout$", "w", stderr);
   //ios::sync_with_stdio();
 #endif
 #endif
 
   GraspItApp app(argc, argv);
- 
+
   app.showSplash();
   QApplication::setOverrideCursor( Qt::waitCursor );
 
   GraspItGUI gui(argc,argv);
-  
+
   //This is the GraspIt TCP server. It can be used to connect to GraspIt from
   //external programs, such as Matlab.
   //On some machines, the Q3Socket segfaults at exit, so this is commented out by
   //default
   GraspItServer server(4765);
   unsigned int portNumber = 4766;
-  GraspitProtobufServer protobufServer(portNumber); 
+  GraspitProtobufServer protobufServer(portNumber);
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
   QApplication::restoreOverrideCursor();
 
   if (!gui.terminalFailure()) {
-	  gui.startMainLoop();
+      gui.startMainLoop();
   }
   return 0;
 }

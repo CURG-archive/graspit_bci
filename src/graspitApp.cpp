@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with GraspIt!.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Author(s): Andrew T. Miller 
+// Author(s): Andrew T. Miller
 //
 // $Id: graspitApp.cpp,v 1.5.4.1 2009/07/23 21:18:01 cmatei Exp $
 //
@@ -38,7 +38,7 @@
 /*! A pointer to the splash screen, implemented as a QLabel. */
 static QLabel *splash = 0;
 
-/*! 
+/*!
   Reads the registry to determine the location of the main window, and whether
   or not to display the splash screen.  If so, it shows the GraspIt! logo
   splash screen in the center of the screen.
@@ -60,23 +60,23 @@ GraspItApp::showSplash()
     screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
 
     if ( show ) {
-		splash = new QLabel( 0, "splash",Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
-	// WStyle_Customize | WStyle_StaysOnTop
-	splash->setAttribute(Qt::WA_DeleteOnClose,true);
-	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap(load_pixmap( "splash.jpg" ));
-	splash->adjustSize();
-	splash->setFixedSize(splash->sizeHint());
-	splash->setCaption( "GraspIt!" );
-	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
-	splash->show();
-	splash->repaint( FALSE );
-	QApplication::flush();
-	//	set_splash_status( "Initializing..." );
+        splash = new QLabel( 0, "splash",Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
+    // WStyle_Customize | WStyle_StaysOnTop
+    splash->setAttribute(Qt::WA_DeleteOnClose,true);
+    splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+    splash->setPixmap(load_pixmap( "splash.jpg" ));
+    splash->adjustSize();
+    splash->setFixedSize(splash->sizeHint());
+    splash->setCaption( "GraspIt!" );
+    splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
+    splash->show();
+    splash->repaint( FALSE );
+    QApplication::flush();
+    //	set_splash_status( "Initializing..." );
     }
 }
 
-/*! 
+/*!
   Removes the splash screen, freeing its memory.
 */
 void GraspItApp::closeSplash()
@@ -84,21 +84,21 @@ void GraspItApp::closeSplash()
     if (splash) delete splash;
 }
 
-bool GraspItApp::notify(QObject * obj, QEvent * evt)
-{
-    try {
-        return QApplication::notify(obj, evt);
-    } catch (std::exception &e) {
-        qFatal("Error %s sending event %s to object %s (%s)",
-            e.what(), typeid(*evt).name(), qPrintable(obj->objectName()),
-            typeid(*obj).name());
-    } catch (...) {
-        qFatal("Error <unknown> sending event %s to object %s (%s)",
-            typeid(*evt).name(), qPrintable(obj->objectName()),
-            typeid(*obj).name());
-    }
+//bool GraspItApp::notify(QObject * obj, QEvent * evt)
+//{
+//    try {
+//        return QApplication::notify(obj, evt);
+//    } catch (std::exception &e) {
+//        qFatal("Error %s sending event %s to object %s (%s)",
+//            e.what(), typeid(*evt).name(), qPrintable(obj->objectName()),
+//            typeid(*obj).name());
+//    } catch (...) {
+//        qFatal("Error <unknown> sending event %s to object %s (%s)",
+//            typeid(*evt).name(), qPrintable(obj->objectName()),
+//            typeid(*obj).name());
+//    }
 
-    // qFatal aborts, so this isn't really necessary
-    // but you might continue if you use a different logging lib
-    return false;
-}
+//    // qFatal aborts, so this isn't really necessary
+//    // but you might continue if you use a different logging lib
+//    return false;
+//}
