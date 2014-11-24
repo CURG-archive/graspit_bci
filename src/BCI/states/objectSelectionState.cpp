@@ -76,6 +76,10 @@ void ObjectSelectionState::onVisionFinished()
 
 void ObjectSelectionState::generateImageOptions(bool debug)
 {
+    for (unsigned int i = 0; i < imageOptions.size(); ++i)
+    {
+        delete imageOptions[i];
+    }
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
@@ -88,19 +92,15 @@ void ObjectSelectionState::generateImageOptions(bool debug)
 
     for(int i = 0; i < graspItGUI->getIVmgr()->getWorld()->getNumGB(); ++i)
     {
-//        GraspableBody *newTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
         GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
-        WorldController::getInstance()->highlightCurrentBody(newTarget);
-        OnlinePlannerController::getInstance()->emitRender();
-//        QGLWidget * glwidget = static_cast<QGLWidget *>(graspItGUI->getIVmgr()->getViewer()->getGLWidget());
-//        QImage fb = glwidget->grabFrameBuffer();
-        graspItGUI->getIVmgr()->saveImage(QString("temp.png"));
-        QImage * img = new QImage(QString("temp.png"));
+        WorldController::getInstance()->highlightCurrentBody(newTarget);     
+        QString debugFileName="";
+        if(debug)
+            debugFileName=QString("img" + QString::number(imageOptions.size()) + ".png");
+        QImage * img = graspItGUI->getIVmgr()->generateImage(NULL, debugFileName);
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
-        imageDescriptions.push_back(QString("Select target:") + newTarget->getName());
-        if(debug)
-            img->save(QString("img") + QString::number(imageOptions.size() - 1) + QString(".png"));
+        imageDescriptions.push_back(QString("Select target:") + newTarget->getName());       
     }
 
 }
