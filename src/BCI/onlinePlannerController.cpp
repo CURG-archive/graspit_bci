@@ -494,6 +494,11 @@ namespace bci_experiment
       DBGA("Analyze Grasp time elapsed: " << currentTime -  QDateTime::currentDateTime().toTime_t());
       if(BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp())))
         currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
+      else
+      {
+         currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testResult",  -1.0);
+         analyzeNextGrasp();
+      }
       lock.unlock();
 
       DBGA("checkGraspReachability: " << currentTime -  QDateTime::currentDateTime().toTime_t());
