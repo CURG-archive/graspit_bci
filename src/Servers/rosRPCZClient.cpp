@@ -10,7 +10,8 @@ RosRPCZClient::RosRPCZClient():
     graspReachabilityStub(NULL),
     objectRecognitionStub(NULL),
     cameraOriginStub(NULL),
-    executeGraspStub(NULL)
+    executeGraspStub(NULL),
+    _connected(false)
 {
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
@@ -75,7 +76,7 @@ RosRPCZClient::RosRPCZClient():
 
 bool RosRPCZClient::runObjectRetrieval(QObject * callbackReceiver, const char * slot)
 {
-    if(!objectRetrievalStub)
+    if(!_connected || !objectRetrievalStub)
     {
         DBGA("Tried to send invalid objectRetrievalStub");
         return false;
@@ -87,7 +88,7 @@ bool RosRPCZClient::runObjectRetrieval(QObject * callbackReceiver, const char * 
 
 bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char * slot)
 {
-    if(!objectRecognitionStub)
+    if(!_connected || !objectRecognitionStub)
     {
         DBGA("Tried to send invalid objectRecognitionStub");
         return false;
@@ -99,7 +100,7 @@ bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char 
 
 bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot)
 {
-    if(!cameraOriginStub)
+    if(!_connected || !cameraOriginStub)
     {
         DBGA("Tried to send invalid getCameraOrigin");
         return false;
@@ -110,7 +111,7 @@ bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot
 
 bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
 {    
-    if(!graspReachabilityStub)
+    if(!_connected || !graspReachabilityStub)
     {
         DBGA("Tried to send invalid graspReachability");
         return false;
@@ -123,7 +124,7 @@ bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObje
 
 bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
 {
-  if(!executeGraspStub)
+  if(!_connected || !executeGraspStub)
   {
     DBGA("Tried to send invalid executeGraspStub");
     return false;
@@ -136,6 +137,12 @@ bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callb
 bool RosRPCZClient::sendOptionChoices(std::vector<QImage*> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
                                       float minimumConfidence,  QObject * callbackReceiver, const char * slot)
 {
+    if(!_connected || !optionSelectionStub)
+    {
+      DBGA("Tried to send invalid executeGraspStub");
+      return false;
+    }
+
     std::vector<QString> stringList;
     optionSelectionStub->buildRequest(imageOptions, stringList, imageCosts, imageDescriptions, minimumConfidence);
     return optionSelectionStub->sendRequest(callbackReceiver, slot);

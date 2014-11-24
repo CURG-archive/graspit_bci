@@ -34,6 +34,7 @@ private:
     CameraOriginStub *cameraOriginStub;
     ExecuteGraspStub *executeGraspStub;
     OptionSelectionStub *optionSelectionStub;
+    bool _connected;
 };
 
 #endif // ROSRPCZCLIENT_H
