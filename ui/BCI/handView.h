@@ -152,10 +152,9 @@ public:
    
   void update(const GraspPlanningState & s, Hand & cloneHand);
 
-  void updateGeom(Hand & h);
-
-  void getSnapShot();
-
+  void updateGeom(Hand & h);  
+  QImage * getSnapShot();
+  SoSeparator *getIVRoot(){return IVRoot;}
   //---------------Getters/Setters-----------------------
   QString getViewName();
 
