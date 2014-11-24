@@ -127,9 +127,15 @@ void GraspSelectionState::generateImageOptions(bool debug)
         delete imageOptions[i];
     }
 
+    for (unsigned int i = 0; i < sentChoices.size(); ++i)
+    {
+        delete sentChoices[i];
+    }
+
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
+    sentChoices.clear();
 
     stringOptions.push_back(QString("Select Different Object"));
 
@@ -141,6 +147,8 @@ void GraspSelectionState::generateImageOptions(bool debug)
     {
         onNext();
         currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
+        sentChoices.push_back(new GraspPlanningState(currentGrasp));
+
         QString debugFileName="";
         if(debug)
             debugFileName=QString("img" + QString::number(imageOptions.size()) + ".png");
@@ -152,6 +160,43 @@ void GraspSelectionState::generateImageOptions(bool debug)
     }
 
 }
+
+
+
+void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel)
+{
+    const GraspPlanningState * currentGrasp = NULL;
+    if(option == 0)
+    {
+        //Go back to object selection state.
+        BCIService::getInstance()->emitGoToPreviousState();
+        return;
+    }
+
+    for(int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i)
+    {
+
+        if(OnlinePlannerController::getInstance()->getGrasp(i)->getAttribute("graspId") == sentChoices[option - stringOptions.size()]->getAttribute("graspId"))
+            currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
+            break;
+    }
+    if(!currentGrasp)
+    {
+        DBGA("GraspSelectionState::respondOptionChoice -- Failed to find chosen grasp in grasp list");
+        return;
+    }
+
+    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
+    OnlinePlannerController::getInstance()->stopTimedUpdate();
+    if(currentGrasp)
+    {
+       while(OnlinePlannerController::getInstance()->getCurrentGrasp() != currentGrasp)
+           onNext();
+    }
+    //Go to grasp refinement state
+    BCIService::getInstance()->emitNext();
+}
+
 
 
 

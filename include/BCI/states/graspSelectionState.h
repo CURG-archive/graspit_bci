@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "BCI/bciControlWindow.h"
 #include "BCI/state_views/graspSelectionView.h"
+#include <vector>
 
 class GraspSelectionState: public HandRotationState
 {
@@ -20,9 +21,11 @@ public:
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
     virtual void setNextButtonLabel(QString & label);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+
 protected:
     GraspSelectionView *graspSelectionView;
-
+    std::vector<GraspPlanningState *> sentChoices;
     virtual void generateImageOptions(bool debug = true);
     bool choiceReady();
 
