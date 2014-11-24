@@ -33,7 +33,3 @@ void HandRotationState::onHandRotationStateEntry()
     OnlinePlannerController::getInstance()->alignHand();
 }
 
-void HandRotationState::generateImageOptions(bool debug)
-{
-
-}
