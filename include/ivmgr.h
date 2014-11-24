@@ -293,7 +293,9 @@ public:
   void setCameraTransf(transf tr);
   transf getCameraTransf();
 
-  void saveImage(QString filename);
+  void saveImage(QString filename, SoSeparator *root = NULL);
+  QImage* generateImage(SoSeparator * root = NULL, QString debugFileName = "");
+
   void beginMainLoop();
 
   void setStereo(bool s);
