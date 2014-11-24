@@ -23,6 +23,10 @@ public:
 protected:
     GraspSelectionView *graspSelectionView;
 
+    virtual void generateImageOptions(bool debug = true);
+    bool choiceReady();
+
+    bool choicesValid;
 public slots:
     void onNext();
     void onPlannerUpdated();

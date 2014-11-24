@@ -35,6 +35,7 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
 
 void GraspSelectionState::onEntry(QEvent *e)
 {
+    choicesValid = true;
 
     graspSelectionView->show();
     bciControlWindow->currentState->setText(stateName);
@@ -95,8 +96,64 @@ void GraspSelectionState::onPlannerUpdated()
         DBGA("GraspSelectionState::onPlannerUpdated::No best grasp found");
     }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
+    if(choiceReady())
+        sendOptionChoice();
+}
+
+bool GraspSelectionState::choiceReady()
+{
+    if(choicesValid && OnlinePlannerController::getInstance()->getNumGrasps())
+    {
+        for(int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i)
+        {
+            const GraspPlanningState * currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
+            if(currentGrasp->getAttribute("testResult") == 0.0)
+                return false;
+        }
+        choicesValid = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 
 }
+
+void GraspSelectionState::generateImageOptions(bool debug)
+{
+    for (unsigned int i = 0; i < imageOptions.size(); ++i)
+    {
+        delete imageOptions[i];
+    }
+
+    imageOptions.clear();
+    imageDescriptions.clear();
+    imageCosts.clear();
+
+    stringOptions.push_back(QString("Select Different Object"));
+
+    generateStringImageOptions(debug);
+    imageDescriptions.push_back(stringOptions[0]);
+    imageCosts.push_back(.5);
+    const GraspPlanningState * currentGrasp;
+    for(int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i)
+    {
+        onNext();
+        currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
+        QString debugFileName="";
+        if(debug)
+            debugFileName=QString("img" + QString::number(imageOptions.size()) + ".png");
+        QImage * img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
+
+        imageOptions.push_back(img);
+        imageCosts.push_back(.25);
+        imageDescriptions.push_back(QString("GraspID: ") + QString::number(currentGrasp->getAttribute("graspId")) );
+    }
+
+}
+
+
 
 
 
