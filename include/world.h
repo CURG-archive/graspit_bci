@@ -72,7 +72,7 @@ class DrawableFrame;
     later.
  */
 class World : public QObject {
-  Q_OBJECT ;
+  Q_OBJECT 
 
 protected:
   //! Pointer to the IVmgr who controls the simulation
