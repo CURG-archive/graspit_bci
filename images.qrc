@@ -1,0 +1,26 @@
+<qresource>
+  <file>src/images/play.xpm</file>
+  <file>src/images/pause.xpm</file>
+  <file>src/images/splash.jpg</file>
+  <file>src/images/logo.png</file>
+  <file>src/images/nocollide.xpm</file>
+  <file>src/images/collide.xpm</file>
+  <file>src/images/translateTool.xpm</file>
+  <file>src/images/selectTool.xpm</file>
+  <file>src/images/rotateTool.xpm</file>
+  <file>src/images/mark.xpm</file>
+  <file>src/images/prevMark.xpm</file>
+  <file>src/images/filenew.xpm</file>
+  <file>src/images/fileopen.xpm</file>
+  <file>src/images/filesave.xpm</file>
+  <file>src/images/filenew</file>
+  <file>src/images/fileopen</file>
+  <file>src/images/filesave</file>
+  <file>src/images/print</file>
+  <file>src/images/undo</file>
+  <file>src/images/redo</file>
+  <file>src/images/editcut</file>
+  <file>src/images/editcopy</file>
+  <file>src/images/editpaste</file>
+  <file>src/images/searchfind</file>
+</qresource>
