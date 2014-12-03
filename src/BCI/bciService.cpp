@@ -165,7 +165,7 @@ bool BCIService::sendOptionChoices(std::vector<QImage*> & images,
         DBGA("invalid ros server");
         return false;
     }
-    return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
+    //return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
 }
 
 void BCIService::emitOptionChoice(unsigned int option, float confidence,
