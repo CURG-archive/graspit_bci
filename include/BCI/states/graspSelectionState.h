@@ -19,13 +19,15 @@ public:
 
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
-    virtual void setNextButtonLabel(QString & label);
+    virtual bool setButtonLabel(QString buttonName, QString label);
 protected:
     GraspSelectionView *graspSelectionView;
 
 public slots:
     void onNext();
     void onPlannerUpdated();
+    virtual void onRotateHandLat();
+    virtual void onRotateHandLong();
 };
 
 
