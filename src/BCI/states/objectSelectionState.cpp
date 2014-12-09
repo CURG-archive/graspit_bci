@@ -19,7 +19,7 @@ ObjectSelectionState::ObjectSelectionState(BCIControlWindow *_bciControlWindow,
     objectSelectionView = new ObjectSelectionView(this,bciControlWindow->currentFrame);
     objectSelectionView->hide();
     this->addSelfTransition(getWorld(), SIGNAL(numElementsChanged()), this, SLOT(onNewObjectFound()));
-    this->addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRunVision()));
+    this->addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onRunVision()));
 
 }
 
@@ -118,8 +118,15 @@ void ObjectSelectionState::onExit(QEvent *e)
 
 void ObjectSelectionState::onNext()
 {
-    GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
-    WorldController::getInstance()->highlightCurrentBody(newTarget);
+    static QTime activeTimer;
+    qint64 minElapsedMSecs = 1200;
+    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+    {
+
+        activeTimer.start();
+        GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
+        WorldController::getInstance()->highlightCurrentBody(newTarget);
+    }
 }
 
 
