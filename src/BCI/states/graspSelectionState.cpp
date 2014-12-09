@@ -51,11 +51,16 @@ void GraspSelectionState::onExit(QEvent *e)
     graspSelectionView->hide();
 }
 
-void GraspSelectionState::setNextButtonLabel(QString &label)
+
+bool GraspSelectionState::setButtonLabel(QString buttonName, QString label)
 {
-    QString name("buttonRefineGrasp");
-    QPushButton * buttonRefineGrasp = graspSelectionView->findChild<QPushButton *>((name));
-    buttonRefineGrasp->setText(label);
+    QPushButton * button = graspSelectionView->findChild<QPushButton *>((buttonName));
+    if(button)
+    {
+        button->setText(label);
+        return true;
+    }
+    return false;
 }
 
 
@@ -96,6 +101,16 @@ void GraspSelectionState::onPlannerUpdated()
     }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
 
+}
+
+void GraspSelectionState::onRotateHandLat()
+{
+    HandRotationState::onRotateHandLat();
+}
+
+void GraspSelectionState::onRotateHandLong()
+{
+    HandRotationState::onRotateHandLong();
 }
 
 
