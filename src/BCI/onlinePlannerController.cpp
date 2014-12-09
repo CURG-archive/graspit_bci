@@ -64,6 +64,7 @@ namespace bci_experiment
     {
         currentPlanner = planner_tools::createDefaultPlanner();
         connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()));
+	connect(currentPlanner, SIGNAL(update()), this, SLOT(onPlannerUpdated()));
     }
 
 
