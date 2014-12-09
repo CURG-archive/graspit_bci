@@ -33,13 +33,13 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>160</y>
+     <y>310</y>
      <width>221</width>
      <height>81</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 194, 194);</string>
+    <string notr="true">background-color: rgb(255, 205, 251);</string>
    </property>
    <property name="text">
     <string>change current object</string>
@@ -49,14 +49,13 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>280</y>
+     <y>170</y>
      <width>221</width>
      <height>81</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 205, 251);
-</string>
+    <string notr="true">background-color: rgb(255, 194, 194);</string>
    </property>
    <property name="text">
     <string>rerun vision</string>
