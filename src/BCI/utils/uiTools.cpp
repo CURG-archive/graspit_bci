@@ -300,7 +300,7 @@ namespace bci_experiment
         void destroyGuideSeparator()
         {
             SoSeparator * pointerRoot =
-                    GraspItGUI::getInstance()->getIVmgr()->getPointers();
+                    GraspItGUI::getInstance()->getIVmgr()->getWorld()->getIVRoot();
             SoSeparator * guideSeparator = static_cast<SoSeparator *>
                     (pointerRoot->getByName("BCIGuideSeparator"));
             if(guideSeparator)
