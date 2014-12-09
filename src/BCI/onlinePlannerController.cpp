@@ -79,6 +79,17 @@ namespace bci_experiment
     }
 
 
+    void OnlinePlannerController::showRobots(bool show)
+    {
+        if(currentPlanner)
+        {
+            currentPlanner->getHand()->setRenderGeometry(show);
+            currentPlanner->showClone(show);
+            currentPlanner->showSolutionClone(show);
+            getGraspDemoHand()->setRenderGeometry(show);
+        }
+    }
+
     void
     OnlinePlannerController::plannerTimedUpdate()
     {
@@ -113,7 +124,7 @@ namespace bci_experiment
     void OnlinePlannerController::initializeDbInterface()
     {
 
-        if (!mDbMgr && currentPlanner->getHand())
+        if (!mDbMgr)
         {
             GraspitDBModelAllocator *graspitDBModelAllocator = new GraspitDBModelAllocator();
             GraspitDBGraspAllocator *graspitDBGraspAllocator = new GraspitDBGraspAllocator(currentPlanner->getHand());
@@ -121,8 +132,11 @@ namespace bci_experiment
             mDbMgr = new db_planner::SqlDatabaseManager("tonga.cs.columbia.edu", 5432,
                               "postgres","roboticslab","armdb",graspitDBModelAllocator,graspitDBGraspAllocator);
 
-          planner_tools::importGraspsFromDBMgr(currentPlanner, mDbMgr);
-        }
+        }        
+
+        if(currentPlanner->getHand())
+            planner_tools::importGraspsFromDBMgr(currentPlanner, mDbMgr);
+
     }
 
 
@@ -293,7 +307,10 @@ namespace bci_experiment
     //puts planner in ready state
     bool OnlinePlannerController::setPlannerToReady()
     {
-        if(currentTarget && (!mDbMgr || currentPlanner->getState() != READY || currentTarget != currentPlanner->getHand()->getGrasp()->getObject()))
+        if(currentTarget && (!mDbMgr ||
+                             currentPlanner->getState() != READY ||
+                             currentTarget != currentPlanner->getHand()->getGrasp()->getObject() ||
+                             currentPlanner->getTargetState()->getObject() == currentTarget))
         {
             initializeTarget();
             bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
@@ -501,6 +518,11 @@ namespace bci_experiment
 
    void OnlinePlannerController::addToWorld(const QString model_filename, const QString object_name, const QString object_pose_string)
     {
+       if(getSceneLocked())
+       {
+           DBGA("OnlinePlannerController::addToWorld::Tried to add objects to locked world");
+           return;
+       }
         std::stringstream s;
         s << object_pose_string.toStdString();
         transf object_pose;
@@ -523,7 +545,18 @@ namespace bci_experiment
     }
 
    void OnlinePlannerController::clearObjects()
-   {
+   {if(getSceneLocked())
+       {
+           DBGA("OnlinePlannerController::clearObjects::Tried to remove objects from locked world");
+           return;
+       }
+       if(currentPlanner)
+       {
+           currentPlanner->mListAttributeMutex.lock();
+           currentPlanner->pausePlanner();
+           currentPlanner->resetPlanner();
+           currentPlanner->mListAttributeMutex.unlock();
+       }
        while(getWorld()->getNumGB() > 0)
            getWorld()->destroyElement(getWorld()->getGB(0), true);
 
