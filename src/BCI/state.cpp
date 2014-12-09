@@ -55,15 +55,24 @@ void State::onExit( QEvent* e )
     qDebug() << m_prefix << "Exiting state:" << state;
 }
 
-void State::addSelfTransition(QObject *sender, const char * signal, const QObject *receiver, const char* slot  )
+QSignalTransition * State::addSelfTransition(QObject *sender, const char * signal, const QObject *receiver, const char* slot  )
 {
     QSignalTransition * newTransition =
             new QSignalTransition(sender, signal);
+    QSignalTransition *duplicate =
+            dynamic_cast<QSignalTransition*>(checkForDuplicateTransitions(newTransition));
+    if(!duplicate)
+        addTransition(newTransition);
 
-    addTransition(newTransition);
+    else
+    {
+        delete(newTransition);
+        newTransition = duplicate;
+    }
 
     connect(newTransition, SIGNAL(triggered()),
             receiver, slot);
+    return newTransition;
 }
 
 
@@ -151,3 +160,52 @@ void State::disconnectOptionChoice()
     this->addSelfTransition(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
                             this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
 }
+
+
+QAbstractTransition *
+State::checkForDuplicateTransitions(QAbstractTransition * transition)
+{
+    QSignalTransition * signalTransition = dynamic_cast<QSignalTransition *>(transition);
+    if(!signalTransition)
+    {
+        DBGA("State::checkDuplicateTransitions::Non-signal transition cannot be tested");
+        return NULL;
+    }
+
+    QList<QAbstractTransition *> transitionList = this->transitions();
+    for(QList<QAbstractTransition *>::iterator trans = transitionList.begin(); trans != transitionList.end(); ++trans)
+    {
+        QSignalTransition * testSignalTransition =
+                dynamic_cast<QSignalTransition *>(*trans);
+        if(!testSignalTransition)
+        {
+            DBGA("State::checkDuplicateTransitions::Non-signal transition cannot be tested");
+            continue;
+        }
+        if(testSignalTransition != signalTransition && testSignalTransition->signal() == signalTransition->signal() && testSignalTransition->senderObject() == signalTransition->senderObject())
+        {
+            DBGA("State::checkForDuplicateTransitions::Duplicate signal found::" << QString(testSignalTransition->signal()).toStdString());
+            return testSignalTransition;
+        }
+    }
+    return NULL;
+}
+
+QSignalTransition *
+State::addTransition(QObject * sender, const char * signal,  QAbstractState * target)
+{
+    QSignalTransition * newTransition =
+            new QSignalTransition(sender,signal);
+    newTransition->setTargetState(target);
+    this->addTransition(newTransition);
+    return newTransition;
+}
+
+void
+State::addTransition ( QAbstractTransition * transition )
+{
+    assert(!checkForDuplicateTransitions(transition));
+    static_cast<QState *>(this)->addTransition(transition);
+}
+
+
