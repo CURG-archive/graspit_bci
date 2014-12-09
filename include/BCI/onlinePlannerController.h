@@ -70,7 +70,8 @@ namespace bci_experiment{
             bool stopTimedUpdate();
             bool startTimedUpdate();
             bool toggleTimedUpdate();
-
+            void setSceneLocked(bool locked){sceneLocked = locked;}
+            bool getSceneLocked(){return sceneLocked;}
             //void connectToPlannerUpdateSignal();
 
 
@@ -78,6 +79,7 @@ namespace bci_experiment{
 
             void incrementGraspIndex();
 
+            void showRobots(bool show);
 
 
             void sortGrasps();
@@ -98,6 +100,7 @@ namespace bci_experiment{
             Hand * graspDemonstrationHand;
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();
+            bool sceneLocked;
 
     signals:
             void render();
