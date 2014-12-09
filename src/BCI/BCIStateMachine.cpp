@@ -37,7 +37,11 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     initialGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
     initialGraspSelectionState->addTransition(bciService, SIGNAL(exec()), confirmationState);
     initialGraspSelectionState->addTransition(bciService, SIGNAL(next()), activateRefinementState);
-
+    initialGraspSelectionState->setRotationAllowed(false);
+    initialGraspSelectionState->setButtonLabel( "buttonRotateLong", "Next Grasp");
+    initialGraspSelectionState->setButtonLabel( "buttonRotateLat", "Change Target Object");
+    initialGraspSelectionState->addSelfTransition(bciService,SIGNAL(rotLong()), initialGraspSelectionState, SLOT(onNext()));
+    initialGraspSelectionState->addTransition(bciService,SIGNAL(rotLat()), objectSelectionState);
 
     activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
     activateRefinementState->addTransition(bciService, SIGNAL(exec()), finalGraspSelectionState);
@@ -47,8 +51,8 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()),confirmationState);
     finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
     finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
-    QString nextButtonLabel("Next Grasp");
-    finalGraspSelectionState->setNextButtonLabel(nextButtonLabel);
+
+    finalGraspSelectionState->setButtonLabel("buttonRefineGrasp", "Next Grasp");
     finalGraspSelectionState->stateName = "Final Selection";
 
     //onlinePlanningState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
