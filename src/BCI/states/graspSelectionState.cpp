@@ -76,7 +76,7 @@ void GraspSelectionState::onNext()
    {
        currentGrasp->execute(OnlinePlannerController::getInstance()->getRefHand());
        OnlinePlannerController::getInstance()->alignHand();
-       graspSelectionView->showSelectedGrasp(hand ,currentGrasp);
+       graspSelectionView->showSelectedGrasp(hand, currentGrasp);
        QString graspID;
        bciControlWindow->currentState->setText(stateName +"- Grasp: " + graspID.setNum(currentGrasp->getAttribute("graspId")) );
    }
