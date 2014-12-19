@@ -20,6 +20,8 @@ public:
     void showNextGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
     ~ActiveRefinementView();
 
+    HandView *currentGraspView;
+    HandView *nextGraspView;
 
 public slots:
     void onOk();
@@ -31,8 +33,6 @@ public slots:
 protected:
     virtual void showEvent(QShowEvent *);
 private:
-    HandView *currentGraspView;
-    HandView *nextGraspView;
     Ui::ActiveRefinementView *ui;
     void createHandView();
 };
