@@ -78,14 +78,16 @@ void ObjectSelectionState::respondOptionChoice(unsigned int option, double confi
 {
     DBGA("selecting object " << option << " with confidence " << confidence);
 
-#warning THIS IS SUPER HACKY DONT USE THIS PLEASEEEEE
-    DBGA("THIS IS SUPER HACKY DONT USE THIS PLEASEEEEE");
-
-    OnlinePlannerController::getInstance()->incrementCurrentTarget();
-    for (int i = 0; i < option; ++i) {
-        GraspableBody *gb = OnlinePlannerController::getInstance()->incrementCurrentTarget();
-        WorldController::getInstance()->highlightCurrentBody(gb);
+    if(option < stringOptions.size())
+    {
+        onRunVision();
+        return;
     }
+    option = option - 1;
+    OnlinePlannerController::getInstance()->setCurrentTargetByIndex(option);
+    GraspableBody *gb = OnlinePlannerController::getInstance()->getCurrentTarget();
+    WorldController::getInstance()->highlightCurrentBody(gb);
+
     onSelect();
 }
 
