@@ -153,7 +153,8 @@ void GraspSelectionState::generateImageOptions(bool debug)
         QString debugFileName="";
         if(debug)
             debugFileName=QString("img" + QString::number(imageOptions.size()) + ".png");
-        QImage * img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
+        QImage * img = graspItGUI->getIVmgr()->generateImage(
+                    graspSelectionView->getHandView()->getIVRoot(), debugFileName);
 
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
