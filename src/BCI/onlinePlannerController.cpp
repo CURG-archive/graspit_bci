@@ -545,4 +545,15 @@ namespace bci_experiment
        currentPlanner->updateSolutionList();
    }
 
+
+   void OnlinePlannerController::setCurrentTargetByIndex(unsigned int index)
+   {
+        if(index < world_element_tools::getWorld()->getNumGB())
+            setCurrentTarget( world_element_tools::getWorld()->getGB(index));
+        else
+            DBGA("setCurrentTargetByIndex::Tried to set invalid graspable body as target. Index sent:"
+                 << index <<" Maximum index" << world_element_tools::getWorld()->getNumGB());
+   }
+
 }
+

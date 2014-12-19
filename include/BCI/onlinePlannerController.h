@@ -81,6 +81,7 @@ namespace bci_experiment{
 
 
             void sortGrasps();
+            void setCurrentTargetByIndex(unsigned int index);
     private:
 
             static OnlinePlannerController * onlinePlannerController;
