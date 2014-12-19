@@ -15,14 +15,19 @@ class ActivateRefinementState: public HandRotationState
 public:
     ActivateRefinementState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
 
+
 public slots:
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
     virtual void onPlannerUpdated(QEvent *e = NULL);
     virtual void nextGrasp(QEvent *e = NULL);
+    virtual void respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel);
+
 protected:
     ActiveRefinementView *activeRefinementView;
-
+    std::vector<GraspPlanningState *> sentChoices;
+    virtual void decorateOption(QImage * imageOption);
+    virtual void generateImageOptions(bool debug);
 
 };
 
