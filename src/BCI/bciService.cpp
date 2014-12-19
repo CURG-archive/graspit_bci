@@ -36,7 +36,7 @@ DBGA("Built BCIService");
 void BCIService::init(BCIControlWindow *bciControlWindow)
 {
     //builds and starts a qtStateMachine
-    BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);    
+    BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);
     connect(this, SIGNAL(plannerUpdated()), bciControlWindow, SLOT(redraw()));
     connect(OnlinePlannerController::getInstance(), SIGNAL(render()), bciControlWindow, SLOT(redraw()));
     bciStateMachine->start();
@@ -60,7 +60,7 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
                 DBGA("set next graspfrom key press");
                 return true;
             }
-        }    
+        }
         if(keyEvent->key() == Qt::Key::Key_C)
         {
             if(OnlinePlannerController::getInstance())
@@ -83,10 +83,10 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
                 OnlinePlannerController::getInstance()->toggleTimedUpdate();
                 DBGA("Planner timed update running: " << OnlinePlannerController::getInstance()->timedUpdateRunning);
             }
-        }        
+        }
         if(keyEvent->key() == Qt::Key::Key_J)
         {
-            std::vector<float> interestLevel;
+            std::vector<double> interestLevel;
             interestLevel.push_back(.5);
             emitOptionChoice(1,.5, interestLevel);
             DBGA("BCIService");
@@ -122,7 +122,7 @@ bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
 }
 
 bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
-{        
+{
     if(!rosServer)
     {
         DBGA("invalid ros server");
@@ -143,10 +143,10 @@ bool BCIService::checkGraspReachability(const GraspPlanningState * state,
     }
     return rosServer->checkGraspReachability(state, callbackReceiver, slot);
 }
- 
+
 bool BCIService::executeGrasp(const GraspPlanningState * gps,
-			      QObject * callbackReceiver,
-			      const char * slot)
+                  QObject * callbackReceiver,
+                  const char * slot)
 {
     if(!rosServer)
     {
@@ -157,8 +157,8 @@ bool BCIService::executeGrasp(const GraspPlanningState * gps,
 }
 
 bool BCIService::sendOptionChoices(std::vector<QImage*> & images,
-                           std::vector<QString> & optionDescriptions, std::vector<float> & imageCosts,
-                           float minimumConfidence)
+                           std::vector<QString> & optionDescriptions, std::vector<double> & imageCosts,
+                           double minimumConfidence)
 {
     if(!rosServer)
     {
@@ -168,8 +168,8 @@ bool BCIService::sendOptionChoices(std::vector<QImage*> & images,
     return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
 }
 
-void BCIService::emitOptionChoice(unsigned int option, float confidence,
-                                 std::vector<float> & interestLevel)
+void BCIService::emitOptionChoice(unsigned int option, double confidence,
+                                 std::vector<double> & interestLevel)
 {
     emit optionChoice(option, confidence, interestLevel);
 }

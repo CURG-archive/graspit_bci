@@ -3,6 +3,7 @@
 
 #include "rpcz/rpcz.hpp"
 
+#include <QMetaType>
 #include <boost/shared_ptr.hpp>
 #include "BCI/requests/objectRecognitionStub.h"
 #include "BCI/requests/cameraOriginStub.h"
@@ -23,8 +24,8 @@ public:
     bool getCameraOrigin(QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
     bool executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool sendOptionChoices(std::vector<QImage*> & imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
-                           float minimumConfidence,  QObject * callbackReceiver = NULL, const char * slot = NULL);
+    bool sendOptionChoices(std::vector<QImage*> & imageOptions, std::vector<QString> &imageDescriptions, const std::vector<double> & imageCosts,
+                           double minimumConfidence,  QObject * callbackReceiver = NULL, const char * slot = NULL);
 private:
     rpcz::application * _application;
 
@@ -36,5 +37,7 @@ private:
     OptionSelectionStub *optionSelectionStub;
     bool _connected;
 };
+
+Q_DECLARE_METATYPE(std::vector<double>);
 
 #endif // ROSRPCZCLIENT_H

@@ -74,6 +74,21 @@ void ObjectSelectionState::onVisionFinished()
     sendOptionChoice();
 }
 
+void ObjectSelectionState::respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel)
+{
+    DBGA("selecting object " << option << " with confidence " << confidence);
+
+#warning THIS IS SUPER HACKY DONT USE THIS PLEASEEEEE
+    DBGA("THIS IS SUPER HACKY DONT USE THIS PLEASEEEEE");
+
+    OnlinePlannerController::getInstance()->incrementCurrentTarget();
+    for (int i = 0; i < option; ++i) {
+        GraspableBody *gb = OnlinePlannerController::getInstance()->incrementCurrentTarget();
+        WorldController::getInstance()->highlightCurrentBody(gb);
+    }
+    onSelect();
+}
+
 void ObjectSelectionState::generateImageOptions(bool debug)
 {
     for (unsigned int i = 0; i < imageOptions.size(); ++i)
@@ -87,22 +102,29 @@ void ObjectSelectionState::generateImageOptions(bool debug)
     stringOptions.push_back(QString("Rerun Object Detection"));
 
     generateStringImageOptions(debug);
-    imageDescriptions.push_back(stringOptions[0]);
-    imageCosts.push_back(.5);
+
+    assert(stringOptions.size() == imageOptions.size());
+    for (unsigned int i = 0; i < imageOptions.size(); ++i) {
+        imageDescriptions.push_back(stringOptions[i]);
+        imageCosts.push_back(0.5);
+    }
 
     for(int i = 0; i < graspItGUI->getIVmgr()->getWorld()->getNumGB(); ++i)
     {
         GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
-        WorldController::getInstance()->highlightCurrentBody(newTarget);     
+        WorldController::getInstance()->highlightCurrentBody(newTarget);
         QString debugFileName="";
         if(debug)
             debugFileName=QString("img" + QString::number(imageOptions.size()) + ".png");
         QImage * img = graspItGUI->getIVmgr()->generateImage(NULL, debugFileName);
+
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
-        imageDescriptions.push_back(QString("Select target:") + newTarget->getName());       
+        imageDescriptions.push_back(QString("Select target:") + newTarget->getName());
     }
 
+    assert(imageOptions.size() == imageCosts.size());
+    assert(imageOptions.size() == imageDescriptions.size());
 }
 
 void ObjectSelectionState::onExit(QEvent *e)

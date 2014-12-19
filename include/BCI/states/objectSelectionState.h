@@ -35,6 +35,9 @@ public slots:
     void onVisionFinished();
 protected:
     virtual void generateImageOptions(bool debug);
+    virtual void respondOptionChoice(unsigned int option,
+                                     double confidence,
+                                     std::vector<double> interestLevel);
 };
 
 #endif // OBJECTSELECTIONSTATE_H

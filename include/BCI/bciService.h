@@ -44,8 +44,8 @@ public:
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
-    void emitOptionChoice(unsigned int option, float confidence,
-                          std::vector<float> & interestLevel);
+    void emitOptionChoice(unsigned int option, double confidence,
+                          std::vector<double> & interestLevel);
 
 
 
@@ -70,7 +70,7 @@ public:
 
     bool sendOptionChoices(std::vector<QImage*> & images,
                            std::vector<QString> & optionDescriptions,
-                           std::vector<float> &imageCosts, float minimumConfidence);
+                           std::vector<double> &imageCosts, double minimumConfidence);
 
     static BCIService* getInstance();
 
@@ -127,8 +127,8 @@ signals:
     void analyzeGrasp(const GraspPlanningState * gps);
     void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
-    void optionChoice(unsigned int option, float confidence,
-                      std::vector<float> & interestLevel);
+    void optionChoice(unsigned int option, double confidence,
+                      std::vector<double> interestLevel);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);

@@ -7,20 +7,22 @@
 
 
 OptionSelectionStub::OptionSelectionStub(rpcz::rpc_channel * channel)
-    :optionSelection_stub(channel, "OptionSelectionService", true)
+    :optionSelection_stub(channel, "GetOptionSelectionService", true)
 {
 }
 
 
 void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
                                        const std::vector<QString> & stringList,
-                                       const std::vector<float> & imageCosts,
+                                       const std::vector<double> imageCosts,
                                        const std::vector<QString> & descriptionList,
-                                       const float minimumConfidence)
+                                       const double minimumConfidence)
 {
   // Check that the number of descriptions matches the number of options
-  if(imageList.size() + stringList.size() != descriptionList.size())
-      assert(0);
+  DBGA(imageList.size());
+  DBGA(stringList.size());
+  DBGA(descriptionList.size());
+  assert(imageList.size() + stringList.size() == descriptionList.size());
 
   request.clear_compressedimageoptions();
   request.clear_imageoptions();
@@ -35,14 +37,17 @@ void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
       QBuffer buffer(&ba);
       buffer.open(QIODevice::WriteOnly);
       img->save(&buffer, "PNG");
+      img->save(QString("/tmp/temp") + QString::number(i) + QString(".png"));
       request.add_compressedimageoptions();
       graspit_rpcz::GetOptionSelectionRequest_CompressedImageOption * cio = request.mutable_compressedimageoptions(i);
 
-      std::string * image_data = cio->mutable_option()->mutable_data();
-      image_data->copy(ba.data(),ba.size());
-      *(cio->mutable_option()->mutable_format()) = "png";      
-      *(cio->mutable_description()->mutable_description()) = descriptionList[i].toStdString();
+      std::string data(ba.constData(), ba.length());
+
+      cio->mutable_option()->set_data(data);
+      cio->mutable_option()->set_format("png");
+      cio->mutable_description()->set_description(descriptionList[i].toStdString());
       cio->mutable_description()->set_cost(imageCosts[i]);
+      cio->mutable_description()->set_id(i);
   }
   request.set_minimumconfidencelevel(minimumConfidence);
 }
@@ -54,7 +59,7 @@ void OptionSelectionStub::sendRequestImpl()
 
 void OptionSelectionStub::callbackImpl()
 {
-    std::vector<float> interestLevel;
+    std::vector<double> interestLevel;
     for (int i = 0; i < response.interestlevel_size(); ++i)
         interestLevel.push_back(response.interestlevel().Get(i));
     unsigned int option = response.selectedoption();

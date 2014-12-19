@@ -23,7 +23,7 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
 
     //addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
     addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
-    connect(this, SIGNAL(entered()), OnlinePlannerController::getInstance(), SLOT(setPlannerToReady()));    
+    connect(this, SIGNAL(entered()), OnlinePlannerController::getInstance(), SLOT(setPlannerToReady()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLong()), this, SLOT(onPlannerUpdated()));
     stateName = QString("Grasp Selection");
@@ -140,10 +140,11 @@ void GraspSelectionState::generateImageOptions(bool debug)
     stringOptions.push_back(QString("Select Different Object"));
 
     generateStringImageOptions(debug);
+
     imageDescriptions.push_back(stringOptions[0]);
     imageCosts.push_back(.5);
     const GraspPlanningState * currentGrasp;
-    for(int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i)
+    for (int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i)
     {
         onNext();
         currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
@@ -158,12 +159,11 @@ void GraspSelectionState::generateImageOptions(bool debug)
         imageCosts.push_back(.25);
         imageDescriptions.push_back(QString("GraspID: ") + QString::number(currentGrasp->getAttribute("graspId")) );
     }
-
 }
 
 
 
-void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel)
+void GraspSelectionState::respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel)
 {
     const GraspPlanningState * currentGrasp = NULL;
     if(option == 0)

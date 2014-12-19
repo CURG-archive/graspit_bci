@@ -21,12 +21,10 @@ public:
 
 public slots:
     void setName( const QString& name ) { m_name = name; }
-    void setPrefix( const QString& prefix ) { m_prefix = prefix; }    
+    void setPrefix( const QString& prefix ) { m_prefix = prefix; }
     virtual void sendOptionChoice();
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+    virtual void respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel);
     void disconnectOptionChoice();
-
-
 
 protected:
     virtual void onEntry( QEvent* e );
@@ -43,8 +41,8 @@ protected:
     std::vector<QString> imageDescriptions;
 
     std::vector<QString> stringOptions;
-    std::vector<float> defaultCosts;
-    std::vector<float> imageCosts;    
+    std::vector<double> defaultCosts;
+    std::vector<double> imageCosts;
 };
 
 

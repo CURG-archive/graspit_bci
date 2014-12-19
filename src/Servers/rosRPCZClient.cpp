@@ -13,6 +13,7 @@ RosRPCZClient::RosRPCZClient():
     executeGraspStub(NULL),
     _connected(false)
 {
+    qRegisterMetaType<std::vector<double> >("std::vector<double>");
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
     std::string urlString = "tcp://localhost:5561";
@@ -67,6 +68,9 @@ RosRPCZClient::RosRPCZClient():
     }
 
     optionSelectionStub = new OptionSelectionStub(channel);
+    if (!optionSelectionStub) {
+        DBGA("could not build optionselectionstub");
+    }
     sleep(.3);
 
 
@@ -110,7 +114,7 @@ bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot
 }
 
 bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
-{    
+{
     if(!_connected || !graspReachabilityStub)
     {
         DBGA("Tried to send invalid graspReachability");
@@ -134,14 +138,15 @@ bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callb
   return executeGraspStub->sendRequest(callbackReceiver, slot);
 }
 
-bool RosRPCZClient::sendOptionChoices(std::vector<QImage*> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
-                                      float minimumConfidence,  QObject * callbackReceiver, const char * slot)
+bool RosRPCZClient::sendOptionChoices(std::vector<QImage*> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<double> &imageCosts,
+                                      double minimumConfidence,  QObject * callbackReceiver, const char * slot)
 {
-    if(!_connected || !optionSelectionStub)
+    if(/*!_connected ||*/ !optionSelectionStub)
     {
-      DBGA("Tried to send invalid executeGraspStub");
+      DBGA("Tried to send invalid sendOptionChoices");
       return false;
     }
+    DBGA("Sent option choices");
 
     std::vector<QString> stringList;
     optionSelectionStub->buildRequest(imageOptions, stringList, imageCosts, imageDescriptions, minimumConfidence);

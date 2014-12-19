@@ -21,7 +21,7 @@ public:
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
     virtual void setNextButtonLabel(QString & label);
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+    virtual void respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel);
 
 protected:
     GraspSelectionView *graspSelectionView;

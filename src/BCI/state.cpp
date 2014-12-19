@@ -11,7 +11,7 @@ State::State( const QString& name, QState* parent )
     : QState( parent ),
       m_name( name ),
       m_prefix()
-{    
+{
     this->addSelfTransition(this, SIGNAL(exited()), this, SLOT(disconnectOptionChoice()));
 }
 
@@ -100,7 +100,7 @@ void State::generateStringImageOptions(bool debug)
                      textColor);
 
 
-        imageOptions.push_back(img);        
+        imageOptions.push_back(img);
         if(debug)
             img->save(QString("img") + QString::number(i) + QString(".png"));
     }
@@ -117,14 +117,14 @@ void State::sendOptionChoice()
         DBGA("imageOptions size != imageCosts size");
 
     BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
-    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
-                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
+    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, double, std::vector<double> )),
+                            this, SLOT(respondOptionChoice(unsigned int, double, std::vector<double> )));
 
 }
 
 
 
-void State::respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel)
+void State::respondOptionChoice(unsigned int option, double confidence, std::vector<double> interestLevel)
 {
     DBGA("Choice Recieved: " << option <<" " << confidence);
 }
