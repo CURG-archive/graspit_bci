@@ -83,6 +83,8 @@ namespace bci_experiment{
 
 
             void sortGrasps();
+            void connectPlannerUpdate(bool enableConnection);
+            void resetGraspIndex();
     private:
 
             static OnlinePlannerController * onlinePlannerController;

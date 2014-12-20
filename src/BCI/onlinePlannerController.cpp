@@ -63,10 +63,20 @@ namespace bci_experiment
         graspDemonstrationHand(NULL)
     {
         currentPlanner = planner_tools::createDefaultPlanner();
-        connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()));
-	connect(currentPlanner, SIGNAL(update()), this, SLOT(onPlannerUpdated()));
+        connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()), Qt::QueuedConnection);
     }
 
+    void OnlinePlannerController::connectPlannerUpdate(bool enableConnection)
+    {
+        if(enableConnection)
+        {
+            connect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate()), Qt::QueuedConnection);
+        }
+        else
+        {
+            disconnect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate()));
+        }
+    }
 
     bool OnlinePlannerController::analyzeApproachDir()
     {
@@ -311,7 +321,7 @@ namespace bci_experiment
         if(currentTarget && (!mDbMgr ||
                              currentPlanner->getState() != READY ||
                              currentTarget != currentPlanner->getHand()->getGrasp()->getObject() ||
-                             currentPlanner->getTargetState()->getObject() == currentTarget))
+                             currentPlanner->getTargetState()->getObject() != currentTarget))
         {
             initializeTarget();
             bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
@@ -407,6 +417,11 @@ namespace bci_experiment
         }
         return NULL;
 
+    }
+
+    void OnlinePlannerController::resetGraspIndex()
+    {
+        currentGraspIndex = 0;
     }
 
     unsigned int OnlinePlannerController::getNumGrasps()
