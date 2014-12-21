@@ -22,8 +22,7 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
     */
 
     //addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
-    addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
-    connect(this, SIGNAL(entered()), OnlinePlannerController::getInstance(), SLOT(setPlannerToReady()));    
+    addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));    
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLong()), this, SLOT(onPlannerUpdated()));
     stateName = QString("Grasp Selection");
@@ -38,10 +37,11 @@ void GraspSelectionState::onEntry(QEvent *e)
 
     graspSelectionView->show();
     bciControlWindow->currentState->setText(stateName);
-
     //loads grasps from the database
-    //OnlinePlannerController::getInstance()->setPlannerToReady();
+    OnlinePlannerController::getInstance()->setPlannerToReady();
     //called so that view will show best grasp from database
+    OnlinePlannerController::getInstance()->connectPlannerUpdate(true);
+
     onPlannerUpdated();
 }
 
@@ -49,6 +49,7 @@ void GraspSelectionState::onEntry(QEvent *e)
 void GraspSelectionState::onExit(QEvent *e)
 {
     graspSelectionView->hide();
+    OnlinePlannerController::getInstance()->connectPlannerUpdate(false);
 }
 
 
