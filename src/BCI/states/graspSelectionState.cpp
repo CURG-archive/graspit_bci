@@ -69,26 +69,34 @@ bool GraspSelectionState::setButtonLabel(QString buttonName, QString label)
 //Currently unused
 void GraspSelectionState::onNext()
 {
-    OnlinePlannerController::getInstance()->incrementGraspIndex();
-    const GraspPlanningState * currentGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
-    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    OnlinePlannerController::getInstance()->stopTimedUpdate();
-   if(currentGrasp)
-   {
-       currentGrasp->execute(OnlinePlannerController::getInstance()->getRefHand());
-       OnlinePlannerController::getInstance()->alignHand();
-       graspSelectionView->showSelectedGrasp(hand, currentGrasp);
-       QString graspID;
-       bciControlWindow->currentState->setText(stateName +"- Grasp: " + graspID.setNum(currentGrasp->getAttribute("graspId")) );
-   }
+    static QTime activeTimer;
+    qint64 minElapsedMSecs = 1200;
+    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+    {
+
+        activeTimer.start();
+        OnlinePlannerController::getInstance()->incrementGraspIndex();
+        const GraspPlanningState * currentGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
+        Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
+
+        if(currentGrasp)
+        {
+            currentGrasp->execute(OnlinePlannerController::getInstance()->getRefHand());
+            OnlinePlannerController::getInstance()->alignHand();
+            graspSelectionView->showSelectedGrasp(hand, currentGrasp);
+            QString graspID;
+            bciControlWindow->currentState->setText(stateName +"- Grasp: " + graspID.setNum(currentGrasp->getAttribute("graspId")) );
+        }
+    }
 
 }
 
 void GraspSelectionState::onPlannerUpdated()
 {
-    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
-    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
     OnlinePlannerController::getInstance()->sortGrasps();
+    OnlinePlannerController::getInstance()->resetGraspIndex();
+    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
+    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
 
     if(bestGrasp)
     {

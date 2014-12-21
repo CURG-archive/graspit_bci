@@ -71,7 +71,7 @@ QSignalTransition * State::addSelfTransition(QObject *sender, const char * signa
     }
 
     connect(newTransition, SIGNAL(triggered()),
-            receiver, slot);
+            receiver, slot, Qt::QueuedConnection);
     return newTransition;
 }
 
