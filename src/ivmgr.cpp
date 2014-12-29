@@ -1625,7 +1625,7 @@ IVmgr::saveImage(QString filename, SoSeparator *root)
 #endif
 
   int numtypes = myRenderer->getNumWriteFiletypes();
-  SbList<SbName> extList;
+  SbPList extList;
   SbString fullname;
   SbString desc;
   for (int i=0;i<numtypes;i++) {
