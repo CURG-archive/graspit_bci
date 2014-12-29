@@ -1,0 +1,26 @@
+<package>
+  <!-- The true name of this package is GraspIt!, but no symbols and caps are discouraged -->
+  <name>graspit_bci</name>
+  <version>2.9.0</version>
+  <description>This package provides the GraspIt robotics framework, mainly focused on grasp planning capabilities</description>
+  <maintainer email="jon.weisz@gmail.com">Jon Weisz</maintainer>
+  <license>GPL</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>liblapack-dev</build_depend>
+  <build_depend>libblas-dev</build_depend>
+  <build_depend>libqt4-dev</build_depend>
+  <build_depend>libqt4-sql-psql</build_depend>
+  <build_depend>libqhull</build_depend>
+  <build_depend>libsoqt4-dev</build_depend>
+  <build_depend>protobuf-dev</build_depend>
+  <!--There is no rosdep key for libzmq right now, so we use python-zmq as a proxy-->
+  <run_depend>liblapack-dev</run_depend>
+  <run_depend>libblas-dev</run_depend>
+  <run_depend>libqt4-dev</run_depend>
+  <run_depend>libqt4-sql-psql</run_depend>
+  <run_depend>libqhull</run_depend>
+  <run_depend>libsoqt4-dev</run_depend>
+  <run_depend>protobuf-dev</run_depend>
+  <!--There is no rosdep key for libzmq right now, so we use python-zmq as a proxy-->
+  <!-- No annotation appears to be possible for pthread-->
+</package>
