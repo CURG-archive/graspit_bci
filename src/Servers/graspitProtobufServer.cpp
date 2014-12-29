@@ -1,3 +1,4 @@
+#include <google/protobuf/io/coded_stream.h>
 #include "graspitProtobufServer.h"
 #include "Drawable.pb.h"
 #include "GraspitMessage.pb.h"
