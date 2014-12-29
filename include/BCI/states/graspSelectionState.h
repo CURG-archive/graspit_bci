@@ -20,8 +20,9 @@ public:
 
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
-    virtual void setNextButtonLabel(QString & label);
+
     virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+    virtual bool setButtonLabel(QString buttonName, QString label);
 
 protected:
     GraspSelectionView *graspSelectionView;
@@ -33,6 +34,8 @@ protected:
 public slots:
     void onNext();
     void onPlannerUpdated();
+    virtual void onRotateHandLat();
+    virtual void onRotateHandLong();
 };
 
 

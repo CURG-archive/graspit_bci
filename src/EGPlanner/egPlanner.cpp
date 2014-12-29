@@ -441,6 +441,7 @@ EGPlanner::setGraspAttribute(int i, const QString & attribute, double value)
   std::list<GraspPlanningState*>::iterator iterator = mBestList.begin();
   std::advance(iterator, i);
   (*iterator)->setAttribute(attribute, value);
+  emit update();
 }
 
 

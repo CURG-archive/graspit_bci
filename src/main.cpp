@@ -69,9 +69,8 @@ int main(int argc, char **argv)
 #endif
 
   GraspItApp app(argc, argv);
-
-  app.showSplash();
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  //app.showSplash();
+  //QApplication::setOverrideCursor( Qt::waitCursor );
 
   GraspItGUI gui(argc,argv);
 

@@ -168,9 +168,9 @@
   <widget class="QPushButton" name="buttonRotateLong">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>50</x>
      <y>560</y>
-     <width>111</width>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>
@@ -280,9 +280,9 @@
   <widget class="QPushButton" name="buttonRotateLat">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>50</x>
      <y>500</y>
-     <width>111</width>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>

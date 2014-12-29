@@ -238,7 +238,7 @@ SearchEnergy::contactEnergy() const
 		cn = contact->getWorldNormal();
 		n = normalise(p);
 		double d = 1 - cn % n;
-		totalError += d * 100.0 / 2.0;
+        totalError += d * 10000.0 / 2.0;
 	}
 	
 	totalError /= mHand->getGrasp()->getNumContacts();
@@ -360,7 +360,7 @@ SearchEnergy::potentialQualityEnergy(bool verbose) const
 	//of the 6D wrench space
 	std::vector<int> forceDimensions(6,0);
 	forceDimensions[0] = forceDimensions[1] = forceDimensions[2] = 1;
-	if (count >= 3) {
+    if (count >= 4) {
 		mHand->getGrasp()->updateWrenchSpaces(forceDimensions);
 		gq = mEpsQual->evaluate();
 		gv = mVolQual->evaluate();
@@ -692,7 +692,7 @@ SearchEnergy::potentialQualityScalingFunction(double dist, double cosTheta) cons
 	if (sf < 0.25) sf = 0; //cut down on computation for tiny values. more than 50mm away
 	return sf;
 	*/
-	if (cosTheta < 0.7) return 0;
+    if (cosTheta < 0.99) return 0;
 	if (dist > 50) return 0;
 	sf = cos ( 3.14 * dist / 50.0) + 1;
 	return sf;

@@ -15,7 +15,7 @@ RosRPCZClient::RosRPCZClient():
 {
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
-    std::string urlString = "tcp://localhost:5561";
+    std::string urlString = "tcp://192.168.11.200:5561";
 
     rpcz::rpc_channel * channel = _application->create_rpc_channel(urlString);
 

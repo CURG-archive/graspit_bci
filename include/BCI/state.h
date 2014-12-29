@@ -17,7 +17,12 @@ public:
 
     QString name() const { return m_name; }
     QString prefix() const { return m_prefix; }
-    void addSelfTransition(QObject * sender, const char * signal, const QObject *receiver, const char *slot  );
+
+    QSignalTransition * addSelfTransition(QObject * sender, const char * signal, const QObject *receiver, const char* slot);
+    //Reimplement addTransition interface more safely -- explicitly disallow duplicates.
+    QSignalTransition * addTransition(QObject * sender, const char * signal,  QAbstractState * target);
+    void addTransition ( QAbstractTransition * transition );
+    QAbstractTransition *addTransition ( QAbstractState * target );
 
 public slots:
     void setName( const QString& name ) { m_name = name; }
@@ -35,6 +40,7 @@ protected:
                               const QColor & fontColor);
     virtual void generateImageOptions(bool debug = true);
     virtual void generateStringImageOptions(bool debug = true);
+    QAbstractTransition *checkForDuplicateTransitions(QAbstractTransition * transition);
 
 protected:
     QString m_name;

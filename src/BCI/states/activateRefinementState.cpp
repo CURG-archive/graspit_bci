@@ -10,8 +10,8 @@ ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWi
 {
     addSelfTransition(BCIService::getInstance(), SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(next()), this, SLOT(nextGrasp()));
-    connect(this, SIGNAL(entered()),OnlinePlannerController::getInstance(), SLOT(setPlannerToRunning()));
-    connect(this, SIGNAL(exited()), OnlinePlannerController::getInstance(), SLOT(setPlannerToPaused()));
+    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(setTimerRunning()));
+    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(setTimerRunning()));
 
     activeRefinementView = new ActiveRefinementView(bciControlWindow->currentFrame);
     activeRefinementView->hide();
@@ -22,14 +22,22 @@ ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWi
 void ActivateRefinementState::onEntry(QEvent *e)
 {
     activeRefinementView->show();
-    bciControlWindow->currentState->setText("Refinement State");
-    onPlannerUpdated();
+    bciControlWindow->currentState->setText("Refinement State");    
+    OnlinePlannerController::getInstance()->setPlannerToRunning();
+    OnlinePlannerController::getInstance()->startTimedUpdate();
 }
 
+void ActivateRefinementState::setTimerRunning()
+{
+    if(!OnlinePlannerController::getInstance()->timedUpdateRunning)
+        OnlinePlannerController::getInstance()->startTimedUpdate();
+}
 
 void ActivateRefinementState::onExit(QEvent *e)
 {
     activeRefinementView->hide();
+     OnlinePlannerController::getInstance()->setPlannerToPaused();
+    OnlinePlannerController::getInstance()->stopTimedUpdate();
 }
 
 
@@ -41,7 +49,8 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
         Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
         nextGrasp->execute(refHand);
         OnlinePlannerController::getInstance()->alignHand();
-        OnlinePlannerController::getInstance()->sortGrasps();
+        //OnlinePlannerController::getInstance()->sortGrasps();
+
     }
 }
 
@@ -50,7 +59,7 @@ void ActivateRefinementState::onPlannerUpdated(QEvent * e)
     OnlinePlannerController::getInstance()->sortGrasps();
     const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);    
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    const GraspPlanningState *nextGrasp = bestGrasp;
+    const GraspPlanningState *nextGrasp = bestGrasp;    
     if(OnlinePlannerController::getInstance()->getNumGrasps())
     {
         nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);
