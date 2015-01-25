@@ -49,6 +49,7 @@ void ObjectSelectionState::onEntry(QEvent *e)
         bciControlWindow->currentState->setText("Object Selection: Failed");
         onVisionFinished();
     }
+    OnlinePlannerController::getInstance()->blockGraspAnalysis(false);
 }
 
 void ObjectSelectionState::onRunVision(QEvent * e)

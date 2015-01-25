@@ -470,6 +470,12 @@ namespace bci_experiment
 
     void OnlinePlannerController::analyzeNextGrasp()
     {
+        if(analysisIsBlocked())
+        {
+            DBGA("OnlinePlannerController:: Grasp analysis blocked");
+            return;
+        }
+
 
         DBGA("Analyzing next grasp");
         //Planner exists

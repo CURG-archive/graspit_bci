@@ -117,6 +117,7 @@ void State::generateStringImageOptions(bool debug)
 
 void State::sendOptionChoice()
 {
+    return;
     generateImageOptions();
     float confidence = 1.0;
     if(imageOptions.size() != imageDescriptions.size())

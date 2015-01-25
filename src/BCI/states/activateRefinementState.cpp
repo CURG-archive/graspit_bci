@@ -25,6 +25,7 @@ void ActivateRefinementState::onEntry(QEvent *e)
     bciControlWindow->currentState->setText("Refinement State");    
     OnlinePlannerController::getInstance()->setPlannerToRunning();
     OnlinePlannerController::getInstance()->startTimedUpdate();
+    OnlinePlannerController::getInstance()->blockGraspAnalysis(false);
 }
 
 void ActivateRefinementState::setTimerRunning()
@@ -38,6 +39,7 @@ void ActivateRefinementState::onExit(QEvent *e)
     activeRefinementView->hide();
      OnlinePlannerController::getInstance()->setPlannerToPaused();
     OnlinePlannerController::getInstance()->stopTimedUpdate();
+    OnlinePlannerController::getInstance()->blockGraspAnalysis(true);
 }
 
 

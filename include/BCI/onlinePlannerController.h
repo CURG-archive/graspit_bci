@@ -85,6 +85,15 @@ namespace bci_experiment{
             void sortGrasps();
             void connectPlannerUpdate(bool enableConnection);
             void resetGraspIndex();
+
+            //! Block grasp analysis
+            void blockGraspAnalysis( bool block)
+            {
+                analysisBlocked = block;
+            }
+
+            bool analysisIsBlocked(){return analysisBlocked;}
+
     private:
 
             static OnlinePlannerController * onlinePlannerController;
@@ -96,13 +105,15 @@ namespace bci_experiment{
 
 
             db_planner::SqlDatabaseManager * mDbMgr;
-            GraspableBody * currentTarget;
+            GraspableBody * currentTarget;                        
             unsigned int currentGraspIndex;
             OnLinePlanner * currentPlanner;
             Hand * graspDemonstrationHand;
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();
             bool sceneLocked;
+            bool analysisBlocked;
+
 
     signals:
             void render();
