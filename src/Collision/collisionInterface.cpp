@@ -31,7 +31,7 @@
 #include "debug.h"
 
 extern "C" {
-#include <qhull_a.h>
+#include <qhull/qhull_a.h>
 }
 #include <qmutex.h>
 extern QMutex qhull_mutex;

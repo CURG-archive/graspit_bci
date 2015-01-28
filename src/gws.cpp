@@ -39,14 +39,13 @@
 #include "debug.h"
 
 extern "C" {
-#include "qhull_a.h"
+#include "qhull/qhull_a.h"
 }
 #include "qhull_mutex.h"
 
 //! A global mutex used for synchronizing access to QHull, which is not thread-safe
 QMutex qhull_mutex;
-//Who actually needs this???
-char qh_version[] = "GraspIt 2.1.0";
+
 
 #ifdef USE_DMALLOC
 #include "dmalloc.h"
@@ -286,14 +285,14 @@ GWS::projectTo3D(double *projCoords, std::set<int> fixedCoordSet,
   double dot;
   vec3 testNormal, refNormal;
 
-  int numfacets, numsimplicial, numridges, totneighbors, numneighbors, numcoplanars;
+  int numfacets, numsimplicial, numridges, totneighbors, numneighbors, numcoplanars, unusedqh;
   setT *vertices, *vertex_points, *coplanar_points;
   int numpoints= qh num_points + qh_setsize (qh other_points);
   int vertex_i, vertex_n;
   facetT *neighbor, **neighborp;
- 
+
   qh_countfacets (qh facet_list, NULL, !qh_ALL, &numfacets, &numsimplicial, 
-      &totneighbors, &numridges, &numcoplanars);  /* sets facet->visitid */
+      &totneighbors, &numridges, &numcoplanars, &unusedqh);  /* sets facet->visitid */
 
   qh_vertexneighbors();
   vertices= qh_facetvertices (qh facet_list, NULL, !qh_ALL);
