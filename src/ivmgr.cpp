@@ -1592,7 +1592,7 @@ IVmgr::deselectBody(Body *b)
   different camera angles.  One camera headlight is used for lighting.
  */
 void 
-IVmgr::saveImage(QString filename)
+IVmgr::saveImage(QString filename, SoSeparator *root)
 {
   SoQtRenderArea *renderArea;
   SoNode *sg;                // scene graph
@@ -1602,7 +1602,10 @@ IVmgr::saveImage(QString filename)
   SoOffscreenRenderer *myRenderer;
 
   renderArea = myViewer;
-  sg = sceneRoot;
+  if(!root)
+      sg = sceneRoot;
+  else
+      sg = root;
 
   glRend = new SoGLRenderAction(renderArea->getViewportRegion());
   glRend->setSmoothing(TRUE);
@@ -1620,7 +1623,7 @@ IVmgr::saveImage(QString filename)
 #endif
 
   int numtypes = myRenderer->getNumWriteFiletypes();
-  SbList<SbName> extList;
+  SbPList extList;
   SbString fullname;
   SbString desc;
   for (int i=0;i<numtypes;i++) {
@@ -1662,6 +1665,25 @@ IVmgr::saveImage(QString filename)
   
   renderRoot->unref();
   delete myRenderer;
+}
+
+QImage* IVmgr::generateImage(SoSeparator *root, QString debugFileName)
+{
+    QString tempImgFileName("/tmp/graspit_tmp_img.png");
+    saveImage(tempImgFileName, root);
+    QImage * img = new QImage(tempImgFileName);
+    if(!debugFileName.isEmpty())
+    {
+        img->save(debugFileName,"png");
+    }
+
+  #ifdef GRASPITDBG
+    if (result)
+      fprintf(stderr,"saved\n");
+    else
+      fprintf(stderr,"not saved\n");
+  #endif
+  return img;
 }
 
 /*!
