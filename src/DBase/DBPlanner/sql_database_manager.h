@@ -71,7 +71,7 @@ class SqlDatabaseManager : public DatabaseManager {
                           model_allocator_(model_allocator),
                           grasp_allocator_(grasp_allocator),
                           model_root_(getenv("CGDB_MODEL_ROOT")) {}
-  ~SqlDatabaseManager(){delete model_allocator_; delete grasp_allocator_;}
+  virtual ~SqlDatabaseManager(){delete model_allocator_; delete grasp_allocator_;}
   //! Returns true if the manager has successfully connected to the database
   virtual bool isConnected() const {return database_.isConnected();}
   //! Get the 4x4 alignment for 2 Models that are both in the database.

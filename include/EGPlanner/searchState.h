@@ -129,8 +129,8 @@ protected:
 public:
 	VariableSet(const Hand *h){mHand = h;}
 	VariableSet(const VariableSet &vs);
-	~VariableSet();
-	virtual StateType getType() const = 0;
+    virtual ~VariableSet();
+    virtual StateType getType() const = 0;
 
 	inline void copyValuesFrom(const VariableSet *s);
 	inline void reset();
@@ -184,7 +184,7 @@ class PostureState : public VariableSet
 {
 public:
 	PostureState(const Hand *h) : VariableSet(h) {}
-	~PostureState(){}
+    virtual ~PostureState(){}
 	//! Get the DOF values that are set by the current values of the variables stored here
 	virtual void getHandDOF(double *dof) const = 0;
 	//! Set the values of the current variables to match the given set of DOF values
@@ -203,7 +203,7 @@ class PositionState : public VariableSet
 {
 public:
 	PositionState(const Hand *h) : VariableSet(h){}
-	~PositionState(){}
+    virtual ~PositionState(){}
 	//! Get the transform set by the current values of the variables stored here
 	virtual transf getCoreTran() const = 0;
 	//! Set the internal variables to match the given transform
@@ -279,7 +279,7 @@ private:
 public:
 	HandObjectState(Hand *h);
 	HandObjectState(const HandObjectState *s){init();copyFrom(s);}
-	virtual ~HandObjectState();
+    virtual ~HandObjectState();
 	inline void copyFrom(const HandObjectState *s);
 	//! Resets both posture and position (currently sets all variables to 0)
 	inline void reset();
