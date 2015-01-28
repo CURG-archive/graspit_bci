@@ -4,6 +4,7 @@
 #include "debug.h"
 
 #include "BCI/bciService.h"
+#include <google/protobuf/io/coded_stream.h>
 
 GraspitProtobufConnection::GraspitProtobufConnection(QObject *parent, QTcpSocket *socket,
                                                      unsigned int maximum_len) :
@@ -92,7 +93,6 @@ quint32 GraspitProtobufConnection::getMessageSize()
     QByteArray prefix = sock->peek(prefix_length);
     if(prefix_length == prefix.size())
     {
-
         google::protobuf::io::CodedInputStream::ReadLittleEndian32FromArray(reinterpret_cast<unsigned char *>(prefix.data()),
                                                                             &message_length);
         //If the message size is greater than the read buffer, fail noisily

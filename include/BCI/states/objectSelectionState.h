@@ -30,9 +30,10 @@ public slots:
     void onNext();
     void onSelect();
     void onNewObjectFound();
-
     void onRunVision(QEvent *e = NULL);
     void onVisionFinished();
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+
 protected:
     virtual void generateImageOptions(bool debug);
 };

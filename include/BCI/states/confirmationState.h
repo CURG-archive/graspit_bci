@@ -14,13 +14,16 @@ public:
 
      virtual void onEntry(QEvent *e);
      virtual void onExit(QEvent *e);
-
-
+    GraspPlanningState * sentChoice;
+    void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
 public slots:
     void onNextGrasp(QEvent *e=NULL);
 private:
     ConfirmationView* confirmationView;
     BCIControlWindow *bciControlWindow;
+
+protected:
+    void generateImageOptions(bool debug);
 };
 
 

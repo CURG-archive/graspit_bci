@@ -12,10 +12,15 @@ public:
 
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
 
 private:
     BCIControlWindow *bciControlWindow;
     ExecutionView *executionView;
+
+protected:
+    virtual void generateImageOptions(bool debug);
+
 };
 
 #endif // EXECUTIONSTATE_H

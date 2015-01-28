@@ -19,7 +19,40 @@ void ExecutionState::onEntry(QEvent *e)
 }
 
 
+
 void ExecutionState::onExit(QEvent *e)
 {
     executionView->hide();
 }
+
+
+//!*******************************************
+//! Option Choice Paradigm related functions *
+//!*******************************************
+
+void ExecutionState::generateImageOptions(bool debug)
+{
+    imageOptions.clear();
+    imageDescriptions.clear();
+    imageCosts.clear();
+    size_t numDistractors;
+    stringOptions.push_back(QString("Restart Execution"));
+    stringOptions.push_back(QString("Stop Execution"));
+    for(size_t i; i < numDistractors; ++i)
+    {
+        stringOptions.push_back(QString("Distractor Image"));
+    }
+    for(size_t i; i < stringOptions.size(); ++i) {
+        imageDescriptions.push_back(stringOptions[i]);
+        imageCosts.push_back(.25);
+    }
+    generateStringImageOptions(debug);
+}
+
+
+void 
+ExecutionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel)
+{
+    //! Fixme 
+}
+

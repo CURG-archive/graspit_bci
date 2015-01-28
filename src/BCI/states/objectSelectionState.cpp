@@ -77,6 +77,56 @@ void ObjectSelectionState::onVisionFinished()
     sendOptionChoice();
 }
 
+void ObjectSelectionState::onExit(QEvent *e)
+{
+    bciControlWindow->setBackgroundColor(QColor(255,255,255));
+    WorldController::getInstance()->unhighlightAllBodies();
+    OnlinePlannerController::getInstance()->setSceneLocked(true);
+    objectSelectionView->hide();
+    OnlinePlannerController::getInstance()->showRobots(true);
+}
+
+
+void ObjectSelectionState::onNext()
+{
+    static QTime activeTimer;
+    qint64 minElapsedMSecs = 1200;
+    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+    {
+
+        activeTimer.start();
+        GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
+        WorldController::getInstance()->highlightCurrentBody(newTarget);
+    }
+}
+
+void ObjectSelectionState::onSelect()
+{
+    //if (visionRunning)
+    //{
+     //   SbColor warnColor(1,.3,.3);
+     //   graspItGUI->getIVmgr()->blinkBackground(30, 2, warnColor);
+     //   return;
+    //}
+    BCIService::getInstance()->emitGoToNextState1();
+}
+
+void ObjectSelectionState::onNewObjectFound()
+{
+    GraspableBody *currentTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
+
+    if(currentTarget)
+    {
+        WorldController::getInstance()->highlightCurrentBody(currentTarget);
+    }
+
+}
+
+
+//!*******************************************
+//! Option Choice Paradigm related functions *
+//!*******************************************
+
 void ObjectSelectionState::generateImageOptions(bool debug)
 {
     imageOptions.clear();
@@ -106,48 +156,31 @@ void ObjectSelectionState::generateImageOptions(bool debug)
 
 }
 
-void ObjectSelectionState::onExit(QEvent *e)
-{
-    bciControlWindow->setBackgroundColor(QColor(255,255,255));
-    WorldController::getInstance()->unhighlightAllBodies();
-    OnlinePlannerController::getInstance()->setSceneLocked(true);
-    objectSelectionView->hide();
-    OnlinePlannerController::getInstance()->showRobots(true);
-}
 
-
-void ObjectSelectionState::onNext()
+void ObjectSelectionState::respondOptionChoice(unsigned int option,
+                                               float confidence,
+                                               std::vector<float> & interestLevel)
 {
-    static QTime activeTimer;
-    qint64 minElapsedMSecs = 1200;
-    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+
+    // Test for rerun command
+    if(option == 0)
     {
-
-        activeTimer.start();
-        GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
-        WorldController::getInstance()->highlightCurrentBody(newTarget);
+        this->onRunVision(NULL);
     }
-}
+    // If it isn't a rerun command, it is an object index, offset by one since the rerun command is inserted first.
+    unsigned int objectID = option - 1;
 
-
-void ObjectSelectionState::onSelect()
-{
-    //if (visionRunning)
-    //{
-     //   SbColor warnColor(1,.3,.3);
-     //   graspItGUI->getIVmgr()->blinkBackground(30, 2, warnColor);
-     //   return;
-    //}
-    BCIService::getInstance()->emitGoToNextState1();
-}
-
-void ObjectSelectionState::onNewObjectFound()
-{
-    GraspableBody *currentTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
-
-    if(currentTarget)
+    //Test if it is a legal body (within bounds)
+    if(objectID > world_element_tools::getWorld()->getNumGB())
     {
-        WorldController::getInstance()->highlightCurrentBody(currentTarget);
+        DBGA("Attempted to grasp object: " << objectID <<
+                "--  however, max GB is " << world_element_tools::getWorld()->getNumGB());
+        return;
     }
 
+    //Set body to current target
+    OnlinePlannerController::getInstance()->setCurrentTarget(world_element_tools::getWorld()->getGB(objectID));
+
+    //Accept and go to the next stage
+    this->onSelect();
 }
