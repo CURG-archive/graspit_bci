@@ -154,11 +154,11 @@ public:
 
   void updateGeom(Hand & h);
 
-  void getSnapShot();
+  QImage * getSnapShot();
 
   //---------------Getters/Setters-----------------------
   QString getViewName();
-
+  SoSeparator *getIVRoot(){return IVRoot;}
   //---------------Destructor----------------------------
   ~HandView();
   

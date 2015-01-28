@@ -241,11 +241,11 @@ QString HandView::getViewName()
 
 #include <QGLWidget>
 
-void HandView::getSnapShot()
+QImage * HandView::getSnapShot()
 {
+    this->handViewSoQtRenderArea->render();
     QGLWidget * glWidget = dynamic_cast<QGLWidget *>(this->handViewSoQtRenderArea->getGLWidget());
-    QImage image = glWidget->grabFrameBuffer();
-    image.format();
+    return new QImage(glWidget->grabFrameBuffer());
 }
 
 
