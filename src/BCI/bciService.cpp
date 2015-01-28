@@ -91,6 +91,19 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
             emitOptionChoice(1,.5, interestLevel);
             DBGA("BCIService");
         }
+        if(keyEvent->modifiers().testFlag(Qt::KeyboardModifier::AltModifier))
+        {
+            bool isNumOk;
+            unsigned int choice = keyEvent->text().toInt(&isNumOk);
+            if (isNumOk)
+            {
+                //Output Option Choice
+                std::vector<float> interest_level;
+                emit optionChoice(choice, 1.0, interest_level);
+                std::cout << "Option Choice:" << choice << std::endl;
+            }
+
+        }
         return true;
     }
     else
