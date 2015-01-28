@@ -30,7 +30,7 @@ public slots:
     virtual void sendOptionChoice();
     virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
     void disconnectOptionChoice();
-
+    void connectOptionChoice();
 
 
 protected:

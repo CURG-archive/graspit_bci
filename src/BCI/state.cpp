@@ -12,7 +12,9 @@ State::State( const QString& name, QState* parent )
       m_name( name ),
       m_prefix()
 {    
-    this->addSelfTransition(this, SIGNAL(exited()), this, SLOT(disconnectOptionChoice()));
+    connect(this, SIGNAL(exited()), this, SLOT(disconnectOptionChoice()));
+    connect(this, SIGNAL(entered()), this, SLOT(connectOptionChoice()));
+
 }
 
 
@@ -21,7 +23,8 @@ State::State( const QString& name, const QString& prefix, QState* parent )
       m_name( name ),
       m_prefix( prefix )
 {
-    this->addSelfTransition(this, SIGNAL(exited()), this, SLOT(disconnectOptionChoice()));
+    connect(this, SIGNAL(exited()), this, SLOT(disconnectOptionChoice()));
+        connect(this, SIGNAL(entered()), this, SLOT(connectOptionChoice()));
 }
 
 
@@ -126,9 +129,6 @@ void State::sendOptionChoice()
         DBGA("imageOptions size != imageCosts size");
 
     BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
-    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
-                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
-
 }
 
 
@@ -155,12 +155,21 @@ void State::setImageText(QImage *image, QString &text,
 }
 
 
-void State::disconnectOptionChoice()
+void State::connectOptionChoice()
 {
-    this->addSelfTransition(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
-                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
+    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
+            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
+
 }
 
+void State::disconnectOptionChoice() {
+    DBGA("Disconnected option choice");
+    disconnect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned
+            int, float, std::vector<float> & )),
+            this, SLOT(respondOptionChoice(unsigned
+            int, float, std::vector<float> &)));
+
+}
 
 QAbstractTransition *
 State::checkForDuplicateTransitions(QAbstractTransition * transition)
