@@ -19,6 +19,7 @@ public:
     explicit ConfirmationView(QWidget *parent = 0);
     void setCurrentGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
     ~ConfirmationView();
+    HandView * getHandView(){return handView;}
     
 public slots:
     void onOk();
