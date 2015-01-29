@@ -35,6 +35,7 @@ set(GRASPIT_CORE_USE_GRASPIT_CGDB true CACHE BOOL "Compile with support for the 
 set(GRASPIT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(LOCAL_QHULL false CACHE BOOL "Whether to use the local qhull library or the system one")
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 
 
 set(QT_USE_QT3SUPPORT TRUE)

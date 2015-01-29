@@ -21,9 +21,16 @@ public slots:
     virtual void onPlannerUpdated(QEvent *e = NULL);
     virtual void nextGrasp(QEvent *e = NULL);
     void setTimerRunning();
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+
 protected:
     ActiveRefinementView *activeRefinementView;
 
+    std::vector<GraspPlanningState *> sentChoices;
+    virtual void generateImageOptions(bool debug = true);
+    bool choiceReady();
+
+    bool choicesValid;
 
 };
 

@@ -69,4 +69,16 @@ void ActivateRefinementState::onPlannerUpdated(QEvent *e) {
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
 }
 
+//!*******************************************
+//! Option Choice Paradigm related functions *
+//!*******************************************
 
+void ActivateRefinementState::generateImageOptions(bool debug) {
+    DBGA("Not implemented");
+}
+
+void ActivateRefinementState::respondOptionChoice(unsigned int option,
+        float confidence,
+        std::vector<float> &interestLevel) {
+    DBGA("Not implemented");
+}
