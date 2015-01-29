@@ -1,5 +1,6 @@
 *.hg
 .obj
+build/
 Release
 Debug
 Makefile*
