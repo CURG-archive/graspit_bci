@@ -8,50 +8,43 @@ using bci_experiment::OnlinePlannerController;
 using bci_experiment::WorldController;
 
 
-HandRotationState::HandRotationState(QString name , BCIControlWindow *_bciControlWindow,QState* parent):
-    State(name, parent),bciControlWindow(_bciControlWindow), rotationAllowed(true)
-{
-    rotateLatTransition = addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRotateHandLat()));
-    rotateLongTransition = addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(onRotateHandLong()));
-    addSelfTransition(this,SIGNAL(entered()), this, SLOT(onHandRotationStateEntry()));
+HandRotationState::HandRotationState(QString name, BCIControlWindow *_bciControlWindow, QState *parent) :
+        State(name, parent), bciControlWindow(_bciControlWindow), rotationAllowed(true) {
+    rotateLatTransition = addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onRotateHandLat()));
+    rotateLongTransition = addSelfTransition(BCIService::getInstance(), SIGNAL(rotLong()), this, SLOT(onRotateHandLong()));
+    addSelfTransition(this, SIGNAL(entered()), this, SLOT(onHandRotationStateEntry()));
     DBGA("HandRotationState");
 }
 
-void HandRotationState::setRotationAllowed(bool allowed)
-{
+void HandRotationState::setRotationAllowed(bool allowed) {
     rotationAllowed = allowed;
 
-    if(allowed)
-    {
-        if(!this->transitions().contains(rotateLatTransition))
+    if (allowed) {
+        if (!this->transitions().contains(rotateLatTransition))
             this->addTransition(rotateLatTransition);
-        if(!this->transitions().contains(rotateLongTransition))
+        if (!this->transitions().contains(rotateLongTransition))
             this->addTransition(rotateLongTransition);
 
     }
-    else
-    {
-        if(this->transitions().contains(rotateLatTransition))
+    else {
+        if (this->transitions().contains(rotateLatTransition))
             this->removeTransition(rotateLatTransition);
-        if(this->transitions().contains(rotateLongTransition))
+        if (this->transitions().contains(rotateLongTransition))
             this->removeTransition(rotateLongTransition);
     }
 }
 
 
-void HandRotationState::onRotateHandLong()
-{
-    if(rotationAllowed)
+void HandRotationState::onRotateHandLong() {
+    if (rotationAllowed)
         OnlinePlannerController::getInstance()->rotateHandLong();
 }
 
-void HandRotationState::onRotateHandLat()
-{
-    if(rotationAllowed)
+void HandRotationState::onRotateHandLat() {
+    if (rotationAllowed)
         OnlinePlannerController::getInstance()->rotateHandLat();
 }
 
-void HandRotationState::onHandRotationStateEntry()
-{
+void HandRotationState::onHandRotationStateEntry() {
     OnlinePlannerController::getInstance()->alignHand();
 }

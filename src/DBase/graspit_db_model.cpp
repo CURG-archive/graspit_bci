@@ -39,41 +39,39 @@
 //#define GRASPITDBG
 #include "debug.h"
 
-GraspitDBModel::~GraspitDBModel()
-{
-	if(mGraspableBody) delete mGraspableBody;
+GraspitDBModel::~GraspitDBModel() {
+    if (mGraspableBody) delete mGraspableBody;
 }
 
-int GraspitDBModel::load(World* w)
-{
-	// delete the previously loaded graspabody
-	if(mGraspableBody) delete mGraspableBody;
-	// load the body
-	mGraspableBody = new GraspableBody(w, ModelName().c_str());
-	mGraspableBody->setDBModel(this);
-	//material is default
-	mGraspableBody->setMaterial(w->getMaterialIdx("wood"));
+int GraspitDBModel::load(World *w) {
+    // delete the previously loaded graspabody
+    if (mGraspableBody) delete mGraspableBody;
+    // load the body
+    mGraspableBody = new GraspableBody(w, ModelName().c_str());
+    mGraspableBody->setDBModel(this);
+    //material is default
+    mGraspableBody->setMaterial(w->getMaterialIdx("wood"));
 
-	//PSB objects have a scale of their own. To get to "graspable size"
-	//we manually set a scaling factor for each of them, which is in the
-	//database as well. We need to scale the geometry appropriately
-	SoScale* scale = new SoScale();
-	scale->scaleFactor.setValue(RescaleFactor(), RescaleFactor(), RescaleFactor());
-	mGraspableBody->getIVGeomRoot()->addChild(scale);
+    //PSB objects have a scale of their own. To get to "graspable size"
+    //we manually set a scaling factor for each of them, which is in the
+    //database as well. We need to scale the geometry appropriately
+    SoScale *scale = new SoScale();
+    scale->scaleFactor.setValue(RescaleFactor(), RescaleFactor(), RescaleFactor());
+    mGraspableBody->getIVGeomRoot()->addChild(scale);
 
-	//load the geometry itself directly from the PSB file
-	int result = mGraspableBody->load(QString(GeometryPath().c_str()));
-	if (result != SUCCESS) {
-		mGeometryLoaded = false;
-		DBGA("Failed to load CGDB model from file " << GeometryPath());
-		return result;
-	}
-	mGeometryLoaded = true;
-	mGraspableBody->addIVMat();
+    //load the geometry itself directly from the PSB file
+    int result = mGraspableBody->load(QString(GeometryPath().c_str()));
+    if (result != SUCCESS) {
+        mGeometryLoaded = false;
+        DBGA("Failed to load CGDB model from file " << GeometryPath());
+        return result;
+    }
+    mGeometryLoaded = true;
+    mGraspableBody->addIVMat();
 
-	//set the dynamic properties. This needs a better solution...
-	mGraspableBody->setDefaultDynamicParameters();
-	mGraspableBody->setMaxRadius(mGraspableBody->computeDefaultMaxRadius());
+    //set the dynamic properties. This needs a better solution...
+    mGraspableBody->setDefaultDynamicParameters();
+    mGraspableBody->setMaxRadius(mGraspableBody->computeDefaultMaxRadius());
 
-	return result;
+    return result;
 }

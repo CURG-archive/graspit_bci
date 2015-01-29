@@ -32,12 +32,11 @@
 
 
 int
-Shadow::loadFromXml(const TiXmlElement* root,QString rootPath)
-{
-  int result = Robot::loadFromXml(root, rootPath);
-  if (result != SUCCESS) return result;
-  myWorld->toggleCollisions(false, base,chainVec[4]->getLink(1));
-  myWorld->toggleCollisions(false, chainVec[1]->getLink(0),chainVec[0]->getLink(0));
+Shadow::loadFromXml(const TiXmlElement *root, QString rootPath) {
+    int result = Robot::loadFromXml(root, rootPath);
+    if (result != SUCCESS) return result;
+    myWorld->toggleCollisions(false, base, chainVec[4]->getLink(1));
+    myWorld->toggleCollisions(false, chainVec[1]->getLink(0), chainVec[0]->getLink(0));
 
-  return result;
+    return result;
 }

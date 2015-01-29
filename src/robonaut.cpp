@@ -31,17 +31,15 @@
 #include "world.h"
 
 int
-Robonaut::loadFromXml(const TiXmlElement* root,QString rootPath)
-{
-	int result = Robot::loadFromXml(root, rootPath);
-	if (result != SUCCESS) return result;
-	myWorld->toggleCollisions(false, base,chainVec[0]->getLink(1));
+Robonaut::loadFromXml(const TiXmlElement *root, QString rootPath) {
+    int result = Robot::loadFromXml(root, rootPath);
+    if (result != SUCCESS) return result;
+    myWorld->toggleCollisions(false, base, chainVec[0]->getLink(1));
 
-	return result;
+    return result;
 }
 
-void Robonaut::cloneFrom(Hand *original)
-{
-	Hand::cloneFrom(original);
-	myWorld->toggleCollisions(false, base,chainVec[0]->getLink(1));
+void Robonaut::cloneFrom(Hand *original) {
+    Hand::cloneFrom(original);
+    myWorld->toggleCollisions(false, base, chainVec[0]->getLink(1));
 } 

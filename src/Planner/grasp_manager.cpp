@@ -58,7 +58,9 @@
 #include <Inventor/nodes/SoSelection.h>
 
 #ifdef Q_WS_X11
-  #include <unistd.h>
+
+#include <unistd.h>
+
 #endif
 
 /* graspit includes */
@@ -83,7 +85,7 @@
 #include "grasp_planner.h"
 #include "grasp_tester.h"
 #include "grasp_presenter.h"
- 
+
 #include "grasp_manager.h"
 
 //#define GRASPITDBG
@@ -96,7 +98,7 @@ grasp_tester *myTester;
   Initializes the planning system.  Creates a new planner, a new tester, and
   a new presenter.
 */
-grasp_manager::grasp_manager(){
+grasp_manager::grasp_manager() {
     graspsNotShown = 0;
     renderIt = false;
     doIteration = false;
@@ -116,12 +118,12 @@ grasp_manager::grasp_manager(){
   Deletes any grasps in the graspList , and deletes the planner, tester, and
   presenter.
 */
-grasp_manager::~grasp_manager(){
-  std::list<plannedGrasp *>::iterator gptr;
+grasp_manager::~grasp_manager() {
+    std::list<plannedGrasp *>::iterator gptr;
 
-  	if (!graspList.empty())
-	  for (gptr = graspList.begin();gptr!=graspList.end();gptr++)
-		delete *gptr;
+    if (!graspList.empty())
+        for (gptr = graspList.begin(); gptr != graspList.end(); gptr++)
+            delete *gptr;
 
     delete myPlanner;
     delete myTester;
@@ -140,39 +142,38 @@ grasp_manager::~grasp_manager(){
   the original geometry of the object, the \a IVGeomRoot.  
 */
 void
-grasp_manager::loadPrimitives()
-{
- 
-  SoInput myInput;
-  char prDir[256];
-  QString directory = QString(getenv("GRASPIT"))+
-    QString("/models/objects/primitives/");
-  QString filename = my_body->getFilename().section('/',-1);
-  //make sure the extension is iv, as this is how primitives
-  //are stored for now
-  filename = filename.section('.',-2,-2) + ".iv";
-  QString path = directory + filename;
+grasp_manager::loadPrimitives() {
 
-  printf("Loading primitive %s.\n",path.latin1());
+    SoInput myInput;
+    char prDir[256];
+    QString directory = QString(getenv("GRASPIT")) +
+            QString("/models/objects/primitives/");
+    QString filename = my_body->getFilename().section('/', -1);
+    //make sure the extension is iv, as this is how primitives
+    //are stored for now
+    filename = filename.section('.', -2, -2) + ".iv";
+    QString path = directory + filename;
 
-  if (!(myInput.openFile(path.latin1()))) {
-    pr_error("could not open primitives file!");
-    primitives = my_body->getIVGeomRoot();
-    printf ("%s\n",prDir);
-    printf("Setting primitive root node to original object.\n");
-  }
-  else {
-      primitives = SoDB::readAll(&myInput);
-	  myInput.closeFile();
-      if (primitives == NULL) {
-	  printf("Load Primitive didnt work, although file seems to exist.\n");
-	  printf("Setting primitive root node to original object.\n");
-	  primitives = my_body->getIVGeomRoot();
-      }
-      else {
-	primitives->ref();
-      }
-  }
+    printf("Loading primitive %s.\n", path.latin1());
+
+    if (!(myInput.openFile(path.latin1()))) {
+        pr_error("could not open primitives file!");
+        primitives = my_body->getIVGeomRoot();
+        printf("%s\n", prDir);
+        printf("Setting primitive root node to original object.\n");
+    }
+    else {
+        primitives = SoDB::readAll(&myInput);
+        myInput.closeFile();
+        if (primitives == NULL) {
+            printf("Load Primitive didnt work, although file seems to exist.\n");
+            printf("Setting primitive root node to original object.\n");
+            primitives = my_body->getIVGeomRoot();
+        }
+        else {
+            primitives->ref();
+        }
+    }
 
 }
 
@@ -199,72 +200,72 @@ grasp_manager::loadPrimitives()
   to read the grasps from the file.
 */
 int
-grasp_manager::readCandidateGraspsFile(const QString& filename)
-{
-  cartesian_coordinates pt,dir,thumbdir;
-  cartesianGraspDirection gd;
-  plannedGrasp *pg;
-  double spreadAngle;
-  std::list<plannedGrasp *>::iterator gptr;
+grasp_manager::readCandidateGraspsFile(const QString &filename) {
+    cartesian_coordinates pt, dir, thumbdir;
+    cartesianGraspDirection gd;
+    plannedGrasp *pg;
+    double spreadAngle;
+    std::list<plannedGrasp *>::iterator gptr;
 
 
-  QFile file(filename);
+    QFile file(filename);
 
-  if (!file.open(QIODevice::ReadOnly))
-    return 1;
+    if (!file.open(QIODevice::ReadOnly))
+        return 1;
 
-  QTextStream stream( &file );
+    QTextStream stream(&file);
 
-  my_body = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject();
+    my_body = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject();
 
-  if (my_body == NULL){
-    int whichObject = 0;
-    if (graspItGUI->getIVmgr()->getWorld()->getNumGB())
-      my_body = graspItGUI->getIVmgr()->getWorld()->getGB(whichObject);
-    else{
+    if (my_body == NULL) {
+        int whichObject = 0;
+        if (graspItGUI->getIVmgr()->getWorld()->getNumGB())
+            my_body = graspItGUI->getIVmgr()->getWorld()->getGB(whichObject);
+        else {
 #ifdef GRASPITDBG
       std::cout << "PL_OUT: Nothing selected and no graspable bodies exist. Stop." << std::endl;
 #endif
-      return 1;
+            return 1;
+        }
     }
-  }
-    
-  preshape compPreshape;
-  if (!graspList.empty())
-    for (gptr = graspList.begin();gptr!=graspList.end();gptr++)
-      delete *gptr;
-  
-  graspList.clear();
-  
-  while (!stream.atEnd()) {
-    stream >> pt >> dir >> thumbdir>>spreadAngle; stream.readLine();
+
+    preshape compPreshape;
+    if (!graspList.empty())
+        for (gptr = graspList.begin(); gptr != graspList.end(); gptr++)
+            delete *gptr;
+
+    graspList.clear();
+
+    while (!stream.atEnd()) {
+        stream >> pt >> dir >> thumbdir >> spreadAngle;
+        stream.readLine();
 #ifdef GRASPITDBG
     std::cout << "read " << pt << dir << thumbdir<<spreadAngle<<std::endl;
 #endif
-    gd.set_point(pt);
-    gd.set_dir(dir);
-    pg = new plannedGrasp(gd);
-    pg->set_fixedFingerDirection(thumbdir);
-    pg->set_graspableBody(my_body);
-    compPreshape.set_preshape(spreadAngle,0,0,0);
-    pg->set_preshape(compPreshape);
- 
-    graspList.push_back(pg);
-  }
-  
+        gd.set_point(pt);
+        gd.set_dir(dir);
+        pg = new plannedGrasp(gd);
+        pg->set_fixedFingerDirection(thumbdir);
+        pg->set_graspableBody(my_body);
+        compPreshape.set_preshape(spreadAngle, 0, 0, 0);
+        pg->set_preshape(compPreshape);
+
+        graspList.push_back(pg);
+    }
+
 #ifdef GRASPITDBG
   std::cout << "PL_OUT: "<<graspList.size()<<" grasps read."<<std::endl;
 #endif
 
-  nrOfPlannedGrasps = graspList.size();
+    nrOfPlannedGrasps = graspList.size();
 
-  //use original body as primitive since grasps were pregenerated
-  primitives = my_body->getIVGeomRoot();
-  
-  myTester->setupGraspVisWindow( my_body,primitives);
-  myTester->visualizePlannedGrasps(graspList);
-  
-  return 0;
+    //use original body as primitive since grasps were pregenerated
+    primitives = my_body->getIVGeomRoot();
+
+    myTester->setupGraspVisWindow(my_body, primitives);
+    myTester->visualizePlannedGrasps(graspList);
+
+    return 0;
 }
 
 /*!
@@ -274,40 +275,40 @@ grasp_manager::readCandidateGraspsFile(const QString& filename)
   a window that shows the shape primitives and the candidate grasps.
 */
 void
-grasp_manager::generateGrasps(){
-    
-    std::list<plannedGrasp*> tmpList;
+grasp_manager::generateGrasps() {
+
+    std::list<plannedGrasp *> tmpList;
 
     my_body = graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject();
 
-    if (my_body == NULL){
-	int whichObject = 0;
-	if (graspItGUI->getIVmgr()->getWorld()->getNumGB())
-	    my_body = graspItGUI->getIVmgr()->getWorld()->getGB(whichObject);
-	else{
+    if (my_body == NULL) {
+        int whichObject = 0;
+        if (graspItGUI->getIVmgr()->getWorld()->getNumGB())
+            my_body = graspItGUI->getIVmgr()->getWorld()->getGB(whichObject);
+        else {
 #ifdef GRASPITDBG
 	    std::cout << "PL_OUT: Nothing selected and no graspable bodies exist. Stop." << std::endl;
 #endif
-	    return;
-	}
+            return;
+        }
     }
-    
+
     loadPrimitives();
 
     /* change accuracy of planner */
     //changePlanningParameters(nrOfPlanTestIteration);
 
-    tmpList = std::list<plannedGrasp*>(graspList);
+    tmpList = std::list<plannedGrasp *>(graspList);
 
     /* get directions and positions */
-    graspList = myPlanner->planIt(my_body,primitives);
+    graspList = myPlanner->planIt(my_body, primitives);
 
     /* only keep grasps that are near the good ones from last step, if doIteration is checked */
     if (doIteration)
-      compareGraspListsByDist(graspList, tmpList);
+        compareGraspListsByDist(graspList, tmpList);
     nrOfPlannedGrasps = graspList.size();
 
-    myTester->setupGraspVisWindow( my_body,primitives);
+    myTester->setupGraspVisWindow(my_body, primitives);
     myTester->visualizePlannedGrasps(graspList);
 }
 
@@ -315,10 +316,10 @@ grasp_manager::generateGrasps(){
   Calls the grasp tester with the current set of grasps in the graspList .
 */
 void
-grasp_manager::testGrasps(){
+grasp_manager::testGrasps() {
     /* test all generated directions */
     myTester->callTestIt(graspList, renderIt);
-    graspsNotShown=1;
+    graspsNotShown = 1;
 }
 
 /*!
@@ -332,51 +333,51 @@ grasp_manager::testGrasps(){
   part of the user interface and does not get used.
 */
 void
-grasp_manager::compareGraspListsByDist(std::list<plannedGrasp*>& newList, std::list<plannedGrasp*> criteriaList){
-    std::list<plannedGrasp*>::iterator it = newList.begin();
-    std::list<plannedGrasp*>::iterator it_tmp;
-    std::list<plannedGrasp*>::iterator cr_l_end = criteriaList.end();
-    
+grasp_manager::compareGraspListsByDist(std::list<plannedGrasp *> &newList, std::list<plannedGrasp *> criteriaList) {
+    std::list<plannedGrasp *>::iterator it = newList.begin();
+    std::list<plannedGrasp *>::iterator it_tmp;
+    std::list<plannedGrasp *>::iterator cr_l_end = criteriaList.end();
+
     bool doErase;
     int size = newList.size();
 
     if (criteriaList.empty() || newList.empty())
-      return;
+        return;
 
-    for(int i=0; i<size; i++){
-      
-      doErase = true;
-      
-      for (std::list<plannedGrasp*>::iterator cr_it = criteriaList.begin(); cr_it != cr_l_end; cr_it++){
-	if((*cr_it)->get_quality() >= itQualThresh){
-	  double dist = double((*cr_it)->distanceTo(**it));
+    for (int i = 0; i < size; i++) {
+
+        doErase = true;
+
+        for (std::list<plannedGrasp *>::iterator cr_it = criteriaList.begin(); cr_it != cr_l_end; cr_it++) {
+            if ((*cr_it)->get_quality() >= itQualThresh) {
+                double dist = double((*cr_it)->distanceTo(**it));
 #ifdef GRASPITDBG
 	  std::cout << "PL_OUT: Dist is " << dist << std::endl;
 #endif
-	  if (dist <= maxdist){
-	    doErase = false;
-	    break;
-	  }
-	}
-      }
-      
-      if (doErase){
-	it_tmp = it;
-	if (it!=newList.end())
-	  it++;
-	delete (*it_tmp);
-	newList.erase(it_tmp);// delete grasp from list
-      }
-      else if (it!=newList.end())
-	it++;
-      else break;
+                if (dist <= maxdist) {
+                    doErase = false;
+                    break;
+                }
+            }
+        }
+
+        if (doErase) {
+            it_tmp = it;
+            if (it != newList.end())
+                it++;
+            delete (*it_tmp);
+            newList.erase(it_tmp);// delete grasp from list
+        }
+        else if (it != newList.end())
+            it++;
+        else break;
     }
     return;
 }
 
 //  void 
 //  grasp_manager::changePlanningParameters(int step){
-    
+
 //      if(step == 0)
 //  	return;
 
@@ -409,19 +410,18 @@ grasp_manager::compareGraspListsByDist(std::list<plannedGrasp*>& newList, std::l
   user.  If no grasps have been shown yet, it passes the list to the grasp
   presenter.  Then it calls the presenter's showGrasp for the \a next grasp.
 */
-void 
-grasp_manager::showGrasps(int next)
-{
+void
+grasp_manager::showGrasps(int next) {
 
-  if (!graspList.empty()){
-    
-    if (graspsNotShown){
-      
-      /* hand the list over to the presenter */
-      myPresent->takeList(graspList);
-      graspsNotShown=0;
-      nrOfStableGrasps = graspList.size();
-      //	    computingTime = myTester->get_computingTime();
+    if (!graspList.empty()) {
+
+        if (graspsNotShown) {
+
+            /* hand the list over to the presenter */
+            myPresent->takeList(graspList);
+            graspsNotShown = 0;
+            nrOfStableGrasps = graspList.size();
+            //	    computingTime = myTester->get_computingTime();
 #ifdef GRASPITDBG
       std::cout << "PL_OUT: " << std::endl << "PL_OUT: " << std::endl;
       std::cout << "PL_OUT: Result grasp generation:" << std::endl;
@@ -443,11 +443,11 @@ grasp_manager::showGrasps(int next)
       std::cout << "PL_OUT: " << std::endl;
       std::cout << "PL_OUT: " << std::endl;
 #endif
-	}
+        }
 
-    /* now present the best ones to the user */
-    myPresent->showGrasp(next, renderIt);
-  }
+        /* now present the best ones to the user */
+        myPresent->showGrasp(next, renderIt);
+    }
 
 #ifdef GRASPITDBG
   else std::cout << "PL_OUT: No grasps planned yet. Nothing to show." << std::endl;
@@ -458,8 +458,8 @@ grasp_manager::showGrasps(int next)
   Not used.  Would be for the user to select one of the grasps to use in 
   some way.
 */
-void 
-grasp_manager::chooseGrasp(){
+void
+grasp_manager::chooseGrasp() {
     myPresent->chooseGrasp();
 }
 
@@ -467,16 +467,16 @@ grasp_manager::chooseGrasp(){
   Sets the \a renderIt flag to \a in.  Each step of the grasp testing will be
   rendered if \a in is TRUE.
 */
-void 
-grasp_manager::set_render(bool in){
+void
+grasp_manager::set_render(bool in) {
     renderIt = in;
 }
 
 /*!
   Returns the value of the render it flag.
 */
-bool 
-grasp_manager::get_render()const{
+bool
+grasp_manager::get_render() const {
     return renderIt;
 }
 
@@ -486,16 +486,16 @@ grasp_manager::get_render()const{
   grasps to the old ones to keep only those close to the old ones, \a in should
   be TRUE.
 */
-void 
-grasp_manager::set_doIteration(bool in){
+void
+grasp_manager::set_doIteration(bool in) {
     doIteration = in;
 }
 
 /*!
   Returns the value of the \a doIteration flag.
 */
-bool 
-grasp_manager::get_doIteration()const{
+bool
+grasp_manager::get_doIteration() const {
     return doIteration;
 }
 
@@ -505,10 +505,10 @@ grasp_manager::get_doIteration()const{
   process. Returns FALSE and does not perform the operation if either
   parameter is not between 0.0 and 1.0.
 */
-bool 
-grasp_manager::set_iterationParameters(double a,double b){
-    if(a>1.0 || a<0.0 || b>1.0 || b<0.0)
-	return false;
+bool
+grasp_manager::set_iterationParameters(double a, double b) {
+    if (a > 1.0 || a < 0.0 || b > 1.0 || b < 0.0)
+        return false;
     itQualThresh = a;
     maxdist = b;
     return true;
@@ -518,8 +518,8 @@ grasp_manager::set_iterationParameters(double a,double b){
   Returns the iteration parameters, \a itQualThresh and \a maxdist, as \a a
   and \a b.
 */
-void 
-grasp_manager::get_iterationParameters(double& a,double& b)const{
+void
+grasp_manager::get_iterationParameters(double &a, double &b) const {
     a = itQualThresh;
     b = maxdist;
     return;
@@ -528,15 +528,15 @@ grasp_manager::get_iterationParameters(double& a,double& b)const{
 /*!
   Returns a pointer to the graspPlanner.
 */
-grasp_planner* 
-grasp_manager::get_graspPlanner()const{
+grasp_planner *
+grasp_manager::get_graspPlanner() const {
     return myPlanner;
 }
 
 /*!
   Returns a pointer to the graspTester.
 */
-grasp_tester*  
-grasp_manager::get_graspTester()const{
+grasp_tester *
+grasp_manager::get_graspTester() const {
     return myTester;
 }

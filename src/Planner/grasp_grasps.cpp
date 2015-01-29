@@ -67,11 +67,10 @@
 #include "grasp_grasps.h"
 
 
-
 /*!
   Initializes an empty planned grasp
 */
-plannedGrasp::plannedGrasp(){
+plannedGrasp::plannedGrasp() {
     myGraspDir = cartesianGraspDirection();
     myPreshape = PR_None;
     finalGPos = finalGraspPosition();
@@ -82,7 +81,7 @@ plannedGrasp::plannedGrasp(){
 /*!
   Copies the values from plannedGrasp \a in.
 */
-plannedGrasp::plannedGrasp(const plannedGrasp& in){
+plannedGrasp::plannedGrasp(const plannedGrasp &in) {
     set_graspDirection(in.get_graspDirection());
     set_fixedFingerDirection(in.get_fixedFingerDirection());
     myQuality = in.get_quality();
@@ -95,7 +94,7 @@ plannedGrasp::plannedGrasp(const plannedGrasp& in){
 /*!
   Initializes a plannedGrasp with a given grasp direction \a in .
 */
-plannedGrasp::plannedGrasp(cartesianGraspDirection in){
+plannedGrasp::plannedGrasp(cartesianGraspDirection in) {
     set_graspDirection(in);
     myPreshape = PR_None;
     myQuality = -1.;
@@ -105,9 +104,9 @@ plannedGrasp::plannedGrasp(cartesianGraspDirection in){
 /*!
   Deletes the grasp's visual representation if neccessary.
 */
-plannedGrasp::~plannedGrasp(){
+plannedGrasp::~plannedGrasp() {
     if (myCP != NULL)
-	delete myCP;
+        delete myCP;
 }
 
 /*!
@@ -116,26 +115,26 @@ plannedGrasp::~plannedGrasp(){
 */
 double
 plannedGrasp::distanceTo(plannedGrasp to) const {
-    return (DIST_DIR_WEIGHT   * myGraspDir.distanceTo(to.get_graspDirection()) +                 
-	    DIST_FFD_WEIGHT   * fixedFingerDirection.distanceTo(to.get_fixedFingerDirection()) + 
-	    DIST_PRESH_WEIGHT * myPreshape.distanceTo(to.get_preshape())) /                      
-	(DIST_DIR_WEIGHT + DIST_FFD_WEIGHT + DIST_PRESH_WEIGHT);
+    return (DIST_DIR_WEIGHT * myGraspDir.distanceTo(to.get_graspDirection()) +
+            DIST_FFD_WEIGHT * fixedFingerDirection.distanceTo(to.get_fixedFingerDirection()) +
+            DIST_PRESH_WEIGHT * myPreshape.distanceTo(to.get_preshape())) /
+            (DIST_DIR_WEIGHT + DIST_FFD_WEIGHT + DIST_PRESH_WEIGHT);
 }
 
 
 /*!
   Returns the current grasp direction.
 */
-cartesianGraspDirection 
-plannedGrasp::get_graspDirection()const{
+cartesianGraspDirection
+plannedGrasp::get_graspDirection() const {
     return myGraspDir;
 }
 
 /*!
  Copies the current grasp direction from \a in .
  */
-void           
-plannedGrasp::set_graspDirection(cartesianGraspDirection in){
+void
+plannedGrasp::set_graspDirection(cartesianGraspDirection in) {
     myGraspDir.set_point(in.get_point());
     myGraspDir.set_dir(in.get_dir());
     myGraspDir.set_empty(in.get_empty());
@@ -146,16 +145,16 @@ plannedGrasp::set_graspDirection(cartesianGraspDirection in){
 /*!
   Returns the thumb direction.
 */
-cartesian_coordinates 
-plannedGrasp::get_fixedFingerDirection()const{
+cartesian_coordinates
+plannedGrasp::get_fixedFingerDirection() const {
     return fixedFingerDirection;
 }
 
 /*!
   Sets the thumb direction.
 */
-void           
-plannedGrasp::set_fixedFingerDirection(cartesian_coordinates in){
+void
+plannedGrasp::set_fixedFingerDirection(cartesian_coordinates in) {
     fixedFingerDirection = in;
     return;
 }
@@ -164,15 +163,15 @@ plannedGrasp::set_fixedFingerDirection(cartesian_coordinates in){
   Returns the final grasp position (after testing).
 */
 finalGraspPosition
-plannedGrasp::get_finalGraspPosition()const{
+plannedGrasp::get_finalGraspPosition() const {
     return finalGPos;
 }
 
 /*!
   Sets the final grasp position.
 */
-void           
-plannedGrasp::set_finalGraspPosition(finalGraspPosition in){
+void
+plannedGrasp::set_finalGraspPosition(finalGraspPosition in) {
     finalGPos = in;
     return;
 }
@@ -191,16 +190,16 @@ plannedGrasp::set_finalGraspPosition(finalGraspPosition in){
 /*!
   Returns the quality of this grasp.
 */
-double         
-plannedGrasp::get_quality()const{
+double
+plannedGrasp::get_quality() const {
     return myQuality;
 }
 
 /*!
   Sets the quality of this grasp after it has been evaluated.
 */
-void           
-plannedGrasp::set_quality(double in){
+void
+plannedGrasp::set_quality(double in) {
     myQuality = in;
     return;
 }
@@ -209,31 +208,31 @@ plannedGrasp::set_quality(double in){
   Returns the grasp preshape used for this grasp.
 */
 preshape
-plannedGrasp::get_preshape()const{
+plannedGrasp::get_preshape() const {
     return myPreshape;
 }
 
 /*!
   Sets the grasp preshape to be used for this grasp.
 */
-void           
-plannedGrasp::set_preshape(preshape in){
+void
+plannedGrasp::set_preshape(preshape in) {
     myPreshape = in;
 }
 
 /*!
   Returns a pointer to the grasped object.
 */
-GraspableBody* 
-plannedGrasp::get_graspableBody()const{
+GraspableBody *
+plannedGrasp::get_graspableBody() const {
     return myGraspableBody;
 }
 
 /*!
   Sets the object associated with this grasp.
 */
-void           
-plannedGrasp::set_graspableBody(GraspableBody* gb){
+void
+plannedGrasp::set_graspableBody(GraspableBody *gb) {
     myGraspableBody = gb;
     return;
 }
@@ -241,16 +240,16 @@ plannedGrasp::set_graspableBody(GraspableBody* gb){
 /*!
   Returns a pointer to the grasp representation for this grasp.
 */
-grasp_representation*
-plannedGrasp::get_graspRepresentation()const{
+grasp_representation *
+plannedGrasp::get_graspRepresentation() const {
     return myCP;
 }
 
 /*!
   Sets the grasp representation that is associated with this grasp.
 */
-void           
-plannedGrasp::set_graspRepresentation(grasp_representation* gr){
+void
+plannedGrasp::set_graspRepresentation(grasp_representation *gr) {
     myCP = gr;
     return;
 }
@@ -258,8 +257,8 @@ plannedGrasp::set_graspRepresentation(grasp_representation* gr){
 /*!
   Deletes the grasp representation associated with this grasp.
 */
-void 
-plannedGrasp::remove_graspRepresentation(){
+void
+plannedGrasp::remove_graspRepresentation() {
     delete myCP;
     myCP = NULL;
     return;
@@ -279,13 +278,14 @@ compareGraspQM::operator()(plannedGrasp* &first, plannedGrasp* &second) const
     return false;
 }
 #else
+
 bool
-compareGraspQM::operator()(plannedGrasp* &first, plannedGrasp* &second) const
-{
+compareGraspQM::operator()(plannedGrasp *&first, plannedGrasp *&second) const {
     if (first->get_quality() < second->get_quality())
-	return true;
+        return true;
     return false;
 }
+
 #endif
 
 /*****************/
@@ -293,13 +293,13 @@ compareGraspQM::operator()(plannedGrasp* &first, plannedGrasp* &second) const
 /*!
   Stub constructor.
 */
-finalGraspPosition::finalGraspPosition(){
+finalGraspPosition::finalGraspPosition() {
 }
 
 /*!
   Copies finalGraspPosition \a in .
 */
-finalGraspPosition::finalGraspPosition(const finalGraspPosition& in){
+finalGraspPosition::finalGraspPosition(const finalGraspPosition &in) {
     finalTran = in.get_finalTran();
     dof = in.get_dof();
 }
@@ -307,23 +307,23 @@ finalGraspPosition::finalGraspPosition(const finalGraspPosition& in){
 /*!
   Clears the DOF list.
 */
-finalGraspPosition::~finalGraspPosition(){
+finalGraspPosition::~finalGraspPosition() {
     dof.clear();
 }
 
 /*!
   Returns the final pose of the hand.
 */
-transf 
-finalGraspPosition::get_finalTran()const{
+transf
+finalGraspPosition::get_finalTran() const {
     return finalTran;
 }
 
 /*!
   Sets the final pose of the hand.
 */
-void   
-finalGraspPosition::set_finalTran(transf in){
+void
+finalGraspPosition::set_finalTran(transf in) {
     finalTran = in;
     return;
 }
@@ -332,7 +332,7 @@ finalGraspPosition::set_finalTran(transf in){
   Returns the list of final DOF values.
 */
 std::list<double>
-finalGraspPosition::get_dof()   const{
+finalGraspPosition::get_dof() const {
     return dof;
 }
 
@@ -340,30 +340,30 @@ finalGraspPosition::get_dof()   const{
   Adds a DOF value to the final DOF value list.
 */
 void
-finalGraspPosition::add_dof(double in){
+finalGraspPosition::add_dof(double in) {
     dof.push_back(in);
 }
 
 /*!
   Changes the value of DOF value \a nr, to \a in .
 */
-bool   
-finalGraspPosition::change_dof(unsigned int nr, double in){
-    if (nr<dof.size()){
-	std::list<double>::iterator it = dof.begin();
-	for (unsigned int i=0; i<nr; i++)
-	    it++;
-	(*it) = in;
-	return true;
+bool
+finalGraspPosition::change_dof(unsigned int nr, double in) {
+    if (nr < dof.size()) {
+        std::list<double>::iterator it = dof.begin();
+        for (unsigned int i = 0; i < nr; i++)
+            it++;
+        (*it) = in;
+        return true;
     }
     else return false;
 }
- 
+
 
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/
 
 

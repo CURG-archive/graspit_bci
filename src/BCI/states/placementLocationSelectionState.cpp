@@ -1,15 +1,12 @@
 #include "BCI/states/placementLocationSelectionState.h"
 
 
-
-PlacementLocationSelectionState::PlacementLocationSelectionState(BCIControlWindow *_bciControlWindow, QState* parent)
-    :State("PlacementLocationSelectionState", parent), bciControlWindow(_bciControlWindow)
-{
+PlacementLocationSelectionState::PlacementLocationSelectionState(BCIControlWindow *_bciControlWindow, QState *parent)
+        : State("PlacementLocationSelectionState", parent), bciControlWindow(_bciControlWindow) {
 
 }
 
-void PlacementLocationSelectionState::onEntry(QEvent *e)
-{
+void PlacementLocationSelectionState::onEntry(QEvent *e) {
     placementLocationSelectionView = new PlacementLocationSelectionView(bciControlWindow->currentFrame);
     bciControlWindow->currentFrame->show();
 
@@ -17,9 +14,7 @@ void PlacementLocationSelectionState::onEntry(QEvent *e)
 }
 
 
-
-void PlacementLocationSelectionState::onExit(QEvent *e)
-{
+void PlacementLocationSelectionState::onExit(QEvent *e) {
     Q_UNUSED(e);
     bciControlWindow->currentFrame->removeChild(placementLocationSelectionView);
 }

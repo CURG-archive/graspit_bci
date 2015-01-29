@@ -31,6 +31,7 @@
 #include "collisionInterface.h"
 
 class Body;
+
 class VCollide;
 
 struct PQP_ContactResult;
@@ -40,76 +41,83 @@ struct PQP_ContactResult;
 	reference. The original versions of PQP and VCollide are copyright 1997 The 
 	University of North Carolina at Chapel Hill. 
 */
-class PQPCollision : public CollisionInterface
-{
+class PQPCollision : public CollisionInterface {
 private:
-	const static int MAXCOLLISIONS = 256;
+    const static int MAXCOLLISIONS = 256;
 
-	VCollide *mVc;
-	std::map<const Body*, int> mIds;
-	std::map<int, Body*> mBodies;
+    VCollide *mVc;
+    std::map<const Body *, int> mIds;
+    std::map<int, Body *> mBodies;
 
-	inline int getId(const Body * body);
-	inline Body* getBody(int id);
-	bool getIdsFromList(const std::vector<Body*> *interestList, int **iList, int *iSize);
+    inline int getId(const Body *body);
 
-	void convertContactReport(PQP_ContactResult *pqpReport, ContactReport *report);
+    inline Body *getBody(int id);
+
+    bool getIdsFromList(const std::vector<Body *> *interestList, int **iList, int *iSize);
+
+    void convertContactReport(PQP_ContactResult *pqpReport, ContactReport *report);
 
 public:
-	PQPCollision();
-	~PQPCollision();
+    PQPCollision();
 
-	//adding and moving bodies
-	virtual bool addBody(Body *body);
-	virtual void removeBody(Body *body);
-	virtual void cloneBody(Body *clone, const Body *original);
-	virtual void setBodyTransform(Body *body, const transf &t);
+    ~PQPCollision();
 
-	//enable / disable collision
-	virtual void activateBody(const Body *body, bool active);
-	virtual void activatePair(const Body *body1, const Body *body2, bool active);
-	virtual bool isActive(const Body *body1, const Body *body2 = NULL);
+    //adding and moving bodies
+    virtual bool addBody(Body *body);
 
-	//collision detection
-	virtual int allCollisions(DetectionType type, CollisionReport *report, 
-							  const std::vector<Body*> *interestList);
+    virtual void removeBody(Body *body);
 
-	//contact
-	virtual int allContacts(CollisionReport *report, double threshold, 
-							const std::vector<Body*> *interestList);
-	virtual int contact(ContactReport *report, double threshold, 
-						const Body *body1, const Body *body2);
+    virtual void cloneBody(Body *clone, const Body *original);
 
-	//point-to-body and body-to-body distances
-	virtual double pointToBodyDistance(const Body *body1, position point,
-									   position &closestPoint, vec3 &closestNormal);
-	virtual double bodyToBodyDistance(const Body *body1, const Body *body2,
-									  position &p1, position &p2);
+    virtual void setBodyTransform(Body *body, const transf &t);
 
-	//region on a body around a point
-	virtual void bodyRegion(const Body *body, position point, vec3 normal, 
-							double radius, Neighborhood *neighborhood);
+    //enable / disable collision
+    virtual void activateBody(const Body *body, bool active);
 
-	//show bounding box hierarchy
-	virtual void getBoundingVolumes(const Body* body, int depth, std::vector<BoundingBox> *bvs);
+    virtual void activatePair(const Body *body1, const Body *body2, bool active);
 
-	//threading
-	//!Also checks if threading is enabled inside VCollide
-	virtual void newThread();
+    virtual bool isActive(const Body *body1, const Body *body2 = NULL);
+
+    //collision detection
+    virtual int allCollisions(DetectionType type, CollisionReport *report,
+            const std::vector<Body *> *interestList);
+
+    //contact
+    virtual int allContacts(CollisionReport *report, double threshold,
+            const std::vector<Body *> *interestList);
+
+    virtual int contact(ContactReport *report, double threshold,
+            const Body *body1, const Body *body2);
+
+    //point-to-body and body-to-body distances
+    virtual double pointToBodyDistance(const Body *body1, position point,
+            position &closestPoint, vec3 &closestNormal);
+
+    virtual double bodyToBodyDistance(const Body *body1, const Body *body2,
+            position &p1, position &p2);
+
+    //region on a body around a point
+    virtual void bodyRegion(const Body *body, position point, vec3 normal,
+            double radius, Neighborhood *neighborhood);
+
+    //show bounding box hierarchy
+    virtual void getBoundingVolumes(const Body *body, int depth, std::vector<BoundingBox> *bvs);
+
+    //threading
+    //!Also checks if threading is enabled inside VCollide
+    virtual void newThread();
 };
 
-int PQPCollision::getId(const Body *body)
-{
-	std::map<const Body*, int>::const_iterator it = mIds.find(body);
-	if ( it == mIds.end() ) return -1;
-	return it->second;
+int PQPCollision::getId(const Body *body) {
+    std::map<const Body *, int>::const_iterator it = mIds.find(body);
+    if (it == mIds.end()) return -1;
+    return it->second;
 }
 
-Body* PQPCollision::getBody(int id)
-{
-	std::map<int, Body*>::iterator it = mBodies.find(id);
-	if ( it == mBodies.end() ) return NULL;
-	return it->second;
+Body *PQPCollision::getBody(int id) {
+    std::map<int, Body *>::iterator it = mBodies.find(id);
+    if (it == mBodies.end()) return NULL;
+    return it->second;
 }
 
 #endif

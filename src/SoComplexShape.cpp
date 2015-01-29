@@ -49,35 +49,31 @@ SO_NODE_ABSTRACT_SOURCE(SoComplexShape);
   any instance of this class is constructed.
 */
 void
-SoComplexShape::initClass()
-{
-   // Initialize the run-time type variables
-   SO_NODE_INIT_ABSTRACT_CLASS(SoComplexShape, SoNode, "SoNode");
+SoComplexShape::initClass() {
+    // Initialize the run-time type variables
+    SO_NODE_INIT_ABSTRACT_CLASS(SoComplexShape, SoNode, "SoNode");
 
 }
 
 /*!
   Generic constructor
 */
-SoComplexShape::SoComplexShape()
-{
-   SO_NODE_CONSTRUCTOR(SoComplexShape);
+SoComplexShape::SoComplexShape() {
+    SO_NODE_CONSTRUCTOR(SoComplexShape);
 }
 
 
 /*!
   Empty stub.
 */
-SoComplexShape::~SoComplexShape()
-{
+SoComplexShape::~SoComplexShape() {
 }
 
 /*!
  Returns the children list.
 */
-SoChildList *SoComplexShape::getChildren() const
-{
-  return children;
+SoChildList *SoComplexShape::getChildren() const {
+    return children;
 }
 
 
@@ -85,18 +81,16 @@ SoChildList *SoComplexShape::getChildren() const
  Implements the SoGLRenderAction for the SoCoordinateAxis node.
 */
 void
-SoComplexShape::GLRender(SoGLRenderAction *action)
-{
-  SoComplexShape::doAction(action);
+SoComplexShape::GLRender(SoGLRenderAction *action) {
+    SoComplexShape::doAction(action);
 }
 
 /*!
  Generates triangles representing a SoComplexShape.
 */
 void
-SoComplexShape::callback(SoCallbackAction *action)
-{
-  SoComplexShape::doAction(action);
+SoComplexShape::callback(SoCallbackAction *action) {
+    SoComplexShape::doAction(action);
 }
 
 /*!
@@ -104,27 +98,24 @@ SoComplexShape::callback(SoCallbackAction *action)
   of this shape's children.
 */
 void
-SoComplexShape::getBoundingBox(SoGetBoundingBoxAction *action)
-{
-   SoComplexShape::doAction(action);
+SoComplexShape::getBoundingBox(SoGetBoundingBoxAction *action) {
+    SoComplexShape::doAction(action);
 }
 
 /*!
   Passes the event on to each of the children of the complex shape.
 */
 void
-SoComplexShape::handleEvent(SoHandleEventAction *action)
-{
-   SoComplexShape::doAction(action);
+SoComplexShape::handleEvent(SoHandleEventAction *action) {
+    SoComplexShape::doAction(action);
 }
 
 /*!
   Passes the pick action on to each of the children of the complex shape.
 */
 void
-SoComplexShape::pick(SoPickAction *action)
-{
-   SoComplexShape::doAction(action);
+SoComplexShape::pick(SoPickAction *action) {
+    SoComplexShape::doAction(action);
 }
 
 /*!
@@ -137,28 +128,27 @@ SoComplexShape::pick(SoPickAction *action)
  is under a group that affects the chain).
 */
 void
-SoComplexShape::getMatrix(SoGetMatrixAction *action)
-{
-   int         numIndices;
-   const int   *indices;
+SoComplexShape::getMatrix(SoGetMatrixAction *action) {
+    int numIndices;
+    const int *indices;
 
-   // Use SoAction::getPathCode() to determine where this group
-   // is in relation to the path being applied to (if any). (see
-   // the comments in doAction() for details.)
-   switch (action->getPathCode(numIndices, indices)) {
+    // Use SoAction::getPathCode() to determine where this group
+    // is in relation to the path being applied to (if any). (see
+    // the comments in doAction() for details.)
+    switch (action->getPathCode(numIndices, indices)) {
 
-     case SoAction::NO_PATH:
-     case SoAction::BELOW_PATH:
-      // If there's no path, or we're off the end, do nothing
-      break;
+        case SoAction::NO_PATH:
+        case SoAction::BELOW_PATH:
+            // If there's no path, or we're off the end, do nothing
+            break;
 
-     case SoAction::OFF_PATH:
-     case SoAction::IN_PATH:
-      // If we are in the path chain or we affect nodes in the
-      // path chain, traverse the children
-      SoComplexShape::doAction(action);
-      break;
-   }
+        case SoAction::OFF_PATH:
+        case SoAction::IN_PATH:
+            // If we are in the path chain or we affect nodes in the
+            // path chain, traverse the children
+            SoComplexShape::doAction(action);
+            break;
+    }
 }
 
 
@@ -166,97 +156,95 @@ SoComplexShape::getMatrix(SoGetMatrixAction *action)
  This implements typical action traversal for an SoComplexShape node
 */
 void
-SoComplexShape::doAction(SoAction *action)
-{
-  // Make sure all the children exist
-  if (children->getLength() == 0) generateChildren();
+SoComplexShape::doAction(SoAction *action) {
+    // Make sure all the children exist
+    if (children->getLength() == 0) generateChildren();
 
-   // SoAction has a method called "getPathCode()" that returns
-   // a code indicating how this node is related to the path(s)
-   // the action is being applied to. This code is one of the
-   // following:
-   //
-   // NO_PATH    = Not traversing a path (action was applied
-   //                to a node) 
-   // IN_PATH    = This node is in the path chain, but is not
-   //                the tail node
-   // BELOW_PATH = This node is the tail of the path chain or
-   //                is below the tail
-   // OFF_PATH   = This node is off to the left of some node in
-   //                the path chain
-   //
-   // If getPathCode() returns IN_PATH, it returns (in its two
-   // arguments) the indices of the next nodes in the paths.
-   // (Remember that an action can be applied to a list of
-   // paths.)
+    // SoAction has a method called "getPathCode()" that returns
+    // a code indicating how this node is related to the path(s)
+    // the action is being applied to. This code is one of the
+    // following:
+    //
+    // NO_PATH    = Not traversing a path (action was applied
+    //                to a node)
+    // IN_PATH    = This node is in the path chain, but is not
+    //                the tail node
+    // BELOW_PATH = This node is the tail of the path chain or
+    //                is below the tail
+    // OFF_PATH   = This node is off to the left of some node in
+    //                the path chain
+    //
+    // If getPathCode() returns IN_PATH, it returns (in its two
+    // arguments) the indices of the next nodes in the paths.
+    // (Remember that an action can be applied to a list of
+    // paths.)
 
-   // For the IN_PATH case, these will be set by getPathCode()
-   // to contain the number of child nodes that are in paths and
-   // the indices of those children, respectively. In the other
-   // cases, they are not meaningful.
-   int         numIndices;
-   const int   *indices;
+    // For the IN_PATH case, these will be set by getPathCode()
+    // to contain the number of child nodes that are in paths and
+    // the indices of those children, respectively. In the other
+    // cases, they are not meaningful.
+    int numIndices;
+    const int *indices;
 
-   // This will be set to the index of the last (rightmost)
-   // child to traverse
-   int         lastChildIndex;
+    // This will be set to the index of the last (rightmost)
+    // child to traverse
+    int lastChildIndex;
 
-   // If this node is in a path, see which of our children are
-   // in paths, and traverse up to and including the rightmost
-   // of these nodes (the last one in the "indices" array).
-   if (action->getPathCode(numIndices, indices) ==
-       SoAction::IN_PATH)
-      lastChildIndex = indices[numIndices - 1];
+    // If this node is in a path, see which of our children are
+    // in paths, and traverse up to and including the rightmost
+    // of these nodes (the last one in the "indices" array).
+    if (action->getPathCode(numIndices, indices) ==
+            SoAction::IN_PATH)
+        lastChildIndex = indices[numIndices - 1];
 
-   // Otherwise, consider all of the children
-   else
-      lastChildIndex = children->getLength() - 1;
+        // Otherwise, consider all of the children
+    else
+        lastChildIndex = children->getLength() - 1;
 
-   // Now we are ready to traverse the children, skipping every
-   // other one. For the SoGetBoundingBoxAction, however, we
-   // have to do some extra work in between each pair of
-   // children - we have to make sure the center points get
-   // averaged correctly.
-   if (action->isOfType(
+    // Now we are ready to traverse the children, skipping every
+    // other one. For the SoGetBoundingBoxAction, however, we
+    // have to do some extra work in between each pair of
+    // children - we have to make sure the center points get
+    // averaged correctly.
+    if (action->isOfType(
             SoGetBoundingBoxAction::getClassTypeId())) {
-      SoGetBoundingBoxAction *bba =
-         (SoGetBoundingBoxAction *) action;
-      SbVec3f  totalCenter(0.0, 0.0, 0.0);
-      int      numCenters = 0;
+        SoGetBoundingBoxAction *bba =
+                (SoGetBoundingBoxAction *) action;
+        SbVec3f totalCenter(0.0, 0.0, 0.0);
+        int numCenters = 0;
 
-      for (int i = 0; i <= lastChildIndex; i++) {
-         children->traverse(bba, i);
+        for (int i = 0; i <= lastChildIndex; i++) {
+            children->traverse(bba, i);
 
-         // If the traversal set a center point in the action,
-         // add it to the total and reset for the next child.
-         if (bba->isCenterSet()) {
-            totalCenter += bba->getCenter();
-            numCenters++;
-            bba->resetCenter();
-         }
-      }
-      // Now, set the center to be the average. Since the
-      // centers were already transformed, there's no need to
-      // transform the average.
-      if (numCenters != 0)
-         bba->setCenter(totalCenter / (float)numCenters, FALSE);
-   }
+            // If the traversal set a center point in the action,
+            // add it to the total and reset for the next child.
+            if (bba->isCenterSet()) {
+                totalCenter += bba->getCenter();
+                numCenters++;
+                bba->resetCenter();
+            }
+        }
+        // Now, set the center to be the average. Since the
+        // centers were already transformed, there's no need to
+        // transform the average.
+        if (numCenters != 0)
+            bba->setCenter(totalCenter / (float) numCenters, FALSE);
+    }
 
-   // For all other actions, just traverse every child
-   else
-      for (int i = 0; i <= lastChildIndex; i++)
-         children->traverse(action, i);
+        // For all other actions, just traverse every child
+    else
+        for (int i = 0; i <= lastChildIndex; i++)
+            children->traverse(action, i);
 }
 
 
 /*!
  Copy function
 */
-void SoComplexShape::copyContents(const SoFieldContainer *FC, 
-				  SbBool copyConnection)
-{
-  SoNode::copyContents(FC, copyConnection);
-  children = ((SoComplexShape *)FC)->children;
+void SoComplexShape::copyContents(const SoFieldContainer *FC,
+        SbBool copyConnection) {
+    SoNode::copyContents(FC, copyConnection);
+    children = ((SoComplexShape *) FC)->children;
 }
 
 

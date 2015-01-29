@@ -38,99 +38,112 @@
 
 #include "collisionInterface.h"
 
-namespace Collision{
-	class CollisionModel;
+namespace Collision {
+    class CollisionModel;
 }
 using namespace Collision;
 
-class GraspitCollision : public CollisionInterface
-{
+class GraspitCollision : public CollisionInterface {
 private:
 
-	//! Stores the pointers to collision models sorted in ascending order of pointer comparisons
-	std::vector<CollisionModel*> mModels;
+    //! Stores the pointers to collision models sorted in ascending order of pointer comparisons
+    std::vector<CollisionModel *> mModels;
 
-	//! Maps GraspIt Body pointers to internal collision model pointers
-	std::map<const Body*, CollisionModel*> mModelMap;
-	//! Maps internal collision model pointers to GraspIt Body pointers
-	std::map<const CollisionModel*, Body*> mBodyMap;
+    //! Maps GraspIt Body pointers to internal collision model pointers
+    std::map<const Body *, CollisionModel *> mModelMap;
+    //! Maps internal collision model pointers to GraspIt Body pointers
+    std::map<const CollisionModel *, Body *> mBodyMap;
 
-	inline Body* getBody(const CollisionModel* model);
-	inline CollisionModel* getModel(const Body* body);
+    inline Body *getBody(const CollisionModel *model);
 
-	typedef std::multimap<const CollisionModel*, 
-						  const CollisionModel*>::iterator DisabledIterator;
-	//!Stores all the disabled pairs of bodies
-	/*! When inserting a new pair in here, always make sure that the *key* pointer and the 
-		value pointer compare such that key < value. This allows us to know, for any two
-		pointers, which is supposed to be the key for indexing here. It also allows for more
-		efficient traversal of the complete list of bodies */
-	std::multimap<const CollisionModel*, const CollisionModel*> mDisabledMap;
+    inline CollisionModel *getModel(const Body *body);
 
-	typedef std::pair<const CollisionModel*, const CollisionModel*> CollisionPair;
-	//! Returns all the pairs of bodies that collision should be cheked for
-	void getActivePairs(std::list<CollisionPair> *activePairs, 
-						const std::set<CollisionModel*> *interestList);
+    typedef std::multimap<const CollisionModel *,
+            const CollisionModel *>::iterator DisabledIterator;
+    //!Stores all the disabled pairs of bodies
+    /*! When inserting a new pair in here, always make sure that the *key* pointer and the
+        value pointer compare such that key < value. This allows us to know, for any two
+        pointers, which is supposed to be the key for indexing here. It also allows for more
+        efficient traversal of the complete list of bodies */
+    std::multimap<const CollisionModel *, const CollisionModel *> mDisabledMap;
 
-	void convertInterestList(const std::vector<Body*> *inList, std::set<CollisionModel*> *outSet);
+    typedef std::pair<const CollisionModel *, const CollisionModel *> CollisionPair;
+
+    //! Returns all the pairs of bodies that collision should be cheked for
+    void getActivePairs(std::list<CollisionPair> *activePairs,
+            const std::set<CollisionModel *> *interestList);
+
+    void convertInterestList(const std::vector<Body *> *inList, std::set<CollisionModel *> *outSet);
 
 public:
-	GraspitCollision(){}
-	virtual ~GraspitCollision(){}
+    GraspitCollision() {
+    }
 
-	//adding and moving bodies
-	virtual bool addBody(Body *body);
-	virtual void removeBody(Body *body);
-	virtual void cloneBody(Body*, const Body*);
-	virtual void setBodyTransform(Body *body, const transf &t);
+    virtual ~GraspitCollision() {
+    }
 
-	//enable / disable collision
-	virtual void activateBody(const Body*, bool);
-	virtual void activatePair(const Body*, const Body*, bool);
-	virtual bool isActive(const Body*, const Body*);
+    //adding and moving bodies
+    virtual bool addBody(Body *body);
 
-	//collision detection
-	virtual int allCollisions(DetectionType type, CollisionReport *report, 
-							  const std::vector<Body*> *interestList);
+    virtual void removeBody(Body *body);
 
-	//contact
-	virtual int allContacts(CollisionReport *report, double threshold, 
-							const std::vector<Body*> *interestList);
-	virtual int contact(ContactReport *report, double threshold, 
-							const Body *body1, const Body *body2);
+    virtual void cloneBody(Body *, const Body *);
 
-	//point-to-body and body-to-body distances
-	virtual double pointToBodyDistance(const Body *body1, position point,
-									   position &closestPoint, vec3 &closestNormal);
-	virtual double bodyToBodyDistance(const Body *body1, const Body *body2,
-									  position &p1, position &p2);
+    virtual void setBodyTransform(Body *body, const transf &t);
 
-	//region on a body around a point
-	virtual void bodyRegion(const Body *body, position point, vec3 normal, 
-							double radius, Neighborhood *neighborhood);
+    //enable / disable collision
+    virtual void activateBody(const Body *, bool);
 
-	//show bounding box hierarchy
-	virtual void getBoundingVolumes(const Body*, int, std::vector<BoundingBox>*);
+    virtual void activatePair(const Body *, const Body *, bool);
 
-	//threading
-	virtual void newThread(){}
-	virtual int getThread(){return 0;}
+    virtual bool isActive(const Body *, const Body *);
+
+    //collision detection
+    virtual int allCollisions(DetectionType type, CollisionReport *report,
+            const std::vector<Body *> *interestList);
+
+    //contact
+    virtual int allContacts(CollisionReport *report, double threshold,
+            const std::vector<Body *> *interestList);
+
+    virtual int contact(ContactReport *report, double threshold,
+            const Body *body1, const Body *body2);
+
+    //point-to-body and body-to-body distances
+    virtual double pointToBodyDistance(const Body *body1, position point,
+            position &closestPoint, vec3 &closestNormal);
+
+    virtual double bodyToBodyDistance(const Body *body1, const Body *body2,
+            position &p1, position &p2);
+
+    //region on a body around a point
+    virtual void bodyRegion(const Body *body, position point, vec3 normal,
+            double radius, Neighborhood *neighborhood);
+
+    //show bounding box hierarchy
+    virtual void getBoundingVolumes(const Body *, int, std::vector<BoundingBox> *);
+
+    //threading
+    virtual void newThread() {
+    }
+
+    virtual int getThread() {
+        return 0;
+    }
 };
 
-Body* 
-GraspitCollision::getBody(const CollisionModel* model)
-{
-	std::map<const CollisionModel*, Body*>::const_iterator it = mBodyMap.find(model);
-	if (it==mBodyMap.end()) return NULL;
-	return (*it).second;
+Body *
+GraspitCollision::getBody(const CollisionModel *model) {
+    std::map<const CollisionModel *, Body *>::const_iterator it = mBodyMap.find(model);
+    if (it == mBodyMap.end()) return NULL;
+    return (*it).second;
 }
 
-CollisionModel*
-GraspitCollision::getModel(const Body* body)
-{
-	std::map<const Body*, CollisionModel*>::const_iterator it = mModelMap.find(body);
-	if (it==mModelMap.end()) return NULL;
-	return (*it).second;
+CollisionModel *
+GraspitCollision::getModel(const Body *body) {
+    std::map<const Body *, CollisionModel *>::const_iterator it = mModelMap.find(body);
+    if (it == mModelMap.end()) return NULL;
+    return (*it).second;
 }
 
 #endif

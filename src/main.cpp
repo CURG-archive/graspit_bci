@@ -56,8 +56,7 @@
 #include <wincon.h>
 #endif
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 #ifdef GRASPITDBG
 #ifdef Q_WS_WIN
   AllocConsole(); 
@@ -68,28 +67,28 @@ int main(int argc, char **argv)
 #endif
 #endif
 
-  GraspItApp app(argc, argv);
- 
-  //app.showSplash();
-  //QApplication::setOverrideCursor( Qt::waitCursor );
+    GraspItApp app(argc, argv);
 
-  GraspItGUI gui(argc,argv);
-  
-  //This is the GraspIt TCP server. It can be used to connect to GraspIt from
-  //external programs, such as Matlab.
-  //On some machines, the Q3Socket segfaults at exit, so this is commented out by
-  //default
-  GraspItServer server(4765);
-  unsigned int portNumber = 4766;
-  GraspitProtobufServer protobufServer(portNumber); 
-  app.setMainWidget(gui.getMainWindow()->mWindow);
-  QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
+    //app.showSplash();
+    //QApplication::setOverrideCursor( Qt::waitCursor );
 
-  app.closeSplash();
-  QApplication::restoreOverrideCursor();
+    GraspItGUI gui(argc, argv);
 
-  if (!gui.terminalFailure()) {
-	  gui.startMainLoop();
-  }
-  return 0;
+    //This is the GraspIt TCP server. It can be used to connect to GraspIt from
+    //external programs, such as Matlab.
+    //On some machines, the Q3Socket segfaults at exit, so this is commented out by
+    //default
+    GraspItServer server(4765);
+    unsigned int portNumber = 4766;
+    GraspitProtobufServer protobufServer(portNumber);
+    app.setMainWidget(gui.getMainWindow()->mWindow);
+    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
+
+    app.closeSplash();
+    QApplication::restoreOverrideCursor();
+
+    if (!gui.terminalFailure()) {
+        gui.startMainLoop();
+    }
+    return 0;
 }

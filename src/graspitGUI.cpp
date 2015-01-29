@@ -34,7 +34,9 @@
 #include <QLayout>
 
 #ifdef Q_WS_X11
-  #include <unistd.h>
+
+#include <unistd.h>
+
 #endif
 
 #include "graspitGUI.h"
@@ -52,7 +54,7 @@ bool GraspItGUI::initialized = false;
 int GraspItGUI::initResult = SUCCESS;
 
 // Used by getopt in ProcessArgs
-extern int optind,optopt,opterr;
+extern int optind, optopt, opterr;
 extern char *optarg;
 
 ////////////////////////// SYSTEM WIDE GLOBALS ///////////////////////////////
@@ -65,9 +67,8 @@ FILE *debugfile;
 GraspItGUI *graspItGUI = 0;
 
 //! This is the singleton pattern invocation of the global graspit user interface
-GraspItGUI * GraspItGUI::getInstance()
-{
-    if(initialized)
+GraspItGUI *GraspItGUI::getInstance() {
+    if (initialized)
         return graspItGUI;
     DBGP("ERROR: GraspItGUI::getInstance::Requested singleton that can only be initialized elsewhere.");
     return NULL;
@@ -88,44 +89,42 @@ GraspItGUI * GraspItGUI::getInstance()
   - sets the focus policy of the SoQt viewer so keyboard events are accepted
   - calls a method to process the command line arguments.
  */
-GraspItGUI::GraspItGUI(int argc,char **argv)
-{
-  if (!initialized) {
-	mainWindow = new MainWindow; 
-    SoQt::init(mainWindow->mWindow);
+GraspItGUI::GraspItGUI(int argc, char **argv) {
+    if (!initialized) {
+        mainWindow = new MainWindow;
+        SoQt::init(mainWindow->mWindow);
 
-    // initialize my Inventor additions
-    SoComplexShape::initClass();
-    SoArrow::initClass();
-    SoTorquePointer::initClass();
-    SoRing::initClass();
+        // initialize my Inventor additions
+        SoComplexShape::initClass();
+        SoArrow::initClass();
+        SoTorquePointer::initClass();
+        SoRing::initClass();
 
-    ivmgr = new IVmgr((QWidget *)mainWindow->mUI->viewerHolder,"myivmgr");
-	
+        ivmgr = new IVmgr((QWidget *) mainWindow->mUI->viewerHolder, "myivmgr");
+
 //	mainWindow->viewerHolder->setFocusProxy(ivmgr->getViewer()->getWidget());
 //	mainWindow->viewerHolder->setFocusPolicy(QWidget::StrongFocus);
-    
-	ivmgr->getViewer()->getWidget()->setFocusPolicy(Qt::StrongFocus);
 
-	initialized = true;
-    // Started transitioning to singleton pattern
-    graspItGUI = this;
-    initResult = processArgs(argc,argv);
-  }
+        ivmgr->getViewer()->getWidget()->setFocusPolicy(Qt::StrongFocus);
+
+        initialized = true;
+        // Started transitioning to singleton pattern
+        graspItGUI = this;
+        initResult = processArgs(argc, argv);
+    }
 }
 
 
 /*!
   Deletes both the IVmgr and the MainWindow.
 */
-GraspItGUI::~GraspItGUI()
-{
-  //originally, ivmgr is first
+GraspItGUI::~GraspItGUI() {
+    //originally, ivmgr is first
 //	fprintf(stderr,"Delete children\n");
 //  mainWindow->destroyChildren();
 //  fprintf(stderr,"Delete ivmgr\n");
-  delete ivmgr;
-  delete mainWindow;
+    delete ivmgr;
+    delete mainWindow;
 }
 
 /*!
@@ -136,85 +135,82 @@ GraspItGUI::~GraspItGUI()
 \p [-b obstaclename]
 */
 int
-GraspItGUI::processArgs(int argc, char** argv)
-{
-  QString filename;
-  int errflag=0; (void*)&errflag;
-  QString graspitRoot = QString(getenv("GRASPIT"));
-  if (graspitRoot.isNull() ) {
-    std::cerr << "Please set the GRASPIT environment variable to the root directory of graspIt." << std::endl;
-    initResult = FAILURE;
-    return FAILURE;
-  }
- 
-#ifdef Q_WS_X11
-  char c;
-  while((c=getopt(argc, argv, "r:w:o:b:")) != EOF) {
-    switch(c) {
-    case 'r':
-      filename = graspitRoot + QString("/models/robots/")+
-	QString(optarg) + QString("/") + QString(optarg) + QString(".cfg");
-      if (ivmgr->getWorld()->importRobot(filename)==NULL)
-	++errflag;
-      break;
-    case 'w':
-      filename = graspitRoot + QString("/worlds/")+ QString(optarg) +
-    QString(".xml");
-      if (ivmgr->getWorld()->load(filename)==FAILURE)
-	++errflag;
-      else
-	mainWindow->mUI->worldBox->setTitle(filename);
-      break;
-    case 'o':
-      filename = graspitRoot + QString("/models/objects/")+ QString(optarg) +
-	QString(".iv");
-      if (!ivmgr->getWorld()->importBody("GraspableBody",filename))
-	++errflag;
-      break;
-    case 'b':
-      filename = graspitRoot + QString("/models/obstacles/")+ QString(optarg) +
-	QString(".iv");
-      if (!ivmgr->getWorld()->importBody("Body",filename))
-	++errflag;
-      break;
-    default: 
-      ++errflag;
-      break;
+GraspItGUI::processArgs(int argc, char **argv) {
+    QString filename;
+    int errflag = 0;
+    (void *) &errflag;
+    QString graspitRoot = QString(getenv("GRASPIT"));
+    if (graspitRoot.isNull()) {
+        std::cerr << "Please set the GRASPIT environment variable to the root directory of graspIt." << std::endl;
+        initResult = FAILURE;
+        return FAILURE;
     }
-  }
-  if (errflag) {
-    std::cerr << "Usage: graspit [-w worldname] [-r robotname] [-o objectname] [-b obstaclename]" << std::endl;
-    return FAILURE;
-  }
+
+#ifdef Q_WS_X11
+    char c;
+    while ((c = getopt(argc, argv, "r:w:o:b:")) != EOF) {
+        switch (c) {
+            case 'r':
+                filename = graspitRoot + QString("/models/robots/") +
+                        QString(optarg) + QString("/") + QString(optarg) + QString(".cfg");
+                if (ivmgr->getWorld()->importRobot(filename) == NULL)
+                    ++errflag;
+                break;
+            case 'w':
+                filename = graspitRoot + QString("/worlds/") + QString(optarg) +
+                        QString(".xml");
+                if (ivmgr->getWorld()->load(filename) == FAILURE)
+                    ++errflag;
+                else
+                    mainWindow->mUI->worldBox->setTitle(filename);
+                break;
+            case 'o':
+                filename = graspitRoot + QString("/models/objects/") + QString(optarg) +
+                        QString(".iv");
+                if (!ivmgr->getWorld()->importBody("GraspableBody", filename))
+                    ++errflag;
+                break;
+            case 'b':
+                filename = graspitRoot + QString("/models/obstacles/") + QString(optarg) +
+                        QString(".iv");
+                if (!ivmgr->getWorld()->importBody("Body", filename))
+                    ++errflag;
+                break;
+            default:
+                ++errflag;
+                break;
+        }
+    }
+    if (errflag) {
+        std::cerr << "Usage: graspit [-w worldname] [-r robotname] [-o objectname] [-b obstaclename]" << std::endl;
+        return FAILURE;
+    }
 #endif
-  return SUCCESS;
+    return SUCCESS;
 }
 
 /*!
   Shows the mainWindow, sets its size, and starts the Qt event loop.
 */
 void
-GraspItGUI::startMainLoop()
-{	
-  SoQt::show(mainWindow->mWindow);
-  mainWindow->setMainWorld(ivmgr->getWorld());
-  mainWindow->mWindow->resize(QSize(1070,937));
-  if(ivmgr->getWorld()->getNumRobots() > 0)
-      mainWindow->bciActionView();
-  SoQt::mainLoop();
-}  
+GraspItGUI::startMainLoop() {
+    SoQt::show(mainWindow->mWindow);
+    mainWindow->setMainWorld(ivmgr->getWorld());
+    mainWindow->mWindow->resize(QSize(1070, 937));
+    if (ivmgr->getWorld()->getNumRobots() > 0)
+        mainWindow->bciActionView();
+    SoQt::mainLoop();
+}
 
 /*!
   Exits the Qt event loop.
 */
 void
-GraspItGUI::exitMainLoop()
-{
-  SoQt::exitMainLoop();
+GraspItGUI::exitMainLoop() {
+    SoQt::exitMainLoop();
 }
 
 bool
-GraspItGUI::terminalFailure() const
-{
-	return initResult == TERMINAL_FAILURE;
+GraspItGUI::terminalFailure() const {
+    return initResult == TERMINAL_FAILURE;
 }

@@ -53,36 +53,33 @@ SoSeparator *SoTorquePointer::curvedArrow;
   data in curvedArrow.dat and stores a pointer to it.
 */
 void
-SoTorquePointer::initClass()
-{
-   // Initialize type id variables
-   SO_NODE_INIT_CLASS(SoTorquePointer, SoComplexShape, "SoComplexShape");
+SoTorquePointer::initClass() {
+    // Initialize type id variables
+    SO_NODE_INIT_CLASS(SoTorquePointer, SoComplexShape, "SoComplexShape");
 
-   SoInput in;
-   in.setBuffer((void *) curvedArrowData, (size_t) sizeof(curvedArrowData));
-   curvedArrow = SoDB::readAll(&in);
+    SoInput in;
+    in.setBuffer((void *) curvedArrowData, (size_t) sizeof(curvedArrowData));
+    curvedArrow = SoDB::readAll(&in);
 
-   curvedArrow->ref();
+    curvedArrow->ref();
 }
 
 /*!
   Sets up default field values.
 */
-SoTorquePointer::SoTorquePointer()
-{
-  children = new SoChildList(this);
+SoTorquePointer::SoTorquePointer() {
+    children = new SoChildList(this);
 
-   SO_NODE_CONSTRUCTOR(SoTorquePointer);
-   SO_NODE_ADD_FIELD(cylRadius, (0.5));
-   SO_NODE_ADD_FIELD(height,    (4.0));
+    SO_NODE_CONSTRUCTOR(SoTorquePointer);
+    SO_NODE_ADD_FIELD(cylRadius, (0.5));
+    SO_NODE_ADD_FIELD(height, (4.0));
 }
 
 /*!
   Deletes the child nodes that make up this node.
 */
-SoTorquePointer::~SoTorquePointer()
-{
-  delete children;
+SoTorquePointer::~SoTorquePointer() {
+    delete children;
 }
 
 /*! 
@@ -92,51 +89,50 @@ SoTorquePointer::~SoTorquePointer()
   the total height field and the height of any present arrowheads.
 */
 void
-SoTorquePointer::generateChildren()
-{
-  // This should be called once, that means children
-  // doesn not have any children yet.
-  assert (children->getLength() == 0); 
-  
-  // Move the curvedArrow close to the end of the shaft
-  // Also scale it so that it fits around the shaft
-  SoCalculator *calEngine = new SoCalculator;
-  calEngine->a.connectFrom(&height);
-  calEngine->b.connectFrom(&cylRadius);
+SoTorquePointer::generateChildren() {
+    // This should be called once, that means children
+    // doesn not have any children yet.
+    assert (children->getLength() == 0);
 
-  // Compute the translation of the shaft
-  calEngine->expression.set1Value(0, "oA = vec3f(0,a/2.0,0)");
+    // Move the curvedArrow close to the end of the shaft
+    // Also scale it so that it fits around the shaft
+    SoCalculator *calEngine = new SoCalculator;
+    calEngine->a.connectFrom(&height);
+    calEngine->b.connectFrom(&cylRadius);
 
-  // Compute the translation of the curved arrow
-  calEngine->expression.set1Value(1, "oB = vec3f(0.0, 0.95*a, 0.0)");
+    // Compute the translation of the shaft
+    calEngine->expression.set1Value(0, "oA = vec3f(0,a/2.0,0)");
 
-  // Compute the scale of the curved arrow
-  calEngine->expression.set1Value(2, "oC = vec3f(b/0.5,b/0.5,b/0.5)");
-  
-  SoCylinder *shaft = new SoCylinder;
-  shaft->radius.connectFrom(&cylRadius);
-  shaft->height.connectFrom(&height);
+    // Compute the translation of the curved arrow
+    calEngine->expression.set1Value(1, "oB = vec3f(0.0, 0.95*a, 0.0)");
 
-  SoTranslation *shaftTran = new SoTranslation;
-  shaftTran->translation.connectFrom(&calEngine->oA);
+    // Compute the scale of the curved arrow
+    calEngine->expression.set1Value(2, "oC = vec3f(b/0.5,b/0.5,b/0.5)");
 
-  SoTranslation *arrowTran = new SoTranslation;
-  arrowTran->translation.connectFrom(&calEngine->oB);
+    SoCylinder *shaft = new SoCylinder;
+    shaft->radius.connectFrom(&cylRadius);
+    shaft->height.connectFrom(&height);
 
-  SoScale *arrowScale = new SoScale;
-  arrowScale->scaleFactor.connectFrom(&calEngine->oC);
+    SoTranslation *shaftTran = new SoTranslation;
+    shaftTran->translation.connectFrom(&calEngine->oA);
 
-  SoSeparator *arrowSep = new SoSeparator;
-  arrowSep->addChild(arrowTran);
-  arrowSep->addChild(arrowScale);
-  arrowSep->addChild(curvedArrow);
+    SoTranslation *arrowTran = new SoTranslation;
+    arrowTran->translation.connectFrom(&calEngine->oB);
 
-  SoSeparator *root = new SoSeparator;
-  root->addChild(arrowSep);
-  root->addChild(shaftTran);
-  root->addChild(shaft);
+    SoScale *arrowScale = new SoScale;
+    arrowScale->scaleFactor.connectFrom(&calEngine->oC);
 
-  children->append(root);
+    SoSeparator *arrowSep = new SoSeparator;
+    arrowSep->addChild(arrowTran);
+    arrowSep->addChild(arrowScale);
+    arrowSep->addChild(curvedArrow);
+
+    SoSeparator *root = new SoSeparator;
+    root->addChild(arrowSep);
+    root->addChild(shaftTran);
+    root->addChild(shaft);
+
+    children->append(root);
 }
 
   

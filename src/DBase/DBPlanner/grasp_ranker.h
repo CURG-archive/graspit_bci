@@ -34,23 +34,29 @@
 #include <string>
 #include <vector>
 #include "grasp.h"
+
 using std::string;
 using std::vector;
 
 namespace db_planner {
 
 //! A GraspRanker takes a list of Grasp objects and sorts them from best to worst.
-class GraspRanker {
-private:
-  //! The name of the hand to rank grasps for.
-	string hand_name_;
- public:
-  GraspRanker(const string& hand_name) : hand_name_(hand_name) { }
-  //! Rank a list of grasps by sorting in place them from best to worst.
-  /*! This default implementation doesn't change the order. */
-  virtual bool Rank(vector<Grasp>* /*grasps*/) const { return true; }
-  ~GraspRanker() {}
-};
+    class GraspRanker {
+    private:
+        //! The name of the hand to rank grasps for.
+        string hand_name_;
+    public:
+        GraspRanker(const string &hand_name) : hand_name_(hand_name) {
+        }
+        //! Rank a list of grasps by sorting in place them from best to worst.
+        /*! This default implementation doesn't change the order. */
+        virtual bool Rank(vector<Grasp> * /*grasps*/) const {
+            return true;
+        }
+
+        ~GraspRanker() {
+        }
+    };
 
 }  // end namespace db_planner
 

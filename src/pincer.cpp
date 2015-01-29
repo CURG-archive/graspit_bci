@@ -38,39 +38,38 @@
     grasp.
 */
 void
-Pincer::DOFController(double timeStep)
-{
-  int d,c,j,l;
-  Link *prevLink,*nextLink;
-  position jointPos;
-  vec3 jointAxis;
-  transf jointTran;
-  bool dofDone[numDOF];
-  int numContacts;
+Pincer::DOFController(double timeStep) {
+    int d, c, j, l;
+    Link *prevLink, *nextLink;
+    position jointPos;
+    vec3 jointAxis;
+    transf jointTran;
+    bool dofDone[numDOF];
+    int numContacts;
 
 #ifdef GRASPITDBG
   std::cout << " in pincer controller"<<std::endl;
 #endif
-  Robot::DOFController(timeStep);
+    Robot::DOFController(timeStep);
 
-  //  base->SetFixedTran(setPoint);
+    //  base->SetFixedTran(setPoint);
 
-  grasp->CollectContacts();
-  numContacts = grasp->getNumContacts();
-  
-  if (numContacts > 0) {
-    grasp->setGripForce(20.0);
-    grasp->BuildGraspMap();
-    grasp->BuildJacobian();    
-    //      if (grasp->FindOptimalGraspForce())
-    if (grasp->FindGripAxis()==SUCCESS) {
-      for (d=0;d<numDOF;d++) {
+    grasp->CollectContacts();
+    numContacts = grasp->getNumContacts();
+
+    if (numContacts > 0) {
+        grasp->setGripForce(20.0);
+        grasp->BuildGraspMap();
+        grasp->BuildJacobian();
+        //      if (grasp->FindOptimalGraspForce())
+        if (grasp->FindGripAxis() == SUCCESS) {
+            for (d = 0; d < numDOF; d++) {
 #ifdef GRASPITDBG
 	printf("setting dof effort %d to: %lf\n",d,grasp->getOptDOFEfforts()[d]);
 #endif
-	dofVec[d]->SetForce(1.0e+9*grasp->getOptDOFEfforts()[d]);
-      }
+                dofVec[d]->SetForce(1.0e+9 * grasp->getOptDOFEfforts()[d]);
+            }
+        }
     }
-  }
 
 }

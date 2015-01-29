@@ -34,61 +34,56 @@
 //#define GRASPITDBG
 #include "debug.h"
 
-LoopPlanner::LoopPlanner(Hand *h)
-{
-	mHand = h;
-	init();
-	mEnergyCalculator = new ClosureSearchEnergy();
-	mEnergyCalculator->setType(ENERGY_CONTACT_QUALITY);
-	((ClosureSearchEnergy*)mEnergyCalculator)->setAvoidList( &mAvoidList );
+LoopPlanner::LoopPlanner(Hand *h) {
+    mHand = h;
+    init();
+    mEnergyCalculator = new ClosureSearchEnergy();
+    mEnergyCalculator->setType(ENERGY_CONTACT_QUALITY);
+    ((ClosureSearchEnergy *) mEnergyCalculator)->setAvoidList(&mAvoidList);
 
-	mSimAnn = new SimAnn();
-	mSimAnn->setParameters(ANNEAL_LOOP);
-	mRepeat = true;
+    mSimAnn = new SimAnn();
+    mSimAnn->setParameters(ANNEAL_LOOP);
+    mRepeat = true;
 
-	mDistanceThreshold = 0.1f;
-	((ClosureSearchEnergy*)mEnergyCalculator)->setThreshold(mDistanceThreshold);
+    mDistanceThreshold = 0.1f;
+    ((ClosureSearchEnergy *) mEnergyCalculator)->setThreshold(mDistanceThreshold);
 }
 
-LoopPlanner::~LoopPlanner()
-{
+LoopPlanner::~LoopPlanner() {
 }
 
 /*! The criterion for taking a solution and placing it in the avoid list
 	is currently hard-coded in.
 */
-void LoopPlanner::resetParameters()
-{
-	while (!mBestList.empty()) {
-		GraspPlanningState *s = mBestList.front();
-		mBestList.pop_front();
-		if (s->getEnergy() > 10.0) {
-			delete s;
-		} else {
-			mAvoidList.push_back( s );
-		}
-	}
-	SimAnnPlanner::resetParameters();
+void LoopPlanner::resetParameters() {
+    while (!mBestList.empty()) {
+        GraspPlanningState *s = mBestList.front();
+        mBestList.pop_front();
+        if (s->getEnergy() > 10.0) {
+            delete s;
+        } else {
+            mAvoidList.push_back(s);
+        }
+    }
+    SimAnnPlanner::resetParameters();
 }
 
-const GraspPlanningState* 
-LoopPlanner::getGrasp(int i)
-{
-	DBGP("Loop get grasp");
-	assert (i>=0 && i<(int)mAvoidList.size());
-	std::list<GraspPlanningState*>::iterator it = mAvoidList.begin();
-	for (int k=0; k<i; k++) {
-		it++;
-	}
-	return (*it);
+const GraspPlanningState *
+LoopPlanner::getGrasp(int i) {
+    DBGP("Loop get grasp");
+    assert (i >= 0 && i < (int) mAvoidList.size());
+    std::list<GraspPlanningState *>::iterator it = mAvoidList.begin();
+    for (int k = 0; k < i; k++) {
+        it++;
+    }
+    return (*it);
 }
 
 void
-LoopPlanner::clearSolutions()
-{
-	SimAnnPlanner::clearSolutions();
-	while ( !mAvoidList.empty() ) {
-		delete(mAvoidList.back());
-		mAvoidList.pop_back();
-	}
+LoopPlanner::clearSolutions() {
+    SimAnnPlanner::clearSolutions();
+    while (!mAvoidList.empty()) {
+        delete(mAvoidList.back());
+        mAvoidList.pop_back();
+    }
 }

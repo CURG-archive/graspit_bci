@@ -49,7 +49,7 @@
 //Static class variables
 
 //! A list of the possible qm types expressed as strings
-const char *QualityMeasure::TYPE_LIST[] = {"Epsilon","Volume",NULL};
+const char *QualityMeasure::TYPE_LIST[] = {"Epsilon", "Volume", NULL};
 
 const char *QualEpsilon::type = "Epsilon";
 const char *QualVolume::type = "Volume";
@@ -58,27 +58,24 @@ const char *QualVolume::type = "Volume";
   Sets the name of this QM to the text contained within the name widget.
   Sets the grasp pointer for this qm to the grasp in qmData.
 */
-QualityMeasure::QualityMeasure(qmDlgDataT *qmData)
-{
-  name = qmData->qmName->text();
-  grasp = qmData->grasp;
+QualityMeasure::QualityMeasure(qmDlgDataT *qmData) {
+    name = qmData->qmName->text();
+    grasp = qmData->grasp;
 }
 
-QualityMeasure::QualityMeasure(Grasp *g, QString n)
-{
-	grasp = g;
-	name = n;
+QualityMeasure::QualityMeasure(Grasp *g, QString n) {
+    grasp = g;
+    name = n;
 }
 
 /*!
   Stub Destructor
 */
-QualityMeasure::~QualityMeasure()
- {  
+QualityMeasure::~QualityMeasure() {
 #ifdef GRASPITDBG
    std::cout << "deleting QualityMeasure" << std::endl;
 #endif
- }
+}
 
 
 /*!
@@ -87,13 +84,12 @@ QualityMeasure::~QualityMeasure()
   determined by examining the string qmData->qmType.
 */
 void
-QualityMeasure::buildParamArea(qmDlgDataT *qmData)
-{
-  if (!strcmp(qmData->qmType,QualEpsilon::getClassType()))
-    QualEpsilon::buildParamArea(qmData);
+QualityMeasure::buildParamArea(qmDlgDataT *qmData) {
+    if (!strcmp(qmData->qmType, QualEpsilon::getClassType()))
+        QualEpsilon::buildParamArea(qmData);
 
-  else if (!strcmp(qmData->qmType,QualVolume::getClassType()))
-    QualVolume::buildParamArea(qmData);
+    else if (!strcmp(qmData->qmType, QualVolume::getClassType()))
+        QualVolume::buildParamArea(qmData);
 }
 
 /*!
@@ -101,15 +97,14 @@ QualityMeasure::buildParamArea(qmDlgDataT *qmData)
   pointed to by qmData->qmType.
 */
 QualityMeasure *
-QualityMeasure::createInstance(qmDlgDataT *qmData)
-{
-  if (!strcmp(qmData->qmType,QualEpsilon::getClassType()))
-    return new QualEpsilon(qmData);
+QualityMeasure::createInstance(qmDlgDataT *qmData) {
+    if (!strcmp(qmData->qmType, QualEpsilon::getClassType()))
+        return new QualEpsilon(qmData);
 
-  else if (!strcmp(qmData->qmType,QualVolume::getClassType()))
-    return new QualVolume(qmData);
+    else if (!strcmp(qmData->qmType, QualVolume::getClassType()))
+        return new QualVolume(qmData);
 
-  return NULL;
+    return NULL;
 }
 
 
@@ -125,7 +120,7 @@ QualityMeasure::createInstance(qmDlgDataT *qmData)
   combo box in the parameter area.
 */
 struct QualEpsilonParamT {
-  QComboBox *gwsTypeComboBox,*twsTypeComboBox;
+    QComboBox *gwsTypeComboBox, *twsTypeComboBox;
 };
 
 /*!
@@ -133,26 +128,24 @@ struct QualEpsilonParamT {
   dialog box to the grasp associated with this qm.  The grasp will take care
   of creating it if it doesn't already exist.
 */
-QualEpsilon::QualEpsilon(qmDlgDataT *data) : QualityMeasure(data)
-{
-  QualEpsilonParamT *params = (QualEpsilonParamT *)data->paramPtr;
-  gws = grasp->addGWS(params->gwsTypeComboBox->currentText().latin1());
+QualEpsilon::QualEpsilon(qmDlgDataT *data) : QualityMeasure(data) {
+    QualEpsilonParamT *params = (QualEpsilonParamT *) data->paramPtr;
+    gws = grasp->addGWS(params->gwsTypeComboBox->currentText().latin1());
 }
 
-QualEpsilon::QualEpsilon(Grasp *g, QString n, const char *gwsType) : QualityMeasure(g,n)
-{
-	gws = grasp->addGWS( gwsType );
+QualEpsilon::QualEpsilon(Grasp *g, QString n, const char *gwsType) : QualityMeasure(g, n) {
+    gws = grasp->addGWS(gwsType);
 }
+
 /*!
   Removes the GWS used for this qm from the grasp.  The grasp will delete it
   if necessary.
 */
-QualEpsilon::~QualEpsilon()
-{
+QualEpsilon::~QualEpsilon() {
 #ifdef GRASPITDBG
    std::cout << "deleting QualEpsilon" << std::endl;
 #endif
-  grasp->removeGWS(gws);
+    grasp->removeGWS(gws);
 }
 
 /*!
@@ -160,54 +153,52 @@ QualEpsilon::~QualEpsilon()
   defining the boundary of the GWS.
 */
 double
-QualEpsilon::evaluate()
-{
-  double minOffset;
+QualEpsilon::evaluate() {
+    double minOffset;
 
-  if (!gws->hyperPlanes) {
+    if (!gws->hyperPlanes) {
 #ifdef GRASPITDBG
     std::cout << "hyperplanes is NULL"<<std::endl;
 #endif
-    return -1.0;
-  }
+        return -1.0;
+    }
 
 #ifdef GRASPITDBG
   std::cout << "numHyperPlanes"<<gws->numHyperPlanes<<std::endl;
 #endif
 
-  for (int i=0;i<gws->numHyperPlanes;i++) {
-    if (i==0 || -(gws->hyperPlanes[i][6])<minOffset) {
-      minOffset = -(gws->hyperPlanes[i][6]);
-      if (minOffset < 0) return -1.0;     // not a force-closure grasp
+    for (int i = 0; i < gws->numHyperPlanes; i++) {
+        if (i == 0 || -(gws->hyperPlanes[i][6]) < minOffset) {
+            minOffset = -(gws->hyperPlanes[i][6]);
+            if (minOffset < 0) return -1.0;     // not a force-closure grasp
+        }
     }
-  }
 
-  val = minOffset;
-  return val;
+    val = minOffset;
+    return val;
 }
 
 double
-QualEpsilon::evaluate3D()
-{
-  if (!gws->hyperPlanes) {
+QualEpsilon::evaluate3D() {
+    if (!gws->hyperPlanes) {
 #ifdef GRASPITDBG
     std::cout << "hyperplanes is NULL"<<std::endl;
 #endif
-    return -1.0e3;
-  }
+        return -1.0e3;
+    }
 
 #ifdef GRASPITDBG
   std::cout << "numHyperPlanes"<<gws->numHyperPlanes<<std::endl;
 #endif
 
-  double minOffset = -1.0e3;
-  for (int i=0;i<gws->numHyperPlanes;i++) {
-    if ( gws->hyperPlanes[i][6] > minOffset) {
-	  minOffset = gws->hyperPlanes[i][6];
+    double minOffset = -1.0e3;
+    for (int i = 0; i < gws->numHyperPlanes; i++) {
+        if (gws->hyperPlanes[i][6] > minOffset) {
+            minOffset = gws->hyperPlanes[i][6];
+        }
     }
-  }
-  val = - minOffset;
-  return val;
+    val = -minOffset;
+    return val;
 }
 
 /*!
@@ -217,37 +208,36 @@ QualEpsilon::evaluate3D()
   TWS.  In the future, there may be ways to define others.
 */
 void
-QualEpsilon::buildParamArea(qmDlgDataT *qmData)
-{
-  int i;
-  static QualEpsilonParamT params;
+QualEpsilon::buildParamArea(qmDlgDataT *qmData) {
+    int i;
+    static QualEpsilonParamT params;
 
-  QualEpsilon *currQM = (QualEpsilon *)qmData->currQM;
+    QualEpsilon *currQM = (QualEpsilon *) qmData->currQM;
 
 #ifdef GRASPITDBG
   std::cout << "building qualepsilon" << std::endl;
 #endif
 
-  QLayout *l = new QGridLayout(qmData->settingsArea,2,2,1);
-  l->setAutoAdd(true);
+    QLayout *l = new QGridLayout(qmData->settingsArea, 2, 2, 1);
+    l->setAutoAdd(true);
 
-  // create the GWS type menu
-  new QLabel(QString("Limit unit GWS using:"),qmData->settingsArea);
-  params.gwsTypeComboBox = new QComboBox(qmData->settingsArea,"gwsComboBox");  
+    // create the GWS type menu
+    new QLabel(QString("Limit unit GWS using:"), qmData->settingsArea);
+    params.gwsTypeComboBox = new QComboBox(qmData->settingsArea, "gwsComboBox");
 
-  new QLabel(QString("Task Wrench Space (TWS):"),qmData->settingsArea);
-  params.twsTypeComboBox = new QComboBox(qmData->settingsArea,"twsComboBox");  
+    new QLabel(QString("Task Wrench Space (TWS):"), qmData->settingsArea);
+    params.twsTypeComboBox = new QComboBox(qmData->settingsArea, "twsComboBox");
 
-  // count the number of possible gws types
-  for (i=0;GWS::TYPE_LIST[i];i++) {
-    params.gwsTypeComboBox->insertItem(QString(GWS::TYPE_LIST[i]));
-    if (currQM && !strcmp(currQM->gws->getType(),GWS::TYPE_LIST[i]))
-      params.gwsTypeComboBox->setCurrentItem(i);
-  }
-  
-  params.twsTypeComboBox->insertItem(QString("Unit Ball"));
+    // count the number of possible gws types
+    for (i = 0; GWS::TYPE_LIST[i]; i++) {
+        params.gwsTypeComboBox->insertItem(QString(GWS::TYPE_LIST[i]));
+        if (currQM && !strcmp(currQM->gws->getType(), GWS::TYPE_LIST[i]))
+            params.gwsTypeComboBox->setCurrentItem(i);
+    }
 
-  qmData->paramPtr = &params;
+    params.twsTypeComboBox->insertItem(QString("Unit Ball"));
+
+    qmData->paramPtr = &params;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -262,7 +252,7 @@ QualEpsilon::buildParamArea(qmDlgDataT *qmData)
   combo box in the parameter area.
 */
 struct QualVolumeParamT {
-  QWidget *gwsTypeComboBox;
+    QWidget *gwsTypeComboBox;
 };
 
 /*!
@@ -270,15 +260,13 @@ struct QualVolumeParamT {
   dialog box to the grasp associated with this qm.  The grasp will take care
   of creating it if it doesn't already exist.
 */
-QualVolume::QualVolume(qmDlgDataT *data) : QualityMeasure(data)
-{
-  QComboBox *gwsType = (QComboBox *)data->paramPtr;
-  gws = grasp->addGWS(gwsType->currentText().latin1());
+QualVolume::QualVolume(qmDlgDataT *data) : QualityMeasure(data) {
+    QComboBox *gwsType = (QComboBox *) data->paramPtr;
+    gws = grasp->addGWS(gwsType->currentText().latin1());
 }
 
-QualVolume::QualVolume(Grasp *g, QString n, const char *gwsType) : QualityMeasure(g,n)
-{
-	gws = grasp->addGWS( gwsType );
+QualVolume::QualVolume(Grasp *g, QString n, const char *gwsType) : QualityMeasure(g, n) {
+    gws = grasp->addGWS(gwsType);
 }
 
 
@@ -286,12 +274,11 @@ QualVolume::QualVolume(Grasp *g, QString n, const char *gwsType) : QualityMeasur
   Removes the GWS used for this qm from the grasp.  The grasp will delete it
   if necessary.
 */
-QualVolume::~QualVolume()
-{
+QualVolume::~QualVolume() {
 #ifdef GRASPITDBG
   std::cout << "deleting QualVolume" << std::endl;
 #endif
-  grasp->removeGWS(gws);
+    grasp->removeGWS(gws);
 }
 
 /*!
@@ -299,17 +286,15 @@ QualVolume::~QualVolume()
   volume when it is updated.
 */
 double
-QualVolume::evaluate()
-{
-  val = gws->hullVolume;
-  return val;
+QualVolume::evaluate() {
+    val = gws->hullVolume;
+    return val;
 }
 
 double
-QualVolume::evaluate3D()
-{
-  val = gws->hullVolume;
-  return val;
+QualVolume::evaluate3D() {
+    val = gws->hullVolume;
+    return val;
 }
 
 /*!
@@ -317,30 +302,29 @@ QualVolume::evaluate3D()
   box.  This is simply building a QT combo box for the GWS selection.
 */
 void
-QualVolume::buildParamArea(qmDlgDataT *qmData)
-{
-  int i;
-  QualVolume *currQM = (QualVolume *)qmData->currQM;
+QualVolume::buildParamArea(qmDlgDataT *qmData) {
+    int i;
+    QualVolume *currQM = (QualVolume *) qmData->currQM;
 
 #ifdef GRASPITDBG
   std::cout << "building qualvolume" << std::endl;
 #endif
 
-  QBoxLayout *l = new QHBoxLayout(qmData->settingsArea);
-  l->setAutoAdd(true);
+    QBoxLayout *l = new QHBoxLayout(qmData->settingsArea);
+    l->setAutoAdd(true);
 
-  // create the GWS type menu
-  new QLabel(QString("Limit unit GWS using:"),qmData->settingsArea);
-  QComboBox *gwsComboBox = new QComboBox(qmData->settingsArea,"gwsComboBox");  
+    // create the GWS type menu
+    new QLabel(QString("Limit unit GWS using:"), qmData->settingsArea);
+    QComboBox *gwsComboBox = new QComboBox(qmData->settingsArea, "gwsComboBox");
 
-  // count the number of possible gws types
-  for (i=0;GWS::TYPE_LIST[i];i++) {
-    gwsComboBox->insertItem(QString(GWS::TYPE_LIST[i]));
-    if (currQM && !strcmp(currQM->gws->getType(),GWS::TYPE_LIST[i]))
-      gwsComboBox->setCurrentItem(i);
-  }
+    // count the number of possible gws types
+    for (i = 0; GWS::TYPE_LIST[i]; i++) {
+        gwsComboBox->insertItem(QString(GWS::TYPE_LIST[i]));
+        if (currQM && !strcmp(currQM->gws->getType(), GWS::TYPE_LIST[i]))
+            gwsComboBox->setCurrentItem(i);
+    }
 
-  qmData->paramPtr = gwsComboBox;
+    qmData->paramPtr = gwsComboBox;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

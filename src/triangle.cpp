@@ -26,5 +26,7 @@
 #include "triangle.h"
 
 #ifndef GRASPIT_RELEASE
+
 #include "triangle_inl.h"
+
 #endif

@@ -1,4 +1,3 @@
-
 #include "BCI/requests/executeGraspStub.h"
 
 #include "searchState.h"
@@ -6,13 +5,11 @@
 #include "robot.h"
 #include <QFileInfo>
 
-ExecuteGraspStub::ExecuteGraspStub(rpcz::rpc_channel * channel)
-    :executeGrasp_stub(channel, "ExecuteGraspService")
-{
+ExecuteGraspStub::ExecuteGraspStub(rpcz::rpc_channel *channel)
+        : executeGrasp_stub(channel, "ExecuteGraspService") {
 }
 
-void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
-{
+void ExecuteGraspStub::buildRequest(const GraspPlanningState *gps) {
 
     request.clear_grasp();
 
@@ -35,16 +32,14 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->set_epsilon_quality(gps->getEpsilonQuality());
     request.mutable_grasp()->set_volume_quality(gps->getVolume());
 
-    for(int i = 0; i < gps->getQualityMeasures()->size(); i++)
-    {
+    for (int i = 0; i < gps->getQualityMeasures()->size(); i++) {
         request.mutable_grasp()->add_secondary_qualities(gps->getQualityMeasures()->at(i));
     }
 
 
     double dof[gps->getHand()->getNumDOF()];
     const_cast<GraspPlanningState *>(gps)->getPosture()->getHandDOF(dof);
-    for(int i = 0; i < gps->getHand()->getNumDOF(); ++i)
-    {
+    for (int i = 0; i < gps->getHand()->getNumDOF(); ++i) {
         request.mutable_grasp()->mutable_pre_grasp_hand_state()->add_hand_dof(dof[i]);
         request.mutable_grasp()->mutable_final_grasp_hand_state()->add_hand_dof(dof[i]);
     }
@@ -70,7 +65,7 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
 
 
     double moveDist = -50.0;
-    transf pregraspHandTransform = (translate_transf(vec3(0,0,moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
+    transf pregraspHandTransform = (translate_transf(vec3(0, 0, moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
     tx = pregraspHandTransform.translation().x();
     ty = pregraspHandTransform.translation().y();
     tz = pregraspHandTransform.translation().z();
@@ -89,13 +84,10 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
 }
 
 
-
-void ExecuteGraspStub::sendRequestImpl()
-{
-    executeGrasp_stub.run(request,&response, _rpc,rpcz::new_callback<ExecuteGraspStub>(this, &ExecuteGraspStub::callback));
+void ExecuteGraspStub::sendRequestImpl() {
+    executeGrasp_stub.run(request, &response, _rpc, rpcz::new_callback<ExecuteGraspStub>(this, &ExecuteGraspStub::callback));
 }
 
-void ExecuteGraspStub::callbackImpl()
-{
-    std::cout << "hello world I am a callback!!!!"<< std::endl;
+void ExecuteGraspStub::callbackImpl() {
+    std::cout << "hello world I am a callback!!!!" << std::endl;
 }

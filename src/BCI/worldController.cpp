@@ -6,15 +6,12 @@
 
 using bci_experiment::world_element_tools::getWorld;
 
-namespace bci_experiment
-{
+namespace bci_experiment {
 
-    WorldController * WorldController::worldController = NULL;
+    WorldController *WorldController::worldController = NULL;
 
-    WorldController* WorldController::getInstance()
-    {
-        if(!worldController)
-        {
+    WorldController *WorldController::getInstance() {
+        if (!worldController) {
             worldController = new WorldController();
         }
 
@@ -22,22 +19,18 @@ namespace bci_experiment
     }
 
     WorldController::WorldController(QObject *parent) :
-        QObject(parent)
-    {
+            QObject(parent) {
     }
 
-    void WorldController::highlightAllBodies()
-    {
+    void WorldController::highlightAllBodies() {
         ui_tools::highlightAll();
     }
 
-    void WorldController::unhighlightAllBodies()
-    {
+    void WorldController::unhighlightAllBodies() {
         ui_tools::unhighlightAll();
     }
 
-    void WorldController::highlightCurrentBody(GraspableBody * currentTarget)
-    {
+    void WorldController::highlightCurrentBody(GraspableBody *currentTarget) {
         ui_tools::highlightCurrentGraspableBody(currentTarget);
     }
 

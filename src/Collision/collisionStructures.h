@@ -35,8 +35,11 @@
 #include "matvec3D.h"
 
 class Body;
+
 class transf;
+
 class position;
+
 class vec3;
 
 /*! A neighborhood is a list of vertices on the surface of a body.
@@ -54,16 +57,22 @@ typedef std::vector<position> Neighborhood;
 	  contact. This is used for computing analytical patches on each
 	  body around the contact.
  */
-typedef struct ContactDataS
-{
-  position b1_pos,b2_pos;
-  vec3 b1_normal, b2_normal;
-  Neighborhood nghbd1, nghbd2;
-  double distSq;
-  ContactDataS(position b1p, position b2p, vec3 b1n, vec3 b2n, double dsq=-1.0) : b1_pos(b1p), b2_pos(b2p),
-	  b1_normal(b1n), b2_normal(b2n), distSq(dsq) {}
-  ContactDataS() : b1_pos(0,0,0), b2_pos(0,0,0),
-	  b1_normal(0,0,0), b2_normal(0,0,0), distSq(0) {}
+typedef struct ContactDataS {
+    position b1_pos, b2_pos;
+    vec3 b1_normal, b2_normal;
+    Neighborhood nghbd1, nghbd2;
+    double distSq;
+
+    ContactDataS(position b1p, position b2p, vec3 b1n, vec3 b2n, double dsq = -1.0) : b1_pos(b1p),
+                                                                                      b2_pos(b2p),
+                                                                                      b1_normal(b1n),
+                                                                                      b2_normal(b2n),
+                                                                                      distSq(dsq) {
+    }
+
+    ContactDataS() : b1_pos(0, 0, 0), b2_pos(0, 0, 0),
+                     b1_normal(0, 0, 0), b2_normal(0, 0, 0), distSq(0) {
+    }
 } ContactData;
 
 /*! A contact report is a list of multiple contacts, usually all 
@@ -77,12 +86,13 @@ typedef std::vector<ContactData> ContactReport;
 	bodies. Recall that a contact is defined as a location where the two bodies
 	are separated by less than the contact threshold (but never interpenetrating).
 */
-typedef struct CollisionDataS
-{
-	Body *first;
-	Body *second;
-	ContactReport contacts;
-	CollisionDataS(Body *b1, Body *b2) : first(b1), second(b2) {}
+typedef struct CollisionDataS {
+    Body *first;
+    Body *second;
+    ContactReport contacts;
+
+    CollisionDataS(Body *b1, Body *b2) : first(b1), second(b2) {
+    }
 } CollisionData;
 
 /*! A collision report is a list of multiple collision data structures, 

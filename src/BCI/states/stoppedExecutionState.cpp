@@ -1,21 +1,18 @@
 #include "BCI/states/stoppedExecutionState.h"
 
-StoppedExecutionState::StoppedExecutionState(BCIControlWindow *_bciControlWindow, QState* parent)
-    :State("StoppedExecutionState", parent), bciControlWindow(_bciControlWindow)
-{
+StoppedExecutionState::StoppedExecutionState(BCIControlWindow *_bciControlWindow, QState *parent)
+        : State("StoppedExecutionState", parent), bciControlWindow(_bciControlWindow) {
     stoppedExecutionView = new StoppedExecutionView(bciControlWindow->currentFrame);
     stoppedExecutionView->hide();
 }
 
 
-void StoppedExecutionState::onEntry(QEvent *e)
-{
+void StoppedExecutionState::onEntry(QEvent *e) {
     stoppedExecutionView->show();
     bciControlWindow->currentState->setText("Execution");
 }
 
 
-void StoppedExecutionState::onExit(QEvent *e)
-{
+void StoppedExecutionState::onExit(QEvent *e) {
     stoppedExecutionView->hide();
 }

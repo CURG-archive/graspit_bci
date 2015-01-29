@@ -31,18 +31,16 @@
 #include "world.h"
 
 int
-M7Tool::loadFromXml(const TiXmlElement* root,QString rootPath)
-{
-	int result = Robot::loadFromXml(root, rootPath);
-	if (result != SUCCESS) return result;
-	//toggle off collision detections
-	myWorld->toggleCollisions(false, chainVec[0]->getLink(0), chainVec[1]->getLink(0));
-	return result;
+M7Tool::loadFromXml(const TiXmlElement *root, QString rootPath) {
+    int result = Robot::loadFromXml(root, rootPath);
+    if (result != SUCCESS) return result;
+    //toggle off collision detections
+    myWorld->toggleCollisions(false, chainVec[0]->getLink(0), chainVec[1]->getLink(0));
+    return result;
 }
 
-void M7Tool::cloneFrom(Hand *original)
-{
-	Hand::cloneFrom(original);
-	//toggle off collision detections
-	myWorld->toggleCollisions(false, chainVec[0]->getLink(0), chainVec[1]->getLink(0));
+void M7Tool::cloneFrom(Hand *original) {
+    Hand::cloneFrom(original);
+    //toggle off collision detections
+    myWorld->toggleCollisions(false, chainVec[0]->getLink(0), chainVec[1]->getLink(0));
 } 

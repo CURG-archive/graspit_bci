@@ -32,21 +32,24 @@
 
 #include <string>
 #include <vector>
+
 using std::vector;
 using std::string;
 
 namespace db_planner {
 
 //! A TrainingPlanner is used to generate grasps that can be added to the database.
-class TrainingPlanner {
- public:
-  //! Returns a vector of Grasp objects for a Model
-  /*! Given a Model, this returns true on success and populates the grasps vector
-      with Grasp objects that can be added to the database. On failure returns
-      false and the vector's contents are undefined. */
-  virtual bool TrainedGrasps(const string& model_name, vector<Grasp>* grasps) const = 0;
-  virtual ~TrainingPlanner() {}
-};
+    class TrainingPlanner {
+    public:
+        //! Returns a vector of Grasp objects for a Model
+        /*! Given a Model, this returns true on success and populates the grasps vector
+            with Grasp objects that can be added to the database. On failure returns
+            false and the vector's contents are undefined. */
+        virtual bool TrainedGrasps(const string &model_name, vector<Grasp> *grasps) const = 0;
+
+        virtual ~TrainingPlanner() {
+        }
+    };
 
 
 }  // end namespace db_planner

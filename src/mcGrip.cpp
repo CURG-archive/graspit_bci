@@ -36,13 +36,12 @@
 	Initializes instance of Grap class to the specialized version
 	McGripGrasp
 */
-McGrip::McGrip(World *w,const char *name) : Hand(w,name) 
-{
-	mLinkLength = 20;
-	mJointRadius = 5;
+McGrip::McGrip(World *w, const char *name) : Hand(w, name) {
+    mLinkLength = 20;
+    mJointRadius = 5;
 
-	delete grasp;
-	grasp = new McGripGrasp(this);
+    delete grasp;
+    grasp = new McGripGrasp(this);
 }
 
 /*	This function adds up the contributions of the insertion points on the 
@@ -56,80 +55,80 @@ McGrip::McGrip(World *w,const char *name) : Hand(w,name)
 
 	All the math in here is derived in the notes, see there for more details.
 */
-	
-void 
+
+void
 McGrip::assembleTorqueMatrices(int refJointNum, int thisJointNum, int nextJointNum,
-							   double tx, double ty,
-							   double theta, double theta_n,
-							   Matrix &B, Matrix &a)
-{
-	DBGP("\nRef: " << refJointNum << " Proximal: " 
-				   << thisJointNum << " Distal: " << nextJointNum);
+        double tx, double ty,
+        double theta, double theta_n,
+        Matrix &B, Matrix &a) {
+    DBGP("\nRef: " << refJointNum << " Proximal: "
+            << thisJointNum << " Distal: " << nextJointNum);
 
-	if (thisJointNum == refJointNum) {
-		DBGP(">>> - cos(theta/2) = " << - cos(theta/2.0));
-	}
+    if (thisJointNum == refJointNum) {
+        DBGP(">>> - cos(theta/2) = " << -cos(theta / 2.0));
+    }
 
-	//translation tx ty from refJoint to thisJoint
-	Matrix t(2,1);
-	t.elem(0,0) = tx; t.elem(1,0) = ty;
+    //translation tx ty from refJoint to thisJoint
+    Matrix t(2, 1);
+    t.elem(0, 0) = tx;
+    t.elem(1, 0) = ty;
 
-	//joint angles theta and theta_n
-	//remember in our math convention flexion rotation is negative
-	Matrix Rtheta(Matrix::ROTATION2D(-theta));
-	//we will flip the sign of everything later to make it agree with graspit
+    //joint angles theta and theta_n
+    //remember in our math convention flexion rotation is negative
+    Matrix Rtheta(Matrix::ROTATION2D(-theta));
+    //we will flip the sign of everything later to make it agree with graspit
 
-	//this is the first term in the chain
-	//actually contains the resultant force direction
-	Matrix m1(1,2);
+    //this is the first term in the chain
+    //actually contains the resultant force direction
+    Matrix m1(1, 2);
 
-	//proximal insertion point
-	if (nextJointNum >= 0) {
-		m1.elem(0,0) = cos(theta) - cos(theta/2.0);
-		m1.elem(0,1) = -sin(theta) + sin(theta/2.0);
-	} else {
-		m1.elem(0,0) = -cos(theta/2.0);
-		m1.elem(0,1) =  sin(theta/2.0);
-	}
+    //proximal insertion point
+    if (nextJointNum >= 0) {
+        m1.elem(0, 0) = cos(theta) - cos(theta / 2.0);
+        m1.elem(0, 1) = -sin(theta) + sin(theta / 2.0);
+    } else {
+        m1.elem(0, 0) = -cos(theta / 2.0);
+        m1.elem(0, 1) = sin(theta / 2.0);
+    }
 
-	Matrix free_term(1,1);
-	matrixMultiply(m1, t, free_term);
+    Matrix free_term(1, 1);
+    matrixMultiply(m1, t, free_term);
 
-	Matrix b_terms(1,2);
-	matrixMultiply(m1, Rtheta, b_terms);
+    Matrix b_terms(1, 2);
+    matrixMultiply(m1, Rtheta, b_terms);
 
-	B.elem(refJointNum, thisJointNum) += b_terms.elem(0,0);
-	DBGP("Proximal effect: " << b_terms.elem(0,0));
-	B.elem(refJointNum, 6) += b_terms.elem(0,1);
-	a.elem(refJointNum, 0) += free_term.elem(0,0);
+    B.elem(refJointNum, thisJointNum) += b_terms.elem(0, 0);
+    DBGP("Proximal effect: " << b_terms.elem(0, 0));
+    B.elem(refJointNum, 6) += b_terms.elem(0, 1);
+    a.elem(refJointNum, 0) += free_term.elem(0, 0);
 
-	//distal insertion point
-	if (nextJointNum >= 0) {
-		m1.elem(0,0) =  cos(theta + theta_n/2.0) - cos(theta);
-		m1.elem(0,1) = -sin(theta + theta_n/2.0) + sin(theta);
+    //distal insertion point
+    if (nextJointNum >= 0) {
+        m1.elem(0, 0) = cos(theta + theta_n / 2.0) - cos(theta);
+        m1.elem(0, 1) = -sin(theta + theta_n / 2.0) + sin(theta);
 
-		Matrix S(Matrix::ZEROES(2,3));
-		S.elem(0,0) = S.elem(1,1) = S.elem(1,2) = 1.0;
+        Matrix S(Matrix::ZEROES(2, 3));
+        S.elem(0, 0) = S.elem(1, 1) = S.elem(1, 2) = 1.0;
 
-		matrixMultiply(m1, t, free_term);
+        matrixMultiply(m1, t, free_term);
 
-		matrixMultiply(m1, Rtheta, b_terms);
-		Matrix b_terms_ext(1,3);
-		matrixMultiply(b_terms, S, b_terms_ext);
+        matrixMultiply(m1, Rtheta, b_terms);
+        Matrix b_terms_ext(1, 3);
+        matrixMultiply(b_terms, S, b_terms_ext);
 
-		B.elem(refJointNum, nextJointNum) += b_terms_ext.elem(0,0);
-		DBGP("Distal effect: " << b_terms_ext.elem(0,0));
-		B.elem(refJointNum, 6) += b_terms_ext.elem(0,1);
-		B.elem(refJointNum, 7) += b_terms_ext.elem(0,2);
-		a.elem(refJointNum, 0) += free_term.elem(0,0);
-	}
+        B.elem(refJointNum, nextJointNum) += b_terms_ext.elem(0, 0);
+        DBGP("Distal effect: " << b_terms_ext.elem(0, 0));
+        B.elem(refJointNum, 6) += b_terms_ext.elem(0, 1);
+        B.elem(refJointNum, 7) += b_terms_ext.elem(0, 2);
+        a.elem(refJointNum, 0) += free_term.elem(0, 0);
+    }
 
-	//mid-link change
-	if (nextJointNum >= 0) {
-		DBGP("Proximal -1.0 and distal +1.0");
-		B.elem(refJointNum, thisJointNum) += -1.0;
-		B.elem(refJointNum, nextJointNum) +=  1.0;
-	}
+    //mid-link change
+    if (nextJointNum >= 0) {
+        DBGP("Proximal -1.0 and distal +1.0");
+        B.elem(refJointNum, thisJointNum) += -1.0;
+        B.elem(refJointNum, nextJointNum) += 1.0;
+    }
 }
 
 /*! The overall matrices B and a relate hand construction parameters and 
@@ -154,71 +153,70 @@ McGrip::assembleTorqueMatrices(int refJointNum, int thisJointNum, int nextJointN
 	the B matrix that corresponds to the l entries is diagonal.
 */
 void
-McGrip::getRoutingMatrices(Matrix **B, Matrix **a)
-{
-	*B = new Matrix(Matrix::ZEROES(6,8));
-	*a = new Matrix(Matrix::ZEROES(6,1));
+McGrip::getRoutingMatrices(Matrix **B, Matrix **a) {
+    *B = new Matrix(Matrix::ZEROES(6, 8));
+    *a = new Matrix(Matrix::ZEROES(6, 1));
 
-	//compute the world locations of all the joints of the robot
-	//this is overkill, as we might not need all of them
-	std::vector< std::vector<transf> > jointTransf(getNumChains());
-	for (int c=0; c<getNumChains(); c++) {
-		jointTransf[c].resize(getChain(c)->getNumJoints(), transf::IDENTITY);
-		getChain(c)->getJointLocations(NULL, jointTransf[c]);
-	}
+    //compute the world locations of all the joints of the robot
+    //this is overkill, as we might not need all of them
+    std::vector<std::vector<transf> > jointTransf(getNumChains());
+    for (int c = 0; c < getNumChains(); c++) {
+        jointTransf[c].resize(getChain(c)->getNumJoints(), transf::IDENTITY);
+        getChain(c)->getJointLocations(NULL, jointTransf[c]);
+    }
 
-	assert(numChains==2);
-	for(int c=0; c<2; c++) {
-		assert (getChain(c)->getNumJoints()==3);
-		for (int j=0; j<3; j++) {
-			int refJointNum = c*3 + j;
-			transf refTran = jointTransf.at(c).at(j);
-			for (int k=j; k<3; k++) {
-				int thisJointNum = c*3 + k;
-				int nextJointNum = -1;
-				if (k!=2) {
-					nextJointNum = c*3 + k + 1;
-				}
-				//compute the transform from one joint to the other
-				transf thisTran = jointTransf.at(c).at(k);
-				//relative transform in thisJoint's coordinate system
-				transf relTran = thisTran * refTran.inverse();
-				vec3 translation = relTran.translation();
-				//for this hand, the z component should always be 0
-				if (translation.z() > 1.0e-3) {
-					DBGA("Z translation in McGrip routing matrix");
-				}
-				double tx, ty;
-				//in the math, I have used a different convention than link
-				//axes in hand geometry. 
-				tx = translation.y();
-				ty = translation.x();
-				//this obviously means we will need to also flip the sign of the result
-				//since we changed the "handed-ness" of the coordinate system
-				DBGP("Joint translation: " << tx << " " << ty);
+    assert(numChains == 2);
+    for (int c = 0; c < 2; c++) {
+        assert (getChain(c)->getNumJoints() == 3);
+        for (int j = 0; j < 3; j++) {
+            int refJointNum = c * 3 + j;
+            transf refTran = jointTransf.at(c).at(j);
+            for (int k = j; k < 3; k++) {
+                int thisJointNum = c * 3 + k;
+                int nextJointNum = -1;
+                if (k != 2) {
+                    nextJointNum = c * 3 + k + 1;
+                }
+                //compute the transform from one joint to the other
+                transf thisTran = jointTransf.at(c).at(k);
+                //relative transform in thisJoint's coordinate system
+                transf relTran = thisTran * refTran.inverse();
+                vec3 translation = relTran.translation();
+                //for this hand, the z component should always be 0
+                if (translation.z() > 1.0e-3) {
+                    DBGA("Z translation in McGrip routing matrix");
+                }
+                double tx, ty;
+                //in the math, I have used a different convention than link
+                //axes in hand geometry.
+                tx = translation.y();
+                ty = translation.x();
+                //this obviously means we will need to also flip the sign of the result
+                //since we changed the "handed-ness" of the coordinate system
+                DBGP("Joint translation: " << tx << " " << ty);
 
-				//get the joint angles
-				double theta = getChain(c)->getJoint(k)->getVal() + 
-							   getChain(c)->getJoint(k)->getOffset();
-				double theta_n = 0.0;
-				if (k!=2) {
-					theta_n = getChain(c)->getJoint(k+1)->getVal() + 
-							  getChain(c)->getJoint(k+1)->getOffset();
-				}
-				//compute the contributions
-				assembleTorqueMatrices(refJointNum, thisJointNum, nextJointNum,
-									   -translation.x(), -translation.y(), 
-									   theta, theta_n,
-									   **B, **a);
-			}
-		}
-	}
-	//flip the signs; in the math a positive torque is an extension
-	//in the model, a positive torque is flexion
-	(*B)->multiply(-1.0);
-	(*a)->multiply(-1.0);
-	DBGP("B matrix:\n" << **B);
-	DBGP("a vector:\n" << **a);
+                //get the joint angles
+                double theta = getChain(c)->getJoint(k)->getVal() +
+                        getChain(c)->getJoint(k)->getOffset();
+                double theta_n = 0.0;
+                if (k != 2) {
+                    theta_n = getChain(c)->getJoint(k + 1)->getVal() +
+                            getChain(c)->getJoint(k + 1)->getOffset();
+                }
+                //compute the contributions
+                assembleTorqueMatrices(refJointNum, thisJointNum, nextJointNum,
+                        -translation.x(), -translation.y(),
+                        theta, theta_n,
+                        **B, **a);
+            }
+        }
+    }
+    //flip the signs; in the math a positive torque is an extension
+    //in the model, a positive torque is flexion
+    (*B)->multiply(-1.0);
+    (*a)->multiply(-1.0);
+    DBGP("B matrix:\n" << **B);
+    DBGP("a vector:\n" << **a);
 }
 
 /*! Optimizes contact forces AND tendon route (defined by the insertion point 
@@ -272,154 +270,153 @@ McGrip::getRoutingMatrices(Matrix **B, Matrix **a)
 	computation
 */
 int
-McGripGrasp::tendonAndHandOptimization(Matrix *parameters)
-{
-	//use the pre-set list of contacts. This includes contacts on the palm, but
-	//not contacts with other objects or obstacles
-	std::list<Contact*> contacts;
-	contacts.insert(contacts.begin(),contactVec.begin(), contactVec.end());
-	//if there are no contacts we are done
-	if (contacts.empty()) return 0;
+McGripGrasp::tendonAndHandOptimization(Matrix *parameters) {
+    //use the pre-set list of contacts. This includes contacts on the palm, but
+    //not contacts with other objects or obstacles
+    std::list<Contact *> contacts;
+    contacts.insert(contacts.begin(), contactVec.begin(), contactVec.end());
+    //if there are no contacts we are done
+    if (contacts.empty()) return 0;
 
-	//retrieve all the joints of the robot. for now we get all the joints and in
-	//the specific order by chain. keep in mind that saved grasps do not have
-	//self-contacts so that will bias optimizations badly
-	//RECOMMENDED to use this for now only for grasps where both chains are
-	//touching the object and there are no self-contacts
-	std::list<Joint*> joints;
-	for (int c=0; c<hand->getNumChains(); c++) {
-		std::list<Joint*> chainJoints = hand->getChain(c)->getJoints();
-		joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
-	}
+    //retrieve all the joints of the robot. for now we get all the joints and in
+    //the specific order by chain. keep in mind that saved grasps do not have
+    //self-contacts so that will bias optimizations badly
+    //RECOMMENDED to use this for now only for grasps where both chains are
+    //touching the object and there are no self-contacts
+    std::list<Joint *> joints;
+    for (int c = 0; c < hand->getNumChains(); c++) {
+        std::list<Joint *> chainJoints = hand->getChain(c)->getJoints();
+        joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
+    }
 
-	//build the Jacobian and the other matrices that are needed.
-	//this is the same as in other equilibrium functions.
-	Matrix J(contactJacobian(joints, contacts));
-	Matrix D(Contact::frictionForceBlockMatrix(contacts));
-	Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
-	Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
-	//grasp map that relates contact amplitudes to object wrench G = S*R*D
-	Matrix G(graspMapMatrix(R,D));
-	//matrix that relates contact forces to joint torques JTD = JTran * D
-	Matrix JTran(J.transposed());
-	Matrix JTD(JTran.rows(), D.cols());
-	matrixMultiply(JTran, D, JTD);
+    //build the Jacobian and the other matrices that are needed.
+    //this is the same as in other equilibrium functions.
+    Matrix J(contactJacobian(joints, contacts));
+    Matrix D(Contact::frictionForceBlockMatrix(contacts));
+    Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
+    Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
+    //grasp map that relates contact amplitudes to object wrench G = S*R*D
+    Matrix G(graspMapMatrix(R, D));
+    //matrix that relates contact forces to joint torques JTD = JTran * D
+    Matrix JTran(J.transposed());
+    Matrix JTD(JTran.rows(), D.cols());
+    matrixMultiply(JTran, D, JTD);
 
-	//get the routing equation matrices
-	Matrix *a, *negB;
-	static_cast<McGrip*>(hand)->getRoutingMatrices(&negB, &a);
-	negB->multiply(-1.0);
-	assert(JTD.rows() == negB->rows());
-	assert(JTD.rows() == a->rows());
+    //get the routing equation matrices
+    Matrix *a, *negB;
+    static_cast<McGrip *>(hand)->getRoutingMatrices(&negB, &a);
+    negB->multiply(-1.0);
+    assert(JTD.rows() == negB->rows());
+    assert(JTD.rows() == a->rows());
 
-	//int numBetas = JTD.cols();
-	int numParameters = negB->cols();
-	//int numFree = a->rows();
+    //int numBetas = JTD.cols();
+    int numParameters = negB->cols();
+    //int numFree = a->rows();
 
-	//matrix of unknowns
-	Matrix p(JTD.cols() + negB->cols() + a->rows(), 1);
+    //matrix of unknowns
+    Matrix p(JTD.cols() + negB->cols() + a->rows(), 1);
 
-	//optimization objective
-	Matrix Q( JTD.rows(), p.rows() );
-	Q.copySubMatrix( 0, 0, JTD );
-	Q.copySubMatrix( 0, JTD.cols(), *negB );
-	Q.copySubMatrix( 0, JTD.cols() + negB->cols(), Matrix::NEGEYE(a->rows(), a->rows()) );
+    //optimization objective
+    Matrix Q(JTD.rows(), p.rows());
+    Q.copySubMatrix(0, 0, JTD);
+    Q.copySubMatrix(0, JTD.cols(), *negB);
+    Q.copySubMatrix(0, JTD.cols() + negB->cols(), Matrix::NEGEYE(a->rows(), a->rows()));
 
-	//friction matrix padded with zeroes
-	Matrix FO( Matrix::ZEROES(F.rows(), p.rows()) );
-	FO.copySubMatrix(0, 0, F);
+    //friction matrix padded with zeroes
+    Matrix FO(Matrix::ZEROES(F.rows(), p.rows()));
+    FO.copySubMatrix(0, 0, F);
 
-	/*
-	//equality constraint is just grasp map padded with zeroes
-	Matrix EqLeft( Matrix::ZEROES(G.rows(), p.rows()) );
-	EqLeft.copySubMatrix(0, 0, G);
-	//and right hand side is just zeroes
-	Matrix eqRight( Matrix::ZEROES(G.rows(), 1) );
-	*/
-	
-	//let's add the summation to the equality constraint
-	Matrix EqLeft( Matrix::ZEROES(G.rows() + 1, p.rows()) );
-	EqLeft.copySubMatrix(0, 0, G);
-	Matrix sum(1, G.cols());
-	sum.setAllElements(1.0);
-	EqLeft.copySubMatrix(G.rows(), 0, sum);
-	//and the right side of the equality constraint
-	Matrix eqRight( Matrix::ZEROES(G.rows()+1, 1) );
-	//betas must sum to one
-	eqRight.elem(G.rows(), 0) = 1.0;
+    /*
+    //equality constraint is just grasp map padded with zeroes
+    Matrix EqLeft( Matrix::ZEROES(G.rows(), p.rows()) );
+    EqLeft.copySubMatrix(0, 0, G);
+    //and right hand side is just zeroes
+    Matrix eqRight( Matrix::ZEROES(G.rows(), 1) );
+    */
 
-	//lower and upper bounds
-	Matrix lowerBounds( Matrix::MIN_VECTOR(p.rows()) );
-	Matrix upperBounds( Matrix::MAX_VECTOR(p.rows()) );
-	//betas are >= 0
-	for (int i=0; i<JTD.cols(); i++) {
-		lowerBounds.elem(i,0) = 0.0;
-	}
-	//l's have hard-coded upper and lower limits
-	for (int i=0; i<6; i++) {
-		lowerBounds.elem( JTD.cols() + i, 0) = -5.0;
-		upperBounds.elem( JTD.cols() + i, 0) =  5.0;
-	}
-	//r and d have their own hard-coded limits, fixed for now
-	lowerBounds.elem(JTD.cols() + 6, 0) = static_cast<McGrip*>(hand)->getJointRadius();
-	upperBounds.elem(JTD.cols() + 6, 0) = static_cast<McGrip*>(hand)->getJointRadius();
-	lowerBounds.elem(JTD.cols() + 7, 0) = static_cast<McGrip*>(hand)->getLinkLength();
-	upperBounds.elem(JTD.cols() + 7, 0) = static_cast<McGrip*>(hand)->getLinkLength();
-	//the "fake" variables in a are fixed
-	for (int i=0; i<a->rows(); i++) {
-		lowerBounds.elem(JTD.cols() + 8 + i, 0) = a->elem(i,0);
-		upperBounds.elem(JTD.cols() + 8 + i, 0) = a->elem(i,0);
-	}
+    //let's add the summation to the equality constraint
+    Matrix EqLeft(Matrix::ZEROES(G.rows() + 1, p.rows()));
+    EqLeft.copySubMatrix(0, 0, G);
+    Matrix sum(1, G.cols());
+    sum.setAllElements(1.0);
+    EqLeft.copySubMatrix(G.rows(), 0, sum);
+    //and the right side of the equality constraint
+    Matrix eqRight(Matrix::ZEROES(G.rows() + 1, 1));
+    //betas must sum to one
+    eqRight.elem(G.rows(), 0) = 1.0;
 
-	//we don't need the routing matrices any more
-	delete negB;
-	delete a;
+    //lower and upper bounds
+    Matrix lowerBounds(Matrix::MIN_VECTOR(p.rows()));
+    Matrix upperBounds(Matrix::MAX_VECTOR(p.rows()));
+    //betas are >= 0
+    for (int i = 0; i < JTD.cols(); i++) {
+        lowerBounds.elem(i, 0) = 0.0;
+    }
+    //l's have hard-coded upper and lower limits
+    for (int i = 0; i < 6; i++) {
+        lowerBounds.elem(JTD.cols() + i, 0) = -5.0;
+        upperBounds.elem(JTD.cols() + i, 0) = 5.0;
+    }
+    //r and d have their own hard-coded limits, fixed for now
+    lowerBounds.elem(JTD.cols() + 6, 0) = static_cast<McGrip *>(hand)->getJointRadius();
+    upperBounds.elem(JTD.cols() + 6, 0) = static_cast<McGrip *>(hand)->getJointRadius();
+    lowerBounds.elem(JTD.cols() + 7, 0) = static_cast<McGrip *>(hand)->getLinkLength();
+    upperBounds.elem(JTD.cols() + 7, 0) = static_cast<McGrip *>(hand)->getLinkLength();
+    //the "fake" variables in a are fixed
+    for (int i = 0; i < a->rows(); i++) {
+        lowerBounds.elem(JTD.cols() + 8 + i, 0) = a->elem(i, 0);
+        upperBounds.elem(JTD.cols() + 8 + i, 0) = a->elem(i, 0);
+    }
 
-	//solve the whole thing
-	double objVal;
-	int result = factorizedQPSolver(Q,
-									EqLeft, eqRight,
-									FO, Matrix::ZEROES(FO.rows(), 1),
-									lowerBounds, upperBounds,
-									p, &objVal);
+    //we don't need the routing matrices any more
+    delete negB;
+    delete a;
 
-	if (result) {
-		if( result > 0) {
-			DBGA("McGrip constr optimization: problem unfeasible");
-		} else {
-			DBGA("McGrip constr optimization: QP solver error");
-		}
-		return result;
-	}
-	DBGA("Construction optimization objective: " << objVal);
-	DBGP("Result:\n" << p);
+    //solve the whole thing
+    double objVal;
+    int result = factorizedQPSolver(Q,
+            EqLeft, eqRight,
+            FO, Matrix::ZEROES(FO.rows(), 1),
+            lowerBounds, upperBounds,
+            p, &objVal);
 
-	//get the contact forces and the parameters; display contacts as usual
-	Matrix beta(JTD.cols(), 1);
-	beta.copySubBlock(0, 0, JTD.cols(), 1, p, 0, 0);
-	//scale betas by tendon foce
-	beta.multiply(1.0e7);
-	parameters->copySubBlock(0, 0, numParameters, 1, p, JTD.cols(), 0);
+    if (result) {
+        if (result > 0) {
+            DBGA("McGrip constr optimization: problem unfeasible");
+        } else {
+            DBGA("McGrip constr optimization: QP solver error");
+        }
+        return result;
+    }
+    DBGA("Construction optimization objective: " << objVal);
+    DBGP("Result:\n" << p);
 
-	//retrieve contact wrenches in local contact coordinate systems
-	Matrix cWrenches(D.rows(), 1);
-	matrixMultiply(D, beta, cWrenches);
-	DBGP("Contact forces:\n " << cWrenches);
+    //get the contact forces and the parameters; display contacts as usual
+    Matrix beta(JTD.cols(), 1);
+    beta.copySubBlock(0, 0, JTD.cols(), 1, p, 0, 0);
+    //scale betas by tendon foce
+    beta.multiply(1.0e7);
+    parameters->copySubBlock(0, 0, numParameters, 1, p, JTD.cols(), 0);
 
-	//compute object wrenches relative to object origin and expressed in world coordinates
-	Matrix objectWrenches(R.rows(), cWrenches.cols());
-	matrixMultiply(R, cWrenches, objectWrenches);
-	DBGP("Object wrenches:\n" << objectWrenches);
+    //retrieve contact wrenches in local contact coordinate systems
+    Matrix cWrenches(D.rows(), 1);
+    matrixMultiply(D, beta, cWrenches);
+    DBGP("Contact forces:\n " << cWrenches);
 
-	//display them on the contacts and accumulate them on the object
-	displayContactWrenches(&contacts, cWrenches);
-	accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
+    //compute object wrenches relative to object origin and expressed in world coordinates
+    Matrix objectWrenches(R.rows(), cWrenches.cols());
+    matrixMultiply(R, cWrenches, objectWrenches);
+    DBGP("Object wrenches:\n" << objectWrenches);
 
-	//we actually say the problem is also unfeasible if objective is not 0
-	//this is magnitude squared of contact wrench, where force units are N*1.0e6
-	//acceptable force is 1mN -> (1.0e3)^2 magnitude 
-	if (objVal > 1.0e6) {
-		return 1;
-	}
-	return 0;
+    //display them on the contacts and accumulate them on the object
+    displayContactWrenches(&contacts, cWrenches);
+    accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
+
+    //we actually say the problem is also unfeasible if objective is not 0
+    //this is magnitude squared of contact wrench, where force units are N*1.0e6
+    //acceptable force is 1mN -> (1.0e3)^2 magnitude
+    if (objVal > 1.0e6) {
+        return 1;
+    }
+    return 0;
 }

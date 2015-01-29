@@ -36,53 +36,53 @@
 /*!
   Reads a vec3 from a QTextStream.  The format should be "[x y z]".
 */
-QTextStream&
-operator>>(QTextStream &is, vec3 &v)
-{
-  QChar ch;
-  double x,y,z;
-  is >> ch >> x >> y >> z >> ch;
-  v[0] = x; v[1] = y; v[2] = z;
-  
-  return is;
+QTextStream &
+operator>>(QTextStream &is, vec3 &v) {
+    QChar ch;
+    double x, y, z;
+    is >> ch >> x >> y >> z >> ch;
+    v[0] = x;
+    v[1] = y;
+    v[2] = z;
+
+    return is;
 }
 
 /*!
   Writes a vec3 to a QTextStream in the format "[x y z]".
 */
 QTextStream &
-operator<<(QTextStream &os, const vec3 &v)
-{
-  int oldFlags = os.setf(QTextStream::showpos);
-  os << '[' << v[0] << ' ' << v[1] << ' ' << v[2] << ']';
-  os.flags(oldFlags);
-  return os;
+operator<<(QTextStream &os, const vec3 &v) {
+    int oldFlags = os.setf(QTextStream::showpos);
+    os << '[' << v[0] << ' ' << v[1] << ' ' << v[2] << ']';
+    os.flags(oldFlags);
+    return os;
 }
 
 /*!
   Reads a position from a QTextStream.  The format should be "[x y z]".
 */
-QTextStream&
-operator>>(QTextStream &is, position &p)
-{
-  QChar ch;
-  double x,y,z;
-  is >> ch >> x >> y >> z >> ch;
-  p[0] = x; p[1] = y; p[2] = z;
+QTextStream &
+operator>>(QTextStream &is, position &p) {
+    QChar ch;
+    double x, y, z;
+    is >> ch >> x >> y >> z >> ch;
+    p[0] = x;
+    p[1] = y;
+    p[2] = z;
 
-  return is;
+    return is;
 }
 
 /*!
   Writes a position to a QTextStream in the format "[x y z]".
 */
 QTextStream &
-operator<<(QTextStream &os, const position &p)
-{
-  int oldFlags = os.setf(QTextStream::showpos);
-  os << '[' << p[0] << ' ' << p[1] << ' ' << p[2] << ']';
-  os.flags(oldFlags);
-  return os;
+operator<<(QTextStream &os, const position &p) {
+    int oldFlags = os.setf(QTextStream::showpos);
+    os << '[' << p[0] << ' ' << p[1] << ' ' << p[2] << ']';
+    os.flags(oldFlags);
+    return os;
 }
 
 /*!
@@ -94,12 +94,11 @@ operator<<(QTextStream &os, const position &p)
   \endverbatim
 */
 QTextStream &
-operator>>(QTextStream &is, mat3 &m)
-{
-  is >> m[0] >> m[3] >> m[6];
-  is >> m[1] >> m[4] >> m[7];
-  is >> m[2] >> m[5] >> m[8];
-  return is;
+operator>>(QTextStream &is, mat3 &m) {
+    is >> m[0] >> m[3] >> m[6];
+    is >> m[1] >> m[4] >> m[7];
+    is >> m[2] >> m[5] >> m[8];
+    return is;
 }
 
 /*!
@@ -111,14 +110,13 @@ operator>>(QTextStream &is, mat3 &m)
   \endverbatim
 */
 QTextStream &
-operator<<(QTextStream &os, const mat3 &m)
-{
-  int oldFlags = os.setf(QTextStream::showpos);
-  os << '[' << m[0] << ' ' << m[3] << ' ' << m[6] << ']' << endl;
-  os << '[' << m[1] << ' ' << m[4] << ' ' << m[7] << ']' << endl;
-  os << '[' << m[2] << ' ' << m[5] << ' ' << m[8] << ']' << endl;
-  os.flags(oldFlags);
-  return os;
+operator<<(QTextStream &os, const mat3 &m) {
+    int oldFlags = os.setf(QTextStream::showpos);
+    os << '[' << m[0] << ' ' << m[3] << ' ' << m[6] << ']' << endl;
+    os << '[' << m[1] << ' ' << m[4] << ' ' << m[7] << ']' << endl;
+    os << '[' << m[2] << ' ' << m[5] << ' ' << m[8] << ']' << endl;
+    os.flags(oldFlags);
+    return os;
 }
 
 /*!
@@ -126,25 +124,26 @@ operator<<(QTextStream &os, const mat3 &m)
   "(qw qx qy qz)".
 */
 QTextStream &
-operator>>(QTextStream &is, Quaternion &q)
-{
-  QChar ch;
-  double w,x,y,z;
-  is >> ch >> w >> x >> y >> z >> ch;
-  q.w = w; q.x = x; q.y = y; q.z = z;
-  return is;
+operator>>(QTextStream &is, Quaternion &q) {
+    QChar ch;
+    double w, x, y, z;
+    is >> ch >> w >> x >> y >> z >> ch;
+    q.w = w;
+    q.x = x;
+    q.y = y;
+    q.z = z;
+    return is;
 }
 
 /*!
   Writes a quaternion to a QTextStream in the format "(qw qx qy qz)".
 */
-QTextStream&
-operator<<(QTextStream &os, const Quaternion &q)
-{
-  int oldFlags = os.setf(QTextStream::showpos);
-  os <<'('<< q.w <<' '<< q.x <<' '<< q.y <<' '<< q.z <<')';
-  os.flags(oldFlags);
-  return os;
+QTextStream &
+operator<<(QTextStream &os, const Quaternion &q) {
+    int oldFlags = os.setf(QTextStream::showpos);
+    os << '(' << q.w << ' ' << q.x << ' ' << q.y << ' ' << q.z << ')';
+    os.flags(oldFlags);
+    return os;
 }
 
 /*!
@@ -152,25 +151,23 @@ operator<<(QTextStream &os, const Quaternion &q)
   "(qw qx qy qz)[x y z]", where the 4 vector is a quaternion describing the
   rotation and the 3 vector is a position.
 */
-QTextStream&
-operator>>(QTextStream &is, transf &tr)
-{
-  Quaternion q;
-  vec3 v;
+QTextStream &
+operator>>(QTextStream &is, transf &tr) {
+    Quaternion q;
+    vec3 v;
 
-  is >> q >> v;
-  tr.set(q,v);
+    is >> q >> v;
+    tr.set(q, v);
 
-  return is;
+    return is;
 }
 
 /*!
   Writes a transf to a QTextStream in the format "(qw qx qy qz)[x y z]".
 */
 QTextStream &
-operator<<(QTextStream &os, const transf &tr)
-{
-  return os << tr.rotation() << tr.translation();
+operator<<(QTextStream &os, const transf &tr) {
+    return os << tr.rotation() << tr.translation();
 }
 
 /*!
@@ -191,67 +188,70 @@ operator<<(QTextStream &os, const transf &tr)
   encountered, otherwise SUCCESS is returned.
 */
 int
-readTransRotFromQTextStream(QTextStream &stream,transf &tr)
-{
-  QString line;
-  QChar axis;
-  double theta,x,y,z;
-  transf tmpTr;
-  vec3 tmpVec;
-  bool ok;
-  QStringList strings;
-  
-  tr = transf::IDENTITY;
+readTransRotFromQTextStream(QTextStream &stream, transf &tr) {
+    QString line;
+    QChar axis;
+    double theta, x, y, z;
+    transf tmpTr;
+    vec3 tmpVec;
+    bool ok;
+    QStringList strings;
 
-	while (1) {
-		line = stream.readLine();
-		if ( line.isNull() ) break;
-		if ( !line.isEmpty() && line[0]!='#' ) break;
-	}
+    tr = transf::IDENTITY;
 
-  do{
-	if ( !line.isNull() &&(line[0]=='r' || line[0]=='t' || line[0]=='T' || line[0]=='R')){
-      if (line[0]=='r') {  /* rotation */
-		strings = QStringList::split(QChar(' '),line);
-		if (strings.count() < 3) return FAILURE;
-		theta = strings[1].toDouble(&ok); if (!ok) return FAILURE;
-		axis = strings[2][0];
-
-		if (strings[0]!="rr") /* radians */
-		  theta *= M_PI/180.0;
-	
-		if (axis == 'x') tmpVec = vec3::X;
-		else if (axis == 'y') tmpVec = vec3::Y;
-		else if (axis == 'z') tmpVec = vec3::Z;
-		else return FAILURE;
-
-		tmpTr = rotate_transf(theta,tmpVec);
-      }
-      else if (line[0]=='t') { /* translation */
-		strings = QStringList::split(QChar(' '),line);
-		if (strings.count() < 4) return FAILURE;
-		x = strings[1].toDouble(&ok); if (!ok) return FAILURE;
-		y = strings[2].toDouble(&ok); if (!ok) return FAILURE;
-		z = strings[3].toDouble(&ok); if (!ok) return FAILURE;
-		tmpVec = vec3(x,y,z);
-		//	printf("   Reading translation transform...\n");
-		tmpTr = translate_transf(tmpVec);
-      }
-      else if (line[0]=='T') { /* full transform: (Quaternion)[Translation] */
-		QString trStr = line.section(' ',1,-1);
-		QTextStream lineStream(&trStr,QIODevice::ReadOnly);
-		lineStream >> tmpTr;  
-      }
-      else if (line[0]=='R') { /* Rotation matrix */
-		mat3 tmpMat;
-		stream >> tmpMat;		
-		tmpTr = transf(tmpMat,vec3::ZERO);
-		line=stream.readLine();
-      }
-      tr = tmpTr * tr;
+    while (1) {
+        line = stream.readLine();
+        if (line.isNull()) break;
+        if (!line.isEmpty() && line[0] != '#') break;
     }
-    line=stream.readLine();
-  }while ( !line.isNull() && (line[0]=='r' || line[0]=='t' || line[0]=='T' || line[0]=='R'));
 
-  return SUCCESS;
+    do {
+        if (!line.isNull() && (line[0] == 'r' || line[0] == 't' || line[0] == 'T' || line[0] == 'R')) {
+            if (line[0] == 'r') {  /* rotation */
+                strings = QStringList::split(QChar(' '), line);
+                if (strings.count() < 3) return FAILURE;
+                theta = strings[1].toDouble(&ok);
+                if (!ok) return FAILURE;
+                axis = strings[2][0];
+
+                if (strings[0] != "rr") /* radians */
+                    theta *= M_PI / 180.0;
+
+                if (axis == 'x') tmpVec = vec3::X;
+                else if (axis == 'y') tmpVec = vec3::Y;
+                else if (axis == 'z') tmpVec = vec3::Z;
+                else return FAILURE;
+
+                tmpTr = rotate_transf(theta, tmpVec);
+            }
+            else if (line[0] == 't') { /* translation */
+                strings = QStringList::split(QChar(' '), line);
+                if (strings.count() < 4) return FAILURE;
+                x = strings[1].toDouble(&ok);
+                if (!ok) return FAILURE;
+                y = strings[2].toDouble(&ok);
+                if (!ok) return FAILURE;
+                z = strings[3].toDouble(&ok);
+                if (!ok) return FAILURE;
+                tmpVec = vec3(x, y, z);
+                //	printf("   Reading translation transform...\n");
+                tmpTr = translate_transf(tmpVec);
+            }
+            else if (line[0] == 'T') { /* full transform: (Quaternion)[Translation] */
+                QString trStr = line.section(' ', 1, -1);
+                QTextStream lineStream(&trStr, QIODevice::ReadOnly);
+                lineStream >> tmpTr;
+            }
+            else if (line[0] == 'R') { /* Rotation matrix */
+                mat3 tmpMat;
+                stream >> tmpMat;
+                tmpTr = transf(tmpMat, vec3::ZERO);
+                line = stream.readLine();
+            }
+            tr = tmpTr * tr;
+        }
+        line = stream.readLine();
+    } while (!line.isNull() && (line[0] == 'r' || line[0] == 't' || line[0] == 'T' || line[0] == 'R'));
+
+    return SUCCESS;
 }

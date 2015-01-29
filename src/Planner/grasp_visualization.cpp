@@ -70,11 +70,11 @@
   The rotation of the palm, z-approach, vector is specified with \a mat ,
   the rotation of the thumb vector is specified with \a thMat .  The Inventor
   sub graph containing these elements is added to the provided \a glroot node .
-*/    
-grasp_representation::grasp_representation(SbMatrix mat, SbMatrix thMat, SoSeparator* glroot){
+*/
+grasp_representation::grasp_representation(SbMatrix mat, SbMatrix thMat, SoSeparator *glroot) {
 
     parentSep = glroot;
-    
+
     top = new SoSeparator();
     sep = new SoSeparator();
     thSep = new SoSeparator();
@@ -86,7 +86,7 @@ grasp_representation::grasp_representation(SbMatrix mat, SbMatrix thMat, SoSepar
     arrow->height.setValue(50.);
     sphere = new SoSphere();
     sphere->radius.setValue(5.0);
-    
+
     thRot = new SoTransform();
     thArrow = new SoArrow();
     thArrow->height.setValue(20.);
@@ -115,10 +115,10 @@ grasp_representation::grasp_representation(SbMatrix mat, SbMatrix thMat, SoSepar
 /*!
   Removes and deletes the Inventor elements for this represenntation.
 */
-grasp_representation::~grasp_representation(){
+grasp_representation::~grasp_representation() {
 
     if (visOn)
-	parentSep->removeChild(top);
+        parentSep->removeChild(top);
     /*
     thSep->removeChild(thArrow);
     thSep->removeChild(thRot);
@@ -147,9 +147,9 @@ grasp_representation::~grasp_representation(){
 /*!
   Changes the diffuse color of the representation.
 */
-void 
-grasp_representation::changeColor(double r, double g, double b){
-    material->diffuseColor.setValue((float)r,(float)g,(float)b);
+void
+grasp_representation::changeColor(double r, double g, double b) {
+    material->diffuseColor.setValue((float) r, (float) g, (float) b);
     material->transparency.setValue(0.5);
 }
 
@@ -157,8 +157,8 @@ grasp_representation::changeColor(double r, double g, double b){
   Resets the material properties of the representation elements to their
   original values.
 */
-void 
-grasp_representation::resetColor(){
+void
+grasp_representation::resetColor() {
     material->setToDefaults();
 }
 
@@ -167,15 +167,15 @@ grasp_representation::resetColor(){
   * GRASP_SPHERE_SIZE_FACTOR.
 */
 void
-grasp_representation::changeRadius(double rad){
-    sphere->radius.setValue((float)(rad * GRASP_SPHERE_SIZE_FACTOR));
+grasp_representation::changeRadius(double rad) {
+    sphere->radius.setValue((float) (rad * GRASP_SPHERE_SIZE_FACTOR));
 }
 
 
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/
 
 

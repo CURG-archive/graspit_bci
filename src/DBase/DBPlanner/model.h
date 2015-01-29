@@ -32,6 +32,7 @@
 
 #include <string>
 #include <set>
+
 using std::string;
 using std::set;
 
@@ -41,52 +42,83 @@ namespace db_planner {
 /*! A Model represents a 3D model in the database along with some associated
     information that is stored when the model is created rather than
     repeatedly querying the database. */
-class Model {
- private:
-   //! The name of the model and absolute paths to its geometry and to a thumbnail.
-   string model_name_, geometry_path_, thumbnail_path_;
-   //! The approximate radius of a ball that statistically contains the model.
-   double scale_, rescale_factor_;
-   //! A set of descriptive tags associated with the model.
-   set<string> tags_;
- public:
-   virtual ~Model(){}
-   //! Getter and Setters.
-   const string& ModelName() const { return model_name_; }
-   const string& ThumbnailPath() const { return thumbnail_path_; }
-   const string& GeometryPath() const { return geometry_path_; }
-   double Scale() const { return scale_; }
-   double RescaleFactor() const { return rescale_factor_; }
-   const set<string>& Tags() { return tags_; }
-   void SetModelName(const string& model_name) { model_name_ = model_name; }
-   void SetThumbnailPath(const string& thumbnail_path) { 
-     thumbnail_path_ = thumbnail_path; 
-   }
-   void SetGeometryPath(const string& geometry_path) { 
-     geometry_path_ = geometry_path; 
-   }
-   void SetScale(const double scale) { scale_ = scale; }
-   void SetRescaleFactor(const double rescale_factor) { 
-     rescale_factor_ = rescale_factor; 
-   }
-   template <class Iterator> 
-   void SetTags(const Iterator& start, const Iterator& end) { 
-     tags_.clear();
-     tags_.insert(start, end); 
-   }
-};
+    class Model {
+    private:
+        //! The name of the model and absolute paths to its geometry and to a thumbnail.
+        string model_name_, geometry_path_, thumbnail_path_;
+        //! The approximate radius of a ball that statistically contains the model.
+        double scale_, rescale_factor_;
+        //! A set of descriptive tags associated with the model.
+        set<string> tags_;
+    public:
+        virtual ~Model() {
+        }
+
+        //! Getter and Setters.
+        const string &ModelName() const {
+            return model_name_;
+        }
+
+        const string &ThumbnailPath() const {
+            return thumbnail_path_;
+        }
+
+        const string &GeometryPath() const {
+            return geometry_path_;
+        }
+
+        double Scale() const {
+            return scale_;
+        }
+
+        double RescaleFactor() const {
+            return rescale_factor_;
+        }
+
+        const set<string> &Tags() {
+            return tags_;
+        }
+
+        void SetModelName(const string &model_name) {
+            model_name_ = model_name;
+        }
+
+        void SetThumbnailPath(const string &thumbnail_path) {
+            thumbnail_path_ = thumbnail_path;
+        }
+
+        void SetGeometryPath(const string &geometry_path) {
+            geometry_path_ = geometry_path;
+        }
+
+        void SetScale(const double scale) {
+            scale_ = scale;
+        }
+
+        void SetRescaleFactor(const double rescale_factor) {
+            rescale_factor_ = rescale_factor;
+        }
+
+        template<class Iterator>
+        void SetTags(const Iterator &start, const Iterator &end) {
+            tags_.clear();
+            tags_.insert(start, end);
+        }
+    };
 
 
 //! Base class to allocate Model objects.
 /*! A ModelAllocator is a class that can produce new models on demand. It is
     necessary to allow a class to create derived Model types without having
     to know what those types are.*/
-class ModelAllocator {
-public:
-  //! Return a new object of a class that derives from Model.
-	virtual Model* Get() const = 0;
-  virtual ~ModelAllocator() {};
-};
+    class ModelAllocator {
+    public:
+        //! Return a new object of a class that derives from Model.
+        virtual Model *Get() const = 0;
+
+        virtual ~ModelAllocator() {
+        };
+    };
 
 
 }  // end namespace db_planner

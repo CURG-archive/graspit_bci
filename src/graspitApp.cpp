@@ -44,58 +44,55 @@ static QLabel *splash = 0;
   splash screen in the center of the screen.
  */
 void
-GraspItApp::showSplash()
-{
+GraspItApp::showSplash() {
     QRect screen = QApplication::desktop()->screenGeometry();
     QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Columbia" );
+    config.insertSearchPath(QSettings::Windows, "/Columbia");
 
     QRect mainRect;
     QString keybase = "/GraspIt/0.9/";
-    bool show = config.readBoolEntry( keybase + "SplashScreen", TRUE );
-    mainRect.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", 0 ) );
-    mainRect.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", 0 ) );
-    mainRect.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", 500 ) );
-    mainRect.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", 500 ) );
-    screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
+    bool show = config.readBoolEntry(keybase + "SplashScreen", TRUE);
+    mainRect.setX(config.readNumEntry(keybase + "Geometries/MainwindowX", 0));
+    mainRect.setY(config.readNumEntry(keybase + "Geometries/MainwindowY", 0));
+    mainRect.setWidth(config.readNumEntry(keybase + "Geometries/MainwindowWidth", 500));
+    mainRect.setHeight(config.readNumEntry(keybase + "Geometries/MainwindowHeight", 500));
+    screen = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(mainRect.center()));
 
-    if ( show ) {
-		splash = new QLabel( 0, "splash",Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
-	// WStyle_Customize | WStyle_StaysOnTop
-	splash->setAttribute(Qt::WA_DeleteOnClose,true);
-	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap(load_pixmap( "splash.jpg" ));
-	splash->adjustSize();
-	splash->setFixedSize(splash->sizeHint());
-	splash->setCaption( "GraspIt!" );
-	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
-	splash->show();
-	splash->repaint( FALSE );
-	QApplication::flush();
-	//	set_splash_status( "Initializing..." );
+    if (show) {
+        splash = new QLabel(0, "splash", Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint);
+        // WStyle_Customize | WStyle_StaysOnTop
+        splash->setAttribute(Qt::WA_DeleteOnClose, true);
+        splash->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
+        splash->setPixmap(load_pixmap("splash.jpg"));
+        splash->adjustSize();
+        splash->setFixedSize(splash->sizeHint());
+        splash->setCaption("GraspIt!");
+        splash->move(screen.center() - QPoint(splash->width() / 2, splash->height() / 2));
+        splash->show();
+        splash->repaint(FALSE);
+        QApplication::flush();
+        //	set_splash_status( "Initializing..." );
     }
 }
 
 /*! 
   Removes the splash screen, freeing its memory.
 */
-void GraspItApp::closeSplash()
-{
+void GraspItApp::closeSplash() {
     if (splash) delete splash;
 }
 
-bool GraspItApp::notify(QObject * obj, QEvent * evt)
-{
+bool GraspItApp::notify(QObject *obj, QEvent *evt) {
     try {
         return QApplication::notify(obj, evt);
     } catch (std::exception &e) {
         qFatal("Error %s sending event %s to object %s (%s)",
-            e.what(), typeid(*evt).name(), qPrintable(obj->objectName()),
-            typeid(*obj).name());
+                e.what(), typeid(*evt).name(), qPrintable(obj->objectName()),
+                typeid(*obj).name());
     } catch (...) {
         qFatal("Error <unknown> sending event %s to object %s (%s)",
-            typeid(*evt).name(), qPrintable(obj->objectName()),
-            typeid(*obj).name());
+                typeid(*evt).name(), qPrintable(obj->objectName()),
+                typeid(*obj).name());
     }
 
     // qFatal aborts, so this isn't really necessary

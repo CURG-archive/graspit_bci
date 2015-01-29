@@ -34,39 +34,40 @@
 #include <sstream>
 #include <vector>
 #include <QVariant>
+
 using std::istringstream;
 using std::vector;
 
 namespace db_planner {
- 
+
 //! Convert QVariant data into a static type. 
 /*! This will work for anything that QVariant can write as a 
     string and that std::stringstream can read back in. */
-template <class FieldType>
-static bool QVariantConvert(const QVariant& var, FieldType* result) {
-	istringstream stream(var.toString().toStdString());
-  stream >> *result;
-  return true;
-}
+    template<class FieldType>
+    static bool QVariantConvert(const QVariant &var, FieldType *result) {
+        istringstream stream(var.toString().toStdString());
+        stream >> *result;
+        return true;
+    }
 
 //! A QVariantConvert function for arrays written into a string.
 /*! Input is a QVariant that is expected to be a string of values separated
     by spaces, as would be returned from a Postgresql query on an array field.
     The values are separated and then converted to the static templated type.
     WARNING: This may fail for arrays of strings with embedded commas. */
-template <class FieldType>
-static bool QVariantConvert(const QVariant& var, vector<FieldType>* result) {
-  std::string data = var.toString().toStdString();
-  const size_t last_char = data.length() - 1;
-  if (data.size() >= 2 && data[0] == '{' && data[last_char] == '}') {
-    for (size_t i = 1; i < last_char; ++i) if (data[i] == ',') data[i] = ' ';
-    istringstream stream(data.substr(1, last_char - 1));
-    FieldType field;
-    while(stream >> field) result->push_back(field);
-    return true;
-  } 
-  return false;
-}
+    template<class FieldType>
+    static bool QVariantConvert(const QVariant &var, vector<FieldType> *result) {
+        std::string data = var.toString().toStdString();
+        const size_t last_char = data.length() - 1;
+        if (data.size() >= 2 && data[0] == '{' && data[last_char] == '}') {
+            for (size_t i = 1; i < last_char; ++i) if (data[i] == ',') data[i] = ' ';
+            istringstream stream(data.substr(1, last_char - 1));
+            FieldType field;
+            while (stream >> field) result->push_back(field);
+            return true;
+        }
+        return false;
+    }
 
 }  // end namespace db_planner
 

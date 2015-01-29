@@ -54,7 +54,9 @@
 #ifdef MKL
 #include "mkl_wrappers.h"
 #else
+
 #include "lapack_wrappers.h"
+
 #endif
 
 #include <Inventor/Qt/SoQtComponent.h>
@@ -72,24 +74,23 @@
 	so that we don't have to give any caller access to GWS.
 */
 const std::vector<int> Grasp::ALL_DIMENSIONS = std::vector<int>(6, 1);
- 
+
 /*!
   Initialize grasp object variables.  A grasp should only be created by a
   hand constructor, which passes a pointer to itself.
 */
-Grasp::Grasp(Hand *h)
-{
-  int i;
+Grasp::Grasp(Hand *h) {
+    int i;
 
-  hand = h;
-  object = NULL;
-  numContacts=0;
-  valid=true;
-  useGravity = false;
+    hand = h;
+    object = NULL;
+    numContacts = 0;
+    valid = true;
+    useGravity = false;
 
-  for (i=0;i<6;i++) minWrench[i]=0.0;
+    for (i = 0; i < 6; i++) minWrench[i] = 0.0;
 
-  numQM = 0;
+    numQM = 0;
 }
 
 /*!
@@ -97,19 +98,18 @@ Grasp::Grasp(Hand *h)
   associated with this grasp.  Frees all of the dynamically allocated
   vectors and matrics used for GFO.
  */
-Grasp::~Grasp()
-{
-  int i;
-  std::list<GWSprojection *>::iterator gpp;
-  std::list<GWS *>::iterator gp;
+Grasp::~Grasp() {
+    int i;
+    std::list<GWSprojection *>::iterator gpp;
+    std::list<GWS *>::iterator gp;
 
-  std::cout << "Deleting grasp" <<std::endl;
+    std::cout << "Deleting grasp" << std::endl;
 
-  for (i=0;i<numQM;i++) removeQM(0);
-  for (gpp=projectionList.begin();gpp!=projectionList.end();gpp++)
-    delete *gpp;
-  for (gp=gwsList.begin();gp!=gwsList.end();gp++)
-    delete *gp;
+    for (i = 0; i < numQM; i++) removeQM(0);
+    for (gpp = projectionList.begin(); gpp != projectionList.end(); gpp++)
+        delete *gpp;
+    for (gp = gwsList.begin(); gp != gwsList.end(); gp++)
+        delete *gp;
 }
 
 /*!
@@ -117,17 +117,16 @@ Grasp::~Grasp()
 	it returns NULL
 */
 GWS *
-Grasp::getGWS(const char *type)
-{
-	GWS *gws = NULL;
-	std::list<GWS *>::iterator gp;
-	for (gp=gwsList.begin();gp!=gwsList.end();gp++) {
-		if (!strcmp((*gp)->getType(),type)) {
-			gws = *gp;
-		}
-	}
-	if (gws) gws->ref();  // add 1 to the reference count
-	return gws;
+Grasp::getGWS(const char *type) {
+    GWS *gws = NULL;
+    std::list<GWS *>::iterator gp;
+    for (gp = gwsList.begin(); gp != gwsList.end(); gp++) {
+        if (!strcmp((*gp)->getType(), type)) {
+            gws = *gp;
+        }
+    }
+    if (gws) gws->ref();  // add 1 to the reference count
+    return gws;
 }
 
 /*!
@@ -137,26 +136,25 @@ Grasp::getGWS(const char *type)
   of the requested type that was either created or found.
 */
 GWS *
-Grasp::addGWS(const char *type)
-{
-  GWS *gws = NULL;
-  std::list<GWS *>::iterator gp;
+Grasp::addGWS(const char *type) {
+    GWS *gws = NULL;
+    std::list<GWS *>::iterator gp;
 
-  //first check if we have the needed GWS already
-  for (gp=gwsList.begin();gp!=gwsList.end();gp++)
-    if (!strcmp((*gp)->getType(),type))
-      gws = *gp;
-    
-  if (!gws) {
-    gws = GWS::createInstance(type,this);
-    
-    gwsList.push_back(gws);
-    printf("created new %s GWS.\n",type);
-  }
+    //first check if we have the needed GWS already
+    for (gp = gwsList.begin(); gp != gwsList.end(); gp++)
+        if (!strcmp((*gp)->getType(), type))
+            gws = *gp;
 
-  gws->ref();  // add 1 to the reference count
-    
-  return gws;
+    if (!gws) {
+        gws = GWS::createInstance(type, this);
+
+        gwsList.push_back(gws);
+        printf("created new %s GWS.\n", type);
+    }
+
+    gws->ref();  // add 1 to the reference count
+
+    return gws;
 }
 
 /*!
@@ -164,27 +162,25 @@ Grasp::addGWS(const char *type)
   for that GWS.  If the reference count becomes 0, the GWS is deleted.
 */
 void
-Grasp::removeGWS(GWS *gws)
-{
-  DBGP("removing gws");
-  gws->unref();
-  if (gws->getRefCount() == 0) {
-    DBGP("deleting gws");
-    gwsList.remove(gws);
-    delete gws;
-  } else {
-	  DBGP("gws refcount: "<<gws->getRefCount());
-  }
+Grasp::removeGWS(GWS *gws) {
+    DBGP("removing gws");
+    gws->unref();
+    if (gws->getRefCount() == 0) {
+        DBGP("deleting gws");
+        gwsList.remove(gws);
+        delete gws;
+    } else {
+        DBGP("gws refcount: " << gws->getRefCount());
+    }
 }
 
 /*!
   Adds the quality measure to the grasp's list of quality measures.
 */
 void
-Grasp::addQM(QualityMeasure *qm)
-{
-   qmList.push_back(qm);
-   numQM++;
+Grasp::addQM(QualityMeasure *qm) {
+    qmList.push_back(qm);
+    numQM++;
 }
 
 /*!
@@ -193,18 +189,17 @@ Grasp::addQM(QualityMeasure *qm)
   list is 0.
 */
 void
-Grasp::replaceQM(int which,QualityMeasure *qm)
-{
-  int i;
-  std::list<QualityMeasure *>::iterator qp;
-  
-  for (qp=qmList.begin(),i=0; qp!=qmList.end() && i!=which; qp++,i++);
-  qmList.insert(qp,qm);
+Grasp::replaceQM(int which, QualityMeasure *qm) {
+    int i;
+    std::list<QualityMeasure *>::iterator qp;
 
-  if (qp!=qmList.end()) {
-    delete *qp;
-    qmList.erase(qp);
-  }
+    for (qp = qmList.begin(), i = 0; qp != qmList.end() && i != which; qp++, i++);
+    qmList.insert(qp, qm);
+
+    if (qp != qmList.end()) {
+        delete *qp;
+        qmList.erase(qp);
+    }
 }
 
 /*!
@@ -212,14 +207,13 @@ Grasp::replaceQM(int which,QualityMeasure *qm)
   of the qm to return, where 0 is the first qm in the list.
 */
 QualityMeasure *
-Grasp::getQM(int which)
-{
-  int i;
-  std::list<QualityMeasure *>::iterator qp;
-  
-  for (qp=qmList.begin(),i=0; qp!=qmList.end() && i!=which; qp++,i++);
-  if (qp!=qmList.end()) return *qp;
-  return NULL;
+Grasp::getQM(int which) {
+    int i;
+    std::list<QualityMeasure *>::iterator qp;
+
+    for (qp = qmList.begin(), i = 0; qp != qmList.end() && i != which; qp++, i++);
+    if (qp != qmList.end()) return *qp;
+    return NULL;
 }
 
 /*!
@@ -227,36 +221,33 @@ Grasp::getQM(int which)
   index of the qm to remove, where 0 is the first qm in the list.
 */
 void
-Grasp::removeQM(int which)
-{
-  int i;
-  std::list<QualityMeasure *>::iterator qp;
-  
-  for (qp=qmList.begin(),i=0; qp!=qmList.end() && i!=which; qp++,i++);
-  if (qp!=qmList.end()) {
-    printf("Removing QM\n");
-    delete *qp;
-    qmList.erase(qp);
-    numQM--;
-  }
+Grasp::removeQM(int which) {
+    int i;
+    std::list<QualityMeasure *>::iterator qp;
+
+    for (qp = qmList.begin(), i = 0; qp != qmList.end() && i != which; qp++, i++);
+    if (qp != qmList.end()) {
+        printf("Removing QM\n");
+        delete *qp;
+        qmList.erase(qp);
+        numQM--;
+    }
 }
 
 /*!
   Add a grasp wrench space projection to the grasp's list of projections.
 */
 void
-Grasp::addProjection(GWSprojection *gp)
-{
-  projectionList.push_back(gp);
-  update();
+Grasp::addProjection(GWSprojection *gp) {
+    projectionList.push_back(gp);
+    update();
 }
 
 /*!
   Removes a grasp wrench space projection from the list and deletes it.
 */
 void
-Grasp::removeProjection(GWSprojection *gp)
-{
+Grasp::removeProjection(GWSprojection *gp) {
     projectionList.remove(gp);
     delete gp;
 }
@@ -266,10 +257,9 @@ Grasp::removeProjection(GWSprojection *gp)
   window is closed, this removes the associated GWSprojection.
 */
 void
-Grasp::destroyProjection(void * user, SoQtComponent *)
-{
-  GWSprojection *gp = (GWSprojection *)user;
-  gp->getGWS()->getGrasp()->removeProjection(gp);
+Grasp::destroyProjection(void *user, SoQtComponent *) {
+    GWSprojection *gp = (GWSprojection *) user;
+    gp->getGWS()->getGrasp()->removeProjection(gp);
 }
 
 /*!
@@ -298,62 +288,60 @@ Grasp::destroyProjection(void * user, SoQtComponent *)
   projections that are created
 */
 void
-Grasp::update(std::vector<int> useDimensions)
-{
-	if (hand) {
-		std::vector<Robot*> robotVec;
-		hand->getAllAttachedRobots(robotVec);
-		for (std::vector<Robot*>::iterator it=robotVec.begin(); it!=robotVec.end(); it++) {
-			(*it)->resetContactsChanged();
-		}
-		if (object) {
-			collectContacts();
-		} else {
-			collectVirtualContacts();
-		}
-	} else if (object) {
-		// contact only on the object: a kind of virtual contact
-		collectVirtualContactsOnObject();
-	}
+Grasp::update(std::vector<int> useDimensions) {
+    if (hand) {
+        std::vector<Robot *> robotVec;
+        hand->getAllAttachedRobots(robotVec);
+        for (std::vector<Robot *>::iterator it = robotVec.begin(); it != robotVec.end(); it++) {
+            (*it)->resetContactsChanged();
+        }
+        if (object) {
+            collectContacts();
+        } else {
+            collectVirtualContacts();
+        }
+    } else if (object) {
+        // contact only on the object: a kind of virtual contact
+        collectVirtualContactsOnObject();
+    }
 
-	DBGA("numContacts: " << numContacts);
-	updateWrenchSpaces(useDimensions);
+    DBGA("numContacts: " << numContacts);
+    updateWrenchSpaces(useDimensions);
 }
 
 /*! See Grasp::update() for details about \a useDimensions which affect the 
 	dimensions that are used to build the GWS.
 */
 void
-Grasp::updateWrenchSpaces(std::vector<int> useDimensions)
-{
-  std::list<GWS *>::iterator gp; 
-  std::list<GWSprojection *>::iterator pp;  
+Grasp::updateWrenchSpaces(std::vector<int> useDimensions) {
+    std::list<GWS *>::iterator gp;
+    std::list<GWSprojection *>::iterator pp;
 
-  //for tests with the online planner
-  vec3 gravDirection(0,0,1);
-  
-  //SCALE gravity to some arbitrary value; here to 0.5 of what one contact can apply
-  gravDirection = 0.5 * gravDirection;
+    //for tests with the online planner
+    vec3 gravDirection(0, 0, 1);
 
-  //compute the direction of world gravity forces relative to the object
-  if (useGravity && object) {
-	  gravDirection = gravDirection * object->getTran().inverse();
-  }
+    //SCALE gravity to some arbitrary value; here to 0.5 of what one contact can apply
+    gravDirection = 0.5 * gravDirection;
 
-  // rebuild grasp wrench spaces
-  for (gp=gwsList.begin();gp!=gwsList.end();gp++) {
-	  if (useGravity && object) {
-		  (*gp)->setGravity(true, gravDirection);
-	  } else {
-		  (*gp)->setGravity(false);
-	  }
-      (*gp)->build(useDimensions);
-  }
+    //compute the direction of world gravity forces relative to the object
+    if (useGravity && object) {
+        gravDirection = gravDirection * object->getTran().inverse();
+    }
 
-  // update the GWS projections
-  for (pp=projectionList.begin();pp!=projectionList.end();pp++) {
-    (*pp)->update();
-  }
+    // rebuild grasp wrench spaces
+    for (gp = gwsList.begin(); gp != gwsList.end(); gp++) {
+        if (useGravity && object) {
+            (*gp)->setGravity(true, gravDirection);
+        } else {
+            (*gp)->setGravity(false);
+        }
+        (*gp)->build(useDimensions);
+    }
+
+    // update the GWS projections
+    for (pp = projectionList.begin(); pp != projectionList.end(); pp++) {
+        (*pp)->update();
+    }
 
 }
 
@@ -368,84 +356,81 @@ Grasp::updateWrenchSpaces(std::vector<int> useDimensions)
   use the instance of Grasp of that particular hand.
 */
 void
-Grasp::collectContacts()
-{
-	contactVec.clear();
-	//get the contacts from this as well as all attached robots
-	std::vector<Robot*> robotVec;
-	hand->getAllAttachedRobots(robotVec);
-	for (std::vector<Robot*>::iterator it=robotVec.begin(); it!=robotVec.end(); it++) {
-		std::list<Contact*> contacts = (*it)->getContacts(object);
-		contactVec.insert(contactVec.end(), contacts.begin(), contacts.end());
-	}
-	//update wrenches for all contacts
-	for (std::vector<Contact *>::iterator cp=contactVec.begin(); cp!=contactVec.end(); cp++) {
-		(*cp)->getMate()->computeWrenches();
-	}
-	numContacts = (int)contactVec.size();
-	DBGP("Contacts: " << numContacts);
+Grasp::collectContacts() {
+    contactVec.clear();
+    //get the contacts from this as well as all attached robots
+    std::vector<Robot *> robotVec;
+    hand->getAllAttachedRobots(robotVec);
+    for (std::vector<Robot *>::iterator it = robotVec.begin(); it != robotVec.end(); it++) {
+        std::list<Contact *> contacts = (*it)->getContacts(object);
+        contactVec.insert(contactVec.end(), contacts.begin(), contacts.end());
+    }
+    //update wrenches for all contacts
+    for (std::vector<Contact *>::iterator cp = contactVec.begin(); cp != contactVec.end(); cp++) {
+        (*cp)->getMate()->computeWrenches();
+    }
+    numContacts = (int) contactVec.size();
+    DBGP("Contacts: " << numContacts);
 }
 
-vec3 Grasp::virtualCentroid()
-{
-	vec3 cog(0,0,0);
-	position pos;
+vec3 Grasp::virtualCentroid() {
+    vec3 cog(0, 0, 0);
+    position pos;
 
-	/*
-	//COG AS CENTROID
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		pos = ((VirtualContact*)contactVec[i])->getWorldLocation();
-		cog = cog + vec3( pos.toSbVec3f() );
-	}
-	cog = ( 1.0 / (int)contactVec.size() ) * cog;
-	//fprintf(stderr,"CoG: %f %f %f\n",cog.x(), cog.y(), cog.z());
-	*/
+    /*
+    //COG AS CENTROID
+    for (int i=0; i<(int)contactVec.size(); i++) {
+        pos = ((VirtualContact*)contactVec[i])->getWorldLocation();
+        cog = cog + vec3( pos.toSbVec3f() );
+    }
+    cog = ( 1.0 / (int)contactVec.size() ) * cog;
+    //fprintf(stderr,"CoG: %f %f %f\n",cog.x(), cog.y(), cog.z());
+    */
 
-	//COG as center of bounding box
-	position topCorner(-1.0e5, -1.0e5, -1.0e5), bottomCorner(1.0e5, 1.0e5, 1.0e5);
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		pos = ((VirtualContact*)contactVec[i])->getWorldLocation();
-		if ( pos.x() > topCorner.x() ) topCorner.x() = pos.x();
-		if ( pos.y() > topCorner.y() ) topCorner.y() = pos.y();
-		if ( pos.z() > topCorner.z() ) topCorner.z() = pos.z();
-		if ( pos.x() < bottomCorner.x() ) bottomCorner.x() = pos.x();
-		if ( pos.y() < bottomCorner.y() ) bottomCorner.y() = pos.y();
-		if ( pos.z() < bottomCorner.z() ) bottomCorner.z() = pos.z();
-	}
-	cog = 0.5 * (topCorner - bottomCorner);
-	cog = vec3(bottomCorner.toSbVec3f()) + cog;
+    //COG as center of bounding box
+    position topCorner(-1.0e5, -1.0e5, -1.0e5), bottomCorner(1.0e5, 1.0e5, 1.0e5);
+    for (int i = 0; i < (int) contactVec.size(); i++) {
+        pos = ((VirtualContact *) contactVec[i])->getWorldLocation();
+        if (pos.x() > topCorner.x()) topCorner.x() = pos.x();
+        if (pos.y() > topCorner.y()) topCorner.y() = pos.y();
+        if (pos.z() > topCorner.z()) topCorner.z() = pos.z();
+        if (pos.x() < bottomCorner.x()) bottomCorner.x() = pos.x();
+        if (pos.y() < bottomCorner.y()) bottomCorner.y() = pos.y();
+        if (pos.z() < bottomCorner.z()) bottomCorner.z() = pos.z();
+    }
+    cog = 0.5 * (topCorner - bottomCorner);
+    cog = vec3(bottomCorner.toSbVec3f()) + cog;
 
-	return cog;
+    return cog;
 }
 
 /*! Assumes all the contacts in the list are virtual, and computes the centroid
 	and max radius for the grasp based on these virtual contacts.
 */
 void
-Grasp::setVirtualCentroid()
-{
-	vec3 cog = virtualCentroid();
-	position pos;
+Grasp::setVirtualCentroid() {
+    vec3 cog = virtualCentroid();
+    position pos;
 
-	//VARIABLE RADIUS relative to cog location
-	vec3 radius;
-	double maxRadius = 0;
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		pos = ((VirtualContact*)contactVec[i])->getWorldLocation();
-		radius =  vec3( pos.toSbVec3f() ) - cog;
-		if ( radius.len() > maxRadius) maxRadius = radius.len();
-	}
+    //VARIABLE RADIUS relative to cog location
+    vec3 radius;
+    double maxRadius = 0;
+    for (int i = 0; i < (int) contactVec.size(); i++) {
+        pos = ((VirtualContact *) contactVec[i])->getWorldLocation();
+        radius = vec3(pos.toSbVec3f()) - cog;
+        if (radius.len() > maxRadius) maxRadius = radius.len();
+    }
 
-	//FIXED radius to allow better inter-grasp comparison (exact value pulled out of thin air)
-	maxRadius = 150;
+    //FIXED radius to allow better inter-grasp comparison (exact value pulled out of thin air)
+    maxRadius = 150;
 
-	//fprintf(stderr,"Max radius: %f\n",maxRadius);
+    //fprintf(stderr,"Max radius: %f\n",maxRadius);
 
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		((VirtualContact*)contactVec[i])->setCenter( position(cog.toSbVec3f()) );
-		((VirtualContact*)contactVec[i])->setRadius(maxRadius);
-		//((VirtualContact*)contactVec[i])->getWorldIndicator();
-	}
+    for (int i = 0; i < (int) contactVec.size(); i++) {
+        ((VirtualContact *) contactVec[i])->setCenter(position(cog.toSbVec3f()));
+        ((VirtualContact *) contactVec[i])->setRadius(maxRadius);
+        //((VirtualContact*)contactVec[i])->getWorldIndicator();
+    }
 }
 
 /*!	Assumes that all contacts are virtual, but we do have an object so we 
@@ -453,14 +438,13 @@ Grasp::setVirtualCentroid()
 	contacts.
 */
 void
-Grasp::setRealCentroid(GraspableBody *body)
-{
-	position cog = body->getCoG() * body->getTran();
-	double maxRadius = body->getMaxRadius();
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		((VirtualContact*)contactVec[i])->setCenter(cog);
-		((VirtualContact*)contactVec[i])->setRadius(maxRadius);
-	}
+Grasp::setRealCentroid(GraspableBody *body) {
+    position cog = body->getCoG() * body->getTran();
+    double maxRadius = body->getMaxRadius();
+    for (int i = 0; i < (int) contactVec.size(); i++) {
+        ((VirtualContact *) contactVec[i])->setCenter(cog);
+        ((VirtualContact *) contactVec[i])->setRadius(maxRadius);
+    }
 }
 
 /*!  Gathers the virtual contacts on all links of the hand and adds them to 
@@ -472,45 +456,44 @@ Grasp::setRealCentroid(GraspableBody *body)
 	contacts themselves.
 */
 void
-Grasp::collectVirtualContacts()
-{
-	int f,l;
-	std::list<Contact *>::iterator cp;
-	std::list<Contact *> contactList;
+Grasp::collectVirtualContacts() {
+    int f, l;
+    std::list<Contact *>::iterator cp;
+    std::list<Contact *> contactList;
 
-	contactVec.clear();
-	numContacts = 0;
+    contactVec.clear();
+    numContacts = 0;
 
-	contactList = hand->getPalm()->getVirtualContacts();
-	for (cp=contactList.begin();cp!=contactList.end();cp++) {
-		contactVec.push_back(*cp);
-		numContacts++;
-	}
+    contactList = hand->getPalm()->getVirtualContacts();
+    for (cp = contactList.begin(); cp != contactList.end(); cp++) {
+        contactVec.push_back(*cp);
+        numContacts++;
+    }
 
-	for(f=0;f<hand->getNumFingers();f++) {
-		for (l=0;l<hand->getFinger(f)->getNumLinks();l++) {
-			contactList = hand->getFinger(f)->getLink(l)->getVirtualContacts();
-			for (cp=contactList.begin();cp!=contactList.end();cp++){
-				contactVec.push_back(*cp);
-				numContacts++;
-			}
-		}
-	}
+    for (f = 0; f < hand->getNumFingers(); f++) {
+        for (l = 0; l < hand->getFinger(f)->getNumLinks(); l++) {
+            contactList = hand->getFinger(f)->getLink(l)->getVirtualContacts();
+            for (cp = contactList.begin(); cp != contactList.end(); cp++) {
+                contactVec.push_back(*cp);
+                numContacts++;
+            }
+        }
+    }
 
-	if (object == NULL) {
-		setVirtualCentroid();
-		for (int i=0; i<(int)contactVec.size(); i++) {
-			((VirtualContact*)contactVec[i])->computeWrenches(false);
-		}
-	} else {
-		setRealCentroid(object);
-		//for (int i=0; i<(int)contactVec.size(); i++) {
-			//((VirtualContact*)contactVec[i])->setObject(object);
-			//((VirtualContact*)contactVec[i])->computeWrenches(true);
-			//((VirtualContact*)contactVec[i])->getWorldIndicator(true);
-		//}
-	}
- }
+    if (object == NULL) {
+        setVirtualCentroid();
+        for (int i = 0; i < (int) contactVec.size(); i++) {
+            ((VirtualContact *) contactVec[i])->computeWrenches(false);
+        }
+    } else {
+        setRealCentroid(object);
+        //for (int i=0; i<(int)contactVec.size(); i++) {
+        //((VirtualContact*)contactVec[i])->setObject(object);
+        //((VirtualContact*)contactVec[i])->computeWrenches(true);
+        //((VirtualContact*)contactVec[i])->getWorldIndicator(true);
+        //}
+    }
+}
 
 /*!
 	When we are dealing with an object but no hand, gathers the virtual contacts from the
@@ -518,42 +501,39 @@ object and adds them to the contactVec, doing the same thing as collectContacts(
 collectVirtualContacts() do for the hand-and-object and the hand-only cases.
 */
 void
-Grasp::collectVirtualContactsOnObject()
-{
-	std::list<Contact *>::iterator cp;
-	std::list<Contact *> contactList;
-	
-	contactVec.clear();
-	numContacts = 0;
-	contactList = object->getVirtualContacts();
-	for (cp=contactList.begin();cp!=contactList.end();cp++){
-		contactVec.push_back(*cp);
-		numContacts++;
-	}
-	for (int i=0; i<(int)contactVec.size(); i++) {
-		// use computeWrenches defined in Contact class
-		((Contact*)contactVec[i])->computeWrenches();
-	}
+Grasp::collectVirtualContactsOnObject() {
+    std::list<Contact *>::iterator cp;
+    std::list<Contact *> contactList;
+
+    contactVec.clear();
+    numContacts = 0;
+    contactList = object->getVirtualContacts();
+    for (cp = contactList.begin(); cp != contactList.end(); cp++) {
+        contactVec.push_back(*cp);
+        numContacts++;
+    }
+    for (int i = 0; i < (int) contactVec.size(); i++) {
+        // use computeWrenches defined in Contact class
+        ((Contact *) contactVec[i])->computeWrenches();
+    }
 #ifdef GRASPITDBG
 		fprintf(stderr,"ContactOnObject has been pushed, number is %d\n",numContacts);
 #endif
-	setRealCentroid(object);
+    setRealCentroid(object);
 }
 
 double
-Grasp::getMaxRadius()
-{
-	if (object) return object->getMaxRadius();
-	if (numContacts == 0) return 0;
-	return ((VirtualContact*)contactVec[0])->getMaxRadius();
+Grasp::getMaxRadius() {
+    if (object) return object->getMaxRadius();
+    if (numContacts == 0) return 0;
+    return ((VirtualContact *) contactVec[0])->getMaxRadius();
 }
 
 position
-Grasp::getCoG()
-{
-	if (object) return object->getCoG();
-	if (numContacts == 0) return position(0,0,0);
-	return ((VirtualContact*)contactVec[0])->getCenter();
+Grasp::getCoG() {
+    if (object) return object->getCoG();
+    if (numContacts == 0) return position(0, 0, 0);
+    return ((VirtualContact *) contactVec[0])->getCenter();
 }
 
 /*!
@@ -564,49 +544,48 @@ Grasp::getCoG()
   kept in MILLIMETERS!
 */
 double *
-Grasp::getLinkJacobian(int f, int l)
-{
-  int j,col;
-  Joint *jointPtr;
-  int numDOF = hand->getNumDOF();
-  double *jac = new double[6*numDOF];
-  double k;
-  mat3 m;
-  vec3 p;
-  transf T;
-  double db0 = 0.0;
+Grasp::getLinkJacobian(int f, int l) {
+    int j, col;
+    Joint *jointPtr;
+    int numDOF = hand->getNumDOF();
+    double *jac = new double[6 * numDOF];
+    double k;
+    mat3 m;
+    vec3 p;
+    transf T;
+    double db0 = 0.0;
 
-  dcopy(6*numDOF,&db0,0,jac,1);
-  
-  //I use f=-1 on virtual contacts to show that a contact is on the palm
-  if (f < 0) return jac;
+    dcopy(6 * numDOF, &db0, 0, jac, 1);
 
-  for (j=hand->getFinger(f)->getLastJoint(l);j>=0;j--) {
-    jointPtr = hand->getFinger(f)->getJoint(j);
-    col = jointPtr->getDOFNum();
-    
-	k = hand->getDOF(jointPtr->getDOFNum())->getStaticRatio(jointPtr);
-	T = T * jointPtr->getDH()->getTran();
-    m = T.affine();
-    p = T.translation();
-    
-    if (jointPtr->getType() == REVOLUTE) {
-      jac[col*6]   += k*(-m.element(0,0)*p.y() + m.element(0,1)*p.x());
-      jac[col*6+1] += k*(-m.element(1,0)*p.y() + m.element(1,1)*p.x());
-      jac[col*6+2] += k*(-m.element(2,0)*p.y() + m.element(2,1)*p.x());
-      jac[col*6+3] += k*m.element(0,2);
-      jac[col*6+4] += k*m.element(1,2);
-      jac[col*6+5] += k*m.element(2,2);
-    } else {
-      jac[col*6]   += k*m.element(0,2);
-      jac[col*6+1] += k*m.element(1,2);
-      jac[col*6+2] += k*m.element(2,2);
-      jac[col*6+3] += 0.0;
-      jac[col*6+4] += 0.0;
-      jac[col*6+5] += 0.0;
+    //I use f=-1 on virtual contacts to show that a contact is on the palm
+    if (f < 0) return jac;
+
+    for (j = hand->getFinger(f)->getLastJoint(l); j >= 0; j--) {
+        jointPtr = hand->getFinger(f)->getJoint(j);
+        col = jointPtr->getDOFNum();
+
+        k = hand->getDOF(jointPtr->getDOFNum())->getStaticRatio(jointPtr);
+        T = T * jointPtr->getDH()->getTran();
+        m = T.affine();
+        p = T.translation();
+
+        if (jointPtr->getType() == REVOLUTE) {
+            jac[col * 6] += k * (-m.element(0, 0) * p.y() + m.element(0, 1) * p.x());
+            jac[col * 6 + 1] += k * (-m.element(1, 0) * p.y() + m.element(1, 1) * p.x());
+            jac[col * 6 + 2] += k * (-m.element(2, 0) * p.y() + m.element(2, 1) * p.x());
+            jac[col * 6 + 3] += k * m.element(0, 2);
+            jac[col * 6 + 4] += k * m.element(1, 2);
+            jac[col * 6 + 5] += k * m.element(2, 2);
+        } else {
+            jac[col * 6] += k * m.element(0, 2);
+            jac[col * 6 + 1] += k * m.element(1, 2);
+            jac[col * 6 + 2] += k * m.element(2, 2);
+            jac[col * 6 + 3] += 0.0;
+            jac[col * 6 + 4] += 0.0;
+            jac[col * 6 + 5] += 0.0;
+        }
     }
-  }
-  return jac;
+    return jac;
 }
 
 /*! Computes the contact jacobian J. J relates joint angle motion to 
@@ -626,54 +605,53 @@ Grasp::getLinkJacobian(int f, int l)
 	is impossible to discards rows that correspond to directions that the
 	contact can not apply force or torque in.
 */
-Matrix 
-Grasp::contactJacobian(const std::list<Joint*> &joints, 
-  					   const std::list<Contact*> &contacts)
-{
-	//compute the world locations of all the joints of the robot
-	//this is overkill, as we might not need all of them
-	std::vector< std::vector<transf> > jointTransf(hand->getNumChains());
-	for (int c=0; c<hand->getNumChains(); c++) {
-		jointTransf[c].resize(hand->getChain(c)->getNumJoints(), transf::IDENTITY);
-		hand->getChain(c)->getJointLocations(NULL, jointTransf[c]);
-	}
+Matrix
+Grasp::contactJacobian(const std::list<Joint *> &joints,
+        const std::list<Contact *> &contacts) {
+    //compute the world locations of all the joints of the robot
+    //this is overkill, as we might not need all of them
+    std::vector<std::vector<transf> > jointTransf(hand->getNumChains());
+    for (int c = 0; c < hand->getNumChains(); c++) {
+        jointTransf[c].resize(hand->getChain(c)->getNumJoints(), transf::IDENTITY);
+        hand->getChain(c)->getJointLocations(NULL, jointTransf[c]);
+    }
 
-	Matrix J( Matrix::ZEROES(int(contacts.size()) * 6, (int)joints.size()) );
-	std::list<Joint*>::const_iterator joint_it;
-	int joint_count = 0;
-	int numRows = 0;
-	for (joint_it=joints.begin(); joint_it!=joints.end(); joint_it++) {
-		std::list<Contact*>::const_iterator contact_it;
-		numRows = 0;
-		for(contact_it=contacts.begin(); contact_it!=contacts.end(); contact_it++, numRows+=6) {
-			if ((*contact_it)->getBody1()->getOwner() != hand) {
-				DBGA("Grasp jacobian: contact not on hand");
-				continue;
-			}
-			Link *link = static_cast<Link*>((*contact_it)->getBody1());
-			//check if the contact is on the same chain that this joint belongs too
-			if ( (*joint_it)->getChainNum() != link->getChainNum() ) {
-				continue;
-			}
-			KinematicChain *chain = hand->getChain( link->getChainNum() );
-			//check that the joint comes before the contact in the chain
-			int last_joint = chain->getLastJoint( link->getLinkNum() );
-			//remember that the index of a joint in a chain is different from
-			//the index of a joint in a robot
-			int jointNumInChain = (*joint_it)->getNum() - chain->getFirstJointNum();
-			assert(jointNumInChain >= 0);
-			if ( jointNumInChain > last_joint) continue;
-			//compute the individual jacobian
-			transf joint_tran = jointTransf.at(link->getChainNum()).at(jointNumInChain);
-			transf contact_tran = (*contact_it)->getContactFrame() * link->getTran();
-			//always get the individual jacobian in local coordinates
-			Matrix indJ(Joint::jacobian(*joint_it, joint_tran, contact_tran, false));
-			//place it at the correct spot in the global jacobian
-			J.copySubMatrix(numRows, joint_count, indJ);
-		}
-		joint_count++;
-	}
-	return J;
+    Matrix J(Matrix::ZEROES(int(contacts.size()) * 6, (int) joints.size()));
+    std::list<Joint *>::const_iterator joint_it;
+    int joint_count = 0;
+    int numRows = 0;
+    for (joint_it = joints.begin(); joint_it != joints.end(); joint_it++) {
+        std::list<Contact *>::const_iterator contact_it;
+        numRows = 0;
+        for (contact_it = contacts.begin(); contact_it != contacts.end(); contact_it++, numRows += 6) {
+            if ((*contact_it)->getBody1()->getOwner() != hand) {
+                DBGA("Grasp jacobian: contact not on hand");
+                continue;
+            }
+            Link *link = static_cast<Link *>((*contact_it)->getBody1());
+            //check if the contact is on the same chain that this joint belongs too
+            if ((*joint_it)->getChainNum() != link->getChainNum()) {
+                continue;
+            }
+            KinematicChain *chain = hand->getChain(link->getChainNum());
+            //check that the joint comes before the contact in the chain
+            int last_joint = chain->getLastJoint(link->getLinkNum());
+            //remember that the index of a joint in a chain is different from
+            //the index of a joint in a robot
+            int jointNumInChain = (*joint_it)->getNum() - chain->getFirstJointNum();
+            assert(jointNumInChain >= 0);
+            if (jointNumInChain > last_joint) continue;
+            //compute the individual jacobian
+            transf joint_tran = jointTransf.at(link->getChainNum()).at(jointNumInChain);
+            transf contact_tran = (*contact_it)->getContactFrame() * link->getTran();
+            //always get the individual jacobian in local coordinates
+            Matrix indJ(Joint::jacobian(*joint_it, joint_tran, contact_tran, false));
+            //place it at the correct spot in the global jacobian
+            J.copySubMatrix(numRows, joint_count, indJ);
+        }
+        joint_count++;
+    }
+    return J;
 }
 
 /*! Computes the grasp map G. D is the matrix that relates friction edge
@@ -686,22 +664,21 @@ Grasp::contactJacobian(const std::list<Joint*> &joints,
 	G related friction edge amplitudes from all contacts to resultatnt 
 	object wrench.
 */
-Matrix 
-Grasp::graspMapMatrix(const Matrix &R, const Matrix &D)
-{
-	int numContacts = R.rows() / 6;
-	assert(6 * numContacts == R.rows());
-	//summation matrix that adds full 6D object wrenches
-	Matrix S(6, 6*numContacts);
-	for(int i=0; i<numContacts; i++) {
-		S.copySubMatrix(0, 6*i, Matrix::EYE(6,6));
-	}
+Matrix
+Grasp::graspMapMatrix(const Matrix &R, const Matrix &D) {
+    int numContacts = R.rows() / 6;
+    assert(6 * numContacts == R.rows());
+    //summation matrix that adds full 6D object wrenches
+    Matrix S(6, 6 * numContacts);
+    for (int i = 0; i < numContacts; i++) {
+        S.copySubMatrix(0, 6 * i, Matrix::EYE(6, 6));
+    }
 
-	Matrix SR(S.rows(), R.cols());
-	matrixMultiply(S, R, SR);
-	Matrix G(S.rows(), D.cols());
-	matrixMultiply(SR, D, G);
-	return G;
+    Matrix SR(S.rows(), R.cols());
+    matrixMultiply(S, R, SR);
+    Matrix G(S.rows(), D.cols());
+    matrixMultiply(SR, D, G);
+    return G;
 }
 
 
@@ -719,150 +696,150 @@ Grasp::graspMapMatrix(const Matrix &R, const Matrix &D)
 	Return codes: 0 is success, >0 means finger slip, no legal contact forces 
 	exist; <0 means error in computation 
 */
-int 
-Grasp::computeQuasistaticForces(const Matrix &robotTau)
-{
-	//WARNING: for now, this ignores contacts on the palm. That might change in the future
+int
+Grasp::computeQuasistaticForces(const Matrix &robotTau) {
+    //WARNING: for now, this ignores contacts on the palm. That might change in the future
 
-	//for now, if the hand is touching anything other then the object, abort
-	for (int c=0; c<hand->getNumChains(); c++) {
-		if ( hand->getChain(c)->getNumContacts(NULL) !=
-			hand->getChain(c)->getNumContacts(object) ) {
-				DBGA("Hand contacts not on object");
-				return 1;
-			}
-	}
+    //for now, if the hand is touching anything other then the object, abort
+    for (int c = 0; c < hand->getNumChains(); c++) {
+        if (hand->getChain(c)->getNumContacts(NULL) !=
+                hand->getChain(c)->getNumContacts(object)) {
+            DBGA("Hand contacts not on object");
+            return 1;
+        }
+    }
 
-	std::list<Contact*> contacts;
-	std::list<Joint*> joints;
+    std::list<Contact *> contacts;
+    std::list<Joint *> joints;
 
-	bool freeChainForces = false;
-	for(int c=0; c<hand->getNumChains(); c++) {
-		//for now, we look at all contacts
-		std::list<Contact*> chainContacts = hand->getChain(c)->getContacts(object);
-		contacts.insert(contacts.end(), chainContacts.begin(), chainContacts.end());
-		if (!chainContacts.empty()) {
-			std::list<Joint*> chainJoints = hand->getChain(c)->getJoints();
-			joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
-		} else {
-			//the chain has no contacts
-			//check if any joint forces are not 0
-			Matrix chainTau = hand->getChain(c)->jointTorquesVector(robotTau);
-			//torque units should be N * 1.0e6 * mm
-			if (chainTau.absMax() > 1.0e3) {
-				DBGA("Joint torque " << chainTau.absMax() << " on chain " << c 
-									 << " with no contacts");
-				freeChainForces = true;
-			}
-		}
-	}
-	//if there are no contacts, nothing to compute!
-	if (contacts.empty()) return 0;
+    bool freeChainForces = false;
+    for (int c = 0; c < hand->getNumChains(); c++) {
+        //for now, we look at all contacts
+        std::list<Contact *> chainContacts = hand->getChain(c)->getContacts(object);
+        contacts.insert(contacts.end(), chainContacts.begin(), chainContacts.end());
+        if (!chainContacts.empty()) {
+            std::list<Joint *> chainJoints = hand->getChain(c)->getJoints();
+            joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
+        } else {
+            //the chain has no contacts
+            //check if any joint forces are not 0
+            Matrix chainTau = hand->getChain(c)->jointTorquesVector(robotTau);
+            //torque units should be N * 1.0e6 * mm
+            if (chainTau.absMax() > 1.0e3) {
+                DBGA("Joint torque " << chainTau.absMax() << " on chain " << c
+                        << " with no contacts");
+                freeChainForces = true;
+            }
+        }
+    }
+    //if there are no contacts, nothing to compute!
+    if (contacts.empty()) return 0;
 
-	//assemble the joint forces matrix
-	Matrix tau((int)joints.size(), 1);
-	int jc; std::list<Joint*>::iterator jit;
-	for (jc=0, jit = joints.begin(); jit!=joints.end(); jc++,jit++) {
-		tau.elem(jc,0) = robotTau.elem( (*jit)->getNum(), 0 );
-	}
-	//if all the joint forces we care about are zero, do an early exit 
-	//as zero contact forces are guaranteed to balance the chain
-	//we should probably be able to use a much larger threshold here, if
-	//units are what I think they are
-	if (tau.absMax() < 1.0e-3) {
-		return 0;
-	}
+    //assemble the joint forces matrix
+    Matrix tau((int) joints.size(), 1);
+    int jc;
+    std::list<Joint *>::iterator jit;
+    for (jc = 0, jit = joints.begin(); jit != joints.end(); jc++, jit++) {
+        tau.elem(jc, 0) = robotTau.elem((*jit)->getNum(), 0);
+    }
+    //if all the joint forces we care about are zero, do an early exit
+    //as zero contact forces are guaranteed to balance the chain
+    //we should probably be able to use a much larger threshold here, if
+    //units are what I think they are
+    if (tau.absMax() < 1.0e-3) {
+        return 0;
+    }
 
-	//if there are forces on chains with no contacts, we have no hope to balance them
-	if (freeChainForces) {
-		return 1;
-	}
+    //if there are forces on chains with no contacts, we have no hope to balance them
+    if (freeChainForces) {
+        return 1;
+    }
 
-	Matrix J(contactJacobian(joints, contacts));
-	Matrix D(Contact::frictionForceBlockMatrix(contacts));
-	Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
-	Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
+    Matrix J(contactJacobian(joints, contacts));
+    Matrix D(Contact::frictionForceBlockMatrix(contacts));
+    Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
+    Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
 
-	//grasp map G = S*R*D
-	Matrix G(graspMapMatrix(R, D));
+    //grasp map G = S*R*D
+    Matrix G(graspMapMatrix(R, D));
 
-	//left-hand equality matrix JTD = JTran * D
-	Matrix JTran(J.transposed());
-	Matrix JTD(JTran.rows(), D.cols());
-	matrixMultiply(JTran, D, JTD);
+    //left-hand equality matrix JTD = JTran * D
+    Matrix JTran(J.transposed());
+    Matrix JTD(JTran.rows(), D.cols());
+    matrixMultiply(JTran, D, JTD);
 
-	//matrix of zeroes for right-hand of friction inequality
-	Matrix zeroes(Matrix::ZEROES(F.rows(), 1));
+    //matrix of zeroes for right-hand of friction inequality
+    Matrix zeroes(Matrix::ZEROES(F.rows(), 1));
 
-	//matrix of unknowns
-	Matrix c_beta(D.cols(), 1);
+    //matrix of unknowns
+    Matrix c_beta(D.cols(), 1);
 
-	//bounds: all variables greater than 0
-	Matrix lowerBounds(Matrix::ZEROES(D.cols(),1));
-	Matrix upperBounds(Matrix::MAX_VECTOR(D.cols()));
+    //bounds: all variables greater than 0
+    Matrix lowerBounds(Matrix::ZEROES(D.cols(), 1));
+    Matrix upperBounds(Matrix::MAX_VECTOR(D.cols()));
 
-	//solve QP
-	double objVal;
-	int result = factorizedQPSolver(G, JTD, tau, F, zeroes, lowerBounds, upperBounds, 
-									c_beta, &objVal);
-	if (result) {
-		if( result > 0) {
-			DBGP("Grasp: problem unfeasible");
-		} else {
-			DBGA("Grasp: QP solver error");
-		}
-		return result;
-	}
+    //solve QP
+    double objVal;
+    int result = factorizedQPSolver(G, JTD, tau, F, zeroes, lowerBounds, upperBounds,
+            c_beta, &objVal);
+    if (result) {
+        if (result > 0) {
+            DBGP("Grasp: problem unfeasible");
+        } else {
+            DBGA("Grasp: QP solver error");
+        }
+        return result;
+    }
 
-	//retrieve contact wrenchs in local contact coordinate systems
-	Matrix cWrenches(D.rows(), 1);
-	matrixMultiply(D, c_beta, cWrenches);
-	DBGP("Contact wrenches:\n" << cWrenches);
+    //retrieve contact wrenchs in local contact coordinate systems
+    Matrix cWrenches(D.rows(), 1);
+    matrixMultiply(D, c_beta, cWrenches);
+    DBGP("Contact wrenches:\n" << cWrenches);
 
-	//compute wrenches relative to object origin and expressed in world coordinates
-	Matrix objectWrenches(R.rows(), cWrenches.cols());
-	matrixMultiply(R, cWrenches, objectWrenches);
-	DBGP("Object wrenches:\n" << objectWrenches);
+    //compute wrenches relative to object origin and expressed in world coordinates
+    Matrix objectWrenches(R.rows(), cWrenches.cols());
+    matrixMultiply(R, cWrenches, objectWrenches);
+    DBGP("Object wrenches:\n" << objectWrenches);
 
-	//display them on the contacts and accumulate them on the object
-	displayContactWrenches(&contacts, cWrenches);
-	accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
+    //display them on the contacts and accumulate them on the object
+    displayContactWrenches(&contacts, cWrenches);
+    accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
 
-	//simple sanity check: JT * c = tau
-	Matrix fCheck(tau.rows(), 1);
-	matrixMultiply(JTran, cWrenches, fCheck);
-	for (int j=0; j<tau.rows(); j++) {
-		//I am not sure this works well for universal and ball joints
-		double err = fabs(tau.elem(j, 0) - fCheck.elem(j,0));
-		//take error as a percentage of desired force, if force is non-zero
-		if ( fabs(tau.elem(j,0)) > 1.0e-2) {
-			err = err / fabs(tau.elem(j, 0));
-		} else {
-			//for zero desired torque, out of thin air we pull an error threshold of 1.0e2
-			//which is 0.1% of the normal range of torques at 1.0e6
-			if (err < 1.0e2) err = 0;
-		}
-		// 0.1% error is considered too much
-		if (  err > 1.0e-1) {
-			DBGA("Desired torque not obtained on joint " << j << ", error " << err << 
-				" out of " << fabs(tau.elem(j, 0)) );
-			return -1;
-		}
-	}
+    //simple sanity check: JT * c = tau
+    Matrix fCheck(tau.rows(), 1);
+    matrixMultiply(JTran, cWrenches, fCheck);
+    for (int j = 0; j < tau.rows(); j++) {
+        //I am not sure this works well for universal and ball joints
+        double err = fabs(tau.elem(j, 0) - fCheck.elem(j, 0));
+        //take error as a percentage of desired force, if force is non-zero
+        if (fabs(tau.elem(j, 0)) > 1.0e-2) {
+            err = err / fabs(tau.elem(j, 0));
+        } else {
+            //for zero desired torque, out of thin air we pull an error threshold of 1.0e2
+            //which is 0.1% of the normal range of torques at 1.0e6
+            if (err < 1.0e2) err = 0;
+        }
+        // 0.1% error is considered too much
+        if (err > 1.0e-1) {
+            DBGA("Desired torque not obtained on joint " << j << ", error " << err <<
+                    " out of " << fabs(tau.elem(j, 0)));
+            return -1;
+        }
+    }
 
-	//complex sanity check: is object force same as QP optimization result?
-	//this is only expected to work if all contacts are on the same object
-	double* extWrench = object->getExtWrenchAcc();
-	vec3 force(extWrench[0], extWrench[1], extWrench[2]);
-	vec3 torque(extWrench[3], extWrench[4], extWrench[5]);
-	//take into account the scaling that has taken place
-	double wrenchError = objVal*1.0e-6 - (force.len_sq() + torque.len_sq()) * 1.0e6;
-	//units here are N * 1.0e-6; errors should be in the range on miliN
-	if (wrenchError > 1.0e3) {
-		DBGA("Wrench sanity check error: " << wrenchError);
-		return -1;
-	}
-	return 0;
+    //complex sanity check: is object force same as QP optimization result?
+    //this is only expected to work if all contacts are on the same object
+    double *extWrench = object->getExtWrenchAcc();
+    vec3 force(extWrench[0], extWrench[1], extWrench[2]);
+    vec3 torque(extWrench[3], extWrench[4], extWrench[5]);
+    //take into account the scaling that has taken place
+    double wrenchError = objVal * 1.0e-6 - (force.len_sq() + torque.len_sq()) * 1.0e6;
+    //units here are N * 1.0e-6; errors should be in the range on miliN
+    if (wrenchError > 1.0e3) {
+        DBGA("Wrench sanity check error: " << wrenchError);
+        return -1;
+    }
+    return 0;
 }
 
 /*! One possible formulation of the core GFO problem. Checks if some
@@ -872,85 +849,84 @@ Grasp::computeQuasistaticForces(const Matrix &robotTau)
 	Grasp class.
 */
 int
-graspForceExistence(Matrix &JTD, Matrix &D, Matrix &F, Matrix &G, 
-					Matrix &beta, Matrix &tau, double *objVal)
-{
-	// exact problem formulation
-	// unknowns: [beta tau]			   (contact forces and joint forces)
-	// minimize [beta tau]T*[G 0]T*[G 0]*[beta tau] (magnitude of resultant object wrench)
-	// subject to:
-	// [JTD -I] * [beta tau] = 0       (contact forces balance joint forces)
-	// [0 sum] * [beta tau] = 1        (we are applying some joint forces)
-	// [F 0] [beta tau] <= 0		   (all forces inside friction cones)
-	// [beta tau] >= 0	  		       (all forces must be positive)
-	// overall equality constraint:
-	// | JTD -I |  | beta |   |0|
-	// | 0   sum|  |  tau | = |1|
+graspForceExistence(Matrix &JTD, Matrix &D, Matrix &F, Matrix &G,
+        Matrix &beta, Matrix &tau, double *objVal) {
+    // exact problem formulation
+    // unknowns: [beta tau]			   (contact forces and joint forces)
+    // minimize [beta tau]T*[G 0]T*[G 0]*[beta tau] (magnitude of resultant object wrench)
+    // subject to:
+    // [JTD -I] * [beta tau] = 0       (contact forces balance joint forces)
+    // [0 sum] * [beta tau] = 1        (we are applying some joint forces)
+    // [F 0] [beta tau] <= 0		   (all forces inside friction cones)
+    // [beta tau] >= 0	  		       (all forces must be positive)
+    // overall equality constraint:
+    // | JTD -I |  | beta |   |0|
+    // | 0   sum|  |  tau | = |1|
 
-	int numJoints = tau.rows();
-	Matrix beta_tau(beta.rows() + tau.rows(), 1);
+    int numJoints = tau.rows();
+    Matrix beta_tau(beta.rows() + tau.rows(), 1);
 
-	//right-hand side of equality constraint
-	Matrix right_hand( JTD.rows() + 1, 1);
-	right_hand.setAllElements(0.0);
-	//actually, we use 1.0e8 here as units are in N * 1.0e-6 * mm
-	//so we want a total joint torque of 100 N mm
-	right_hand.elem( right_hand.rows()-1, 0) = 1.0e8;
+    //right-hand side of equality constraint
+    Matrix right_hand(JTD.rows() + 1, 1);
+    right_hand.setAllElements(0.0);
+    //actually, we use 1.0e8 here as units are in N * 1.0e-6 * mm
+    //so we want a total joint torque of 100 N mm
+    right_hand.elem(right_hand.rows() - 1, 0) = 1.0e8;
 
-	//left-hand side of equality constraint
-	Matrix LeftHand( JTD.rows() + 1, D.cols() + numJoints);
-	LeftHand.setAllElements(0.0);
-	LeftHand.copySubMatrix(0, 0, JTD);
-	LeftHand.copySubMatrix(0, D.cols(), Matrix::NEGEYE(numJoints, numJoints) );
-	for (int i=0; i<numJoints; i++) {
-		LeftHand.elem( JTD.rows(), D.cols() + i) = 1.0;
-	}
+    //left-hand side of equality constraint
+    Matrix LeftHand(JTD.rows() + 1, D.cols() + numJoints);
+    LeftHand.setAllElements(0.0);
+    LeftHand.copySubMatrix(0, 0, JTD);
+    LeftHand.copySubMatrix(0, D.cols(), Matrix::NEGEYE(numJoints, numJoints));
+    for (int i = 0; i < numJoints; i++) {
+        LeftHand.elem(JTD.rows(), D.cols() + i) = 1.0;
+    }
 
-	//matrix F padded with zeroes for tau
-	//left hand side of the inequality matrix
-	Matrix FO(F.rows(), F.cols() + numJoints);
-	FO.setAllElements(0.0);
-	FO.copySubMatrix(0, 0, F);
+    //matrix F padded with zeroes for tau
+    //left hand side of the inequality matrix
+    Matrix FO(F.rows(), F.cols() + numJoints);
+    FO.setAllElements(0.0);
+    FO.copySubMatrix(0, 0, F);
 
-	//right-hand side of inequality matrix
-	Matrix inEqZeroes(FO.rows(), 1);
-	inEqZeroes.setAllElements(0.0);
+    //right-hand side of inequality matrix
+    Matrix inEqZeroes(FO.rows(), 1);
+    inEqZeroes.setAllElements(0.0);
 
-	//objective matrix: G padded with zeroes 
-	Matrix GO(Matrix::ZEROES(G.rows(), G.cols() + numJoints));
-	GO.copySubMatrix(0, 0, G);
+    //objective matrix: G padded with zeroes
+    Matrix GO(Matrix::ZEROES(G.rows(), G.cols() + numJoints));
+    GO.copySubMatrix(0, 0, G);
 
-	//bounds: all variables greater than 0
-	// CHANGE: only beta >= 0, tau is not
-	Matrix lowerBounds(Matrix::MIN_VECTOR(beta_tau.rows()));
-	lowerBounds.copySubMatrix( 0, 0, Matrix::ZEROES(beta.rows(), 1) );
-	Matrix upperBounds(Matrix::MAX_VECTOR(beta_tau.rows()));
+    //bounds: all variables greater than 0
+    // CHANGE: only beta >= 0, tau is not
+    Matrix lowerBounds(Matrix::MIN_VECTOR(beta_tau.rows()));
+    lowerBounds.copySubMatrix(0, 0, Matrix::ZEROES(beta.rows(), 1));
+    Matrix upperBounds(Matrix::MAX_VECTOR(beta_tau.rows()));
 
 
-	/*
-	FILE *fp = fopen("gfo.txt","w");
-	fprintf(fp,"left hand:\n");
-	LeftHand.print(fp);
-	fprintf(fp,"right hand:\n");
-	right_hand.print(fp);
-	fprintf(fp,"friction inequality:\n");
-	FO.print(fp);
-	fprintf(fp,"Objective:\n");
-	GO.print(fp);
-	fclose(fp);
-	*/
-	// assembled system:
-	// minimize beta_tauT*QOT*QO*beta_tau subject to:
-	// LeftHand * beta_tau = right_hand
-	// FO * beta_tau <= inEqZeroes
-	// beta_tau >= 0
-	// CHANGE: only beta >= 0, tau is not
-	int result = factorizedQPSolver(GO, LeftHand, right_hand, FO, inEqZeroes, 
-									lowerBounds, upperBounds,
-									beta_tau, objVal);
-	beta.copySubBlock(0, 0, beta.rows(), 1, beta_tau, 0, 0);
-	tau.copySubBlock(0, 0, tau.rows(), 1, beta_tau, beta.rows(), 0);
-	return result;
+    /*
+    FILE *fp = fopen("gfo.txt","w");
+    fprintf(fp,"left hand:\n");
+    LeftHand.print(fp);
+    fprintf(fp,"right hand:\n");
+    right_hand.print(fp);
+    fprintf(fp,"friction inequality:\n");
+    FO.print(fp);
+    fprintf(fp,"Objective:\n");
+    GO.print(fp);
+    fclose(fp);
+    */
+    // assembled system:
+    // minimize beta_tauT*QOT*QO*beta_tau subject to:
+    // LeftHand * beta_tau = right_hand
+    // FO * beta_tau <= inEqZeroes
+    // beta_tau >= 0
+    // CHANGE: only beta >= 0, tau is not
+    int result = factorizedQPSolver(GO, LeftHand, right_hand, FO, inEqZeroes,
+            lowerBounds, upperBounds,
+            beta_tau, objVal);
+    beta.copySubBlock(0, 0, beta.rows(), 1, beta_tau, 0, 0);
+    tau.copySubBlock(0, 0, tau.rows(), 1, beta_tau, beta.rows(), 0);
+    return result;
 }
 
 /*! One possible formulation of the core GFO problem. Checks if some
@@ -960,44 +936,43 @@ graspForceExistence(Matrix &JTD, Matrix &D, Matrix &F, Matrix &G,
 	Grasp class.
 */
 int
-contactForceExistence(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *objVal)
-{
-	// exact problem formulation
-	// unknowns: beta					(contact forces)
-	// minimize betaT*QT*Q*beta			(magnitude of resultant object wrench)
-	// subject to:
-	// sum_normal * beta = 1			(we are applying some contact forces)
-	// F * beta <= 0					(all forces inside friction cones)
-	// beta >= 0	  				    (all forces must be positive)
+contactForceExistence(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *objVal) {
+    // exact problem formulation
+    // unknowns: beta					(contact forces)
+    // minimize betaT*QT*Q*beta			(magnitude of resultant object wrench)
+    // subject to:
+    // sum_normal * beta = 1			(we are applying some contact forces)
+    // F * beta <= 0					(all forces inside friction cones)
+    // beta >= 0	  				    (all forces must be positive)
 
-	Matrix right_hand(1,1);
-	//a total of 10N of normal force
-	right_hand.elem(0,0) = 1.0e7;
+    Matrix right_hand(1, 1);
+    //a total of 10N of normal force
+    right_hand.elem(0, 0) = 1.0e7;
 
-	//right-hand side of inequality matrix
-	Matrix inEqZeroes(F.rows(), 1);
-	inEqZeroes.setAllElements(0.0);
+    //right-hand side of inequality matrix
+    Matrix inEqZeroes(F.rows(), 1);
+    inEqZeroes.setAllElements(0.0);
 
-	//bounds: all variables greater than 0
-	Matrix lowerBounds(Matrix::ZEROES(beta.rows(),1));
-	Matrix upperBounds(Matrix::MAX_VECTOR(beta.rows()));
+    //bounds: all variables greater than 0
+    Matrix lowerBounds(Matrix::ZEROES(beta.rows(), 1));
+    Matrix upperBounds(Matrix::MAX_VECTOR(beta.rows()));
 
-	/*
-	FILE *fp = fopen("gfo.txt","w");
-	fprintf(fp,"N:\n");
-	N.print(fp);
-	fprintf(fp,"right hand:\n");
-	right_hand.print(fp);
-	fprintf(fp,"friction inequality:\n");
-	F.print(fp);
-	fprintf(fp,"Objective:\n");
-	Q.print(fp);
-	fclose(fp);
-	*/
-	int result = factorizedQPSolver(Q, N, right_hand, F, inEqZeroes, 
-									lowerBounds, upperBounds,
-									beta, objVal);
-	return result;
+    /*
+    FILE *fp = fopen("gfo.txt","w");
+    fprintf(fp,"N:\n");
+    N.print(fp);
+    fprintf(fp,"right hand:\n");
+    right_hand.print(fp);
+    fprintf(fp,"friction inequality:\n");
+    F.print(fp);
+    fprintf(fp,"Objective:\n");
+    Q.print(fp);
+    fclose(fp);
+    */
+    int result = factorizedQPSolver(Q, N, right_hand, F, inEqZeroes,
+            lowerBounds, upperBounds,
+            beta, objVal);
+    return result;
 }
 
 /*! One possible formulation of the core GFO problem. Finds the contacts
@@ -1009,55 +984,54 @@ contactForceExistence(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *obj
 	functions in the Grasp class.
 */
 int
-contactForceOptimization(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *objVal)
-{
-	// exact problem formulation
-	// unknowns: beta					(contact forces)
-	// minimize sum * F * beta			(crude measure of friction resistance abilities)
-	// subject to:
-	// Q * beta = 0						(0 resultant object wrench)
-	// sum_normal * beta = 1			(we are applying some contact forces)
-	// F * beta <= 0					(each individual forces inside friction cones)
-	// beta >= 0	  				    (all forces must be positive)
-	// overall equality constraint:
-	// | Q | |beta|   |0|
-	// | N |        = |1|
+contactForceOptimization(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *objVal) {
+    // exact problem formulation
+    // unknowns: beta					(contact forces)
+    // minimize sum * F * beta			(crude measure of friction resistance abilities)
+    // subject to:
+    // Q * beta = 0						(0 resultant object wrench)
+    // sum_normal * beta = 1			(we are applying some contact forces)
+    // F * beta <= 0					(each individual forces inside friction cones)
+    // beta >= 0	  				    (all forces must be positive)
+    // overall equality constraint:
+    // | Q | |beta|   |0|
+    // | N |        = |1|
 
-	//right hand of equality
-	Matrix right_hand(Matrix::ZEROES(Q.rows()+1, 1));
-	//a total of 10N of normal force
-	right_hand.elem(Q.rows(),0) = 1.0e7;
+    //right hand of equality
+    Matrix right_hand(Matrix::ZEROES(Q.rows() + 1, 1));
+    //a total of 10N of normal force
+    right_hand.elem(Q.rows(), 0) = 1.0e7;
 
-	//left hand of equality
-	Matrix LeftHand(Q.rows() + 1, Q.cols());
-	LeftHand.copySubMatrix(0, 0, Q);
-	LeftHand.copySubMatrix(Q.rows(), 0, N);
+    //left hand of equality
+    Matrix LeftHand(Q.rows() + 1, Q.cols());
+    LeftHand.copySubMatrix(0, 0, Q);
+    LeftHand.copySubMatrix(Q.rows(), 0, N);
 
-	//bounds: all variables greater than 0
-	Matrix lowerBounds(Matrix::ZEROES(beta.rows(),1));
-	Matrix upperBounds(Matrix::MAX_VECTOR(beta.rows()));
+    //bounds: all variables greater than 0
+    Matrix lowerBounds(Matrix::ZEROES(beta.rows(), 1));
+    Matrix upperBounds(Matrix::MAX_VECTOR(beta.rows()));
 
-	//objective: sum of F
-	Matrix FSum(1,F.rows());
-	FSum.setAllElements(1.0);
-	Matrix FObj(1,F.cols());
-	matrixMultiply(FSum, F, FObj);
-	/*
-	FILE *fp = fopen("gfo.txt","w");
-	fprintf(fp,"Left Hand:\n");
-	LeftHand.print(fp);
-	fprintf(fp,"right hand:\n");
-	right_hand.print(fp);
-	fprintf(fp,"friction inequality:\n");
-	F.print(fp);
-	fprintf(fp,"Objective:\n");
-	Q.print(fp);
-	fclose(fp);
-	*/
-	int result = LPSolver(FObj, LeftHand, right_hand, F, Matrix::ZEROES(F.rows(), 1), 
-						  lowerBounds, upperBounds, 
-						  beta, objVal);
-	return result;
+    //objective: sum of F
+    Matrix FSum(1, F.rows());
+    FSum.setAllElements(1.0);
+    Matrix FObj(1, F.cols());
+    matrixMultiply(FSum, F, FObj);
+    /*
+    FILE *fp = fopen("gfo.txt","w");
+    fprintf(fp,"Left Hand:\n");
+    LeftHand.print(fp);
+    fprintf(fp,"right hand:\n");
+    right_hand.print(fp);
+    fprintf(fp,"friction inequality:\n");
+    F.print(fp);
+    fprintf(fp,"Objective:\n");
+    Q.print(fp);
+    fclose(fp);
+    */
+    int result = LPSolver(FObj, LeftHand, right_hand, F, Matrix::ZEROES(F.rows(), 1),
+            lowerBounds, upperBounds,
+            beta, objVal);
+    return result;
 }
 
 /*! One possible formulation of the core GFO problem. Finds the joint
@@ -1069,87 +1043,86 @@ contactForceOptimization(Matrix &F, Matrix &N, Matrix &Q, Matrix &beta, double *
 	functions in the Grasp class.
 */
 int
-graspForceOptimization(Matrix &JTD, Matrix &D, Matrix &F, Matrix &Q, 
-					   Matrix &beta, Matrix &tau, double *objVal)
-{
-	// exact problem formulation
-	// unknowns: [beta tau]            (contact forces and joint forces)
-	// minimize [sum] [F 0] [beta tau] (sort of as far inside the friction cone as possible, not ideal)
-	// subject to:
-	// [JTD -I] * [beta tau] = 0       (contact forces balance joint forces)
-	// [Q 0]* [beta tau] = 0           (0 resultant object wrench)
-	// [0 sum] * [beta tau] = 1        (we are applying some joint forces)
-	// [F 0] [beta tau] <= 0		   (all forces inside friction cones)
-	// [beta tau] >= 0	  		       (all forces must be positive)
-	// overall equality constraint:
-	// | JTD -I |  | beta |   |0|
-	// | Q    0 |  | tau  | = |0|
-	// | 0   sum|		      |1|
+graspForceOptimization(Matrix &JTD, Matrix &D, Matrix &F, Matrix &Q,
+        Matrix &beta, Matrix &tau, double *objVal) {
+    // exact problem formulation
+    // unknowns: [beta tau]            (contact forces and joint forces)
+    // minimize [sum] [F 0] [beta tau] (sort of as far inside the friction cone as possible, not ideal)
+    // subject to:
+    // [JTD -I] * [beta tau] = 0       (contact forces balance joint forces)
+    // [Q 0]* [beta tau] = 0           (0 resultant object wrench)
+    // [0 sum] * [beta tau] = 1        (we are applying some joint forces)
+    // [F 0] [beta tau] <= 0		   (all forces inside friction cones)
+    // [beta tau] >= 0	  		       (all forces must be positive)
+    // overall equality constraint:
+    // | JTD -I |  | beta |   |0|
+    // | Q    0 |  | tau  | = |0|
+    // | 0   sum|		      |1|
 
-	Matrix beta_tau(beta.rows() + tau.rows(), 1);
-	int numJoints = tau.rows();
+    Matrix beta_tau(beta.rows() + tau.rows(), 1);
+    int numJoints = tau.rows();
 
-	//right-hand side of equality constraint
-	Matrix right_hand( JTD.rows() + Q.rows() + 1, 1);
-	right_hand.setAllElements(0.0);
-	//actually, we use 1.0e7 here as units are in N * 1.0e-6 * mm
-	//so we want a total joint torque of 10 N mm
-	right_hand.elem( right_hand.rows()-1, 0) = 1.0e7;
+    //right-hand side of equality constraint
+    Matrix right_hand(JTD.rows() + Q.rows() + 1, 1);
+    right_hand.setAllElements(0.0);
+    //actually, we use 1.0e7 here as units are in N * 1.0e-6 * mm
+    //so we want a total joint torque of 10 N mm
+    right_hand.elem(right_hand.rows() - 1, 0) = 1.0e7;
 
-	//left-hand side of equality constraint
-	Matrix LeftHand( JTD.rows() + Q.rows() + 1, D.cols() + numJoints);
-	LeftHand.setAllElements(0.0);
-	LeftHand.copySubMatrix(0, 0, JTD);
-	LeftHand.copySubMatrix(0, D.cols(), Matrix::NEGEYE(numJoints, numJoints) );
-	LeftHand.copySubMatrix(JTD.rows(), 0, Q);
-	for (int i=0; i<numJoints; i++) {
-		LeftHand.elem( JTD.rows() + Q.rows(), D.cols() + i) = 1.0;
-	}
+    //left-hand side of equality constraint
+    Matrix LeftHand(JTD.rows() + Q.rows() + 1, D.cols() + numJoints);
+    LeftHand.setAllElements(0.0);
+    LeftHand.copySubMatrix(0, 0, JTD);
+    LeftHand.copySubMatrix(0, D.cols(), Matrix::NEGEYE(numJoints, numJoints));
+    LeftHand.copySubMatrix(JTD.rows(), 0, Q);
+    for (int i = 0; i < numJoints; i++) {
+        LeftHand.elem(JTD.rows() + Q.rows(), D.cols() + i) = 1.0;
+    }
 
-	//objective matrix
-	//matrix F padded with zeroes for tau
-	//will also serve as the left hand side of the inequality matrix
-	Matrix FO(F.rows(), F.cols() + numJoints);
-	FO.setAllElements(0.0);
-	FO.copySubMatrix(0, 0, F);
-	//summing matrix and objective matrix
-	Matrix FSum(1, F.rows());
-	FSum.setAllElements(1.0);
-	Matrix FObj(1, FO.cols());
-	matrixMultiply(FSum, FO, FObj);
+    //objective matrix
+    //matrix F padded with zeroes for tau
+    //will also serve as the left hand side of the inequality matrix
+    Matrix FO(F.rows(), F.cols() + numJoints);
+    FO.setAllElements(0.0);
+    FO.copySubMatrix(0, 0, F);
+    //summing matrix and objective matrix
+    Matrix FSum(1, F.rows());
+    FSum.setAllElements(1.0);
+    Matrix FObj(1, FO.cols());
+    matrixMultiply(FSum, FO, FObj);
 
-	//bounds: all variables greater than 0
-	Matrix lowerBounds(Matrix::ZEROES(beta_tau.rows(),1));
-	Matrix upperBounds(Matrix::MAX_VECTOR(beta_tau.rows()));
+    //bounds: all variables greater than 0
+    Matrix lowerBounds(Matrix::ZEROES(beta_tau.rows(), 1));
+    Matrix upperBounds(Matrix::MAX_VECTOR(beta_tau.rows()));
 
-	//right-hand side of inequality matrix
-	Matrix inEqZeroes(FO.rows(), 1);
-	inEqZeroes.setAllElements(0.0);
+    //right-hand side of inequality matrix
+    Matrix inEqZeroes(FO.rows(), 1);
+    inEqZeroes.setAllElements(0.0);
 
-	/*
-	FILE *fp = fopen("gfo.txt","w");
-	fprintf(fp,"left hand:\n");
-	LeftHand.print(fp);
-	fprintf(fp,"right hand:\n");
-	right_hand.print(fp);
-	fprintf(fp,"friction inequality:\n");
-	FO.print(fp);
-	fprintf(fp,"Objective:\n");
-	FObj.print(fp);
-	fclose(fp);
-	*/
+    /*
+    FILE *fp = fopen("gfo.txt","w");
+    fprintf(fp,"left hand:\n");
+    LeftHand.print(fp);
+    fprintf(fp,"right hand:\n");
+    right_hand.print(fp);
+    fprintf(fp,"friction inequality:\n");
+    FO.print(fp);
+    fprintf(fp,"Objective:\n");
+    FObj.print(fp);
+    fclose(fp);
+    */
 
-	// assembled system:
-	// minimize FObj * beta_tau subject to:
-	// LeftHand * beta_tau = right_hand
-	// FO * beta_tau <= inEqZeroes
-	// beta_tau >= 0
-	int result = LPSolver(FObj, LeftHand, right_hand, FO, inEqZeroes,
-						  lowerBounds, upperBounds, 
-						  beta_tau, objVal);
-	beta.copySubBlock(0, 0, beta.rows(), 1, beta_tau, 0, 0);
-	tau.copySubBlock(0, 0, tau.rows(), 1, beta_tau, beta.rows(), 0);
-	return result;
+    // assembled system:
+    // minimize FObj * beta_tau subject to:
+    // LeftHand * beta_tau = right_hand
+    // FO * beta_tau <= inEqZeroes
+    // beta_tau >= 0
+    int result = LPSolver(FObj, LeftHand, right_hand, FO, inEqZeroes,
+            lowerBounds, upperBounds,
+            beta_tau, objVal);
+    beta.copySubBlock(0, 0, beta.rows(), 1, beta_tau, 0, 0);
+    tau.copySubBlock(0, 0, tau.rows(), 1, beta_tau, beta.rows(), 0);
+    return result;
 }
 
 /*! This function is the equivalent of the Grasp Force Optimization, but done with
@@ -1173,110 +1146,109 @@ graspForceOptimization(Matrix &JTD, Matrix &D, Matrix &F, Matrix &Q,
 	Return codes: 0 is success, >0 means problem is unfeasible, no equilibrium forces
 	exist; <0 means error in computation 
 */
-int 
-Grasp::computeQuasistaticForcesAndTorques(Matrix *robotTau)
-{
-	//use the pre-set list of contacts. This includes contacts on the palm, but
-	//not contacts with other objects or obstacles
-	std::list<Contact*> contacts;
-	contacts.insert(contacts.begin(),contactVec.begin(), contactVec.end());
-	//if there are no contacts we are done
-	if (contacts.empty()) return 0;
+int
+Grasp::computeQuasistaticForcesAndTorques(Matrix *robotTau) {
+    //use the pre-set list of contacts. This includes contacts on the palm, but
+    //not contacts with other objects or obstacles
+    std::list<Contact *> contacts;
+    contacts.insert(contacts.begin(), contactVec.begin(), contactVec.end());
+    //if there are no contacts we are done
+    if (contacts.empty()) return 0;
 
-	//retrieve all the joints of the robot, but only if their chains have contacts on
-	//them. Joints on chains with no contact have a trivial 0 solution so they only
-	//make the problem larger for no good reason.
-	//we could go even further and only keep the joints that come *before* the contacts
-	//in the chain
-	std::list<Joint*> joints;
-	for (int c=0; c<hand->getNumChains(); c++) {
-		if (hand->getChain(c)->getNumContacts(object) != 0) {
-			std::list<Joint*> chainJoints = hand->getChain(c)->getJoints();
-			joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
-		}
-	}
+    //retrieve all the joints of the robot, but only if their chains have contacts on
+    //them. Joints on chains with no contact have a trivial 0 solution so they only
+    //make the problem larger for no good reason.
+    //we could go even further and only keep the joints that come *before* the contacts
+    //in the chain
+    std::list<Joint *> joints;
+    for (int c = 0; c < hand->getNumChains(); c++) {
+        if (hand->getChain(c)->getNumContacts(object) != 0) {
+            std::list<Joint *> chainJoints = hand->getChain(c)->getJoints();
+            joints.insert(joints.end(), chainJoints.begin(), chainJoints.end());
+        }
+    }
 
-	//build the Jacobian and the other matrices that are needed.
-	//this is the same as in the equilibrium function above.
-	Matrix J(contactJacobian(joints, contacts));
-	Matrix D(Contact::frictionForceBlockMatrix(contacts));
-	Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
-	Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
+    //build the Jacobian and the other matrices that are needed.
+    //this is the same as in the equilibrium function above.
+    Matrix J(contactJacobian(joints, contacts));
+    Matrix D(Contact::frictionForceBlockMatrix(contacts));
+    Matrix F(Contact::frictionConstraintsBlockMatrix(contacts));
+    Matrix R(Contact::localToWorldWrenchBlockMatrix(contacts));
 
-	Matrix N(Contact::normalForceSumMatrix(contacts));
+    Matrix N(Contact::normalForceSumMatrix(contacts));
 
-	//grasp map that relates contact amplitudes to object wrench G = S*R*D
-	Matrix G(graspMapMatrix(R,D));
+    //grasp map that relates contact amplitudes to object wrench G = S*R*D
+    Matrix G(graspMapMatrix(R, D));
 
-	//matrix that relates contact forces to joint torques JTD = JTran * D
-	Matrix JTran(J.transposed());
-	Matrix JTD(JTran.rows(), D.cols());
-	matrixMultiply(JTran, D, JTD);
+    //matrix that relates contact forces to joint torques JTD = JTran * D
+    Matrix JTran(J.transposed());
+    Matrix JTD(JTran.rows(), D.cols());
+    matrixMultiply(JTran, D, JTD);
 
-	// vectors of unknowns
-	Matrix beta( D.cols(), 1);
-	Matrix tau( (int)joints.size(), 1);
+    // vectors of unknowns
+    Matrix beta(D.cols(), 1);
+    Matrix tau((int) joints.size(), 1);
 
-	double objVal;
-	/* This is the core computation. There are many ways of combining the 
-	   optimization criterion and the constraints. Four of them are presented 
-	   here, each encapsulated in its own helper function.
+    double objVal;
+    /* This is the core computation. There are many ways of combining the
+       optimization criterion and the constraints. Four of them are presented
+       here, each encapsulated in its own helper function.
    */
 
-	//int result = graspForceExistence(JTD, D, F, G, beta, tau, &objVal);
+    //int result = graspForceExistence(JTD, D, F, G, beta, tau, &objVal);
 
-	//int result = graspForceOptimization(JTD, D, F, G, beta, tau, &objVal);
+    //int result = graspForceOptimization(JTD, D, F, G, beta, tau, &objVal);
 
-	//int result = contactForceExistence(F, N, G, beta, &objVal);
-	//matrixMultiply(JTD, beta, tau);
+    //int result = contactForceExistence(F, N, G, beta, &objVal);
+    //matrixMultiply(JTD, beta, tau);
 
-	int result = contactForceOptimization(F, N, G, beta, &objVal);
-	matrixMultiply(JTD, beta, tau);
+    int result = contactForceOptimization(F, N, G, beta, &objVal);
+    matrixMultiply(JTD, beta, tau);
 
-	if (result) {
-		if( result > 0) {
-			DBGA("Grasp: problem unfeasible");
-		} else {
-			DBGA("Grasp: solver error");
-		}
-		return result;
-	}
-	DBGP("Optimization solved; objective: " << objVal);
+    if (result) {
+        if (result > 0) {
+            DBGA("Grasp: problem unfeasible");
+        } else {
+            DBGA("Grasp: solver error");
+        }
+        return result;
+    }
+    DBGP("Optimization solved; objective: " << objVal);
 
-	DBGP("beta:\n" << beta);
-	DBGP("tau:\n" << tau);
-	DBGP("Joint forces sum: " << tau.elementSum());
+    DBGP("beta:\n" << beta);
+    DBGP("tau:\n" << tau);
+    DBGP("Joint forces sum: " << tau.elementSum());
 
-	Matrix Gbeta(G.rows(), beta.cols());
-	matrixMultiply(G, beta, Gbeta);
-	DBGP("Total object wrench:\n" << Gbeta);
+    Matrix Gbeta(G.rows(), beta.cols());
+    matrixMultiply(G, beta, Gbeta);
+    DBGP("Total object wrench:\n" << Gbeta);
 
-	//retrieve contact wrenches in local contact coordinate systems
-	Matrix cWrenches(D.rows(), 1);
-	matrixMultiply(D, beta, cWrenches);
-	DBGP("Contact forces:\n " << cWrenches);
+    //retrieve contact wrenches in local contact coordinate systems
+    Matrix cWrenches(D.rows(), 1);
+    matrixMultiply(D, beta, cWrenches);
+    DBGP("Contact forces:\n " << cWrenches);
 
-	//compute object wrenches relative to object origin and expressed in world coordinates
-	Matrix objectWrenches(R.rows(), cWrenches.cols());
-	matrixMultiply(R, cWrenches, objectWrenches);
-	DBGP("Object wrenches:\n" << objectWrenches);
+    //compute object wrenches relative to object origin and expressed in world coordinates
+    Matrix objectWrenches(R.rows(), cWrenches.cols());
+    matrixMultiply(R, cWrenches, objectWrenches);
+    DBGP("Object wrenches:\n" << objectWrenches);
 
-	//display them on the contacts and accumulate them on the object
-	displayContactWrenches(&contacts, cWrenches);
-	accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
+    //display them on the contacts and accumulate them on the object
+    displayContactWrenches(&contacts, cWrenches);
+    accumulateAndDisplayObjectWrenches(&contacts, objectWrenches);
 
-	//set the robot joint values for the return
-	std::list<Joint*>::iterator it;
-	int jc;
-	for(it=joints.begin(), jc=0; it!=joints.end(); it++,jc++) {
-		robotTau->elem( (*it)->getNum(), 0 ) = 1.0 * tau.elem(jc,0);
-	}
+    //set the robot joint values for the return
+    std::list<Joint *>::iterator it;
+    int jc;
+    for (it = joints.begin(), jc = 0; it != joints.end(); it++, jc++) {
+        robotTau->elem((*it)->getNum(), 0) = 1.0 * tau.elem(jc, 0);
+    }
 
-	//sanity check: contact forces balance joint forces
+    //sanity check: contact forces balance joint forces
 
-	//sanity check: resultant object wrench is 0
+    //sanity check: resultant object wrench is 0
 
-	return 0;
+    return 0;
 }
 
 /*! This is a helper function for grasp force optimization routines. Given a
@@ -1285,27 +1257,26 @@ Grasp::computeQuasistaticForcesAndTorques(Matrix *robotTau)
 	of the contacts for rendering purposes.
 */
 void
-Grasp::displayContactWrenches(std::list<Contact*> *contacts, 
-						      const Matrix &contactWrenches)
-{
-	int count = 0;
-	std::list<Contact*>::iterator it;
-	for (it=contacts->begin(); it!=contacts->end(); it++, count++) {
-		Contact *contact = *it;
-		if (contact->getBody2()->isDynamic()) {
-			//wrench is also scaled down for now for rendering and output purposes
-			//we also transform the wrench to the mate's coordinate system, which
-			//usually involves negating the x and z axes
-			double dynWrench[6];
-			for (int i=0; i<6; i++) {
-				dynWrench[i] = -1.0 * 1.0e-6 * contactWrenches.elem(6*count+i,0);
-			}
-			//the y axis is not negated
-			dynWrench[1] = -1.0 * dynWrench[1];
-			dynWrench[4] = -1.0 * dynWrench[4];
-			contact->getMate()->setDynamicContactWrench(dynWrench);
-		}
-	}
+Grasp::displayContactWrenches(std::list<Contact *> *contacts,
+        const Matrix &contactWrenches) {
+    int count = 0;
+    std::list<Contact *>::iterator it;
+    for (it = contacts->begin(); it != contacts->end(); it++, count++) {
+        Contact *contact = *it;
+        if (contact->getBody2()->isDynamic()) {
+            //wrench is also scaled down for now for rendering and output purposes
+            //we also transform the wrench to the mate's coordinate system, which
+            //usually involves negating the x and z axes
+            double dynWrench[6];
+            for (int i = 0; i < 6; i++) {
+                dynWrench[i] = -1.0 * 1.0e-6 * contactWrenches.elem(6 * count + i, 0);
+            }
+            //the y axis is not negated
+            dynWrench[1] = -1.0 * dynWrench[1];
+            dynWrench[4] = -1.0 * dynWrench[4];
+            contact->getMate()->setDynamicContactWrench(dynWrench);
+        }
+    }
 }
 
 
@@ -1318,29 +1289,28 @@ Grasp::displayContactWrenches(std::list<Contact*> *contacts,
 	external wrench accumulator can then be rendered.
 */
 void
-Grasp::accumulateAndDisplayObjectWrenches(std::list<Contact*> *contacts, 
-										  const Matrix &objectWrenches)
-{
-	int count = 0;
-	std::list<Contact*>::iterator it;
-	for (it=contacts->begin(); it!=contacts->end(); it++, count++) {
-		Contact *contact = *it;
-		vec3 force(objectWrenches.elem(6*count+0,0), 
-					objectWrenches.elem(6*count+1,0), 
-					objectWrenches.elem(6*count+2,0));
-		vec3 torque(objectWrenches.elem(6*count+3,0), 
-					objectWrenches.elem(6*count+4,0), 
-					objectWrenches.elem(6*count+5,0));
-		if (contact->getBody2()->isDynamic()) {
-			DynamicBody *object = (DynamicBody*)(contact->getBody2());
-			//compute force and torque in body reference frame
-			//and scale them down for now for rendering and output purposes
-			force = 1.0e-6 * force * object->getTran().inverse();
-			//torque is also scaled by maxRadius in conversion matrix
-			torque = 1.0e-6 * torque * object->getTran().inverse();
-			//accumulate them on object
-			object->addForce(force);
-			object->addTorque(torque);
-		}
-	}
+Grasp::accumulateAndDisplayObjectWrenches(std::list<Contact *> *contacts,
+        const Matrix &objectWrenches) {
+    int count = 0;
+    std::list<Contact *>::iterator it;
+    for (it = contacts->begin(); it != contacts->end(); it++, count++) {
+        Contact *contact = *it;
+        vec3 force(objectWrenches.elem(6 * count + 0, 0),
+                objectWrenches.elem(6 * count + 1, 0),
+                objectWrenches.elem(6 * count + 2, 0));
+        vec3 torque(objectWrenches.elem(6 * count + 3, 0),
+                objectWrenches.elem(6 * count + 4, 0),
+                objectWrenches.elem(6 * count + 5, 0));
+        if (contact->getBody2()->isDynamic()) {
+            DynamicBody *object = (DynamicBody *) (contact->getBody2());
+            //compute force and torque in body reference frame
+            //and scale them down for now for rendering and output purposes
+            force = 1.0e-6 * force * object->getTran().inverse();
+            //torque is also scaled by maxRadius in conversion matrix
+            torque = 1.0e-6 * torque * object->getTran().inverse();
+            //accumulate them on object
+            object->addForce(force);
+            object->addTorque(torque);
+        }
+    }
 }

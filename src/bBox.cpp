@@ -26,5 +26,7 @@
 #include "bBox.h"
 
 #ifndef GRASPIT_RELEASE
+
 #include "bbox_inl.h"
+
 #endif

@@ -5,28 +5,25 @@
 #include "debug.h"
 #include <string>
 
-RosRPCZClient::RosRPCZClient():
-    _application(NULL),
-    graspReachabilityStub(NULL),
-    objectRecognitionStub(NULL),
-    cameraOriginStub(NULL),
-    executeGraspStub(NULL)
-{
+RosRPCZClient::RosRPCZClient() :
+        _application(NULL),
+        graspReachabilityStub(NULL),
+        objectRecognitionStub(NULL),
+        cameraOriginStub(NULL),
+        executeGraspStub(NULL) {
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
     std::string urlString = "tcp://192.168.11.200:5561";
 
-    rpcz::rpc_channel * channel = _application->create_rpc_channel(urlString);
+    rpcz::rpc_channel *channel = _application->create_rpc_channel(urlString);
 
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
     graspReachabilityStub = new GraspReachabilityStub(channel);
     sleep(.1);
     channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
     sleep(.1);
@@ -34,25 +31,22 @@ RosRPCZClient::RosRPCZClient():
 
 
     channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
     sleep(.1);
-    objectRetrievalStub = new ObjectRecognitionStub(channel,"RetrieveObjectsService");
+    objectRetrievalStub = new ObjectRecognitionStub(channel, "RetrieveObjectsService");
 
 
     channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
     cameraOriginStub = new CameraOriginStub(channel);
     sleep(.1);
 
     channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
 
@@ -60,8 +54,7 @@ RosRPCZClient::RosRPCZClient():
     sleep(.3);
 
     channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
+    if (!channel) {
         DBGA("Failed to create channel");
     }
 
@@ -73,10 +66,8 @@ RosRPCZClient::RosRPCZClient():
 
 }
 
-bool RosRPCZClient::runObjectRetrieval(QObject * callbackReceiver, const char * slot)
-{
-    if(!objectRetrievalStub)
-    {
+bool RosRPCZClient::runObjectRetrieval(QObject *callbackReceiver, const char *slot) {
+    if (!objectRetrievalStub) {
         DBGA("Tried to send invalid objectRetrievalStub");
         return false;
     }
@@ -85,10 +76,8 @@ bool RosRPCZClient::runObjectRetrieval(QObject * callbackReceiver, const char * 
     return objectRetrievalStub->sendRequest(callbackReceiver, slot);
 }
 
-bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char * slot)
-{
-    if(!objectRecognitionStub)
-    {
+bool RosRPCZClient::runObjectRecognition(QObject *callbackReceiver, const char *slot) {
+    if (!objectRecognitionStub) {
         DBGA("Tried to send invalid objectRecognitionStub");
         return false;
     }
@@ -97,10 +86,8 @@ bool RosRPCZClient::runObjectRecognition(QObject * callbackReceiver, const char 
     return objectRecognitionStub->sendRequest(callbackReceiver, slot);
 }
 
-bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot)
-{
-    if(!cameraOriginStub)
-    {
+bool RosRPCZClient::getCameraOrigin(QObject *callbackReceiver, const char *slot) {
+    if (!cameraOriginStub) {
         DBGA("Tried to send invalid getCameraOrigin");
         return false;
     }
@@ -108,10 +95,8 @@ bool RosRPCZClient::getCameraOrigin(QObject * callbackReceiver, const char *slot
     return cameraOriginStub->sendRequest(callbackReceiver, slot);
 }
 
-bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
-{    
-    if(!graspReachabilityStub)
-    {
+bool RosRPCZClient::checkGraspReachability(const GraspPlanningState *gps, QObject *callbackReceiver, const char *slot) {
+    if (!graspReachabilityStub) {
         DBGA("Tried to send invalid graspReachability");
         return false;
     }
@@ -121,28 +106,24 @@ bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObje
 }
 
 
-bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
-{
-  if(!executeGraspStub)
-  {
-    DBGA("Tried to send invalid executeGraspStub");
-    return false;
-  }
-  DBGA("Sent execute grasp");
-  executeGraspStub->buildRequest(gps);
-  return executeGraspStub->sendRequest(callbackReceiver, slot);
+bool RosRPCZClient::executeGrasp(const GraspPlanningState *gps, QObject *callbackReceiver, const char *slot) {
+    if (!executeGraspStub) {
+        DBGA("Tried to send invalid executeGraspStub");
+        return false;
+    }
+    DBGA("Sent execute grasp");
+    executeGraspStub->buildRequest(gps);
+    return executeGraspStub->sendRequest(callbackReceiver, slot);
 }
 
-bool RosRPCZClient::sendOptionChoices(std::vector<QImage*> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
-                                      float minimumConfidence,  QObject * callbackReceiver, const char * slot)
-{
+bool RosRPCZClient::sendOptionChoices(std::vector<QImage *> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> &imageCosts,
+        float minimumConfidence, QObject *callbackReceiver, const char *slot) {
     std::vector<QString> stringList;
     optionSelectionStub->buildRequest(imageOptions, stringList, imageCosts, imageDescriptions, minimumConfidence);
     return optionSelectionStub->sendRequest(callbackReceiver, slot);
 }
 
-RosRPCZClient::~RosRPCZClient()
-{
+RosRPCZClient::~RosRPCZClient() {
     delete _application;
     delete graspReachabilityStub;
     delete objectRecognitionStub;

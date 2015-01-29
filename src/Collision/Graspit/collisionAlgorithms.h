@@ -73,39 +73,48 @@
 
 namespace Collision {
 
-class Node;
-class Leaf;
-class Branch;
-class CollisionModel;
+    class Node;
 
-class RecursionCallback
-{
-protected:
-	const CollisionModel *mModel1;
-	const CollisionModel *mModel2;
-	//! Precomputed transform from model 2 to model 1
-	transf mTran2To1;
-	//! Precomputed transform from model 1 to model 2
-	transf mTran1To2;
+    class Leaf;
 
-	int mNumLeafTests, mNumTriangleTests, mNumQuickTests;
-public:
-	RecursionCallback(const CollisionModel *m1, const CollisionModel *m2);
-	virtual void reset() {
-		mNumLeafTests = 0;
-		mNumTriangleTests = 0;
-		mNumQuickTests = 0;
-	}
-	virtual ~RecursionCallback(){}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2) = 0;
-	virtual double quickTest(const Node *n1, const Node *n2) = 0;
-	virtual bool distanceTest(double d) = 0;
-	virtual void printStatistics();
-};
+    class Branch;
+
+    class CollisionModel;
+
+    class RecursionCallback {
+    protected:
+        const CollisionModel *mModel1;
+        const CollisionModel *mModel2;
+        //! Precomputed transform from model 2 to model 1
+        transf mTran2To1;
+        //! Precomputed transform from model 1 to model 2
+        transf mTran1To2;
+
+        int mNumLeafTests, mNumTriangleTests, mNumQuickTests;
+    public:
+        RecursionCallback(const CollisionModel *m1, const CollisionModel *m2);
+
+        virtual void reset() {
+            mNumLeafTests = 0;
+            mNumTriangleTests = 0;
+            mNumQuickTests = 0;
+        }
+
+        virtual ~RecursionCallback() {
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2) = 0;
+
+        virtual double quickTest(const Node *n1, const Node *n2) = 0;
+
+        virtual bool distanceTest(double d) = 0;
+
+        virtual void printStatistics();
+    };
 
 //! The entry point to the one and only recursion mechanism
-void startRecursion(const CollisionModel *model1, const CollisionModel *model2, 
-					RecursionCallback *rc);
+    void startRecursion(const CollisionModel *model1, const CollisionModel *model2,
+            RecursionCallback *rc);
 
 /*! Recursion callback for the collision test.
 	<ul>
@@ -116,29 +125,38 @@ void startRecursion(const CollisionModel *model1, const CollisionModel *model2,
 	anywhere; just return. 
 	</ul>
 */
-class CollisionCallback : public RecursionCallback
-{
-private:
-	bool mCollision;
-public:
-	CollisionCallback(const CollisionModel *m1, const CollisionModel *m2) : 
-					  RecursionCallback(m1,m2){reset();}
-	void reset(){
-		RecursionCallback::reset();
-		mCollision = false;
-	}
-	bool isCollision() const {return mCollision;}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2);
-	virtual double quickTest(const Node *n1, const Node *n2);
-	/*! Only recurse if the bboxes overlap, and we don't already have a
-		detected collision. */
-	virtual bool distanceTest(double d) {
-		if (mCollision) return false;
-		if (d<0) return true;
-		return false;
-	}
-	void printStatistics();
-};
+    class CollisionCallback : public RecursionCallback {
+    private:
+        bool mCollision;
+    public:
+        CollisionCallback(const CollisionModel *m1, const CollisionModel *m2) :
+                RecursionCallback(m1, m2) {
+            reset();
+        }
+
+        void reset() {
+            RecursionCallback::reset();
+            mCollision = false;
+        }
+
+        bool isCollision() const {
+            return mCollision;
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2);
+
+        virtual double quickTest(const Node *n1, const Node *n2);
+
+        /*! Only recurse if the bboxes overlap, and we don't already have a
+            detected collision. */
+        virtual bool distanceTest(double d) {
+            if (mCollision) return false;
+            if (d < 0) return true;
+            return false;
+        }
+
+        void printStatistics();
+    };
 
 /*! Recursion callback for the contact test.
 	<ul>
@@ -148,32 +166,41 @@ public:
 	than contact threshold, no need to recurse.
 	</ul>
 */
-class ContactCallback : public RecursionCallback
-{
-private:
-	double mThreshold;
-	ContactReport mReport;
+    class ContactCallback : public RecursionCallback {
+    private:
+        double mThreshold;
+        ContactReport mReport;
 
-	void insertContactNoDuplicates(const position &p1, const position &p2, 
-								   const vec3 &n1, const vec3 &n2, 
-								   double distSq, double thresh);
-public:
-	ContactCallback(double threshold, const CollisionModel *m1, const CollisionModel *m2) : 
-	                RecursionCallback(m1,m2), mThreshold(threshold) {reset();}
+        void insertContactNoDuplicates(const position &p1, const position &p2,
+                const vec3 &n1, const vec3 &n2,
+                double distSq, double thresh);
 
-	virtual void reset() {
-		RecursionCallback::reset();
-		mReport.clear();
-	}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2);
-	virtual double quickTest(const Node *n1, const Node *n2);
-	virtual bool distanceTest(double dSq) {
-		if (dSq <= mThreshold * mThreshold) return true;
-		return false;
-	}
-	const ContactReport& getReport(){return mReport;}
-	void printStatistics();
-};
+    public:
+        ContactCallback(double threshold, const CollisionModel *m1, const CollisionModel *m2) :
+                RecursionCallback(m1, m2), mThreshold(threshold) {
+            reset();
+        }
+
+        virtual void reset() {
+            RecursionCallback::reset();
+            mReport.clear();
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2);
+
+        virtual double quickTest(const Node *n1, const Node *n2);
+
+        virtual bool distanceTest(double dSq) {
+            if (dSq <= mThreshold * mThreshold) return true;
+            return false;
+        }
+
+        const ContactReport &getReport() {
+            return mReport;
+        }
+
+        void printStatistics();
+    };
 
 /*! Recursion callback for the distance test.
 	<ul>
@@ -184,30 +211,45 @@ public:
 	been found to interpenetrate, no need to recurse.
 	</ul>
 */
-class DistanceCallback : public RecursionCallback
-{
-private:
-	double mMinDistSq;
-	position mP1, mP2;
-public:
-	DistanceCallback(const CollisionModel *m1, const CollisionModel *m2) : 
-					 RecursionCallback(m1,m2) {reset();}
-	virtual void reset() {
-		RecursionCallback::reset();
-		mMinDistSq = 1.0e10;
-		mP1 = position(0,0,0); mP2 = position(0,0,0);
-	}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2);
-	virtual double quickTest(const Node *n1, const Node *n2);
-	virtual bool distanceTest(double dSq) {
-		if (mMinDistSq < 0.0) return false;
-		if (dSq<0.0 || dSq <= mMinDistSq) return true;
-		return false;
-	}
-	double getMin() const {if (mMinDistSq<0.0) return -1.0; return sqrt(mMinDistSq);}
-	void getClosestPoints(position &p1, position &p2) const {p1 = mP1; p2 = mP2;}
-	void printStatistics();
-};
+    class DistanceCallback : public RecursionCallback {
+    private:
+        double mMinDistSq;
+        position mP1, mP2;
+    public:
+        DistanceCallback(const CollisionModel *m1, const CollisionModel *m2) :
+                RecursionCallback(m1, m2) {
+            reset();
+        }
+
+        virtual void reset() {
+            RecursionCallback::reset();
+            mMinDistSq = 1.0e10;
+            mP1 = position(0, 0, 0);
+            mP2 = position(0, 0, 0);
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2);
+
+        virtual double quickTest(const Node *n1, const Node *n2);
+
+        virtual bool distanceTest(double dSq) {
+            if (mMinDistSq < 0.0) return false;
+            if (dSq < 0.0 || dSq <= mMinDistSq) return true;
+            return false;
+        }
+
+        double getMin() const {
+            if (mMinDistSq < 0.0) return -1.0;
+            return sqrt(mMinDistSq);
+        }
+
+        void getClosestPoints(position &p1, position &p2) const {
+            p1 = mP1;
+            p2 = mP2;
+        }
+
+        void printStatistics();
+    };
 
 /*! Recursion callback for the closest point test.
 	<ul>
@@ -217,29 +259,42 @@ public:
 	than smallest distance found so far, no need to recurse.
 	</ul>
 */
-class ClosestPtCallback : public RecursionCallback
-{
-private:
-	double mMinDistSq;
-	position mRefPosition, mClosestPt;
-public:
-	ClosestPtCallback(const CollisionModel *m1, const position &p) : 
-					 RecursionCallback(m1, NULL), mRefPosition(p) {reset();}
-	virtual void reset() {
-		RecursionCallback::reset();
-		mMinDistSq = 1.0e10;
-	}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2);
-	virtual double quickTest(const Node *n1, const Node *n2);
-	virtual bool distanceTest(double dSq) {
-		if (mMinDistSq < 0.0) return false;
-		if (dSq<0.0 || dSq <= mMinDistSq) return true;
-		return false;
-	}
-	double getMin() {if (mMinDistSq<0.0) return -1.0; return sqrt(mMinDistSq);}
-	position getClosestPt() {return mClosestPt;}
-	void printStatistics();
-};
+    class ClosestPtCallback : public RecursionCallback {
+    private:
+        double mMinDistSq;
+        position mRefPosition, mClosestPt;
+    public:
+        ClosestPtCallback(const CollisionModel *m1, const position &p) :
+                RecursionCallback(m1, NULL), mRefPosition(p) {
+            reset();
+        }
+
+        virtual void reset() {
+            RecursionCallback::reset();
+            mMinDistSq = 1.0e10;
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2);
+
+        virtual double quickTest(const Node *n1, const Node *n2);
+
+        virtual bool distanceTest(double dSq) {
+            if (mMinDistSq < 0.0) return false;
+            if (dSq < 0.0 || dSq <= mMinDistSq) return true;
+            return false;
+        }
+
+        double getMin() {
+            if (mMinDistSq < 0.0) return -1.0;
+            return sqrt(mMinDistSq);
+        }
+
+        position getClosestPt() {
+            return mClosestPt;
+        }
+
+        void printStatistics();
+    };
 
 /*! Recursion callback for the region test.
 	<ul>
@@ -249,32 +304,42 @@ public:
 	than region threshold, no need to recurse.
 	</ul>
 */
-class RegionCallback : public RecursionCallback
-{
-private:
-	Neighborhood mNeighborhood;
-	position mRefPosition;
-	vec3 mNormal;
-	double mRadiusSq;
+    class RegionCallback : public RecursionCallback {
+    private:
+        Neighborhood mNeighborhood;
+        position mRefPosition;
+        vec3 mNormal;
+        double mRadiusSq;
 
-	void insertPoint(const position &point);
-public:
-	RegionCallback(const CollisionModel *m1, const position &p, const vec3 &n, double r) : 
-				   RecursionCallback(m1, NULL), mRefPosition(p), 
-				   mNormal(n), mRadiusSq(r * r) {reset();}
-	virtual void reset() {
-		RecursionCallback::reset();
-		mNeighborhood.clear();
-	}
-	virtual void leafTest(const Leaf *l1, const Leaf *l2);
-	virtual double quickTest(const Node *n1, const Node *n2);
-	virtual bool distanceTest(double dSq) {
-		if (dSq<0.0 || dSq <= mRadiusSq) return true;
-		return false;
-	}
-	Neighborhood& getRegion() {return mNeighborhood;}
-	void printStatistics();
-};
+        void insertPoint(const position &point);
+
+    public:
+        RegionCallback(const CollisionModel *m1, const position &p, const vec3 &n, double r) :
+                RecursionCallback(m1, NULL), mRefPosition(p),
+                mNormal(n), mRadiusSq(r * r) {
+            reset();
+        }
+
+        virtual void reset() {
+            RecursionCallback::reset();
+            mNeighborhood.clear();
+        }
+
+        virtual void leafTest(const Leaf *l1, const Leaf *l2);
+
+        virtual double quickTest(const Node *n1, const Node *n2);
+
+        virtual bool distanceTest(double dSq) {
+            if (dSq < 0.0 || dSq <= mRadiusSq) return true;
+            return false;
+        }
+
+        Neighborhood &getRegion() {
+            return mNeighborhood;
+        }
+
+        void printStatistics();
+    };
 
 } //namespace Collision
 

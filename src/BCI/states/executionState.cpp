@@ -2,26 +2,22 @@
 
 #include "BCI/onlinePlannerController.h"
 
-ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, QState* parent)
-    :State("ExecutionState", parent), bciControlWindow(_bciControlWindow)
-{
+ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, QState *parent)
+        : State("ExecutionState", parent), bciControlWindow(_bciControlWindow) {
     executionView = new ExecutionView(bciControlWindow->currentFrame);
     executionView->hide();
 }
 
 
-void ExecutionState::onEntry(QEvent *e)
-{
+void ExecutionState::onEntry(QEvent *e) {
     executionView->show();
     bciControlWindow->currentState->setText("Execution");
 
-    BCIService::getInstance()->executeGrasp(OnlinePlannerController::getInstance()->getCurrentGrasp(),NULL,NULL);
+    BCIService::getInstance()->executeGrasp(OnlinePlannerController::getInstance()->getCurrentGrasp(), NULL, NULL);
 }
 
 
-
-void ExecutionState::onExit(QEvent *e)
-{
+void ExecutionState::onExit(QEvent *e) {
     executionView->hide();
 }
 
@@ -30,19 +26,17 @@ void ExecutionState::onExit(QEvent *e)
 //! Option Choice Paradigm related functions *
 //!*******************************************
 
-void ExecutionState::generateImageOptions(bool debug)
-{
+void ExecutionState::generateImageOptions(bool debug) {
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
     size_t numDistractors;
     stringOptions.push_back(QString("Restart Execution"));
     stringOptions.push_back(QString("Stop Execution"));
-    for(size_t i; i < numDistractors; ++i)
-    {
+    for (size_t i; i < numDistractors; ++i) {
         stringOptions.push_back(QString("Distractor Image"));
     }
-    for(size_t i; i < stringOptions.size(); ++i) {
+    for (size_t i; i < stringOptions.size(); ++i) {
         imageDescriptions.push_back(stringOptions[i]);
         imageCosts.push_back(.25);
     }
@@ -50,9 +44,8 @@ void ExecutionState::generateImageOptions(bool debug)
 }
 
 
-void 
-ExecutionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel)
-{
+void
+ExecutionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
     //! Fixme 
 }
 

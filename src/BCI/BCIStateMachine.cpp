@@ -1,4 +1,3 @@
-
 #include "BCI/BCIStateMachine.h"
 
 #include "BCI/states/objectSelectionState.h"
@@ -13,10 +12,9 @@
 
 #include "BCI/bciService.h"
 
-BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService *_bciService):
-    bciControlWindow(_bciControlWindow),
-    bciService(_bciService)
-{
+BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService *_bciService) :
+        bciControlWindow(_bciControlWindow),
+        bciService(_bciService) {
 
     ObjectSelectionState *objectSelectionState = new ObjectSelectionState(bciControlWindow);
     GraspSelectionState *initialGraspSelectionState = new GraspSelectionState(bciControlWindow);
@@ -28,9 +26,9 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     StoppedExecutionState *stoppedExecutionState = new StoppedExecutionState(bciControlWindow);
 
 
-    objectSelectionState->addTransition(bciService,SIGNAL(goToNextState1()), initialGraspSelectionState);
-    objectSelectionState->addSelfTransition(bciService, SIGNAL(exec()), objectSelectionState,SLOT(onSelect()));
-    objectSelectionState->addSelfTransition(bciService, SIGNAL(rotLat()), objectSelectionState,SLOT(onNext()));
+    objectSelectionState->addTransition(bciService, SIGNAL(goToNextState1()), initialGraspSelectionState);
+    objectSelectionState->addSelfTransition(bciService, SIGNAL(exec()), objectSelectionState, SLOT(onSelect()));
+    objectSelectionState->addSelfTransition(bciService, SIGNAL(rotLat()), objectSelectionState, SLOT(onNext()));
 
     initialGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState2()), activateRefinementState);
     initialGraspSelectionState->addTransition(bciService, SIGNAL(goToPreviousState()), objectSelectionState);
@@ -38,19 +36,19 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     initialGraspSelectionState->addTransition(bciService, SIGNAL(exec()), confirmationState);
     initialGraspSelectionState->addTransition(bciService, SIGNAL(next()), activateRefinementState);
     initialGraspSelectionState->setRotationAllowed(false);
-    initialGraspSelectionState->setButtonLabel( "buttonRotateLong", "Next Grasp");
-    initialGraspSelectionState->setButtonLabel( "buttonRotateLat", "Change Target Object");
-    initialGraspSelectionState->addSelfTransition(bciService,SIGNAL(rotLong()), initialGraspSelectionState, SLOT(onNext()));
-    initialGraspSelectionState->addTransition(bciService,SIGNAL(rotLat()), objectSelectionState);
+    initialGraspSelectionState->setButtonLabel("buttonRotateLong", "Next Grasp");
+    initialGraspSelectionState->setButtonLabel("buttonRotateLat", "Change Target Object");
+    initialGraspSelectionState->addSelfTransition(bciService, SIGNAL(rotLong()), initialGraspSelectionState, SLOT(onNext()));
+    initialGraspSelectionState->addTransition(bciService, SIGNAL(rotLat()), objectSelectionState);
 
     activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
     activateRefinementState->addTransition(bciService, SIGNAL(exec()), finalGraspSelectionState);
 
 
-    finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()),confirmationState);
-    finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()),confirmationState);
-    finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
-    finalGraspSelectionState->addSelfTransition(bciService,SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
+    finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
+    finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()), confirmationState);
+    finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
+    finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
 
     finalGraspSelectionState->setButtonLabel("buttonRefineGrasp", "Next Grasp");
     finalGraspSelectionState->stateName = "Final Selection";
@@ -83,8 +81,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     stateMachine.setInitialState(objectSelectionState);
 }
 
-void BCIStateMachine::start()
-{        
+void BCIStateMachine::start() {
     stateMachine.start();
     bciControlWindow->currentFrame->show();
 }

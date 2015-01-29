@@ -35,35 +35,46 @@
 #include "DBPlanner/model.h"
 
 class World;
+
 class GraspableBody;
 
 /*! This is the class to define the data entry of model in CGDB
 */
-class GraspitDBModel : public db_planner::Model{
+class GraspitDBModel : public db_planner::Model {
 private:
-	//! Tells us if the scene graph geometry of this object has been loaded
-	bool mGeometryLoaded;
-	//! This is the body representation in GraspIt
-	GraspableBody* mGraspableBody;
+    //! Tells us if the scene graph geometry of this object has been loaded
+    bool mGeometryLoaded;
+    //! This is the body representation in GraspIt
+    GraspableBody *mGraspableBody;
 public:
-    GraspitDBModel() :  mGeometryLoaded(false), mGraspableBody(NULL){}
-	~GraspitDBModel();
-	//! Calls the super and also sets the mGeometryLoaded flag
-	int load(World* w);
-	//! Returns the flag that tells us if geometry has been loaded
-	bool geometryLoaded() const {return mGeometryLoaded;}
-	//! Returns the Graspable body
-	GraspableBody* getGraspableBody() const { return mGraspableBody; }
+    GraspitDBModel() : mGeometryLoaded(false), mGraspableBody(NULL) {
+    }
+
+    ~GraspitDBModel();
+
+    //! Calls the super and also sets the mGeometryLoaded flag
+    int load(World *w);
+
+    //! Returns the flag that tells us if geometry has been loaded
+    bool geometryLoaded() const {
+        return mGeometryLoaded;
+    }
+
+    //! Returns the Graspable body
+    GraspableBody *getGraspableBody() const {
+        return mGraspableBody;
+    }
 };
 
 //! An implementation of ModelAllocator that returns new GraspitDBModel objects.
-class GraspitDBModelAllocator : public db_planner::ModelAllocator
-{
+class GraspitDBModelAllocator : public db_planner::ModelAllocator {
 public:
-	GraspitDBModelAllocator(){}
-	db_planner::Model* Get() const {
-		return new GraspitDBModel();
-	}
+    GraspitDBModelAllocator() {
+    }
+
+    db_planner::Model *Get() const {
+        return new GraspitDBModel();
+    }
 };
 
 #endif

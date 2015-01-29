@@ -40,27 +40,24 @@
 //#define GRASPITDBG
 #include "debug.h"
 
-Barrett::~Barrett()
-{
+Barrett::~Barrett() {
 #ifdef HARDWARE_LIB
 	if (mRealHand) delete mRealHand;
 #endif
 }
 
 int
-Barrett::loadFromXml(const TiXmlElement* root,QString rootPath)
-{
-  if (Robot::loadFromXml(root, rootPath) == FAILURE) return FAILURE;
-  mRealHand = NULL;
-  return SUCCESS;
+Barrett::loadFromXml(const TiXmlElement *root, QString rootPath) {
+    if (Robot::loadFromXml(root, rootPath) == FAILURE) return FAILURE;
+    mRealHand = NULL;
+    return SUCCESS;
 }
 
 /*! For now, the caller can use this interface directly, but in the 
 	future all interaction will have to go through the Barrett class.
 */
-BarrettHand*
-Barrett::getRealHand()
-{
+BarrettHand *
+Barrett::getRealHand() {
 #ifdef HARDWARE_LIB
 	if (mRealHand) return mRealHand;
 	
@@ -74,8 +71,8 @@ Barrett::getRealHand()
 
 	return mRealHand;
 #else
-	assert(0);
-	return NULL;
+    assert(0);
+    return NULL;
 #endif
 }
 
@@ -89,5 +86,5 @@ Barrett::isBusy() {
 #ifdef HARDWARE_LIB
 	if (mRealHand) return mRealHand->isBusy();
 #endif
-	return false;
+    return false;
 }

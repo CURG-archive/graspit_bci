@@ -52,27 +52,25 @@
 #include "BCI/bciService.h"
 
 
-
 //helper function to get current world planner
-EGPlanner* currentWorldPlanner(){ return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();}
+EGPlanner *currentWorldPlanner() {
+    return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();
+}
 
 
-
-ClientSocket::ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len) :
-  QObject( parent),
-  sock(socket),
-  maxLen(maximum_len)
-{
-      connect( sock, SIGNAL(readyRead()), this, SLOT(readClient()) );
-      connect( sock, SIGNAL(connectionClosed()), this, SLOT(connectionClosed()) );
+ClientSocket::ClientSocket(QObject *parent, QTcpSocket *socket, unsigned int maximum_len) :
+        QObject(parent),
+        sock(socket),
+        maxLen(maximum_len) {
+    connect(sock, SIGNAL(readyRead()), this, SLOT(readClient()));
+    connect(sock, SIGNAL(connectionClosed()), this, SLOT(connectionClosed()));
 }
 
 
 /*!
   Stub destructor.
 */
-ClientSocket::~ClientSocket()
-{
+ClientSocket::~ClientSocket() {
 #ifdef GRASPITDBG
   std::cout << "client socket destroyed"<<std::endl;
 #endif
@@ -88,74 +86,73 @@ ClientSocket::~ClientSocket()
   message is sent back and this method returns FAILURE.
 */
 int
-ClientSocket::readBodyIndList(std::vector<Body *> &bodyVec)
-{
-  QTextStream os(sock);
-  int i,numBodies,bodNum;
-  bool ok;
-  World *world = graspItGUI->getIVmgr()->getWorld();
-  std::cout << "ReadBodyIndList Line:"<<line.latin1() << std::endl;
+ClientSocket::readBodyIndList(std::vector<Body *> &bodyVec) {
+    QTextStream os(sock);
+    int i, numBodies, bodNum;
+    bool ok;
+    World *world = graspItGUI->getIVmgr()->getWorld();
+    std::cout << "ReadBodyIndList Line:" << line.latin1() << std::endl;
 
-  /* if the index list is empty, use every body and send
-     back the count
-  */
+    /* if the index list is empty, use every body and send
+       back the count
+    */
 
-  if (strPtr == lineStrList.end()) return FAILURE;
-
-  if ((*strPtr).startsWith("ALL")) {
-    strPtr++;
-    for (i=0;i<world->getNumBodies();i++)
-      bodyVec.push_back(world->getBody(i));
-    std::cout << "Sending num bodies: "<<world->getNumBodies()<<std::endl;
-    os << world->getNumBodies() << endl;
-    return SUCCESS;
-  }
-  
-  numBodies = (*strPtr).toInt(&ok);
-  if (!ok) return FAILURE;
-  strPtr++;
-  
-  for (i=0;i<numBodies;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
-    bodNum = (*strPtr).toInt(&ok);
+
+    if ((*strPtr).startsWith("ALL")) {
+        strPtr++;
+        for (i = 0; i < world->getNumBodies(); i++)
+            bodyVec.push_back(world->getBody(i));
+        std::cout << "Sending num bodies: " << world->getNumBodies() << std::endl;
+        os << world->getNumBodies() << endl;
+        return SUCCESS;
+    }
+
+    numBodies = (*strPtr).toInt(&ok);
     if (!ok) return FAILURE;
-    
-    if (bodNum>=0 && bodNum<world->getNumBodies()) {
-      bodyVec.push_back(world->getBody(bodNum));
-      if (world->getBody(bodNum)==NULL) {
-	os << "Error: Cannot find body " << bodNum <<"\n";
-        return FAILURE;
-      }
-    }
-    else {
-      os << "Error: Cannot find body " << bodNum <<"\n";
-      return FAILURE;
-    }
     strPtr++;
-  }
-  return SUCCESS;
+
+    for (i = 0; i < numBodies; i++) {
+        if (strPtr == lineStrList.end()) return FAILURE;
+        bodNum = (*strPtr).toInt(&ok);
+        if (!ok) return FAILURE;
+
+        if (bodNum >= 0 && bodNum < world->getNumBodies()) {
+            bodyVec.push_back(world->getBody(bodNum));
+            if (world->getBody(bodNum) == NULL) {
+                os << "Error: Cannot find body " << bodNum << "\n";
+                return FAILURE;
+            }
+        }
+        else {
+            os << "Error: Cannot find body " << bodNum << "\n";
+            return FAILURE;
+        }
+        strPtr++;
+    }
+    return SUCCESS;
 }
 
 // read in 7 param transf given as  pos(x y z) Qauternion(w x y z) 
-int ClientSocket::readTransf(transf * tr){
-	bool ok = true;
-	try{
-		*tr = transf(Quaternion((*(strPtr + 3)).toDouble(&ok),  //qw
-			(*(strPtr + 4)).toDouble(&ok),  //qx
-			(*(strPtr + 5)).toDouble(&ok),  //qy
-			(*(strPtr + 6)).toDouble(&ok)), //qz
-			vec3((*strPtr).toDouble(&ok), //x
-			(*(strPtr+1)).toDouble(&ok),  //y
-			(*(strPtr + 2)).toDouble(&ok)));  //z
-		strPtr +=7;
-	}
-	catch(...){
-		if (!ok)
-			return FAILURE;
-		else
-			std::cout <<"unknown error in ClientSocket::readTransf \n";
-	}
-	return SUCCESS;
+int ClientSocket::readTransf(transf *tr) {
+    bool ok = true;
+    try {
+        *tr = transf(Quaternion((*(strPtr + 3)).toDouble(&ok),  //qw
+                        (*(strPtr + 4)).toDouble(&ok),  //qx
+                        (*(strPtr + 5)).toDouble(&ok),  //qy
+                        (*(strPtr + 6)).toDouble(&ok)), //qz
+                vec3((*strPtr).toDouble(&ok), //x
+                        (*(strPtr + 1)).toDouble(&ok),  //y
+                        (*(strPtr + 2)).toDouble(&ok)));  //z
+        strPtr += 7;
+    }
+    catch (...) {
+        if (!ok)
+            return FAILURE;
+        else
+            std::cout << "unknown error in ClientSocket::readTransf \n";
+    }
+    return SUCCESS;
 }
 
 
@@ -169,51 +166,50 @@ int ClientSocket::readTransf(transf * tr){
   message is sent back and this method returns FAILURE.
 */
 int
-ClientSocket::readRobotIndList(std::vector<Robot *> &robVec)
-{
-  QTextStream os(sock);
-  int i,robNum,numRobots;
-  bool ok;
-  World *world = graspItGUI->getIVmgr()->getWorld();
-  std::cout << "ReadRobotIndList Line:"<<line.latin1() << std::endl;
+ClientSocket::readRobotIndList(std::vector<Robot *> &robVec) {
+    QTextStream os(sock);
+    int i, robNum, numRobots;
+    bool ok;
+    World *world = graspItGUI->getIVmgr()->getWorld();
+    std::cout << "ReadRobotIndList Line:" << line.latin1() << std::endl;
 
-  /* if the index list is empty, use every robot and send
-     back the count
-  */
-  if (strPtr == lineStrList.end()) return FAILURE;
-
-  if ((*strPtr).startsWith("ALL")) {
-    strPtr++;
-    for (i=0;i<world->getNumRobots();i++)
-      robVec.push_back(world->getRobot(i));
-    std::cout << "Sending num robots: "<<world->getNumRobots()<<std::endl;
-    os << world->getNumRobots() << endl;
-    return SUCCESS;
-  }
-  
-  numRobots = (*strPtr).toInt(&ok);
-  if (!ok) return FAILURE;
-  strPtr++;
-  
-  for (i=0;i<numRobots;i++) {
+    /* if the index list is empty, use every robot and send
+       back the count
+    */
     if (strPtr == lineStrList.end()) return FAILURE;
-    robNum = (*strPtr).toInt(&ok);
+
+    if ((*strPtr).startsWith("ALL")) {
+        strPtr++;
+        for (i = 0; i < world->getNumRobots(); i++)
+            robVec.push_back(world->getRobot(i));
+        std::cout << "Sending num robots: " << world->getNumRobots() << std::endl;
+        os << world->getNumRobots() << endl;
+        return SUCCESS;
+    }
+
+    numRobots = (*strPtr).toInt(&ok);
     if (!ok) return FAILURE;
-    
-    if (robNum>=0 && robNum<world->getNumRobots()) {
-      robVec.push_back(world->getRobot(robNum));
-      if (world->getRobot(robNum)==NULL) {
-	os << "Error: Cannot find robot " << robNum <<"\n";
-        return FAILURE;
-      }
-    }
-    else {
-      os << "Error: Cannot find robot " << robNum <<"\n";
-      return FAILURE;
-    }
     strPtr++;
-  }
-  return SUCCESS;
+
+    for (i = 0; i < numRobots; i++) {
+        if (strPtr == lineStrList.end()) return FAILURE;
+        robNum = (*strPtr).toInt(&ok);
+        if (!ok) return FAILURE;
+
+        if (robNum >= 0 && robNum < world->getNumRobots()) {
+            robVec.push_back(world->getRobot(robNum));
+            if (world->getRobot(robNum) == NULL) {
+                os << "Error: Cannot find robot " << robNum << "\n";
+                return FAILURE;
+            }
+        }
+        else {
+            os << "Error: Cannot find robot " << robNum << "\n";
+            return FAILURE;
+        }
+        strPtr++;
+    }
+    return SUCCESS;
 }
 
 /*!
@@ -226,331 +222,329 @@ ClientSocket::readRobotIndList(std::vector<Robot *> &robVec)
   action and write out any necessary results.
 */
 void
-ClientSocket::readClient()
-{
-  int i,numData,numBodies,numRobots;
-  double time;
-  std::vector<Body *> bodyVec;
-  std::vector<Robot *> robVec;
+ClientSocket::readClient() {
+    int i, numData, numBodies, numRobots;
+    double time;
+    std::vector<Body *> bodyVec;
+    std::vector<Robot *> robVec;
 
-  bool ok;
+    bool ok;
 
-  while ( sock->canReadLine() ) {
-    line = sock->readLine();
-    line.truncate(line.length()-1); //strip newline character
-    lineStrList =
-      QStringList::split(' ',line);
-    if (!lineStrList.size() > 0)
-        return;
-    strPtr = lineStrList.begin();
+    while (sock->canReadLine()) {
+        line = sock->readLine();
+        line.truncate(line.length() - 1); //strip newline character
+        lineStrList =
+                QStringList::split(' ', line);
+        if (!lineStrList.size() > 0)
+            return;
+        strPtr = lineStrList.begin();
 
 #ifdef GRASPITDBG
     std::cout <<"Command parser line: "<<line << std::endl;
 #endif
-    
-    if (*strPtr == "getContacts") {
-      strPtr++; if (strPtr == lineStrList.end()) continue;
-      numData = (*strPtr).toInt(&ok); strPtr++;
-      if (!ok) continue;
+
+        if (*strPtr == "getContacts") {
+            strPtr++;
+            if (strPtr == lineStrList.end()) continue;
+            numData = (*strPtr).toInt(&ok);
+            strPtr++;
+            if (!ok) continue;
 
 #ifdef GRASPITDBG
       std::cout << "Num data: "<<numData<<std::endl;
 #endif
 
-      if (readBodyIndList(bodyVec)) continue;
-      numBodies = bodyVec.size();
-      for (i=0;i<numBodies;i++)
-        sendContacts(bodyVec[i],numData);
-    }
-    
-    else if (*strPtr == "getAverageContacts") {
-      strPtr++;
-      if (readBodyIndList(bodyVec)) continue;
-      numBodies = bodyVec.size();
-      for (i=0;i<numBodies;i++)
-	sendAverageContacts(bodyVec[i]);
-    }
-    
-    else if (*strPtr == "getBodyName") {
-      strPtr++;
-      if (readBodyIndList(bodyVec)) continue;
-      numBodies = bodyVec.size();
-      for (i=0;i<numBodies;i++)
-	sendBodyName(bodyVec[i]);
-    }
-    else if(*strPtr == "setBodyName") {
-      strPtr++;
-      int body_index;
-      if(strPtr != lineStrList.end()){
-        body_index = strPtr->toInt(&ok);
-        strPtr++;
-        if(strPtr == lineStrList.end())
-          return;
-        if (body_index == -1 || body_index >= graspItGUI->getIVmgr()->getWorld()->getNumBodies())
-        {
-          body_index = graspItGUI->getIVmgr()->getWorld()->getNumBodies() - 1;          
+            if (readBodyIndList(bodyVec)) continue;
+            numBodies = bodyVec.size();
+            for (i = 0; i < numBodies; i++)
+                sendContacts(bodyVec[i], numData);
         }
-        graspItGUI->getIVmgr()->getWorld()->getBody(body_index)->setName(*strPtr);
-      }
-    }
-    
-    else if (*strPtr == "getRobotName") {
-      strPtr++;
-      if (readRobotIndList(robVec)) continue;
-      numRobots = robVec.size();
-      for (i=0;i<numRobots;i++)
-	sendRobotName(robVec[i]);
-    }
-    
-    else if (*strPtr == "getDOFVals") {
-      strPtr++;
-      if (readRobotIndList(robVec)) continue;
-      numRobots = robVec.size();
-      for (i=0;i<numRobots;i++)
-	sendDOFVals(robVec[i]);
-    }
-    
-    else if (*strPtr == "moveDOFs") {
-      strPtr++;
-      readDOFVals();
-    }
-    
-    else if (*strPtr == "render")
-      graspItGUI->getIVmgr()->getViewer()->render();
-    
-    else if (*strPtr == "setDOFForces") {
-      strPtr++;
-      if (readRobotIndList(robVec)) continue;
-      numRobots = robVec.size();
-      for (i=0;i<numRobots;i++)
-	if (readDOFForces(robVec[i])==FAILURE) continue;
-    }
-    
-    else if ((*strPtr) == "moveDynamicBodies") {
-      strPtr++;
-      if (strPtr == lineStrList.end()) ok = FALSE;
-      else {
-	time = (*strPtr).toDouble(&ok); strPtr++;
-      }
-      if (!ok)
-	moveDynamicBodies(-1);
-      else
-	moveDynamicBodies(time);
-    }
-    
-    else if (*strPtr == "computeNewVelocities") {
+
+        else if (*strPtr == "getAverageContacts") {
+            strPtr++;
+            if (readBodyIndList(bodyVec)) continue;
+            numBodies = bodyVec.size();
+            for (i = 0; i < numBodies; i++)
+                sendAverageContacts(bodyVec[i]);
+        }
+
+        else if (*strPtr == "getBodyName") {
+            strPtr++;
+            if (readBodyIndList(bodyVec)) continue;
+            numBodies = bodyVec.size();
+            for (i = 0; i < numBodies; i++)
+                sendBodyName(bodyVec[i]);
+        }
+        else if (*strPtr == "setBodyName") {
+            strPtr++;
+            int body_index;
+            if (strPtr != lineStrList.end()) {
+                body_index = strPtr->toInt(&ok);
+                strPtr++;
+                if (strPtr == lineStrList.end())
+                    return;
+                if (body_index == -1 || body_index >= graspItGUI->getIVmgr()->getWorld()->getNumBodies()) {
+                    body_index = graspItGUI->getIVmgr()->getWorld()->getNumBodies() - 1;
+                }
+                graspItGUI->getIVmgr()->getWorld()->getBody(body_index)->setName(*strPtr);
+            }
+        }
+
+        else if (*strPtr == "getRobotName") {
+            strPtr++;
+            if (readRobotIndList(robVec)) continue;
+            numRobots = robVec.size();
+            for (i = 0; i < numRobots; i++)
+                sendRobotName(robVec[i]);
+        }
+
+        else if (*strPtr == "getDOFVals") {
+            strPtr++;
+            if (readRobotIndList(robVec)) continue;
+            numRobots = robVec.size();
+            for (i = 0; i < numRobots; i++)
+                sendDOFVals(robVec[i]);
+        }
+
+        else if (*strPtr == "moveDOFs") {
+            strPtr++;
+            readDOFVals();
+        }
+
+        else if (*strPtr == "render")
+            graspItGUI->getIVmgr()->getViewer()->render();
+
+        else if (*strPtr == "setDOFForces") {
+            strPtr++;
+            if (readRobotIndList(robVec)) continue;
+            numRobots = robVec.size();
+            for (i = 0; i < numRobots; i++)
+                if (readDOFForces(robVec[i]) == FAILURE) continue;
+        }
+
+        else if ((*strPtr) == "moveDynamicBodies") {
+            strPtr++;
+            if (strPtr == lineStrList.end()) ok = FALSE;
+            else {
+                time = (*strPtr).toDouble(&ok);
+                strPtr++;
+            }
+            if (!ok)
+                moveDynamicBodies(-1);
+            else
+                moveDynamicBodies(time);
+        }
+
+        else if (*strPtr == "computeNewVelocities") {
 
 #ifdef GRASPITDBG
       std::cout << "cnv" << std::endl;
 #endif
 
-      strPtr++; if (strPtr == lineStrList.end()) continue;
-      time = (*strPtr).toDouble(&ok); strPtr++;
-      if (!ok) continue;
+            strPtr++;
+            if (strPtr == lineStrList.end()) continue;
+            time = (*strPtr).toDouble(&ok);
+            strPtr++;
+            if (!ok) continue;
 
 #ifdef GRASPITDBG
       std::cout << time <<std::endl;
 #endif
-      computeNewVelocities(time);
-    }    
-    else if ((*strPtr) == "outputPlannerResults"){      
-      strPtr++;
-      outputPlannerResults(0);      
-    }
-    else if ((*strPtr) == "outputCurrentGrasp"){      
-      strPtr++;
-      outputCurrentGrasp();
-    }    
-    else if ((*strPtr) == "sendBodyTransf"){            
-      strPtr++;
-      verifyInput(1);
-      sendBodyTransf();
-    }
-    else if ((*strPtr) == "setBodyTransf"){            
-      strPtr++;
-      verifyInput(7);
-      setBodyTransf();
-    }
-    else if ((*strPtr) == "addObstacle"){            
-      strPtr++;
-      verifyInput(1);
-      addObstacle(*(strPtr+1));
-      strPtr+=2;
-    }
-    else if ((*strPtr) == "addObject"){
-      verifyInput(2);
-      addGraspableBody(*(strPtr+1), *(strPtr+2));
-      strPtr+=3;
-      verifyInput(7);
-      transf object_pose;
-      readTransf(&object_pose);
-      World * w = graspItGUI->getIVmgr()->getWorld();
-      w->getGB(w->getNumGB() - 1)->setTran(object_pose);
-    }
-    
-    else if ((*strPtr) == "getCurrentHandTran"){
-      strPtr++;
-      getCurrentHandTran();
-    }
-    else if ((*strPtr) == "signalGraspUnreachable"){
-      strPtr+=4;
-      std::cout << line.toStdString() << std::endl;
-      graspItGUI->getIVmgr()->blinkBackground();
-    }
-    else if ((*strPtr) == "setBackgroundColor"){
-      ++strPtr;
-      bool ok;
-      double r = strPtr->toDouble(&ok);
-      ++strPtr;
-      double g = strPtr->toDouble(&ok);
-      ++strPtr;
-      double b = strPtr->toDouble(&ok);
-      ++strPtr;
-      graspItGUI->getIVmgr()->getViewer()->setBackgroundColor(SbColor(r,g,b));
-    }
+            computeNewVelocities(time);
+        }
+        else if ((*strPtr) == "outputPlannerResults") {
+            strPtr++;
+            outputPlannerResults(0);
+        }
+        else if ((*strPtr) == "outputCurrentGrasp") {
+            strPtr++;
+            outputCurrentGrasp();
+        }
+        else if ((*strPtr) == "sendBodyTransf") {
+            strPtr++;
+            verifyInput(1);
+            sendBodyTransf();
+        }
+        else if ((*strPtr) == "setBodyTransf") {
+            strPtr++;
+            verifyInput(7);
+            setBodyTransf();
+        }
+        else if ((*strPtr) == "addObstacle") {
+            strPtr++;
+            verifyInput(1);
+            addObstacle(*(strPtr + 1));
+            strPtr += 2;
+        }
+        else if ((*strPtr) == "addObject") {
+            verifyInput(2);
+            addGraspableBody(*(strPtr + 1), *(strPtr + 2));
+            strPtr += 3;
+            verifyInput(7);
+            transf object_pose;
+            readTransf(&object_pose);
+            World *w = graspItGUI->getIVmgr()->getWorld();
+            w->getGB(w->getNumGB() - 1)->setTran(object_pose);
+        }
 
-    else if ((*strPtr) == "getPlannerTarget"){
-      strPtr+=1;
-      QTextStream os(sock) ;
-      os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject()->getName() << "\n";
-    } 
-    else if ((*strPtr) == "setPlannerTarget"){
-      QTextStream os(sock);
-      os << setPlannerTarget(*(strPtr+1)) << "\n";
-      strPtr+=2;
+        else if ((*strPtr) == "getCurrentHandTran") {
+            strPtr++;
+            getCurrentHandTran();
+        }
+        else if ((*strPtr) == "signalGraspUnreachable") {
+            strPtr += 4;
+            std::cout << line.toStdString() << std::endl;
+            graspItGUI->getIVmgr()->blinkBackground();
+        }
+        else if ((*strPtr) == "setBackgroundColor") {
+            ++strPtr;
+            bool ok;
+            double r = strPtr->toDouble(&ok);
+            ++strPtr;
+            double g = strPtr->toDouble(&ok);
+            ++strPtr;
+            double b = strPtr->toDouble(&ok);
+            ++strPtr;
+            graspItGUI->getIVmgr()->getViewer()->setBackgroundColor(SbColor(r, g, b));
+        }
 
-    }    
+        else if ((*strPtr) == "getPlannerTarget") {
+            strPtr += 1;
+            QTextStream os(sock);
+            os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject()->getName() << "\n";
+        }
+        else if ((*strPtr) == "setPlannerTarget") {
+            QTextStream os(sock);
+            os << setPlannerTarget(*(strPtr + 1)) << "\n";
+            strPtr += 2;
 
-    else if ((*strPtr) == "rotateHandLat"){
-      strPtr+=1;
-      rotateHandLat();
-    }
-    else if ((*strPtr) == "rotateHandLong"){
-      strPtr+=1;
-      rotateHandLong();
-    }    
-    else if ((*strPtr) == "exec"){
-      strPtr+=1;
-      exec();
-    } 
-    else if ((*strPtr) == "next"){
-      strPtr+=1;
-      next();
-    }
-    else if ((*strPtr) == "addPointCloud")
-    {
-      strPtr += 1;
-      addPointCloud();
-      //QTextStream os(sock);
-      //os << addPointCloud() <<" \n";
+        }
 
+        else if ((*strPtr) == "rotateHandLat") {
+            strPtr += 1;
+            rotateHandLat();
+        }
+        else if ((*strPtr) == "rotateHandLong") {
+            strPtr += 1;
+            rotateHandLong();
+        }
+        else if ((*strPtr) == "exec") {
+            strPtr += 1;
+            exec();
+        }
+        else if ((*strPtr) == "next") {
+            strPtr += 1;
+            next();
+        }
+        else if ((*strPtr) == "addPointCloud") {
+            strPtr += 1;
+            addPointCloud();
+            //QTextStream os(sock);
+            //os << addPointCloud() <<" \n";
+
+        }
+        else if ((*strPtr) == "setCameraOrigin") {
+            strPtr += 1;
+            setCameraOrigin();
+        }
+        else if ((*strPtr) == "removeBodies") {
+            strPtr += 1;
+            removeBodies();
+        }
+        else if ((*strPtr) == "clearGraspableBodies") {
+            strPtr += 1;
+            removeBodies(true);
+
+        }
+        else if ((*strPtr) == "setGraspAttribute") {
+            strPtr += 1;
+            verifyInput(3);
+            setGraspAttribute();
+
+        }
+        else if ((*strPtr) == "drawCircle") {
+            strPtr += 1;
+            drawCircle();
+        }
+        else if ((*strPtr) == "drawCursor") {
+            strPtr += 1;
+            drawCursor();
+        }
+        else if ((*strPtr) == "connectToPlanner") {
+            connect(graspItGUI->getIVmgr(), SIGNAL(analyzeApproachDir(GraspPlanningState * )), this, SLOT(analyzeApproachDir(GraspPlanningState * )));
+            connect(graspItGUI->getIVmgr(), SIGNAL(analyzeGrasp(
+                    const GraspPlanningState *)), this, SLOT(analyzeGrasp(
+                    const GraspPlanningState*)));
+            connect(graspItGUI->getIVmgr(), SIGNAL(analyzeNextGrasp()), this, SLOT(analyzeNextGrasp()));
+            connect(graspItGUI->getIVmgr(), SIGNAL(processWorldPlanner(int)), this, SLOT(outputPlannerResults(int)));
+            connect(graspItGUI->getIVmgr(), SIGNAL(runObjectRecognition()), this, SLOT(runObjectRecognition()));
+            connect(graspItGUI->getIVmgr(), SIGNAL(sendString(
+                    const QString &)), this, SLOT(sendString(
+                    const QString &)));
+            QTextStream os(sock);
+            os << "1 \n";
+            os.flush();
+        }
+        else if ((*strPtr) == "setRobotColor") {
+            setRobotColor();
+        }
     }
-    else if ((*strPtr) == "setCameraOrigin")
-      {
-	strPtr += 1;
-	setCameraOrigin();
-      }
-    else if ((*strPtr) == "removeBodies"){
-      strPtr += 1;
-      removeBodies();
-    }
-    else if ((*strPtr) == "clearGraspableBodies"){
-      strPtr += 1;
-      removeBodies(true);
-            
-    }
-    else if ((*strPtr) == "setGraspAttribute"){
-      	strPtr += 1;
-	verifyInput(3);
-	setGraspAttribute();
-      	
-    }
-    else if ((*strPtr) == "drawCircle"){
-      strPtr += 1;
-	    drawCircle();  
-    }
-    else if ((*strPtr) == "drawCursor"){
-      strPtr += 1;
-        drawCursor();
-    }
-    else if ((*strPtr) == "connectToPlanner")
-    {
-      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeApproachDir(GraspPlanningState *) ), this, SLOT(analyzeApproachDir(GraspPlanningState*)));
-      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeGrasp(const GraspPlanningState *) ), this, SLOT(analyzeGrasp(const GraspPlanningState*)));
-      connect(graspItGUI->getIVmgr(), SIGNAL( analyzeNextGrasp() ), this, SLOT(analyzeNextGrasp()));       
-      connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
-      connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
-      connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));	  
-      QTextStream os(sock);
-      os << "1 \n";
-      os.flush();
-    }
-    else if ((*strPtr) =="setRobotColor")
-    {
-      setRobotColor();
-    }
-  }
 }
 
-void ClientSocket::drawCircle()
-{
-  QString circleName = *strPtr;
-  strPtr++;
-  bool ok;
-  double x = .9*(2*strPtr->toDouble(&ok) - 1);
-  strPtr++;
-  double y = .9*(2*strPtr->toDouble(&ok) - 1);
-  strPtr++;
-  double radius = strPtr->toDouble(&ok);
-  strPtr++;
-  double r = strPtr->toDouble(&ok);
-  strPtr++;
-  double g = strPtr->toDouble(&ok);
-  strPtr++;
-  double b = strPtr->toDouble(&ok);
-  strPtr++;
-  double thickness = strPtr->toDouble(&ok);
-  strPtr++;
-  double transparency = strPtr->toDouble(&ok);
-  
-  SbColor circleColor(r,g,b);
-  
-  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
+void ClientSocket::drawCircle() {
+    QString circleName = *strPtr;
+    strPtr++;
+    bool ok;
+    double x = .9 * (2 * strPtr->toDouble(&ok) - 1);
+    strPtr++;
+    double y = .9 * (2 * strPtr->toDouble(&ok) - 1);
+    strPtr++;
+    double radius = strPtr->toDouble(&ok);
+    strPtr++;
+    double r = strPtr->toDouble(&ok);
+    strPtr++;
+    double g = strPtr->toDouble(&ok);
+    strPtr++;
+    double b = strPtr->toDouble(&ok);
+    strPtr++;
+    double thickness = strPtr->toDouble(&ok);
+    strPtr++;
+    double transparency = strPtr->toDouble(&ok);
+
+    SbColor circleColor(r, g, b);
+
+    graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
 }
 
-void ClientSocket::drawCursor()
-{
-  bool ok;
-  double x = (strPtr->toDouble(&ok));
-  strPtr++;
-  double y = (strPtr->toDouble(&ok));
+void ClientSocket::drawCursor() {
+    bool ok;
+    double x = (strPtr->toDouble(&ok));
+    strPtr++;
+    double y = (strPtr->toDouble(&ok));
 
-  BCIService::getInstance()->emitCursorPosition(x,y);
+    BCIService::getInstance()->emitCursorPosition(x, y);
 }
 
-void ClientSocket::setGraspAttribute()
-{		
-  double graspIdentifier = strPtr->toDouble();
-  strPtr += 1;
-  QString attributeString = *strPtr;
-  strPtr += 1;
-  double value = strPtr->toDouble();
-  strPtr += 1;
-  if (!currentWorldPlanner())
-    return;
-  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
-  for(int i = 0; i < currentWorldPlanner()->getListSize(); i++ )
-    {
-      const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
-    if (gs->getAttribute("graspId") == graspIdentifier)
-  	  {
+void ClientSocket::setGraspAttribute() {
+    double graspIdentifier = strPtr->toDouble();
+    strPtr += 1;
+    QString attributeString = *strPtr;
+    strPtr += 1;
+    double value = strPtr->toDouble();
+    strPtr += 1;
+    if (!currentWorldPlanner())
+        return;
+    QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
+    for (int i = 0; i < currentWorldPlanner()->getListSize(); i++) {
+        const GraspPlanningState *gs = currentWorldPlanner()->getGrasp(i);
+        if (gs->getAttribute("graspId") == graspIdentifier) {
 
-        currentWorldPlanner()->setGraspAttribute(i,attributeString, value);
-        std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
-        break;
+            currentWorldPlanner()->setGraspAttribute(i, attributeString, value);
+            std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
+            break;
+        }
     }
-  }
-   analyzeNextGrasp();
+    analyzeNextGrasp();
 }
 
 /*!
@@ -560,32 +554,31 @@ void ClientSocket::setGraspAttribute()
   socket on 2 separate lines.
 */
 void
-ClientSocket::sendAverageContacts(Body* bod)
-{
-  QTextStream os(sock);
-  std::list<Contact *> contactList;
-  std::list<Contact *>::iterator cp;
-  int i,numContacts;
-  double totalWrench[6]={0.0,0.0,0.0,0.0,0.0,0.0};
-  double *wrench;
-  vec3 totalLoc = vec3::ZERO;
+ClientSocket::sendAverageContacts(Body *bod) {
+    QTextStream os(sock);
+    std::list<Contact *> contactList;
+    std::list<Contact *>::iterator cp;
+    int i, numContacts;
+    double totalWrench[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double *wrench;
+    vec3 totalLoc = vec3::ZERO;
 
-  numContacts = bod->getNumContacts();
-  contactList = bod->getContacts();
-  for (cp=contactList.begin();cp!=contactList.end();cp++) {
-    wrench = (*cp)->getDynamicContactWrench();
-    for (i=0;i<6;i++) totalWrench[i] += wrench[i];
-    totalLoc += (*cp)->getContactFrame().translation();
-  }
+    numContacts = bod->getNumContacts();
+    contactList = bod->getContacts();
+    for (cp = contactList.begin(); cp != contactList.end(); cp++) {
+        wrench = (*cp)->getDynamicContactWrench();
+        for (i = 0; i < 6; i++) totalWrench[i] += wrench[i];
+        totalLoc += (*cp)->getContactFrame().translation();
+    }
 
-  if (numContacts>1) {
-    for (i=0;i<6;i++) totalWrench[i] /= numContacts;
-    totalLoc = totalLoc / numContacts;
-  }
+    if (numContacts > 1) {
+        for (i = 0; i < 6; i++) totalWrench[i] /= numContacts;
+        totalLoc = totalLoc / numContacts;
+    }
 
-  os << totalWrench[0]<<" "<<totalWrench[1]<<" "<<totalWrench[2]<<
-    " "<<totalWrench[3]<<" "<<totalWrench[4]<<" "<<totalWrench[5]<<"\n";
-  os << totalLoc[0] << " "<<totalLoc[1] << " " <<totalLoc[2]<<"\n";
+    os << totalWrench[0] << " " << totalWrench[1] << " " << totalWrench[2] <<
+            " " << totalWrench[3] << " " << totalWrench[4] << " " << totalWrench[5] << "\n";
+    os << totalLoc[0] << " " << totalLoc[1] << " " << totalLoc[2] << "\n";
 
 }
 
@@ -594,11 +587,10 @@ ClientSocket::sendAverageContacts(Body* bod)
   to the socket.
 */
 void
-ClientSocket::sendBodyName(Body* bod)
-{
-  QTextStream os(sock);
-  std::cout << "sending " << bod->getName().latin1() << "\n";
-  os << bod->getName().latin1() << "\n";
+ClientSocket::sendBodyName(Body *bod) {
+    QTextStream os(sock);
+    std::cout << "sending " << bod->getName().latin1() << "\n";
+    os << bod->getName().latin1() << "\n";
 }
 
 /*!
@@ -606,11 +598,10 @@ ClientSocket::sendBodyName(Body* bod)
   to the socket.
 */
 void
-ClientSocket::sendRobotName(Robot* rob)
-{
-  QTextStream os(sock);
-  std::cout << "sending " << rob->getName().latin1() << "\n";
-  os << rob->getName().latin1() << "\n";
+ClientSocket::sendRobotName(Robot *rob) {
+    QTextStream os(sock);
+    std::cout << "sending " << rob->getName().latin1() << "\n";
+    os << rob->getName().latin1() << "\n";
 }
 
 /*!
@@ -622,34 +613,33 @@ ClientSocket::sendRobotName(Robot* rob)
   constraint error for that contact.
 */
 void
-ClientSocket::sendContacts(Body *bod,int numData)
-{
-  QTextStream os(sock);
-  std::list<Contact *> contactList;
-  std::list<Contact *>::iterator cp;
-  vec3 loc;
-  double err;
-  double *wrench;
+ClientSocket::sendContacts(Body *bod, int numData) {
+    QTextStream os(sock);
+    std::list<Contact *> contactList;
+    std::list<Contact *>::iterator cp;
+    vec3 loc;
+    double err;
+    double *wrench;
 
 #ifdef GRASPITDBG
   std::cout << "sending numContacts: "<<bod->getNumContacts()<<std::endl;
 #endif
 
-  os << bod->getNumContacts()<<"\n";
+    os << bod->getNumContacts() << "\n";
 
-  contactList = bod->getContacts();
-  for (cp=contactList.begin();cp!=contactList.end();cp++) {
-	wrench = (*cp)->getDynamicContactWrench();
-	loc = (*cp)->getContactFrame().translation();
-	err = (*cp)->getConstraintError();
+    contactList = bod->getContacts();
+    for (cp = contactList.begin(); cp != contactList.end(); cp++) {
+        wrench = (*cp)->getDynamicContactWrench();
+        loc = (*cp)->getContactFrame().translation();
+        err = (*cp)->getConstraintError();
 
-    os << wrench[0]<<" "<<wrench[1]<<" "<<wrench[2]<<" "<<wrench[3]<<" "<<
-      wrench[4]<<" "<<wrench[5]<<"\n";
-	if (numData > 1) 
-	  os << loc[0] << " "<< loc[1] << " " << loc[2]<<"\n";
-	if (numData > 2)
-	  os << err << "\n";
-  }
+        os << wrench[0] << " " << wrench[1] << " " << wrench[2] << " " << wrench[3] << " " <<
+                wrench[4] << " " << wrench[5] << "\n";
+        if (numData > 1)
+            os << loc[0] << " " << loc[1] << " " << loc[2] << "\n";
+        if (numData > 2)
+            os << err << "\n";
+    }
 }
 
 /*!
@@ -658,14 +648,13 @@ ClientSocket::sendContacts(Body *bod,int numData)
   containting the current value of that %DOF.
 */
 void
-ClientSocket::sendDOFVals(Robot *rob)
-{
-  QTextStream os(sock);
-  int i;
+ClientSocket::sendDOFVals(Robot *rob) {
+    QTextStream os(sock);
+    int i;
 
-  os << rob->getNumDOF() << "\n";
-  for (i=0;i<rob->getNumDOF();i++)
-    os << rob->getDOF(i)->getVal() << "\n";
+    os << rob->getNumDOF() << "\n";
+    for (i = 0; i < rob->getNumDOF(); i++)
+        os << rob->getDOF(i)->getVal() << "\n";
 }
 
 /*!
@@ -677,95 +666,94 @@ ClientSocket::sendDOFVals(Robot *rob)
   the actual value for the %DOF after the move.
 */
 int
-ClientSocket::readDOFVals()
-{
-  Robot *rob;
-  double *val,*stepby;
-  QTextStream os(sock);
-  int numDOF,i,robNum;
-  bool ok=TRUE;
+ClientSocket::readDOFVals() {
+    Robot *rob;
+    double *val, *stepby;
+    QTextStream os(sock);
+    int numDOF, i, robNum;
+    bool ok = TRUE;
 
 #ifdef GRASPITDBG
   std::cout << "in read dof vals"<<std::endl;
 #endif
 
-  if (strPtr == lineStrList.end()) ok=FALSE;
-  if (ok) robNum = (*strPtr).toInt(&ok);
+    if (strPtr == lineStrList.end()) ok = FALSE;
+    if (ok) robNum = (*strPtr).toInt(&ok);
 
-  if (!ok || robNum < 0 ||
-    robNum >= graspItGUI->getIVmgr()->getWorld()->getNumRobots()) {
-	os <<"Error: Robot does not exist.\n";
-    return FAILURE;
-  }
-  rob = graspItGUI->getIVmgr()->getWorld()->getRobot(robNum);
+    if (!ok || robNum < 0 ||
+            robNum >= graspItGUI->getIVmgr()->getWorld()->getNumRobots()) {
+        os << "Error: Robot does not exist.\n";
+        return FAILURE;
+    }
+    rob = graspItGUI->getIVmgr()->getWorld()->getRobot(robNum);
 
 #ifdef GRASPITDBG
   std::cout << "robnum: "<<robNum<<std::endl;
 #endif
 
-  strPtr++;
-  if (strPtr == lineStrList.end()) return FAILURE;
+    strPtr++;
+    if (strPtr == lineStrList.end()) return FAILURE;
 
-  numDOF=(*strPtr).toInt(&ok);
-  if (!ok) return FAILURE;
-  strPtr++;
+    numDOF = (*strPtr).toInt(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
 
 #ifdef GRASPITDBG
   std::cout << "read robot has: "<< numDOF << " DOF?"<<std::endl;
 #endif
 
-  if (numDOF < 1) {
+    if (numDOF < 1) {
 
 #ifdef GRASPITDBG
 	std::cout << "numDOF was zero."<<std::endl;
 #endif
-	return FAILURE;
-  }
-  if (numDOF != rob->getNumDOF()) {
-    os <<"Error: robot has " << rob->getNumDOF() <<" DOF."<<endl;
-	return FAILURE;
-  }
+        return FAILURE;
+    }
+    if (numDOF != rob->getNumDOF()) {
+        os << "Error: robot has " << rob->getNumDOF() << " DOF." << endl;
+        return FAILURE;
+    }
 
-  val = new double[numDOF];
-  stepby = new double[numDOF];
+    val = new double[numDOF];
+    stepby = new double[numDOF];
 
-  for (i=0;i<rob->getNumDOF();i++) {
-	if (strPtr == lineStrList.end()) return FAILURE;
-	val[i] = (*strPtr).toDouble(&ok);
-	if (!ok) return FAILURE;
-	strPtr++;
+    for (i = 0; i < rob->getNumDOF(); i++) {
+        if (strPtr == lineStrList.end()) return FAILURE;
+        val[i] = (*strPtr).toDouble(&ok);
+        if (!ok) return FAILURE;
+        strPtr++;
 #ifdef GRASPITDBG
 	std::cout<<val[i]<<" ";
 #endif
-  }
+    }
 
 #ifdef GRASPITDBG
   std::cout<<std::endl;
 #endif
 
-  for (i=0;i<rob->getNumDOF();i++) {
-    if (strPtr == lineStrList.end()) return FAILURE;
-	stepby[i] = (*strPtr).toDouble(&ok);
-	if (!ok) return FAILURE;
-	strPtr++;
-  }
+    for (i = 0; i < rob->getNumDOF(); i++) {
+        if (strPtr == lineStrList.end()) return FAILURE;
+        stepby[i] = (*strPtr).toDouble(&ok);
+        if (!ok) return FAILURE;
+        strPtr++;
+    }
 
-  rob->moveDOFToContacts(val,stepby,true);
-  
-  // these should be separate commands
-  graspItGUI->getIVmgr()->getWorld()->findAllContacts();
-  graspItGUI->getIVmgr()->getWorld()->updateGrasps();
+    rob->moveDOFToContacts(val, stepby, true);
 
-  for (i=0;i<rob->getNumDOF();i++) {
-    os << rob->getDOF(i)->getVal() << "\n";
+    // these should be separate commands
+    graspItGUI->getIVmgr()->getWorld()->findAllContacts();
+    graspItGUI->getIVmgr()->getWorld()->updateGrasps();
+
+    for (i = 0; i < rob->getNumDOF(); i++) {
+        os << rob->getDOF(i)->getVal() << "\n";
 
 #ifdef GRASPITDBG
     std::cout << "Sending: "<< rob->getDOF(i)->getVal() << "\n";
 #endif
-  }
-  delete [] val;
-  delete [] stepby;
-  return SUCCESS;
+    }
+    delete[] val;
+    delete[] stepby;
+    return SUCCESS;
 }
 
 /*!
@@ -775,60 +763,59 @@ ClientSocket::readDOFVals()
   the current force.
 */
 int
-ClientSocket::readDOFForces(Robot *rob)
-{
-  double val;
-  bool ok;
- // QTextStream is(this);
-  QTextStream os(sock);
-  int numDOF,i;
+ClientSocket::readDOFForces(Robot *rob) {
+    double val;
+    bool ok;
+    // QTextStream is(this);
+    QTextStream os(sock);
+    int numDOF, i;
 
-  if (strPtr == lineStrList.end()) return FAILURE;
- 
-  numDOF=(*strPtr).toInt(&ok);
-  if (!ok) return FAILURE;
-  strPtr++;
+    if (strPtr == lineStrList.end()) return FAILURE;
+
+    numDOF = (*strPtr).toInt(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
 
 #ifdef GRASPITDBG
   std::cout << "read robot has: "<< numDOF << " DOF?"<<std::endl;
 #endif
 
-  if (numDOF < 1) {
+    if (numDOF < 1) {
 #ifdef GRASPITDBG
     std::cout << "numDOF was zero."<<std::endl;
 #endif
-    return FAILURE;
-  }
-  
-  if (numDOF != rob->getNumDOF()) {
-    os <<"Error: robot has " << rob->getNumDOF() <<" DOF."<<endl;
-    return FAILURE;
-  }
-  
-  for (i=0;i<rob->getNumDOF();i++) {
-    if (strPtr == lineStrList.end()) return FAILURE;
-    val = (*strPtr).toDouble(&ok);
-    if (!ok) return FAILURE;
-    strPtr++;
-    rob->getDOF(i)->setForce(val);
-    
+        return FAILURE;
+    }
+
+    if (numDOF != rob->getNumDOF()) {
+        os << "Error: robot has " << rob->getNumDOF() << " DOF." << endl;
+        return FAILURE;
+    }
+
+    for (i = 0; i < rob->getNumDOF(); i++) {
+        if (strPtr == lineStrList.end()) return FAILURE;
+        val = (*strPtr).toDouble(&ok);
+        if (!ok) return FAILURE;
+        strPtr++;
+        rob->getDOF(i)->setForce(val);
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
-  }
-  
+    }
+
 #ifdef GRASPITDBG
   std::cout<<std::endl;
 #endif
-  
-  for (i=0;i<rob->getNumDOF();i++) {
-    os << rob->getDOF(i)->getForce() << "\n";
-    
+
+    for (i = 0; i < rob->getNumDOF(); i++) {
+        os << rob->getDOF(i)->getForce() << "\n";
+
 #ifdef GRASPITDBG
     std::cout << "Sending: "<< rob->getDOF(i)->getForce() << "\n";
 #endif
-  }
-  return SUCCESS;
+    }
+    return SUCCESS;
 }
 
 /*
@@ -850,18 +837,17 @@ ClientSocket::moveBody(Body *bod)
   with the actual length of that timestep is then sent back.
 */
 void
-ClientSocket::moveDynamicBodies(double timeStep)
-{
-  QTextStream os(sock);
-  if (timeStep<0)
-    timeStep = graspItGUI->getIVmgr()->getWorld()->getTimeStep();
+ClientSocket::moveDynamicBodies(double timeStep) {
+    QTextStream os(sock);
+    if (timeStep < 0)
+        timeStep = graspItGUI->getIVmgr()->getWorld()->getTimeStep();
 
-  double actualTimeStep =
-    graspItGUI->getIVmgr()->getWorld()->moveDynamicBodies(timeStep);
-  if (actualTimeStep < 0)
-    os << "Error: Timestep failsafe reached.\n";
-  else 
-    os << actualTimeStep << "\n";
+    double actualTimeStep =
+            graspItGUI->getIVmgr()->getWorld()->moveDynamicBodies(timeStep);
+    if (actualTimeStep < 0)
+        os << "Error: Timestep failsafe reached.\n";
+    else
+        os << actualTimeStep << "\n";
 }
 
 /*!
@@ -870,82 +856,76 @@ ClientSocket::moveDynamicBodies(double timeStep)
   result code from that operation.
 */
 void
-ClientSocket::computeNewVelocities(double timeStep)
-{
-  QTextStream os(sock);
-  int result = graspItGUI->getIVmgr()->getWorld()->computeNewVelocities(timeStep);
-  os << result << "\n";
+ClientSocket::computeNewVelocities(double timeStep) {
+    QTextStream os(sock);
+    int result = graspItGUI->getIVmgr()->getWorld()->computeNewVelocities(timeStep);
+    os << result << "\n";
 }
 
 
 void
-ClientSocket::updatePlannerParams(QStringList & qsl)
-{
-  
-  /*parse arguments */
-  //confidence arguments
-  
-  
-  return;
-}
+ClientSocket::updatePlannerParams(QStringList &qsl) {
+
+    /*parse arguments */
+    //confidence arguments
 
 
-void
-ClientSocket::outputPlannerResults(int solution_index)
-{
-  QTextStream os(sock);
-  //Test for existence of planner
-  if(!currentWorldPlanner()){
-    os << "No Planner Set \n";
     return;
-  }
-  //Iterate through solutions list outputing each one
-  //WARNING:: THIS IS NOT REALLY THREADSAFE BECAUSE THE PLANNER KEEPS RUNNING
-  //FIXME
-  //os << currentWorldPlanner()->getListSize() << "\n";
-  os << "doGrasp {";
-  //  for(int solution_index =0; solution_index < currentWorldPlanner()->getListSize(); ++solution_index)
-  // {
-  os << *(currentWorldPlanner()->getGrasp(solution_index)) << ',';      
-      // }
-  os << '}';
-  os << '\n';
-  std::cout << "sent grasp\n";
-  return;
+}
+
+
+void
+ClientSocket::outputPlannerResults(int solution_index) {
+    QTextStream os(sock);
+    //Test for existence of planner
+    if (!currentWorldPlanner()) {
+        os << "No Planner Set \n";
+        return;
+    }
+    //Iterate through solutions list outputing each one
+    //WARNING:: THIS IS NOT REALLY THREADSAFE BECAUSE THE PLANNER KEEPS RUNNING
+    //FIXME
+    //os << currentWorldPlanner()->getListSize() << "\n";
+    os << "doGrasp {";
+    //  for(int solution_index =0; solution_index < currentWorldPlanner()->getListSize(); ++solution_index)
+    // {
+    os << *(currentWorldPlanner()->getGrasp(solution_index)) << ',';
+    // }
+    os << '}';
+    os << '\n';
+    std::cout << "sent grasp\n";
+    return;
 }
 
 /*Signal object recognition to run. 
 */
-void ClientSocket::runObjectRecognition()
-{
-  QTextStream os(sock);
-  os << "runObjectRecognition \n";
-  return;
+void ClientSocket::runObjectRecognition() {
+    QTextStream os(sock);
+    os << "runObjectRecognition \n";
+    return;
 }
 
-void ClientSocket::sendString(const QString & message)
-{
-  QTextStream os(sock);
-  os << message << "\n";
-  os.flush();
-  sock->flush();
-  return;
+void ClientSocket::sendString(const QString &message) {
+    QTextStream os(sock);
+    os << message << "\n";
+    os.flush();
+    sock->flush();
+    return;
 }
 
-void 
-ClientSocket::outputCurrentGrasp()
-{
-  QTextStream os(sock);
-  GraspPlanningState g(graspItGUI->getIVmgr()->getWorld()->getCurrentHand());
-  g.setPostureType(POSE_DOF, false);
-  g.saveCurrentHandState();
-  os << "doGrasp{";
-  os << g <<',';
- 
-  os << '}';
-  os << '\n';
-  std::cout << "sent grasp: " << g << " \n";
- 
+void
+ClientSocket::outputCurrentGrasp() {
+    QTextStream os(sock);
+    GraspPlanningState g(graspItGUI->getIVmgr()->getWorld()->getCurrentHand());
+    g.setPostureType(POSE_DOF, false);
+    g.saveCurrentHandState();
+    os << "doGrasp{";
+    os << g << ',';
+
+    os << '}';
+    os << '\n';
+    std::cout << "sent grasp: " << g << " \n";
+
 }
 
 
@@ -970,387 +950,357 @@ ClientSocket::readTorques()
 
 //Body transforms are sent backwards by the planner for some reason compared to the overloading
 //of << for transfs
-void ClientSocket::setBodyTransf(){
-  //FIXME add checking for badly formatted input here.
-	std::vector <Body *> bd;
-	readBodyIndList(bd);
-	transf object_pose;
-	for(std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp){
-		readTransf(&object_pose);
-		(*bp)->setTran(object_pose);
-	}
-    QTextStream os(sock);
-	os << "1 \n";
-	os.flush();
-}
-
-void ClientSocket::sendBodyTransf(){
-	std::vector <Body *> bd;
-	readBodyIndList(bd);
-    QTextStream os(sock);
-	for(std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp){
-		//this is a hack around the overloading for standard strings and not qstrings.  
-		//this should be templated
-	  std::stringstream ss(std::stringstream::in | std::stringstream::out);
-		ss << (*bp)->getTran().translation() << (*bp)->getTran().rotation() << "\n";
-		std::cout << ss.str() << "\n";
-		os << QString(ss.str().c_str());
-	}
-	os << "\n";
-	os.flush();
-	std::cout << "Body list size:"<< bd.size() << "\n";
-}
-
-void ClientSocket::removeBodies(bool graspable){
-  std::vector <Body *> bd;
-  readBodyIndList(bd);
-  QTextStream os(sock);
-  for(std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp){
-    if(!graspable || (*bp)->inherits("GraspableBody") )
-      graspItGUI->getIVmgr()->getWorld()->destroyElement(*bp, true);    
-  }
-  os << 1 << '\n';
-}
-
-Body *addToWorld(const QString & relative_model_dir, const QString & model_type, const QString & model_filename)
-{
- QString body_file = QString(getenv("GRASPIT")) + "/" +  relative_model_dir + model_filename;
- std::cout << "body string: "<< body_file.toStdString() << std::endl;
- return graspItGUI->getIVmgr()->getWorld()->importBody(model_type, body_file);
-}
-
-void ClientSocket::addGraspableBody(const QString & bodyName, const QString & objectName){
-  QTextStream os(sock);
-  Body * b = addToWorld(QString("models/objects/"), "GraspableBody", bodyName);
-  if(!b)
-     b = addToWorld("models/object_database/", QString("GraspableBody"), bodyName);
-  os << (b!=NULL) << " \n";  
-  os.flush();
-  std::cout << "done adding graspable body \n";
-  b->setName(objectName);
-}
-
-
-void ClientSocket::addObstacle(const QString & bodyName){
-  QTextStream os(sock);
-  os << (addToWorld("models/obstacles/", "Body", bodyName)!=NULL) << '\n';
-}
-
-void ClientSocket::getCurrentHandTran()
-{
-  QTextStream os(sock);
-  os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getTran() << "\n";
-  
-}
-
-bool ClientSocket::verifyInput(int minimum_arg_number){
-  // Method one, copy the iterator and test manually
-  QStringList::const_iterator strPtr_copy = strPtr;
-  for (int iter = 0; iter < minimum_arg_number; ++iter)
-    {
-      if (strPtr_copy == lineStrList.end()){
-    QTextStream os(sock);
-	os << 0 << '\n';
-	std::cout << "verifyInput failed \n";
-	return false;
-      }
-      strPtr_copy++;
+void ClientSocket::setBodyTransf() {
+    //FIXME add checking for badly formatted input here.
+    std::vector<Body *> bd;
+    readBodyIndList(bd);
+    transf object_pose;
+    for (std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp) {
+        readTransf(&object_pose);
+        (*bp)->setTran(object_pose);
     }
-  if (strPtr == lineStrList.end())
-    std::cout << "copying pointers doesn't work right \n";
-  return true;
+    QTextStream os(sock);
+    os << "1 \n";
+    os.flush();
+}
+
+void ClientSocket::sendBodyTransf() {
+    std::vector<Body *> bd;
+    readBodyIndList(bd);
+    QTextStream os(sock);
+    for (std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp) {
+        //this is a hack around the overloading for standard strings and not qstrings.
+        //this should be templated
+        std::stringstream ss(std::stringstream::in | std::stringstream::out);
+        ss << (*bp)->getTran().translation() << (*bp)->getTran().rotation() << "\n";
+        std::cout << ss.str() << "\n";
+        os << QString(ss.str().c_str());
+    }
+    os << "\n";
+    os.flush();
+    std::cout << "Body list size:" << bd.size() << "\n";
+}
+
+void ClientSocket::removeBodies(bool graspable) {
+    std::vector<Body *> bd;
+    readBodyIndList(bd);
+    QTextStream os(sock);
+    for (std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp) {
+        if (!graspable || (*bp)->inherits("GraspableBody"))
+            graspItGUI->getIVmgr()->getWorld()->destroyElement(*bp, true);
+    }
+    os << 1 << '\n';
+}
+
+Body *addToWorld(const QString &relative_model_dir, const QString &model_type, const QString &model_filename) {
+    QString body_file = QString(getenv("GRASPIT")) + "/" + relative_model_dir + model_filename;
+    std::cout << "body string: " << body_file.toStdString() << std::endl;
+    return graspItGUI->getIVmgr()->getWorld()->importBody(model_type, body_file);
+}
+
+void ClientSocket::addGraspableBody(const QString &bodyName, const QString &objectName) {
+    QTextStream os(sock);
+    Body *b = addToWorld(QString("models/objects/"), "GraspableBody", bodyName);
+    if (!b)
+        b = addToWorld("models/object_database/", QString("GraspableBody"), bodyName);
+    os << (b != NULL) << " \n";
+    os.flush();
+    std::cout << "done adding graspable body \n";
+    b->setName(objectName);
 }
 
 
-bool ClientSocket::rotateHandLat()
-{
+void ClientSocket::addObstacle(const QString &bodyName) {
+    QTextStream os(sock);
+    os << (addToWorld("models/obstacles/", "Body", bodyName) != NULL) << '\n';
+}
+
+void ClientSocket::getCurrentHandTran() {
+    QTextStream os(sock);
+    os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getTran() << "\n";
+
+}
+
+bool ClientSocket::verifyInput(int minimum_arg_number) {
+    // Method one, copy the iterator and test manually
+    QStringList::const_iterator strPtr_copy = strPtr;
+    for (int iter = 0; iter < minimum_arg_number; ++iter) {
+        if (strPtr_copy == lineStrList.end()) {
+            QTextStream os(sock);
+            os << 0 << '\n';
+            std::cout << "verifyInput failed \n";
+            return false;
+        }
+        strPtr_copy++;
+    }
+    if (strPtr == lineStrList.end())
+        std::cout << "copying pointers doesn't work right \n";
+    return true;
+}
+
+
+bool ClientSocket::rotateHandLat() {
     BCIService::getInstance()->emitRotLat();
     return true;
 }
 
-bool ClientSocket::rotateHandLong()
-{
+bool ClientSocket::rotateHandLong() {
     BCIService::getInstance()->emitRotLong();
     return true;
 }
 
-bool ClientSocket::exec()
-{
+bool ClientSocket::exec() {
     BCIService::getInstance()->emitExec();
     return true;
 }
 
-bool ClientSocket::next()
-{
+bool ClientSocket::next() {
     BCIService::getInstance()->emitNext();
     return true;
 }
 
-bool ClientSocket::setPlannerTarget(const QString & bodyName)
-{  
-  
-  World * w = graspItGUI->getIVmgr()->getWorld();
-  //remove the current planner target if it exists
-  if(w->getCurrentHand())
-  {
-    GraspableBody * currentObject = w->getCurrentHand()->getGrasp()->getObject();
+bool ClientSocket::setPlannerTarget(const QString &bodyName) {
 
-    if(currentObject)
-      {
-        w->getCurrentHand()->getGrasp()->setObject(NULL);
-        w->destroyElement(currentObject);
-      }
-  }
-  if (!addToWorld("models/objects/", QString("GraspableBody"), bodyName) && !addToWorld("models/object_database/", QString("GraspableBody"), bodyName))  
-    return false; // failed to add body to world. 
-  
-  
-  //The body has been added. Now load the table obstacle if necessary  
-  //Find table obstacle and move it down
-  Body * b = NULL;
-  for(int i = 0; i < w->getNumBodies(); ++i)
-  {
-    if(w->getBody(i)->getName() == "experiment_table")
-      b = w->getBody(i);
-  }
-  if(b == NULL)
-    b = addToWorld("models/objects/", "Body", "experiment_table.xml");
-  if(b == NULL)
-      return false;
-  //move obstacle down below object
+    World *w = graspItGUI->getIVmgr()->getWorld();
+    //remove the current planner target if it exists
+    if (w->getCurrentHand()) {
+        GraspableBody *currentObject = w->getCurrentHand()->getGrasp()->getObject();
 
-  // Get most recent GB, which we have just added
-  GraspableBody * gb = w->getGB(w->getNumGB() - 1);
-  std::vector<position> vertices;
-	gb->getGeometryVertices(&vertices);
-  double zmin = 0;
-  for(unsigned int iv = 0; iv < vertices.size(); ++iv)
-  {
-    if(zmin > vertices[iv].z())
-    zmin = vertices[iv].z();
-  }
-  int collisionThreshold = 1;
-  transf t(mat3::IDENTITY,vec3(0,0,zmin - collisionThreshold));      
-  b->setTran(t);
-  //Disable collisions between main hand and the experiment table
-  w->toggleCollisions(false, w->getCurrentHand(), b);
-  //w->emitTargetBodyChanged(gb);
-  return true;  
-
-}
-
-double convertToNumber(const QStringList::const_iterator & strPtr, QStringList * lineStrList, bool & ok)
-{  
-  double d = -1;
-  ok = false;
-  if(strPtr != lineStrList->end())
-    d = strPtr->toDouble(&ok);
-  return d;
-}
-
-SoSeparator * newSphere(double x, double y, double z)
-{
-  SbMatrix tr = SbMatrix::identity();
-  tr.setTranslate(SbVec3f(x,y,z));
-  SoTransform * t = new SoTransform;
-  t->setMatrix(tr);
-  SoSeparator * sphere_sep = new SoSeparator;
-  SoMaterial * black = new SoMaterial;
-  SoMFColor black_color;
-  black_color.setValue(0.0,0.0,0.0);
-  black->ambientColor = black_color;
-  black->specularColor = black_color;
-  black->emissiveColor = black_color;
-  black->transparency = 0.8f;
-  sphere_sep->addChild(black);
-  sphere_sep->addChild(t);
-  SoSphere * sphere = new SoSphere;
-  sphere->radius = 10;
-  sphere_sep->addChild(sphere);
-  return sphere_sep;
-}
-
-bool ClientSocket::setCameraOrigin()
-{
-  bool ok = false;
-  float x = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-  if (!ok)
-    return false;
-  float y = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-  if (!ok)
-    return false;
-  float z = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-  if (!ok)
-    return false;
-  std::cout << "x y z:" << x << " " <<  y << " " << z << std::endl;
-  transf t(mat3::IDENTITY, vec3(x,y,z));
-  graspItGUI->getIVmgr()->setCameraTransf(t);
-  graspItGUI->getIVmgr()->getViewer()->getCamera()->pointAt(SbVec3f(0,0,0), SbVec3f(0,0,1));
-  return true;
-}
-
-bool ClientSocket::addPointCloud()
-{  
-  
-  
-  bool ok = false;  
-  
-  bool has_colors = true;
-
-  double pointNum = convertToNumber(strPtr++, &lineStrList, ok);
-  if (!ok)
-    return false;  
-  SoNodeList l;
-  SoCoordinate3 * coord;
-  SoMaterial * mat;
-
-  unsigned int listLen = SoCoordinate3::getByName("PointCloudCoordinates", l);
-  if (listLen < 1)
-  {
-    SoSeparator * coords_sep = new SoSeparator();
-    SoTransform * coord_tran = new SoTransform();
-    coord_tran->setName("PointCloudTransform");
-    coord = new SoCoordinate3();  
-    coord->setName("PointCloudCoordinates");
-    SoPointSet * pointSet = new SoPointSet();
-    SoDrawStyle * drawStyle = new SoDrawStyle(); 
-    coords_sep->addChild(coord_tran);
-    coords_sep->addChild(coord);
-    mat = new SoMaterial();
-    mat->setName("PointCloudColorMaterial");
-    SoMaterialBinding * matBinding = new SoMaterialBinding();
-    matBinding->value = SoMaterialBinding::PER_PART;    
-    
-    coords_sep->addChild(mat);
-    coords_sep->addChild(matBinding);
-    
-    drawStyle->pointSize = 3;
-    coords_sep->addChild(drawStyle);
-    coords_sep->addChild(pointSet);
-    graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);  
-  }  else if (listLen > 1)
-  {
-    std::cout << "More than 1 Point Cloud coordinate node. What the heck!\n";
-  }
-  else{
-    coord = static_cast<SoCoordinate3 *>(l[0]);
-    SoNodeList l2;
-    unsigned int listLen2 = SoMaterial::getByName("PointCloudColorMaterial", l2);
-    if (listLen2 != 1){
-      std::cout << "Wrong number of Point Cloud Materials: " << listLen2 << "\n";
-      return false;
+        if (currentObject) {
+            w->getCurrentHand()->getGrasp()->setObject(NULL);
+            w->destroyElement(currentObject);
+        }
     }
-    mat = static_cast<SoMaterial *>(l2[0]);
-  }
+    if (!addToWorld("models/objects/", QString("GraspableBody"), bodyName) && !addToWorld("models/object_database/", QString("GraspableBody"), bodyName))
+        return false; // failed to add body to world.
 
-  std::vector<SbVec3f> points;
-  std::vector<SbColor> colors;    
-  points.reserve(pointNum);
-  colors.reserve(pointNum);
-  //std::vector<SoSeparator *> points(pointNum);
-  
-  for(int pointIndex = 0; pointIndex < pointNum; ++pointIndex)
-  {
-    double x = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-    if (!ok)
-      return false;
-    double y = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-    if (!ok)
-      return false;
-    double z = convertToNumber(strPtr++, &lineStrList, ok)*1000;    
-    if (!ok)
-      return false;      
 
-    points.push_back(SbVec3f(x,y,z));
-  
-    
-    
-  
-    double r = convertToNumber(strPtr++, &lineStrList, ok)/255.0;    
-    if (!ok)
-      return false;
-      double g = convertToNumber(strPtr++, &lineStrList, ok)/255.0;    
-    if (!ok)
-      return false;
-      double b = convertToNumber(strPtr++, &lineStrList, ok)/255.0;    
-    if (!ok)
-      return false;
+    //The body has been added. Now load the table obstacle if necessary
+    //Find table obstacle and move it down
+    Body *b = NULL;
+    for (int i = 0; i < w->getNumBodies(); ++i) {
+        if (w->getBody(i)->getName() == "experiment_table")
+            b = w->getBody(i);
+    }
+    if (b == NULL)
+        b = addToWorld("models/objects/", "Body", "experiment_table.xml");
+    if (b == NULL)
+        return false;
+    //move obstacle down below object
 
-    
-    colors.push_back(SbColor(r,g,b));
-  }
-  
-  coord->point.setValues(0,points.size(), &points[0]);  
-  mat->diffuseColor.setValues(0,colors.size(), &colors[0]);            
-  
-  return true;
+    // Get most recent GB, which we have just added
+    GraspableBody *gb = w->getGB(w->getNumGB() - 1);
+    std::vector<position> vertices;
+    gb->getGeometryVertices(&vertices);
+    double zmin = 0;
+    for (unsigned int iv = 0; iv < vertices.size(); ++iv) {
+        if (zmin > vertices[iv].z())
+            zmin = vertices[iv].z();
+    }
+    int collisionThreshold = 1;
+    transf t(mat3::IDENTITY, vec3(0, 0, zmin - collisionThreshold));
+    b->setTran(t);
+    //Disable collisions between main hand and the experiment table
+    w->toggleCollisions(false, w->getCurrentHand(), b);
+    //w->emitTargetBodyChanged(gb);
+    return true;
+
+}
+
+double convertToNumber(const QStringList::const_iterator &strPtr, QStringList *lineStrList, bool &ok) {
+    double d = -1;
+    ok = false;
+    if (strPtr != lineStrList->end())
+        d = strPtr->toDouble(&ok);
+    return d;
+}
+
+SoSeparator *newSphere(double x, double y, double z) {
+    SbMatrix tr = SbMatrix::identity();
+    tr.setTranslate(SbVec3f(x, y, z));
+    SoTransform *t = new SoTransform;
+    t->setMatrix(tr);
+    SoSeparator *sphere_sep = new SoSeparator;
+    SoMaterial *black = new SoMaterial;
+    SoMFColor black_color;
+    black_color.setValue(0.0, 0.0, 0.0);
+    black->ambientColor = black_color;
+    black->specularColor = black_color;
+    black->emissiveColor = black_color;
+    black->transparency = 0.8f;
+    sphere_sep->addChild(black);
+    sphere_sep->addChild(t);
+    SoSphere *sphere = new SoSphere;
+    sphere->radius = 10;
+    sphere_sep->addChild(sphere);
+    return sphere_sep;
+}
+
+bool ClientSocket::setCameraOrigin() {
+    bool ok = false;
+    float x = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+    if (!ok)
+        return false;
+    float y = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+    if (!ok)
+        return false;
+    float z = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+    if (!ok)
+        return false;
+    std::cout << "x y z:" << x << " " << y << " " << z << std::endl;
+    transf t(mat3::IDENTITY, vec3(x, y, z));
+    graspItGUI->getIVmgr()->setCameraTransf(t);
+    graspItGUI->getIVmgr()->getViewer()->getCamera()->pointAt(SbVec3f(0, 0, 0), SbVec3f(0, 0, 1));
+    return true;
+}
+
+bool ClientSocket::addPointCloud() {
+
+
+    bool ok = false;
+
+    bool has_colors = true;
+
+    double pointNum = convertToNumber(strPtr++, &lineStrList, ok);
+    if (!ok)
+        return false;
+    SoNodeList l;
+    SoCoordinate3 *coord;
+    SoMaterial *mat;
+
+    unsigned int listLen = SoCoordinate3::getByName("PointCloudCoordinates", l);
+    if (listLen < 1) {
+        SoSeparator *coords_sep = new SoSeparator();
+        SoTransform *coord_tran = new SoTransform();
+        coord_tran->setName("PointCloudTransform");
+        coord = new SoCoordinate3();
+        coord->setName("PointCloudCoordinates");
+        SoPointSet *pointSet = new SoPointSet();
+        SoDrawStyle *drawStyle = new SoDrawStyle();
+        coords_sep->addChild(coord_tran);
+        coords_sep->addChild(coord);
+        mat = new SoMaterial();
+        mat->setName("PointCloudColorMaterial");
+        SoMaterialBinding *matBinding = new SoMaterialBinding();
+        matBinding->value = SoMaterialBinding::PER_PART;
+
+        coords_sep->addChild(mat);
+        coords_sep->addChild(matBinding);
+
+        drawStyle->pointSize = 3;
+        coords_sep->addChild(drawStyle);
+        coords_sep->addChild(pointSet);
+        graspItGUI->getIVmgr()->getWorld()->getIVRoot()->addChild(coords_sep);
+    } else if (listLen > 1) {
+        std::cout << "More than 1 Point Cloud coordinate node. What the heck!\n";
+    }
+    else {
+        coord = static_cast<SoCoordinate3 *>(l[0]);
+        SoNodeList l2;
+        unsigned int listLen2 = SoMaterial::getByName("PointCloudColorMaterial", l2);
+        if (listLen2 != 1) {
+            std::cout << "Wrong number of Point Cloud Materials: " << listLen2 << "\n";
+            return false;
+        }
+        mat = static_cast<SoMaterial *>(l2[0]);
+    }
+
+    std::vector<SbVec3f> points;
+    std::vector<SbColor> colors;
+    points.reserve(pointNum);
+    colors.reserve(pointNum);
+    //std::vector<SoSeparator *> points(pointNum);
+
+    for (int pointIndex = 0; pointIndex < pointNum; ++pointIndex) {
+        double x = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+        if (!ok)
+            return false;
+        double y = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+        if (!ok)
+            return false;
+        double z = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
+        if (!ok)
+            return false;
+
+        points.push_back(SbVec3f(x, y, z));
+
+
+        double r = convertToNumber(strPtr++, &lineStrList, ok) / 255.0;
+        if (!ok)
+            return false;
+        double g = convertToNumber(strPtr++, &lineStrList, ok) / 255.0;
+        if (!ok)
+            return false;
+        double b = convertToNumber(strPtr++, &lineStrList, ok) / 255.0;
+        if (!ok)
+            return false;
+
+
+        colors.push_back(SbColor(r, g, b));
+    }
+
+    coord->point.setValues(0, points.size(), &points[0]);
+    mat->diffuseColor.setValues(0, colors.size(), &colors[0]);
+
+    return true;
 }
 
 
-void ClientSocket::analyzeGrasp(const GraspPlanningState * gps)
-{  
+void ClientSocket::analyzeGrasp(const GraspPlanningState *gps) {
     QTextStream os(sock);
-	os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
-  std::cout << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+    os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
+    std::cout << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
 }
 
-void ClientSocket::analyzeNextGrasp()
-{  
-  std::cout << "Emitted analyze next grasp\n";  
-  QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
-  if(currentWorldPlanner())
-  {  
-  for(int i = 0; i < currentWorldPlanner()->getListSize(); ++i)
-  {
-    const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);    
-    if(gs->getAttribute("testResult") == 0.0)
-    {
-    if(gs->getAttribute("testTime") >  QDateTime::currentDateTime().toTime_t() - 10)
-       return;
+void ClientSocket::analyzeNextGrasp() {
+    std::cout << "Emitted analyze next grasp\n";
+    QMutexLocker lock(&currentWorldPlanner()->mListAttributeMutex);
+    if (currentWorldPlanner()) {
+        for (int i = 0; i < currentWorldPlanner()->getListSize(); ++i) {
+            const GraspPlanningState *gs = currentWorldPlanner()->getGrasp(i);
+            if (gs->getAttribute("testResult") == 0.0) {
+                if (gs->getAttribute("testTime") > QDateTime::currentDateTime().toTime_t() - 10)
+                    return;
+            }
+        }
+        for (int i = 0; i < currentWorldPlanner()->getListSize(); ++i) {
+            const GraspPlanningState *gs = currentWorldPlanner()->getGrasp(i);
+            if (gs->getAttribute("testResult") == 0.0) {
+                currentWorldPlanner()->setGraspAttribute(i, "testTime", QDateTime::currentDateTime().toTime_t());
+                analyzeGrasp(gs);
+                break;
+            }
+        }
+
     }
-  }
-  for(int i = 0; i < currentWorldPlanner()->getListSize(); ++i){
-    const GraspPlanningState * gs = currentWorldPlanner()->getGrasp(i);
-    if(gs->getAttribute("testResult") == 0.0)
-    {
-      currentWorldPlanner()->setGraspAttribute(i, "testTime",  QDateTime::currentDateTime().toTime_t());
-      analyzeGrasp(gs);
-      break;
-    }
-  }
-  
-  }
 }
-   
 
 
-bool ClientSocket::setRobotColor()
-{
+bool ClientSocket::setRobotColor() {
     ++strPtr;
     bool ok = false;
     verifyInput(4);
-  
+
     std::vector<Robot *> robVec;
     readRobotIndList(robVec);
 
 
     double r = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
     double g = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
     double b = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
 
-    SbColor color(r,g,b);
+    SbColor color(r, g, b);
     SoMFColor colorField;
-    colorField.setValuesPointer(3,&color);
+    colorField.setValuesPointer(3, &color);
 
-   
-    for(unsigned int i = 0; i < robVec.size(); ++i)
-    {
+
+    for (unsigned int i = 0; i < robVec.size(); ++i) {
         robVec[i]->setEmissiveColor(color);
     }
 
@@ -1359,52 +1309,48 @@ bool ClientSocket::setRobotColor()
 
 }
 
-void ClientSocket::analyzeApproachDir(GraspPlanningState * gs)
-{
+void ClientSocket::analyzeApproachDir(GraspPlanningState *gs) {
     QTextStream os(sock);
-	os << "analyzeApproachDirection " << *gs << " \n";
-  os.flush();
-  delete gs;
+    os << "analyzeApproachDirection " << *gs << " \n";
+    os.flush();
+    delete gs;
 }
 
-bool ClientSocket::setBodyColor()
-{
+bool ClientSocket::setBodyColor() {
     bool ok = false;
     verifyInput(5);
     std::vector<Robot *> robVec;
     readRobotIndList(robVec);
 
-    double bodyNum = convertToNumber(strPtr++, &lineStrList, ok)*1000;
+    double bodyNum = convertToNumber(strPtr++, &lineStrList, ok) * 1000;
     if (!ok)
-      return false;
+        return false;
     double r = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
     double g = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
     double b = convertToNumber(strPtr++, &lineStrList, ok);
     if (!ok)
-      return false;
+        return false;
 
-    SbColor color(r,g,b);
+    SbColor color(r, g, b);
 
-    World * world = graspItGUI->getIVmgr()->getWorld();
+    World *world = graspItGUI->getIVmgr()->getWorld();
     world->getBody(bodyNum)->setEmissiveColor(color);
 
     return true;
 }
 
 
-
 /*!
   Starts a TCP server that listens on port \a port.  \a backlog specifies
   the number of pending connections the server can have.
 */
-GraspItServer::GraspItServer(unsigned int port_num, QObject * parent ):
-port_num(port_num)
-{
-this->start();
+GraspItServer::GraspItServer(unsigned int port_num, QObject *parent) :
+        port_num(port_num) {
+    this->start();
 }
 
 
@@ -1412,12 +1358,11 @@ this->start();
   Creates a new ClientSocket to handle communication with this client.
 */
 void
-GraspItServer::onConnection()
-{
+GraspItServer::onConnection() {
     QTcpSocket *clientQTcpSocketConnection = server->nextPendingConnection();
     DBGA("GraspitServer::onConnection:: new connection");
     ClientSocket *newGraspitConnection = new ClientSocket(NULL, clientQTcpSocketConnection);
-    connect(clientQTcpSocketConnection, SIGNAL(disconnected()),newGraspitConnection, SLOT(deleteLater()));
+    connect(clientQTcpSocketConnection, SIGNAL(disconnected()), newGraspitConnection, SLOT(deleteLater()));
 
 #ifdef GRASPITDBG
   std::cout << "new connection" << std::endl;
@@ -1425,10 +1370,9 @@ GraspItServer::onConnection()
 }
 
 void
-GraspItServer::run()
-{
+GraspItServer::run() {
     server = new QTcpServer();
     connect(server, SIGNAL(newConnection()), this, SLOT(onConnection()));
-    server->listen(QHostAddress::Any,port_num);
+    server->listen(QHostAddress::Any, port_num);
     exec();
 }

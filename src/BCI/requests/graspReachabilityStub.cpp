@@ -13,14 +13,12 @@
 #include <QFileInfo>
 
 
-GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel * channel)
-    :graspReachability_stub(channel, "CheckGraspReachabilityService")
-{
+GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel *channel)
+        : graspReachability_stub(channel, "CheckGraspReachabilityService") {
 }
 
 
-void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
-{
+void GraspReachabilityStub::buildRequest(const GraspPlanningState *gps) {
 
     request.clear_grasp();
 
@@ -44,19 +42,17 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->set_epsilon_quality(gps->getEpsilonQuality());
     request.mutable_grasp()->set_volume_quality(gps->getVolume());
 
-    for(int i = 0; i < gps->getQualityMeasures()->size(); i++)
-    {
+    for (int i = 0; i < gps->getQualityMeasures()->size(); i++) {
         request.mutable_grasp()->add_secondary_qualities(gps->getQualityMeasures()->at(i));
     }
 
-      //FIXME:For now, the planner stores only the final grasp DOF,
+    //FIXME:For now, the planner stores only the final grasp DOF,
 
-      double dof[gps->getHand()->getNumDOF()];
-      const_cast<GraspPlanningState *>(gps)->getPosture()->getHandDOF(dof);
-      for(int i = 0; i < gps->getHand()->getNumDOF(); ++i)
-      {
-          request.mutable_grasp()->mutable_pre_grasp_hand_state()->add_hand_dof(dof[i]);
-      request.mutable_grasp()->mutable_final_grasp_hand_state()->add_hand_dof(dof[i]);
+    double dof[gps->getHand()->getNumDOF()];
+    const_cast<GraspPlanningState *>(gps)->getPosture()->getHandDOF(dof);
+    for (int i = 0; i < gps->getHand()->getNumDOF(); ++i) {
+        request.mutable_grasp()->mutable_pre_grasp_hand_state()->add_hand_dof(dof[i]);
+        request.mutable_grasp()->mutable_final_grasp_hand_state()->add_hand_dof(dof[i]);
     }
 
 
@@ -80,7 +76,7 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_z(rz);
 
     double moveDist = -50.0;
-    transf pregraspHandTransform = (translate_transf(vec3(0,0,moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
+    transf pregraspHandTransform = (translate_transf(vec3(0, 0, moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
     tx = pregraspHandTransform.translation().x();
     ty = pregraspHandTransform.translation().y();
     tz = pregraspHandTransform.translation().z();
@@ -100,30 +96,26 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
 }
 
 
-void GraspReachabilityStub::sendRequestImpl()
-{            
-    graspReachability_stub.run(request,&response, _rpc,rpcz::new_callback<GraspReachabilityStub>(this, &GraspReachabilityStub::callback));
+void GraspReachabilityStub::sendRequestImpl() {
+    graspReachability_stub.run(request, &response, _rpc, rpcz::new_callback<GraspReachabilityStub>(this, &GraspReachabilityStub::callback));
 }
 
-void GraspReachabilityStub::callbackImpl()
-{
+void GraspReachabilityStub::callbackImpl() {
     QString attribute = QString("testResult");
-    EGPlanner* currentWorldPlanner = graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();
+    EGPlanner *currentWorldPlanner = graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();
     QMutexLocker lock(&currentWorldPlanner->mListAttributeMutex);
-    for(int i = 0; i < currentWorldPlanner->getListSize(); i++ )
-    {
-        const GraspPlanningState * gps = currentWorldPlanner->getGrasp(i);
-        if (gps->getAttribute("graspId") == response.graspid())
-        {
-             //Unreachable grasps have negative reachability scores
-             //reachable grasps have 1 reachability scores
+    for (int i = 0; i < currentWorldPlanner->getListSize(); i++) {
+        const GraspPlanningState *gps = currentWorldPlanner->getGrasp(i);
+        if (gps->getAttribute("graspId") == response.graspid()) {
+            //Unreachable grasps have negative reachability scores
+            //reachable grasps have 1 reachability scores
             // Unevaluated grasps have 0 rechability scores
             int reachabilityScore = -1;
 
-            if(response.graspstatus())
+            if (response.graspstatus())
                 reachabilityScore = 1;
 
-            currentWorldPlanner->setGraspAttribute(i,attribute, reachabilityScore);
+            currentWorldPlanner->setGraspAttribute(i, attribute, reachabilityScore);
             std::cout << "SetGraspAttribute graspId " << response.graspid() << " attributeString " << reachabilityScore << "\n";
             break;
         }

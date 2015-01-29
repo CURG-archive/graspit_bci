@@ -42,7 +42,7 @@
 /*!
   Sets the preshape to PR_None and sets the initial angle values.
 */
-preshape::preshape(){
+preshape::preshape() {
     pType = PR_None;
     updateAngles();
 }
@@ -50,7 +50,7 @@ preshape::preshape(){
 /*!
   Initialized the preshape type to \a p and updates the DOF values.
 */
-preshape::preshape(preshapeType p){
+preshape::preshape(preshapeType p) {
     pType = p;
     updateAngles();
 }
@@ -58,7 +58,7 @@ preshape::preshape(preshapeType p){
 /*!
   Copies preshape \a p .
 */
-preshape::preshape(const preshape& p){
+preshape::preshape(const preshape &p) {
     pType = p.get_preshapeType();
     p.get_preshape(a, f1, f2, f3);
     updateAngles();
@@ -67,8 +67,8 @@ preshape::preshape(const preshape& p){
 /*!    
   Sets the preshape type to \a p and updates the DOF values.
 */
-void 
-preshape::set_preshapeType(preshapeType p){
+void
+preshape::set_preshapeType(preshapeType p) {
     pType = p;
     updateAngles();
 }
@@ -76,26 +76,29 @@ preshape::set_preshapeType(preshapeType p){
 /*!
   Sets the preshape type to PR_None and sets the DOF values directly.
 */
-void 
-preshape::set_preshape(double aa, double ff1, double ff2, double ff3){
+void
+preshape::set_preshape(double aa, double ff1, double ff2, double ff3) {
 
-  pType = PR_None;
-  a=aa; f1 = ff1; f2 = ff2; f3=ff3;
+    pType = PR_None;
+    a = aa;
+    f1 = ff1;
+    f2 = ff2;
+    f3 = ff3;
 }
 
 /*!
   Returns the preshape type.
 */
 preshapeType
-preshape::get_preshapeType() const{
+preshape::get_preshapeType() const {
     return pType;
 }
 
 /*!
   Returns the preshape DOF values.
 */
-void 
-preshape::get_preshape(double& aa, double& ff1, double& ff2, double& ff3) const{
+void
+preshape::get_preshape(double &aa, double &ff1, double &ff2, double &ff3) const {
     aa = a;
     ff1 = f1;
     ff2 = f2;
@@ -108,13 +111,13 @@ preshape::get_preshape(double& aa, double& ff1, double& ff2, double& ff3) const{
   Since all preshapes currently only set the spread angle, this is
   simply computed as abs(a - p.a) / max(a, p.a) .
 */
-double 
-preshape::distanceTo(preshape p) const{
-    double aa,ff1,ff2,ff3;
-    p.get_preshape(aa,ff1,ff2,ff3);
-    if((aa*aa+ff1*ff1+ff2*ff2+ff3*ff3) == 0.0 &&
-       (a*a  +f1*f1  +f2*f2  +f3*f3) == 0.0)
-	return 0.0;
+double
+preshape::distanceTo(preshape p) const {
+    double aa, ff1, ff2, ff3;
+    p.get_preshape(aa, ff1, ff2, ff3);
+    if ((aa * aa + ff1 * ff1 + ff2 * ff2 + ff3 * ff3) == 0.0 &&
+            (a * a + f1 * f1 + f2 * f2 + f3 * f3) == 0.0)
+        return 0.0;
 //      return (sqrt((aa-a)*(aa-a)+
 //  		 (ff1-f1)*(ff1-f1)+
 //  		 (ff2-f2)*(ff2-f2)+
@@ -126,44 +129,44 @@ preshape::distanceTo(preshape p) const{
     /* Should be a-aa/max here, but max doesnt exist in this class 
        as well as the hand and I'm too lazy to implement that
        now... */
-    return fabs((a-aa)/(a>aa?a:aa));
+    return fabs((a - aa) / (a > aa ? a : aa));
 }
 
 /*!
   Uses the preshape type to set the DOF values.
 */
 void
-preshape::updateAngles(){
-    if (pType != PR_None){
-	switch (pType) {
-	    case PR_circle:
-		a  = PR_circle_Angle;
-		f1 = PR_circle_F1;
-		f2 = PR_circle_F2;
-		f3 = PR_circle_F3;
-		break;
-	    case PR_two_opp_one:
-		a =  PR_two_opp_one_Angle;
-		f1 = PR_two_opp_one_F1;
-		f2 = PR_two_opp_one_F2;
-		f3 = PR_two_opp_one_F3;
-		break;
-	    case PR_three_opp_palm:
-		a =  PR_three_opp_palm_Angle;
-		f1 = PR_three_opp_palm_F1;
-		f2 = PR_three_opp_palm_F2;
-		f3 = PR_three_opp_palm_F3;
-		break;
-	    case PR_t_shape:
-		a =  PR_t_shape_Angle;
-		f1 = PR_t_shape_F1;
-		f2 = PR_t_shape_F2;
-		f3 = PR_t_shape_F3;
-		break;
-	    default:
-		std::cout << "Preshape not defined or implemented." << std::endl;
-		break;
-	}
+preshape::updateAngles() {
+    if (pType != PR_None) {
+        switch (pType) {
+            case PR_circle:
+                a = PR_circle_Angle;
+                f1 = PR_circle_F1;
+                f2 = PR_circle_F2;
+                f3 = PR_circle_F3;
+                break;
+            case PR_two_opp_one:
+                a = PR_two_opp_one_Angle;
+                f1 = PR_two_opp_one_F1;
+                f2 = PR_two_opp_one_F2;
+                f3 = PR_two_opp_one_F3;
+                break;
+            case PR_three_opp_palm:
+                a = PR_three_opp_palm_Angle;
+                f1 = PR_three_opp_palm_F1;
+                f2 = PR_three_opp_palm_F2;
+                f3 = PR_three_opp_palm_F3;
+                break;
+            case PR_t_shape:
+                a = PR_t_shape_Angle;
+                f1 = PR_t_shape_F1;
+                f2 = PR_t_shape_F2;
+                f3 = PR_t_shape_F3;
+                break;
+            default:
+                std::cout << "Preshape not defined or implemented." << std::endl;
+                break;
+        }
     }
 }
 
