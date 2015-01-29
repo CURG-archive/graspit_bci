@@ -324,8 +324,12 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
     pcam->farDistance = 11;
 
     hudSeparator->addChild(pcam);
-    std::cout << " Camera height " << pcam->height.getValue() << "\n";
-    std::cout << " aspectRatio " << pcam->aspectRatio.getValue() << "\n";
+
+#ifdef QT_DEBUG
+    std::cout << "IVMGR: Camera height " << pcam->height.getValue() << "\n";
+    std::cout << "IVMGR: aspectRatio " << pcam->aspectRatio.getValue() << "\n";
+#endif
+
     SoLightModel *hudLightModel = new SoLightModel;
     hudLightModel->model = SoLightModel::BASE_COLOR;
     hudSeparator->addChild(hudLightModel);
@@ -378,7 +382,9 @@ IVmgr::setStereoWindow(QWidget *parent) {
 */
 IVmgr::~IVmgr() {
     if (camerafp) fclose(camerafp);
+#ifdef QT_DEBUG
     std::cout << "deleting IVmgr" << std::endl;
+#endif
     selectionRoot->deselectAll();
     delete world;
     junk->unref();

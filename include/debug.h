@@ -50,7 +50,7 @@
 #define DBGST(STMT)
 #endif
 
-#define DBGA(STMT) std::cerr<<STMT<<std::endl;
+#define DBGA(STMT) std::cerr << "\033[33m" << __FILE__ << ":" << __LINE__ << "\033[0m: " << STMT << std::endl;
 
 #define PRINT_STAT(STREAM_PTR,STMT) if (STREAM_PTR) *STREAM_PTR << STMT << " ";
 #define DBGAF(STREAM,STMT) {STREAM<<STMT<<std::endl; DBGA(STMT)}
