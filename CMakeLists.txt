@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.7)
 project(graspit_core)
 
 ###### ---[ Add modules for finding libraries
@@ -207,7 +207,7 @@ list(APPEND GRASPIT_CORE_FORMS ${GRASPIT_CORE_FORMS_GLOB})
 
 list(REMOVE_ITEM GRASPIT_CORE_HEADERS ${GRASPIT_CORE_UI_DIR}/sensorInputDlg.h)
 
-message("Graspit headers ${GRASPIT_CORE_HEADERS}")
+#message("Graspit headers ${GRASPIT_CORE_HEADERS}")
 
 
 
