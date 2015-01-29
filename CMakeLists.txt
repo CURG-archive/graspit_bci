@@ -98,7 +98,7 @@ endif()
 set(GRASPIT_CORE_INCLUDE_DIRS src src/Collision include include/math include/Planner include/EGPlanner ui ui/Planner ui/EGPlanner include/Servers)
 set(GRASPIT_CORE_SOURCE_DIRS src src/Collision src/Planner src/Servers src/EGPlanner ui ui/Planner ui/EGPlanner)
 set(GRASPIT_CORE_FORM_DIRS ui ui/Planner ui/EGPlanner)
-set(GRASPIT_CORE_RESOURCES ${GRASPIT_DIR}/images.qrc)
+set(GRASPIT_CORE_RESOURCES icons.qrc)
 
 #############
 #XML library
@@ -222,7 +222,7 @@ set(CMAKE_AUTOMOC ON)
 
 #In new cmake, do this
 #set(CMAKE_AUTOUIC ON)
-#set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTORCC ON)
 #in old cmake, do this
 list(APPEND GRASPIT_CORE_SOURCES ${GRASPIT_CORE_RESOURCES_CPP} ${GRASPIT_CORE_FORMS_HEADERS})
 
@@ -232,8 +232,6 @@ list(REMOVE_ITEM GRASPIT_CORE_HEADERS ${GRASPIT_CORE_UI_DIR}/sensorInputDlg.h)
 list(REMOVE_ITEM GRASPIT_CORE_SOURCES ${GRASPIT_CORE_UI_DIR}/sensorInputDlg.cpp) 
 list(REMOVE_ITEM GRASPIT_CORE_SOURCES ${GRASPIT_DIR}/src/pincer.cpp)
 list(REMOVE_ITEM GRASPIT_CORE_SOURCES ${GRASPIT_CORE_UI_DIR}/BCI/handViewWindow.cpp)
-
-
 
 ADD_EXECUTABLE(graspit ${GRASPIT_CORE_SOURCES}  ${GRASPIT_CORE_HEADERS})
 

@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/new/icons">
+        <file>src/images/collide.xpm</file>
+        <file>src/images/filenew.xpm</file>
+        <file>src/images/fileopen.xpm</file>
+        <file>src/images/filesave.xpm</file>
+        <file>src/images/logo.png</file>
+        <file>src/images/mark.xpm</file>
+        <file>src/images/nocollide.xpm</file>
+        <file>src/images/pause.xpm</file>
+        <file>src/images/play.xpm</file>
+        <file>src/images/prevMark.xpm</file>
+        <file>src/images/rotateTool.xpm</file>
+        <file>src/images/selectTool.xpm</file>
+        <file>src/images/splash.jpg</file>
+        <file>src/images/translateTool.xpm</file>
+        <file>src/images/editcopy.png</file>
+        <file>src/images/editcut.png</file>
+        <file>src/images/editpaste.png</file>
+        <file>src/images/filenew.png</file>
+        <file>src/images/fileopen.png</file>
+        <file>src/images/filesave.png</file>
+        <file>src/images/print.png</file>
+        <file>src/images/redo.png</file>
+        <file>src/images/searchfind.png</file>
+        <file>src/images/undo.png</file>
+    </qresource>
+</RCC>

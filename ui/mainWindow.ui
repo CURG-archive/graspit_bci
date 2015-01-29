@@ -502,8 +502,8 @@
   </widget>
   <action name="fileNewAction">
    <property name="icon">
-    <iconset>
-     <normaloff>filenew.xpm</normaloff>filenew.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/filenew.xpm</normaloff>:/new/icons/src/images/filenew.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -520,8 +520,8 @@
   </action>
   <action name="fileOpenAction">
    <property name="icon">
-    <iconset>
-     <normaloff>fileopen.xpm</normaloff>fileopen.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/fileopen.xpm</normaloff>:/new/icons/src/images/fileopen.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -538,8 +538,8 @@
   </action>
   <action name="fileSaveAction">
    <property name="icon">
-    <iconset>
-     <normaloff>filesave.xpm</normaloff>filesave.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/filesave.xpm</normaloff>:/new/icons/src/images/filesave.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -555,6 +555,10 @@
    </property>
   </action>
   <action name="fileSaveAsAction">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/filesave.png</normaloff>:/new/icons/src/images/filesave.png</iconset>
+   </property>
    <property name="text">
     <string>Save &amp;As...</string>
    </property>
@@ -661,6 +665,10 @@
    </property>
   </action>
   <action name="fileSaveImageAction">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/filesave.xpm</normaloff>:/new/icons/src/images/filesave.xpm</iconset>
+   </property>
    <property name="text">
     <string>Save Image...</string>
    </property>
@@ -742,8 +750,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>play.xpm</normaloff>play.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/play.xpm</normaloff>:/new/icons/src/images/play.xpm</iconset>
    </property>
    <property name="text">
     <string>Start Simulation</string>
@@ -757,8 +765,8 @@
   </action>
   <action name="dynamicsPopAction">
    <property name="icon">
-    <iconset>
-     <normaloff>prevMark.xpm</normaloff>prevMark.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/prevMark.xpm</normaloff>:/new/icons/src/images/prevMark.xpm</iconset>
    </property>
    <property name="text">
     <string>Pop State</string>
@@ -772,8 +780,8 @@
   </action>
   <action name="dynamicsPushAction">
    <property name="icon">
-    <iconset>
-     <normaloff>mark.xpm</normaloff>mark.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/mark.xpm</normaloff>:/new/icons/src/images/mark.xpm</iconset>
    </property>
    <property name="text">
     <string>Push State</string>
@@ -790,8 +798,9 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>collide.xpm</normaloff>collide.xpm</iconset>
+    <iconset resource="../icons.qrc">
+     <normaloff>:/new/icons/src/images/nocollide.xpm</normaloff>
+     <normalon>:/new/icons/src/images/collide.xpm</normalon>:/new/icons/src/images/nocollide.xpm</iconset>
    </property>
    <property name="text">
     <string>Collisions ON</string>
@@ -1046,8 +1055,8 @@
      <bool>true</bool>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>translateTool.xpm</normaloff>translateTool.xpm</iconset>
+     <iconset resource="../icons.qrc">
+      <normaloff>:/new/icons/src/images/translateTool.xpm</normaloff>:/new/icons/src/images/translateTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Translate</string>
@@ -1070,8 +1079,8 @@
      <bool>true</bool>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>rotateTool.xpm</normaloff>rotateTool.xpm</iconset>
+     <iconset resource="../icons.qrc">
+      <normaloff>:/new/icons/src/images/rotateTool.xpm</normaloff>:/new/icons/src/images/rotateTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Rotate</string>
@@ -1094,8 +1103,8 @@
      <bool>true</bool>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>selectTool.xpm</normaloff>selectTool.xpm</iconset>
+     <iconset resource="../icons.qrc">
+      <normaloff>:/new/icons/src/images/selectTool.xpm</normaloff>:/new/icons/src/images/selectTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Select</string>
@@ -1150,6 +1159,8 @@
    <header>q3listbox.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

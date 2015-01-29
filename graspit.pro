@@ -53,4 +53,7 @@ CONFIG += protobuf
 CONFIG += rpcz
 include(graspit-core.pro)
 
+RESOURCES += \
+    icons.qrc
+
 
