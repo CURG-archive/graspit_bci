@@ -99,10 +99,9 @@ void State::generateStringImageOptions(bool debug) {
         setImageText(img, stringOptions[i],
                 textColor);
 
-
         imageOptions.push_back(img);
         if (debug)
-            img->save(QString("img") + QString::number(i) + QString(".png"));
+            img->save(QString("strimg") + QString::number(i) + QString(".png"));
     }
 }
 

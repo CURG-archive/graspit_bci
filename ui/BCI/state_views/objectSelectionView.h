@@ -26,17 +26,17 @@
 #include "BCI/states/objectSelectionState.h"
 
 namespace Ui {
-class ObjectSelectionView;
+    class ObjectSelectionView;
 }
 
-class ObjectSelectionView : public QWidget
-{
-    Q_OBJECT
-    
+class ObjectSelectionView : public QWidget {
+Q_OBJECT
+
 public:
     explicit ObjectSelectionView(ObjectSelectionState *state, QWidget *parent = 0);
+
     ~ObjectSelectionView();
-    
+
 private:
 
     Ui::ObjectSelectionView *ui;

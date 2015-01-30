@@ -2,7 +2,6 @@
 #include  <QSignalTransition>
 #include "world.h"
 #include "BCI/onlinePlannerController.h"
-#include "BCI/bciService.h"
 #include "BCI/handView.h"
 
 using bci_experiment::world_element_tools::getWorld;

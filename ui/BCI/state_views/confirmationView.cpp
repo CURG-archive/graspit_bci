@@ -12,9 +12,8 @@
 #include "BCI/handView.h"
 
 ConfirmationView::ConfirmationView(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ConfirmationView)
-{
+        QWidget(parent),
+        ui(new Ui::ConfirmationView) {
     ui->setupUi(this);
 
 
@@ -22,35 +21,30 @@ ConfirmationView::ConfirmationView(QWidget *parent) :
     connect(ui->buttonBack, SIGNAL(clicked()), this, SLOT(onBack()));
 
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
-    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
+    Hand *h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QFrame *parentWindow = this->ui->previewFrame;
     QString viewName = QString("current best grasp");
-    handView = new HandView(mainViewer,h,*parentWindow,viewName);
+    handView = new HandView(mainViewer, h, *parentWindow, viewName);
 
 }
 
 
-void ConfirmationView::setCurrentGrasp(Hand *hand, const GraspPlanningState *graspPlanningState)
-{
+void ConfirmationView::setCurrentGrasp(Hand *hand, const GraspPlanningState *graspPlanningState) {
 
-    if(graspPlanningState)
-    {
+    if (graspPlanningState) {
         handView->update(*graspPlanningState, *hand);
     }
 }
 
-ConfirmationView::~ConfirmationView()
-{
+ConfirmationView::~ConfirmationView() {
     delete ui;
 }
 
 
-void ConfirmationView::onOk()
-{
+void ConfirmationView::onOk() {
     BCIService::getInstance()->emitGoToNextState1();
 }
 
-void ConfirmationView::onBack()
-{
+void ConfirmationView::onBack() {
     BCIService::getInstance()->emitGoToNextState2();
 }

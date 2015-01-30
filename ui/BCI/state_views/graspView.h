@@ -4,23 +4,23 @@
 #include <QWidget>
 
 class Hand;
+
 class SoQtRenderArea;
 
 
 namespace Ui {
-class GraspView;
+    class GraspView;
 }
 
-class GraspView : public QWidget
-{
-    Q_OBJECT
-    
+class GraspView : public QWidget {
+Q_OBJECT
+
 public:
     explicit GraspView(QWidget *parent = 0);
+
     ~GraspView();
 
 
-    
 private:
     Ui::GraspView *ui;
 };

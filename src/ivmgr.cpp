@@ -1643,13 +1643,14 @@ QImage *IVmgr::generateImage(SoSeparator *root, QString debugFileName) {
     if (!debugFileName.isEmpty()) {
         img->save(debugFileName, "png");
     }
+    DBGA("IMAGE SAVED TO " << debugFileName.toStdString());
 
 #ifdef GRASPITDBG
     if (result)
       fprintf(stderr,"saved\n");
     else
       fprintf(stderr,"not saved\n");
-  #endif
+#endif
     return img;
 }
 

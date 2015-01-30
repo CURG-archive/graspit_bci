@@ -4,17 +4,17 @@
 #include <QWidget>
 
 namespace Ui {
-class ObjectRecognitionView;
+    class ObjectRecognitionView;
 }
 
-class ObjectRecognitionView : public QWidget
-{
-    Q_OBJECT
-    
+class ObjectRecognitionView : public QWidget {
+Q_OBJECT
+
 public:
     explicit ObjectRecognitionView(QWidget *parent = 0);
+
     ~ObjectRecognitionView();
-    
+
 private:
     Ui::ObjectRecognitionView *ui;
 };

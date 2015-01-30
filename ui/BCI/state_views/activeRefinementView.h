@@ -7,33 +7,44 @@
 class GraspPlanningState;
 
 namespace Ui {
-class ActiveRefinementView;
+    class ActiveRefinementView;
 }
 
-class ActiveRefinementView : public QWidget
-{
-    Q_OBJECT
-    
+class ActiveRefinementView : public QWidget {
+Q_OBJECT
+
 public:
     explicit ActiveRefinementView(QWidget *parent = 0);
-    void showSelectedGrasp(Hand *hand,const GraspPlanningState *graspPlanningState);
+
+    void showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
+
     void showNextGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
+
     ~ActiveRefinementView();
 
+    HandView *getHandView() {
+        return currentGraspView;
+    }
 
 public slots:
+
     void onOk();
+
     void onRotLat();
+
     void onRotLong();
+
     void onNextGrasp();
 
-    
+
 protected:
     virtual void showEvent(QShowEvent *);
+
 private:
     HandView *currentGraspView;
     HandView *nextGraspView;
     Ui::ActiveRefinementView *ui;
+
     void createHandView();
 };
 

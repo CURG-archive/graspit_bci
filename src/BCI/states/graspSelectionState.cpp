@@ -1,5 +1,4 @@
 #include "BCI/states/graspSelectionState.h"
-#include "BCI/bciService.h"
 #include "BCI/onlinePlannerController.h"
 #include <QPushButton>
 
@@ -160,10 +159,12 @@ void GraspSelectionState::generateImageOptions(bool debug) {
         currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
         sentChoices.push_back(new GraspPlanningState(currentGrasp));
 
-        QString debugFileName = "";
-        if (debug)
-            debugFileName = QString("img" + QString::number(imageOptions.size()) + ".png");
-        QImage *img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
+        QImage * img = graspSelectionView->getHandView()->getSnapShot();
+
+        if (debug) {
+            QString debugFileName = QString("grasp_selection_img" + QString::number(imageOptions.size()) + ".png");
+            img->save(debugFileName);
+        }
 
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
@@ -184,7 +185,6 @@ void GraspSelectionState::respondOptionChoice(unsigned int option, float confide
         // For testing purposes, if sentChoices are empty,use the index into the grasp list
         if (!sentChoices.size()) {
             currentGrasp = OnlinePlannerController::getInstance()->getGrasp(option);
-
         }
         else {
             // Otherwise use the send choices

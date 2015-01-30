@@ -32,32 +32,43 @@
 #include "BCI/handView.h"
 
 namespace Ui {
-class GraspSelectionView;
+    class GraspSelectionView;
 }
 
-class GraspSelectionView : public QWidget
-{
-    Q_OBJECT
-    
+class GraspSelectionView : public QWidget {
+Q_OBJECT
+
 public:
     explicit GraspSelectionView(QWidget *parent = 0);
-    void showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState);
+
+    void showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
+
     ~GraspSelectionView();
-    HandView * getHandView(){return handView;}
+
+    HandView *getHandView() {
+        return handView;
+    }
 
 public slots:
+
     void onRefineGrasp();
+
     void onOk();
+
     void onRotateLat();
+
     void onRotateLong();
+
 protected:
     virtual void showEvent(QShowEvent *);
-private:
-     void showSpinner();
-     void hideSpinner();
 
-     QtWaitingSpinner* spinner;
-     HandView *handView;
+private:
+    void showSpinner();
+
+    void hideSpinner();
+
+    QtWaitingSpinner *spinner;
+    HandView *handView;
 
     Ui::GraspSelectionView *ui;
 };

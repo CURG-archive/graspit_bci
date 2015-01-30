@@ -1,5 +1,4 @@
 #include "BCI/states/objectSelectionState.h"
-#include "BCI/bciService.h"
 #include "BCI/state_views/objectSelectionView.h"
 #include "graspitGUI.h"
 #include <QGLWidget>
@@ -134,8 +133,9 @@ void ObjectSelectionState::generateImageOptions(bool debug) {
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
         imageDescriptions.push_back(QString("Select target:") + newTarget->getName());
-        if (debug)
-            img->save(QString("img") + QString::number(imageOptions.size() - 1) + QString(".png"));
+        if (debug) {
+            img->save(QString("objimg") + QString::number(imageOptions.size() - 1) + QString(".png"));
+        }
     }
 
 }

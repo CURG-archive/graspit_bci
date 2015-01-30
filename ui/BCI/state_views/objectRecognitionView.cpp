@@ -2,13 +2,11 @@
 #include "ui_objectRecognitionView.h"
 
 ObjectRecognitionView::ObjectRecognitionView(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ObjectRecognitionView)
-{
+        QWidget(parent),
+        ui(new Ui::ObjectRecognitionView) {
     ui->setupUi(this);
 }
 
-ObjectRecognitionView::~ObjectRecognitionView()
-{
+ObjectRecognitionView::~ObjectRecognitionView() {
     delete ui;
 }

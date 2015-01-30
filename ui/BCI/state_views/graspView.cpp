@@ -2,15 +2,13 @@
 #include "ui_graspView.h"
 #include "body.h"
 
-GraspView::GraspView( QWidget *parent) :
-    QWidget(parent),
+GraspView::GraspView(QWidget *parent) :
+        QWidget(parent),
 
-    ui(new Ui::GraspView)
-{
+        ui(new Ui::GraspView) {
     ui->setupUi(this);
 }
 
-GraspView::~GraspView()
-{
+GraspView::~GraspView() {
     delete ui;
 }

@@ -4,25 +4,33 @@
 #include <QWidget>
 
 class GraspPlanningState;
+
 class HandView;
+
 class Hand;
 
 namespace Ui {
-class ConfirmationView;
+    class ConfirmationView;
 }
 
-class ConfirmationView : public QWidget
-{
-    Q_OBJECT
-    
+class ConfirmationView : public QWidget {
+Q_OBJECT
+
 public:
     explicit ConfirmationView(QWidget *parent = 0);
+
     void setCurrentGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
+
     ~ConfirmationView();
-    HandView * getHandView(){return handView;}
-    
+
+    HandView *getHandView() {
+        return handView;
+    }
+
 public slots:
+
     void onOk();
+
     void onBack();
 
 private:

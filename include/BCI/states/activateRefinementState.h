@@ -1,5 +1,5 @@
-#ifndef STARTSTATE_H
-#define STARTSTATE_H
+#ifndef ACTIVATESTATE_H
+#define ACTIVATESTATE_H
 
 #include "BCI/states/handRotationState.h"
 
@@ -13,6 +13,7 @@ Q_OBJECT
 
 public:
     ActivateRefinementState(BCIControlWindow *_bciControlWindow, QState *parent = 0);
+    virtual ~ActivateRefinementState();
 
 public slots:
 
@@ -31,17 +32,19 @@ public slots:
 protected:
     ActiveRefinementView *activeRefinementView;
 
+    QTimer * choiceTimer;
     std::vector<GraspPlanningState *> sentChoices;
+    bool choicesValid;
 
     virtual void generateImageOptions(bool debug = true);
 
-    bool choiceReady();
-
-    bool choicesValid;
+private:
+    void connectChoiceTimer();
+    void disconnectChoiceTimer();
 
 };
 
 
-#endif // STARTSTATE_H
+#endif // ACTIVATESTATE_H
 
 

@@ -2,10 +2,9 @@
 #include "ui_objectSelectionView.h"
 #include "debug.h"
 
-ObjectSelectionView::ObjectSelectionView(ObjectSelectionState *state,QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ObjectSelectionView)
-{
+ObjectSelectionView::ObjectSelectionView(ObjectSelectionState *state, QWidget *parent) :
+        QWidget(parent),
+        ui(new Ui::ObjectSelectionView) {
     ui->setupUi(this);
 
     connect(ui->next, SIGNAL(clicked()), state, SLOT(onNext()));
@@ -14,11 +13,6 @@ ObjectSelectionView::ObjectSelectionView(ObjectSelectionState *state,QWidget *pa
 }
 
 
-
-
-
-
-ObjectSelectionView::~ObjectSelectionView()
-{
+ObjectSelectionView::~ObjectSelectionView() {
     delete ui;
 }
