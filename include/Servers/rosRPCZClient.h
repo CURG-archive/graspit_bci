@@ -11,24 +11,33 @@
 #include "BCI/requests/optionSelectionStub.h"
 
 using namespace graspit_rpcz;
+
 class GraspPlanningState;
-class RosRPCZClient
-{
+
+class RosRPCZClient {
 
 public:
     RosRPCZClient();
-    ~RosRPCZClient();
-    bool runObjectRetrieval(QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool runObjectRecognition(QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool getCameraOrigin(QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool checkGraspReachability(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver = NULL, const char * slot = NULL);
-    bool sendOptionChoices(std::vector<QImage*> & imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> & imageCosts,
-                           float minimumConfidence,  QObject * callbackReceiver = NULL, const char * slot = NULL);
-private:
-    rpcz::application * _application;
 
-    GraspReachabilityStub * graspReachabilityStub;
+    ~RosRPCZClient();
+
+    bool runObjectRetrieval(QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+    bool runObjectRecognition(QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+    bool getCameraOrigin(QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+    bool checkGraspReachability(const GraspPlanningState *gps, QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+    bool executeGrasp(const GraspPlanningState *gps, QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+    bool sendOptionChoices(std::vector<QImage *> &imageOptions, std::vector<QString> &imageDescriptions, const std::vector<float> &imageCosts,
+            float minimumConfidence, QObject *callbackReceiver = NULL, const char *slot = NULL);
+
+private:
+    rpcz::application *_application;
+
+    GraspReachabilityStub *graspReachabilityStub;
     ObjectRecognitionStub *objectRecognitionStub;
     ObjectRecognitionStub *objectRetrievalStub;
     CameraOriginStub *cameraOriginStub;

@@ -35,10 +35,15 @@
 class Grasp;         // defined in grasp.h
 class GWS;           // defined in gws.h
 class QComboBox;
+
 class QualityMeasure;
+
 class QHBox;
+
 class QLineEdit;
+
 class QWidget;
+
 class Grasp;
 
 //! A collection of pointers to exchange data with the qm dialog box
@@ -46,26 +51,26 @@ class Grasp;
   A collection of pointers to exchange data with the qm dialog box.
 */
 struct qmDlgDataT {
-  //! The current grasp
-  Grasp *grasp;
+    //! The current grasp
+    Grasp *grasp;
 
-  //! A pointer to the settings area widget of the dlg box (qm must populate)
-  QWidget *settingsArea;
+    //! A pointer to the settings area widget of the dlg box (qm must populate)
+    QWidget *settingsArea;
 
-  //! A pointer to the qm Type selection box in the dlg box
-  QComboBox *qmTypeComboBox;
+    //! A pointer to the qm Type selection box in the dlg box
+    QComboBox *qmTypeComboBox;
 
-  //! The pointer to the name field in the dlg box
-  QLineEdit *qmName;
+    //! The pointer to the name field in the dlg box
+    QLineEdit *qmName;
 
-  //! The string quality measure type
-  const char *qmType;
+    //! The string quality measure type
+    const char *qmType;
 
-  //! The current quality measure
-  QualityMeasure *currQM;
+    //! The current quality measure
+    QualityMeasure *currQM;
 
-  //! Pointer to another stucture containing data for this specific type of QM
-  void *paramPtr;
+    //! Pointer to another stucture containing data for this specific type of QM
+    void *paramPtr;
 };
 
 
@@ -77,34 +82,41 @@ struct qmDlgDataT {
   value that evaluates its grasp in someway.
 */
 class QualityMeasure {
-  //! The user chosen name of this qm instance
-  QString name;
+    //! The user chosen name of this qm instance
+    QString name;
 
- protected:
-  //! A pointer to the grasp this qm is associated with
-  Grasp *grasp;
+protected:
+    //! A pointer to the grasp this qm is associated with
+    Grasp *grasp;
 
-  //! The current value of the qm
-  double val;
+    //! The current value of the qm
+    double val;
 
- public:
-  QualityMeasure(qmDlgDataT *data);
-  QualityMeasure(Grasp *g, QString n);
-  virtual ~QualityMeasure();
+public:
+    QualityMeasure(qmDlgDataT *data);
 
-  /*! Returns the type of this quality measure expressed as a string */
-  virtual const char *getType() const =0;
-  
-  /*! Returns the user chosen name of this qm instance */
-  virtual QString getName() {return name;}
+    QualityMeasure(Grasp *g, QString n);
 
-  /*! Returns the quality of the grasp associated with this qm */
-  virtual double evaluate() =0;
-  virtual double evaluate3D() =0;
-      
-  static void buildParamArea(qmDlgDataT *qmData);
-  static QualityMeasure *createInstance(qmDlgDataT *qmData);
-  static const char *TYPE_LIST[];
+    virtual ~QualityMeasure();
+
+    /*! Returns the type of this quality measure expressed as a string */
+    virtual const char *getType() const = 0;
+
+    /*! Returns the user chosen name of this qm instance */
+    virtual QString getName() {
+        return name;
+    }
+
+    /*! Returns the quality of the grasp associated with this qm */
+    virtual double evaluate() = 0;
+
+    virtual double evaluate3D() = 0;
+
+    static void buildParamArea(qmDlgDataT *qmData);
+
+    static QualityMeasure *createInstance(qmDlgDataT *qmData);
+
+    static const char *TYPE_LIST[];
 
 };
 
@@ -120,27 +132,34 @@ class QualityMeasure {
      The TWS type
 */
 class QualEpsilon : public QualityMeasure {
-  //! A pointer to the GWS that this qm should use for its calculation
-  GWS *gws;
+    //! A pointer to the GWS that this qm should use for its calculation
+    GWS *gws;
 
-  //! The string identifying this qm type
-  static const char *type;
+    //! The string identifying this qm type
+    static const char *type;
 
- public:
-  QualEpsilon(qmDlgDataT *data);
-  QualEpsilon(Grasp *g, QString n, const char *gwsType);
-  ~QualEpsilon();
+public:
+    QualEpsilon(qmDlgDataT *data);
 
-  /*! Returns the type of this quality measure expressed as a string */
-  const char *getType() const {return type;}
+    QualEpsilon(Grasp *g, QString n, const char *gwsType);
 
-  double evaluate();
-  double evaluate3D();
+    ~QualEpsilon();
 
-  static void buildParamArea(qmDlgDataT *qmData);
+    /*! Returns the type of this quality measure expressed as a string */
+    const char *getType() const {
+        return type;
+    }
 
-  /*! Returns the type of this class expressed as a string. */
-  static const char *getClassType() {return type;}
+    double evaluate();
+
+    double evaluate3D();
+
+    static void buildParamArea(qmDlgDataT *qmData);
+
+    /*! Returns the type of this class expressed as a string. */
+    static const char *getClassType() {
+        return type;
+    }
 };
 
 //! The volume quality measure
@@ -151,27 +170,34 @@ class QualEpsilon : public QualityMeasure {
      The GWS type
 */
 class QualVolume : public QualityMeasure {
-  //! A pointer to the GWS that this qm should use for its calculation
-  GWS *gws;
+    //! A pointer to the GWS that this qm should use for its calculation
+    GWS *gws;
 
-  //! The string identifying this qm type
-  static const char *type;
+    //! The string identifying this qm type
+    static const char *type;
 
- public:
-  QualVolume(qmDlgDataT *data);
-  QualVolume(Grasp *g, QString n, const char *gwsType);
-  ~QualVolume();
-  
-  /*! Returns the type of this quality measure expressed as a string */
-  const char *getType() const {return type;}
+public:
+    QualVolume(qmDlgDataT *data);
 
-  double evaluate();
-  double evaluate3D();
+    QualVolume(Grasp *g, QString n, const char *gwsType);
 
-  static void buildParamArea(qmDlgDataT *qmData);
+    ~QualVolume();
 
-  /*! Returns the type of this class expressed as a string. */
-  static const char *getClassType() {return type;}
+    /*! Returns the type of this quality measure expressed as a string */
+    const char *getType() const {
+        return type;
+    }
+
+    double evaluate();
+
+    double evaluate3D();
+
+    static void buildParamArea(qmDlgDataT *qmData);
+
+    /*! Returns the type of this class expressed as a string. */
+    static const char *getClassType() {
+        return type;
+    }
 };
 
 /*

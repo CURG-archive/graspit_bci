@@ -29,10 +29,10 @@
 #define SQR(x)    ((x)*(x))
 #endif
 #ifndef MAX
-#define MAX(x,y)  ((x) > (y) ? (x) : (y))
+#define MAX(x, y)  ((x) > (y) ? (x) : (y))
 #endif
 #ifndef MIN
-#define MIN(x,y)  ((x) < (y) ? (x) : (y))
+#define MIN(x, y)  ((x) < (y) ? (x) : (y))
 #endif
 
 /*
@@ -45,7 +45,7 @@
 #define LSTOL     1e-3      /* tolerance used in line search */
 #define TOLC      1e-5      /* tolerance used for dual infeasibility */
 #define SIGTOL    1e-5      /* tolerance used for detecting zero steps 
-                             * dF or dZ */ 
+                             * dF or dZ */
 #define MINRCOND  1e-10     /* minimum rcond to declare F_i dependent */
 #define LSITERUB  30        /* maximum number of line-search iterations */
 
@@ -65,18 +65,21 @@
 #endif
 
 
-void mydlascl(double from,double to,int m,int n,double *A);
+void mydlascl(double from, double to, int m, int n, double *A);
 
-void disp_imat(FILE* fp, int* ip, int r, int c, int att);
-void disp_mat(FILE* fp, double* dp,int r, int c, int att);
+void disp_imat(FILE *fp, int *ip, int r, int c, int att);
+
+void disp_mat(FILE *fp, double *dp, int r, int c, int att);
+
 /* double inprd(double *X, double *Z, int L, int* blck_szs); */
-double eig_val(double*sig, double* ap, int L, int* blck_szs, int Npd, double* work);
+double eig_val(double *sig, double *ap, int L, int *blck_szs, int Npd, double *work);
 
 int maxdet(
- int m, int L, double *F, int *F_blkszs, int K, double *G, int *G_blkszs,
- double *c, double *x, double *Z, double *W, double *ul, double *hist,        
- double gamma, double abstol, double reltol, int *NTiters, double *work,
- int lwork, int *iwork, int *info, int negativeFlag
+        int m, int L, double *F, int *F_blkszs, int K, double *G, int *G_blkszs,
+        double *c, double *x, double *Z, double *W, double *ul, double *hist,
+        double gamma, double abstol, double reltol, int *NTiters, double *work,
+        int lwork, int *iwork, int *info, int negativeFlag
 );
+
 #define MAXDET_H
 #endif

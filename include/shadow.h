@@ -37,15 +37,16 @@
  */
 class Shadow : public Hand {
 
- public:
+public:
 
-  /*! Empty constructor (placeholder) */
-  Shadow(World *w,const char *name) : Hand(w,name) {}
-  
- /*! Performs the normal robot load routine then turns off collisions between
-     the palm and the second link of the thumb.
- */
-  virtual int loadFromXml(const TiXmlElement* root,QString rootPath);
+    /*! Empty constructor (placeholder) */
+    Shadow(World *w, const char *name) : Hand(w, name) {
+    }
+
+    /*! Performs the normal robot load routine then turns off collisions between
+        the palm and the second link of the thumb.
+    */
+    virtual int loadFromXml(const TiXmlElement *root, QString rootPath);
 
 };
 

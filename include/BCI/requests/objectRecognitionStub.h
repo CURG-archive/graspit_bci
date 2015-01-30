@@ -1,4 +1,3 @@
-
 #ifndef OBJECT_RECOGNITION_STUB_H
 #define OBJECT_RECOGNITION_STUB_H
 
@@ -9,21 +8,26 @@
 #include "rpcz/rpc_channel_impl.hpp"
 #include <QString>
 #include "matvec3D.h"
+
 using namespace graspit_rpcz;
+
 class Body;
 
-class ObjectRecognitionStub: public Request
-{
-    Q_OBJECT
+class ObjectRecognitionStub : public Request {
+Q_OBJECT
+
 public:
-    ObjectRecognitionStub(rpcz::rpc_channel * channel, char * channel_name = "ObjectRecognitionService");
+    ObjectRecognitionStub(rpcz::rpc_channel *channel, const char *channel_name = "ObjectRecognitionService");
 
 signals:
+
     void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
+
     void clearGB();
 
 protected:
     virtual void sendRequestImpl();
+
     virtual void callbackImpl();
 
 private:

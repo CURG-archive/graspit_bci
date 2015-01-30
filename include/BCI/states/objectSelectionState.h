@@ -10,13 +10,14 @@
 
 class ObjectSelectionView;
 
-class ObjectSelectionState:public State
-{
-    Q_OBJECT
+class ObjectSelectionState : public State {
+Q_OBJECT
 
 public:
-    ObjectSelectionState(BCIControlWindow *_bciControlWindow,  QState* parent = 0 );
+    ObjectSelectionState(BCIControlWindow *_bciControlWindow, QState *parent = 0);
+
     virtual void onEntry(QEvent *e);
+
     virtual void onExit(QEvent *e);
 
 private:
@@ -28,11 +29,16 @@ private:
 public slots:
 
     void onNext();
+
     void onSelect();
+
     void onNewObjectFound();
+
     void onRunVision(QEvent *e = NULL);
+
     void onVisionFinished();
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
 
 protected:
     virtual void generateImageOptions(bool debug);

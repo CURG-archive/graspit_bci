@@ -35,22 +35,23 @@
 /*! A special hand because collisions must be turned off between the palm and the second link of the thumb.  This is done by overriding the load method.
  */
 class Robonaut : public Hand {
-	Q_OBJECT
+Q_OBJECT
 
- public:
+public:
 
-  /*! Empty constructor (placeholder) */
-  Robonaut(World *w,const char *name) : Hand(w,name) {}
-  
-   /*! Performs the normal robot load routine from xml then turns off collisions 
-       between the palm and the second link of the thumb.
- */
-  virtual int loadFromXml(const TiXmlElement* root,QString rootPath);
+    /*! Empty constructor (placeholder) */
+    Robonaut(World *w, const char *name) : Hand(w, name) {
+    }
 
- /*! Performs the normal robot clone routine then turns off collisions between
-     the palm and the second link of the thumb.
- */
-  virtual void cloneFrom(Hand *original);
+    /*! Performs the normal robot load routine from xml then turns off collisions
+        between the palm and the second link of the thumb.
+  */
+    virtual int loadFromXml(const TiXmlElement *root, QString rootPath);
+
+    /*! Performs the normal robot clone routine then turns off collisions between
+        the palm and the second link of the thumb.
+    */
+    virtual void cloneFrom(Hand *original);
 };
 
 #define ROBONAUT_H

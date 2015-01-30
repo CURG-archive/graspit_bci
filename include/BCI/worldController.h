@@ -5,26 +5,27 @@
 
 class GraspableBody;
 
-namespace bci_experiment
-{
+namespace bci_experiment {
 
-    class WorldController: public QObject
-    {
-        Q_OBJECT
+    class WorldController : public QObject {
+    Q_OBJECT
+
     public:
 
-        static WorldController * getInstance();
+        static WorldController *getInstance();
 
 
         // Highlighting functionality should move to the view controller
         // The method here should only care about setting the next target
         // and possibly emitting a signal that the target has been emitted.
         void highlightAllBodies();
+
         void unhighlightAllBodies();
-        void highlightCurrentBody(GraspableBody * currentTarget);
+
+        void highlightCurrentBody(GraspableBody *currentTarget);
 
     private:
-        static WorldController * worldController;
+        static WorldController *worldController;
 
         WorldController(QObject *parent = 0);
     };

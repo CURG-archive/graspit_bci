@@ -21,110 +21,151 @@
 
 //class OnLinePlanner * op;
 class GraspableBody;
+
 class GraspPlanningState;
 
-namespace bci_experiment{
+namespace bci_experiment {
 
 
+    class OnlinePlannerController : public QObject {
+    Q_OBJECT
 
-    class OnlinePlannerController : public QObject
-    {
-        Q_OBJECT
+    public:
 
-        public:
+        static OnlinePlannerController *getInstance();
 
-            static OnlinePlannerController * getInstance();
+        bool analyzeApproachDir();
 
-            bool analyzeApproachDir();
-            bool hasRecognizedObjects();
+        bool hasRecognizedObjects();
 
-            // Needs the align method to move here
-            // Needs the align method broken in to the GUI part and the
-            // actual moving the hand part
+        // Needs the align method to move here
+        // Needs the align method broken in to the GUI part and the
+        // actual moving the hand part
 
-            void rotateHandLat();
-            void rotateHandLong();
+        void rotateHandLat();
 
-            void drawGuides();
-            void alignHand();
-            void destroyGuides();
+        void rotateHandLong();
 
-            // Highlighting functionality should move to the view controller
-            // The method here should only care about setting the next target
-            // and possibly emitting a signal that the target has been emitted.
-            void highlightAllBodies();
-            void unhighlightAllBodies();
-            void highlightNextBody();
+        void drawGuides();
 
+        void alignHand();
 
-            GraspableBody* getCurrentTarget();
-            GraspableBody * incrementCurrentTarget();
-            void setCurrentTarget(GraspableBody * gb);
-            Hand * getHand();
-            Hand *getRefHand();
-            Hand * getGraspDemoHand();
-            const GraspPlanningState * getGrasp(int index);
-            unsigned int getNumGrasps();
-            const GraspPlanningState * getCurrentGrasp();
-            bool timedUpdateRunning;
-            bool stopTimedUpdate();
-            bool startTimedUpdate();
-            bool toggleTimedUpdate();
-            void setSceneLocked(bool locked){sceneLocked = locked;}
-            bool getSceneLocked(){return sceneLocked;}
-            //void connectToPlannerUpdateSignal();
+        void destroyGuides();
+
+        // Highlighting functionality should move to the view controller
+        // The method here should only care about setting the next target
+        // and possibly emitting a signal that the target has been emitted.
+        void highlightAllBodies();
+
+        void unhighlightAllBodies();
+
+        void highlightNextBody();
 
 
-            void initializeTarget();
+        GraspableBody *getCurrentTarget();
 
-            void incrementGraspIndex();
+        GraspableBody *incrementCurrentTarget();
 
-            void showRobots(bool show);
+        void setCurrentTarget(GraspableBody *gb);
+
+        Hand *getHand();
+
+        Hand *getRefHand();
+
+        Hand *getGraspDemoHand();
+
+        const GraspPlanningState *getGrasp(int index);
+
+        unsigned int getNumGrasps();
+
+        const GraspPlanningState *getCurrentGrasp();
+
+        bool timedUpdateRunning;
+
+        bool stopTimedUpdate();
+
+        bool startTimedUpdate();
+
+        bool toggleTimedUpdate();
+
+        void setSceneLocked(bool locked) {
+            sceneLocked = locked;
+        }
+
+        bool getSceneLocked() {
+            return sceneLocked;
+        }
+        //void connectToPlannerUpdateSignal();
 
 
-            void sortGrasps();
-            void connectPlannerUpdate(bool enableConnection);
-            void resetGraspIndex();
+        void initializeTarget();
+
+        void incrementGraspIndex();
+
+        void showRobots(bool show);
+
+
+        void sortGrasps();
+
+        void connectPlannerUpdate(bool enableConnection);
+
+        void resetGraspIndex();
+
     private:
 
-            static OnlinePlannerController * onlinePlannerController;
-            static QMutex createLock;
+        static OnlinePlannerController *onlinePlannerController;
+        static QMutex createLock;
 
 
-            OnlinePlannerController(QObject *parent = 0);
-            void initializeDbInterface();
+        OnlinePlannerController(QObject *parent = 0);
+
+        void initializeDbInterface();
 
 
-            db_planner::SqlDatabaseManager * mDbMgr;
-            GraspableBody * currentTarget;
-            unsigned int currentGraspIndex;
-            OnLinePlanner * currentPlanner;
-            Hand * graspDemonstrationHand;
-            bool setAllowedPlanningCollisions();
-            bool setPlannerTargets();
-            bool sceneLocked;
+        db_planner::SqlDatabaseManager *mDbMgr;
+        GraspableBody *currentTarget;
+        unsigned int currentGraspIndex;
+        OnLinePlanner *currentPlanner;
+        Hand *graspDemonstrationHand;
+
+        bool setAllowedPlanningCollisions();
+
+        bool setPlannerTargets();
+
+        bool sceneLocked;
 
     signals:
-            void render();
 
+        void render();
 
 
     private slots:
-            // Perform any validation or processing that should update
-            // the planner or it's visualizations periodically
-            void plannerTimedUpdate();
+
+        // Perform any validation or processing that should update
+        // the planner or it's visualizations periodically
+        void plannerTimedUpdate();
 
     public slots:
-            bool setPlannerToRunning();
-            bool setPlannerToStopped();
-            bool setPlannerToPaused();
-            bool setPlannerToReady();
-            void analyzeNextGrasp();
 
-            void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
-            void clearObjects();
-            void targetRemoved();
-            void emitRender(){emit render();}
+        bool setPlannerToRunning();
+
+        bool setPlannerToStopped();
+
+        bool setPlannerToPaused();
+
+        bool setPlannerToReady();
+
+        void analyzeNextGrasp();
+
+        void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
+
+        void clearObjects();
+
+        void targetRemoved();
+
+        void emitRender() {
+            emit render();
+        }
     };
 
 }

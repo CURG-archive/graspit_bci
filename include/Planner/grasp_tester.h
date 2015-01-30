@@ -64,16 +64,27 @@
 #include "grasp_grasps.h"
 
 class SoQtExaminerViewer;
+
 class World;
+
 class Hand;
+
 class Grasp;
+
 class GraspableBody;
+
 class IVmgr;
+
 class QualityMeasure;
+
 class SoQtRenderArea;
+
 class SoGroup;
+
 class SoSensor;
+
 class SoSeparator;
+
 class Body;
 
 
@@ -112,136 +123,152 @@ class Body;
   must be derived from QObject).
   
  */
-class grasp_tester : public QObject
-{
-  Q_OBJECT
+class grasp_tester : public QObject {
+Q_OBJECT
 
 private:
 
-  //! A pointer to the main viewer
-  SoQtExaminerViewer *myViewer;
+    //! A pointer to the main viewer
+    SoQtExaminerViewer *myViewer;
 
-  //! A pointer to the world containing the hand and object
-  World              *my_world;
+    //! A pointer to the world containing the hand and object
+    World *my_world;
 
-  //! A pointer to the hand doing the grasping
-  Hand               *my_hand;
+    //! A pointer to the hand doing the grasping
+    Hand *my_hand;
 
-  //! A pointer to the grasped body
-  GraspableBody      *my_body;
+    //! A pointer to the grasped body
+    GraspableBody *my_body;
 
-  //! A pointer to the hand's grasp class
-  Grasp              *my_grasp;
+    //! A pointer to the hand's grasp class
+    Grasp *my_grasp;
 
-  //! A pointer to the Inventor manager
-  IVmgr                *ivmgr;
+    //! A pointer to the Inventor manager
+    IVmgr *ivmgr;
 
-  //! Index of the quality measure used for evaluation
-  int                  whichQM;
+    //! Index of the quality measure used for evaluation
+    int whichQM;
 
-  //! Whether or not to save evaluation results to a text file
-  bool                 saveToFile;
+    //! Whether or not to save evaluation results to a text file
+    bool saveToFile;
 
-  //! The output file for testing results
-  QFile               graspFile;
+    //! The output file for testing results
+    QFile graspFile;
 
-  //! Output stream that results are written to
-  QTextStream         graspOut;
+    //! Output stream that results are written to
+    QTextStream graspOut;
 
-  //! A pointer to the grasp visualization window
-  SoQtRenderArea     *projectionViewer;
+    //! A pointer to the grasp visualization window
+    SoQtRenderArea *projectionViewer;
 
-  //! A pointer to the scene graph containing the shape primitives of the grasped object
-  SoGroup *primitives;
+    //! A pointer to the scene graph containing the shape primitives of the grasped object
+    SoGroup *primitives;
 
-  //! Collision report for testing hand collisions
-  CollisionReport colReport;
+    //! Collision report for testing hand collisions
+    CollisionReport colReport;
 
-  //! The list of grasps to be evaluated
-    std::list<plannedGrasp*>* graspList;
+    //! The list of grasps to be evaluated
+    std::list<plannedGrasp *> *graspList;
 
-  //! Whether or not to render hand motion during testing
-  bool render;
+    //! Whether or not to render hand motion during testing
+    bool render;
 
-  //! An iterator into the graspList
-  std::list<plannedGrasp*>::iterator it_gr;
+    //! An iterator into the graspList
+    std::list<plannedGrasp *>::iterator it_gr;
 
-  //! Stores original pose of the grasping hand before testing begins
-  transf origTran;
+    //! Stores original pose of the grasping hand before testing begins
+    transf origTran;
 
-  //! An array of the original DOF values for the hand stored before testing begins
+    //! An array of the original DOF values for the hand stored before testing begins
     double *dofs;
-    
-  //! A pointer to the Inventor sensor that allows testing only when the user isn't doing anything
-  SoSensor *idleSensor;
 
-  //! All visualized grasps are added to this separator
-  SoSeparator        *glRoot;
+    //! A pointer to the Inventor sensor that allows testing only when the user isn't doing anything
+    SoSensor *idleSensor;
 
-  //! Number of grasps to be tested
-  int nrOfGrasps;
+    //! All visualized grasps are added to this separator
+    SoSeparator *glRoot;
 
-  //! Number of grasps that have been tested
-  int actualGraspNr;
+    //! Number of grasps to be tested
+    int nrOfGrasps;
 
-  //! Maximum number of backsteps that may be taken
-  int maxItStepNr;
+    //! Number of grasps that have been tested
+    int actualGraspNr;
 
-  //! Distance in mm of on backstep
-  double backStepSize;
+    //! Maximum number of backsteps that may be taken
+    int maxItStepNr;
+
+    //! Distance in mm of on backstep
+    double backStepSize;
 
 /*
  * methods
  */
-  bool putIt(plannedGrasp *pg, bool render_in=false);
-  bool preshapeIt(preshape p, bool render_in=false);
-  bool moveIt(cartesianGraspDirection gd, bool render_in=false);
-  
-  //  int  moveTo(transf); 
-  bool checkContactToHand(GraspableBody* gb);
-  void orderGraspListByQuality(std::list<plannedGrasp*>& grl);
-  void saveGrasp(double quality);
-  
-  void updateGlobals();
-  void savePosition(plannedGrasp& pg);
-  bool handCollision();
-  
-  bool iteration(plannedGrasp& pg);
-  static void testItCB(void *,SoSensor *sensor);
-  void testIt();
-  
+    bool putIt(plannedGrasp *pg, bool render_in = false);
+
+    bool preshapeIt(preshape p, bool render_in = false);
+
+    bool moveIt(cartesianGraspDirection gd, bool render_in = false);
+
+    //  int  moveTo(transf);
+    bool checkContactToHand(GraspableBody *gb);
+
+    void orderGraspListByQuality(std::list<plannedGrasp *> &grl);
+
+    void saveGrasp(double quality);
+
+    void updateGlobals();
+
+    void savePosition(plannedGrasp &pg);
+
+    bool handCollision();
+
+    bool iteration(plannedGrasp &pg);
+
+    static void testItCB(void *, SoSensor *sensor);
+
+    void testIt();
+
 signals:
-  /*! This signal is emitted after the last grasp has been tested. */
-  void testingComplete();
-  
+
+    /*! This signal is emitted after the last grasp has been tested. */
+    void testingComplete();
+
 public:
-  grasp_tester();
-  ~grasp_tester();
-  
-  void setupGraspVisWindow(GraspableBody* myBody,SoGroup *prim);
-  void visualizePlannedGrasps(std::list<plannedGrasp*> grList);
-  bool callTestIt(std::list<plannedGrasp*>& graspList_in, bool render_in);
-  
-  bool set_testingParameters(int itStepNr, double stepSize);
-  void get_testingParameters(int& itStepNr, double& stepSize);
+    grasp_tester();
 
-  /*! Sets the index of the quality measure to use for evalutation. */
-  void useQM(int qmNum) {whichQM = qmNum;}
+    ~grasp_tester();
 
-  void saveGraspsToFile(const QString& filename,bool append);
-  void continueTests();
-  void pauseTests();
-  
-  //   struct timeval get_computingTime();
+    void setupGraspVisWindow(GraspableBody *myBody, SoGroup *prim);
+
+    void visualizePlannedGrasps(std::list<plannedGrasp *> grList);
+
+    bool callTestIt(std::list<plannedGrasp *> &graspList_in, bool render_in);
+
+    bool set_testingParameters(int itStepNr, double stepSize);
+
+    void get_testingParameters(int &itStepNr, double &stepSize);
+
+    /*! Sets the index of the quality measure to use for evalutation. */
+    void useQM(int qmNum) {
+        whichQM = qmNum;
+    }
+
+    void saveGraspsToFile(const QString &filename, bool append);
+
+    void continueTests();
+
+    void pauseTests();
+
+    //   struct timeval get_computingTime();
 };
 
 
 #endif
 
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/
 
 

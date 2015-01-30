@@ -10,7 +10,7 @@
 using bci_experiment::WorldController;
 using bci_experiment::OnlinePlannerController;
 
-ObjectRecognitionStub::ObjectRecognitionStub(rpcz::rpc_channel *channel, char *channel_name) :
+ObjectRecognitionStub::ObjectRecognitionStub(rpcz::rpc_channel *channel, const char *channel_name) :
         objectRecognition_stub(channel, channel_name, true) {
     connect(
             this,

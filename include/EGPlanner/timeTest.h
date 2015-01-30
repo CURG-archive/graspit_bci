@@ -27,6 +27,7 @@
 #include <time.h>
 
 class Hand;
+
 class Body;
 
 /*! \file
@@ -35,30 +36,46 @@ class Body;
 */
 
 //! Generates random states and tests them, but also keeps count of how many it has tested
-class TimeTester : public SimAnnPlanner
-{
+class TimeTester : public SimAnnPlanner {
 private:
-	void mainLoop();
-protected:
-	int mCount,mIllegalCount;
-public:
-	TimeTester(Hand *h) : SimAnnPlanner(h){}
-	virtual PlannerType getType(){return PLANNER_TIME_TEST;}
+    void mainLoop();
 
-	void startPlanner();
-	int getCount(){return mCount;}
-	int getIllegal(){return mIllegalCount;}
+protected:
+    int mCount, mIllegalCount;
+public:
+    TimeTester(Hand *h) : SimAnnPlanner(h) {
+    }
+
+    virtual PlannerType getType() {
+        return PLANNER_TIME_TEST;
+    }
+
+    void startPlanner();
+
+    int getCount() {
+        return mCount;
+    }
+
+    int getIllegal() {
+        return mIllegalCount;
+    }
 };
 
 //! Starts a number of children of the TimeTester type, and times each of them
-class MTTester : public TimeTester
-{
+class MTTester : public TimeTester {
 private:
-	TimeTester *startChild();
-	std::vector<TimeTester*> mChildren;
-	void mainLoop(){}
+    TimeTester *startChild();
+
+    std::vector<TimeTester *> mChildren;
+
+    void mainLoop() {
+    }
+
 public:
-	MTTester(Hand *h) : TimeTester(h){}
-	void startPlanner();
-	void pausePlanner();
+    MTTester(Hand *h) : TimeTester(h) {
+    }
+
+    void startPlanner();
+
+    void pausePlanner();
 };

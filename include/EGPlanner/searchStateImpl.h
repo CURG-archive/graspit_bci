@@ -50,27 +50,41 @@
 */
 
 //! Saves hand posture in eigengrasp space
-class PostureStateEigen : public PostureState
-{
+class PostureStateEigen : public PostureState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PostureStateEigen(const Hand *h) : PostureState(h){createVariables();}
-	StateType getType() const {return POSE_EIGEN;}
-	void getHandDOF(double *dof) const;
-	void storeHandDOF(const double *dof);
+    PostureStateEigen(const Hand *h) : PostureState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return POSE_EIGEN;
+    }
+
+    void getHandDOF(double *dof) const;
+
+    void storeHandDOF(const double *dof);
 };
 
 //! Saves hand posture in dof space
-class PostureStateDOF : public PostureState
-{
+class PostureStateDOF : public PostureState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PostureStateDOF(const Hand *h) : PostureState(h){createVariables();}
-	StateType getType() const {return POSE_DOF;}
-	void getHandDOF(double *dof) const;
-	void storeHandDOF(const double *dof);
+    PostureStateDOF(const Hand *h) : PostureState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return POSE_DOF;
+    }
+
+    void getHandDOF(double *dof) const;
+
+    void storeHandDOF(const double *dof);
 };
 
 //! Saves complete hand position as quaternion + translation; 7 variables
@@ -78,15 +92,22 @@ public:
 	all 4 entries in a quaternion) and therefore is not used for actually
 	searching, but for saving and storing positions.
 */
-class PositionStateComplete : public PositionState
-{
+class PositionStateComplete : public PositionState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PositionStateComplete(const Hand *h) : PositionState(h){createVariables();}
-	StateType getType() const {return SPACE_COMPLETE;}
-	transf getCoreTran() const;
-	void setTran(const transf &t);
+    PositionStateComplete(const Hand *h) : PositionState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return SPACE_COMPLETE;
+    }
+
+    transf getCoreTran() const;
+
+    void setTran(const transf &t);
 };
 
 //! Saves hand position as any rotation and translation; 6 variables
@@ -94,15 +115,22 @@ public:
 	first two variables encode an axis of rotation and the third one is
 	the rotation angle around that axis.
 */
-class PositionStateAA : public PositionState
-{
+class PositionStateAA : public PositionState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PositionStateAA(const Hand *h) : PositionState(h){createVariables();}
-	StateType getType() const {return SPACE_AXIS_ANGLE;}
-	transf getCoreTran() const;
-	void setTran(const transf &t);
+    PositionStateAA(const Hand *h) : PositionState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return SPACE_AXIS_ANGLE;
+    }
+
+    transf getCoreTran() const;
+
+    void setTran(const transf &t);
 };
 
 //! Saves a hand position on a predefined ellipsoid; 4 variables and 3 parameters
@@ -112,15 +140,22 @@ public:
 	to the ellipsoid. The fourth variable, dist, then moves the hand back and
 	forth along the approach direction.
 */
-class PositionStateEllipsoid : public PositionState
-{
+class PositionStateEllipsoid : public PositionState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PositionStateEllipsoid(const Hand *h) : PositionState(h){createVariables();}
-	StateType getType() const {return SPACE_ELLIPSOID;}
-	transf getCoreTran() const;
-	void setTran(const transf &t);
+    PositionStateEllipsoid(const Hand *h) : PositionState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return SPACE_ELLIPSOID;
+    }
+
+    transf getCoreTran() const;
+
+    void setTran(const transf &t);
 };
 
 //! Allows the hand to move back and forth in a cone around its pre-defined approach direction; 3 variables
@@ -130,15 +165,22 @@ public:
 	in. This is used with the on-line planner, where a reference hand
 	position is specified externally.
 */
-class PositionStateApproach : public PositionState
-{
+class PositionStateApproach : public PositionState {
 protected:
-	void createVariables();
+    void createVariables();
+
 public:
-	PositionStateApproach(const Hand *h) : PositionState(h){createVariables();}
-	StateType getType() const {return SPACE_APPROACH;}
-	transf getCoreTran() const;
-	void setTran(const transf &t);
+    PositionStateApproach(const Hand *h) : PositionState(h) {
+        createVariables();
+    }
+
+    StateType getType() const {
+        return SPACE_APPROACH;
+    }
+
+    transf getCoreTran() const;
+
+    void setTran(const transf &t);
 };
 
 #endif

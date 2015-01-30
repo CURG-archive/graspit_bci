@@ -30,7 +30,9 @@
 #include "search.h"
 
 class Hand;
+
 class GraspPlanningState;
+
 class BarrettHand;
 
 /*! This class is designed to perform interactive grasping tasks where 
@@ -52,20 +54,27 @@ class BarrettHand;
 	proof-of-concept implementation to show how the OnLinePlanner can be 
 	applied.
 */
-class OnLineGraspInterface
-{
+class OnLineGraspInterface {
 private:
-	ActionType mAction;
-	Hand *mHand;
-	//! When using a real Barrett hand this is the communicator with it
-	BarrettHand *mBarrettHand;
-	bool getSuggestedDOF(const GraspPlanningState *s, double *initialDof, double *finalDof);
+    ActionType mAction;
+    Hand *mHand;
+    //! When using a real Barrett hand this is the communicator with it
+    BarrettHand *mBarrettHand;
+
+    bool getSuggestedDOF(const GraspPlanningState *s, double *initialDof, double *finalDof);
+
 public:
-	OnLineGraspInterface(Hand *h);
-	GraspPlanningState* updateHand(const std::list<GraspPlanningState*> *solutionList);
-	void action(ActionType a);
-	void useRealBarrettHand(bool s);
-	ActionType getAction(){return mAction;}
+    OnLineGraspInterface(Hand *h);
+
+    GraspPlanningState *updateHand(const std::list<GraspPlanningState *> *solutionList);
+
+    void action(ActionType a);
+
+    void useRealBarrettHand(bool s);
+
+    ActionType getAction() {
+        return mAction;
+    }
 };
 
 #endif

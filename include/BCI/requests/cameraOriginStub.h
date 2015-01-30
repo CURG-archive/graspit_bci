@@ -9,14 +9,15 @@
 
 #include "BCI/requests/requestStub.h"
 
-class CameraOriginStub : public Request
-{
-    Q_OBJECT
+class CameraOriginStub : public Request {
+Q_OBJECT
+
 public:
-    CameraOriginStub(rpcz::rpc_channel * channel);
+    CameraOriginStub(rpcz::rpc_channel *channel);
 
 protected:
     virtual void sendRequestImpl();
+
     virtual void callbackImpl();
 
 private:

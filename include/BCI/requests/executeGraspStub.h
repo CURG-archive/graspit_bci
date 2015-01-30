@@ -11,16 +11,17 @@
 
 class GraspPlanningState;
 
-class ExecuteGraspStub : public Request
-{
-    Q_OBJECT
-public:
-    ExecuteGraspStub(rpcz::rpc_channel * channel);
+class ExecuteGraspStub : public Request {
+Q_OBJECT
 
-    void buildRequest(const GraspPlanningState * gps);
+public:
+    ExecuteGraspStub(rpcz::rpc_channel *channel);
+
+    void buildRequest(const GraspPlanningState *gps);
 
 protected:
     virtual void sendRequestImpl();
+
     virtual void callbackImpl();
 
 private:

@@ -1,4 +1,4 @@
-	//######################################################################
+//######################################################################
 //
 // GraspIt!
 // Copyright (C) 2002-2009  Columbia University in the City of New York.
@@ -27,6 +27,7 @@
   \brief Defines the IVmgr class which handles 3D user interaction.
  */
 #ifndef IVMGR_HXX
+
 #include <Inventor/SbBasic.h>
 #include <Inventor/SbLinear.h>
 #include <list>
@@ -40,47 +41,83 @@
 #include <QThread>
 
 struct VCReportType;
+
 class SbVec3f;
+
 class transf;
+
 class position;
 
 class QWidget;
+
 class SoQtExaminerViewer;
+
 class SoBlinker;
+
 class SoCenterballDragger;
+
 class SoHandleBoxDragger;
+
 class SoTranslate1Dragger;
+
 class SoRotateDiscDragger;
+
 class SoDragger;
+
 class SoMaterial;
+
 class SoPath;
+
 class SoPickedPoint;
+
 class SoScale;
+
 class SoSelection;
+
 class SoSeparator;
+
 class SoText2;
+
 class SoTransform;
+
 class SoEventCallback;
+
 class SoSensor;
+
 class SoNodeSensor;
+
 class SoQtRenderArea;
+
 class World;
+
 class WorldElement;
+
 class Robot;
+
 class HumanHand;
+
 class KinematicChain;
+
 class DOF;
+
 class GraspableBody;
+
 class Body;
+
 class Finger;
+
 class Grasp;
+
 class GWS;
+
 class GWSprojection;
+
 class QualityMeasure;
+
 struct DraggerInfo;
 
 namespace db_planner {
-	class DatabaseManager;
+    class DatabaseManager;
 }
 
 #define HANDS_DIR "../../hands/"
@@ -100,17 +137,26 @@ typedef double col_Mat4[4][4];
 */
 class StereoViewer : public SoQtExaminerViewer {
 protected:
-	bool stereoOn;
-	void computeSeekFinalOrientation();
+    bool stereoOn;
+
+    void computeSeekFinalOrientation();
+
 public:
-	void setStereo(bool s);
-	bool isStereoOn(){return stereoOn;}
-	StereoViewer(QWidget *parent);
-	float mFocalPlane;
+    void setStereo(bool s);
+
+    bool isStereoOn() {
+        return stereoOn;
+    }
+
+    StereoViewer(QWidget *parent);
+
+    float mFocalPlane;
 };
 
 
-enum ToolType {TRANSLATE_TOOL,ROTATE_TOOL,SELECT_TOOL};
+enum ToolType {
+    TRANSLATE_TOOL, ROTATE_TOOL, SELECT_TOOL
+};
 
 //! Handles 3D interactions with the world
 /*!
@@ -123,246 +169,299 @@ enum ToolType {TRANSLATE_TOOL,ROTATE_TOOL,SELECT_TOOL};
   indicators, and can render and save an image of the current scene.
  */
 class IVmgr : public QWidget {
-  Q_OBJECT
+Q_OBJECT
 
- private:
-  //! Global ivmgr pointer for use with static callback routines.  There is only one ivmgr.    
-  static IVmgr *ivmgr;
+private:
+    //! Global ivmgr pointer for use with static callback routines.  There is only one ivmgr.
+    static IVmgr *ivmgr;
 
-  //! Points to the main world associated with this iteraction manager
-  World *world;
+    //! Points to the main world associated with this iteraction manager
+    World *world;
 
-  //! File pointer used to read or record camera positions when making a movie
-  FILE *camerafp;
+    //! File pointer used to read or record camera positions when making a movie
+    FILE *camerafp;
 
-  //! Base filename fir recording an image sequence 
-  const char *imgSeqStr;
+    //! Base filename fir recording an image sequence
+    const char *imgSeqStr;
 
-  //! Current frame counter used in recording an image sequence
-  int imgSeqCounter;
+    //! Current frame counter used in recording an image sequence
+    int imgSeqCounter;
 
-  //! Current interaction tool selected (translate, rotate, or select)
-  ToolType currTool;
+    //! Current interaction tool selected (translate, rotate, or select)
+    ToolType currTool;
 
-  //! A flag indicating whether the control key is down during a mouse click
-  SbBool CtrlDown;
+    //! A flag indicating whether the control key is down during a mouse click
+    SbBool CtrlDown;
 
-  //! A flag indicating whether the shift key is down during a mouse click
-  SbBool ShiftDown;
+    //! A flag indicating whether the shift key is down during a mouse click
+    SbBool ShiftDown;
 
-  //! Pointers to various structures used for visual feedback.
-  SoSeparator *pointers;
+    //! Pointers to various structures used for visual feedback.
+    SoSeparator *pointers;
 
-  //! An array of pointers to blinker nodes that correspond to individual contact force indicators
-  std::vector<SoBlinker*> contactForceBlinkerVec;
+    //! An array of pointers to blinker nodes that correspond to individual contact force indicators
+    std::vector<SoBlinker *> contactForceBlinkerVec;
 
-  //! A pointer to the examiner viewer which inventor component facilitating user interaction
-  //SoQtExaminerViewer *myViewer;
-  StereoViewer *myViewer;
+    //! A pointer to the examiner viewer which inventor component facilitating user interaction
+    //SoQtExaminerViewer *myViewer;
+    StereoViewer *myViewer;
 
-  //! Pointer to the root of the entire Inventor scene graph
-  SoSeparator *sceneRoot;
+    //! Pointer to the root of the entire Inventor scene graph
+    SoSeparator *sceneRoot;
 
-  //! Pointer to the sub-tree of selectable Inventor objects
-  SoSelection *selectionRoot;
+    //! Pointer to the sub-tree of selectable Inventor objects
+    SoSelection *selectionRoot;
 
-  //! Pointer to the sub-tree of 
-  SoSeparator *draggerRoot;
+    //! Pointer to the sub-tree of
+    SoSeparator *draggerRoot;
 
-  //! Pointer to sub-tree containing wireframe versions of bodies when they are selected
-  SoSeparator *wireFrameRoot;
+    //! Pointer to sub-tree containing wireframe versions of bodies when they are selected
+    SoSeparator *wireFrameRoot;
 
-  //! Pointer to an empty separator
-  SoSeparator *junk;
+    //! Pointer to an empty separator
+    SoSeparator *junk;
 
-  //! Pointer to the material node controlling the color of dynamic force indicatores
-  SoMaterial *dynForceMat;
+    //! Pointer to the material node controlling the color of dynamic force indicatores
+    SoMaterial *dynForceMat;
 
-  //! The main and only interface for the CGDB; all interaction with the CGDB should go through this.
-  db_planner::DatabaseManager *mDBMgr;
+    //! The main and only interface for the CGDB; all interaction with the CGDB should go through this.
+    db_planner::DatabaseManager *mDBMgr;
 
-  void setupPointers();
-  void transRot(DraggerInfo *dInfo);
-  void revoluteJointChanged(DraggerInfo *dInfo);
-  void revoluteJointFinished(DraggerInfo *dInfo);
-  void revoluteJointClicked(DraggerInfo *dInfo);  
-  void prismaticJointChanged(DraggerInfo *dInfo);
-  void makeCenterball(WorldElement *selectedElement,Body *surroundMe);
-  void makeHandleBox(WorldElement *selectedElement,Body *surroundMe);
-  void makeJointDraggers(Robot *robot,KinematicChain *chain);
-  void drawWireFrame(SoSeparator *elementRoot);
-  SoPath *pickFilter(const SoPickedPoint *pick);
-  void handleSelection(SoPath* p);
-  void handleDeselection(SoPath* p);  
-  void deleteSelections();
-  void setCtrlDown(SbBool status) {CtrlDown = status;}
-  void setShiftDown(SbBool status) {ShiftDown = status;}
-  void spaceBar();
-  void keyPressed(SoEventCallback *eventCB);
-  
+    void setupPointers();
+
+    void transRot(DraggerInfo *dInfo);
+
+    void revoluteJointChanged(DraggerInfo *dInfo);
+
+    void revoluteJointFinished(DraggerInfo *dInfo);
+
+    void revoluteJointClicked(DraggerInfo *dInfo);
+
+    void prismaticJointChanged(DraggerInfo *dInfo);
+
+    void makeCenterball(WorldElement *selectedElement, Body *surroundMe);
+
+    void makeHandleBox(WorldElement *selectedElement, Body *surroundMe);
+
+    void makeJointDraggers(Robot *robot, KinematicChain *chain);
+
+    void drawWireFrame(SoSeparator *elementRoot);
+
+    SoPath *pickFilter(const SoPickedPoint *pick);
+
+    void handleSelection(SoPath *p);
+
+    void handleDeselection(SoPath *p);
+
+    void deleteSelections();
+
+    void setCtrlDown(SbBool status) {
+        CtrlDown = status;
+    }
+
+    void setShiftDown(SbBool status) {
+        ShiftDown = status;
+    }
+
+    void spaceBar();
+
+    void keyPressed(SoEventCallback *eventCB);
 
 
-  //! Draws a wrench indicator on a body
-  void drawBodyWrench(GraspableBody *body, const double *wrench);
+    //! Draws a wrench indicator on a body
+    void drawBodyWrench(GraspableBody *body, const double *wrench);
 
-  //! static callback routine for when a body dragger is moved
-  static void transRotCB(void *dInfo,SoDragger *dragger);
+    //! static callback routine for when a body dragger is moved
+    static void transRotCB(void *dInfo, SoDragger *dragger);
 
-  //! static callback routine for when a disc dragger is moved
-  static void revoluteJointChangedCB(void *dInfo,SoDragger *dragger);
-  
-  //! static callback routine for when a disc dragger is clicked
-  static void revoluteJointClickedCB(void *dInfo,SoDragger *dragger);
+    //! static callback routine for when a disc dragger is moved
+    static void revoluteJointChangedCB(void *dInfo, SoDragger *dragger);
 
-  //! static callback routine for when a disc dragger is released
-  static void revoluteJointFinishedCB(void *dInfo,SoDragger *dragger);
+    //! static callback routine for when a disc dragger is clicked
+    static void revoluteJointClickedCB(void *dInfo, SoDragger *dragger);
 
-  //! static callback routine for when an arrow dragger is moved
-  static void prismaticJointChangedCB(void *dInfo,SoDragger *dragger);
+    //! static callback routine for when a disc dragger is released
+    static void revoluteJointFinishedCB(void *dInfo, SoDragger *dragger);
 
-  //! static callback routine for mouse events
-  static void shiftOrCtrlDownCB(void *,SoEventCallback *eventCB);
+    //! static callback routine for when an arrow dragger is moved
+    static void prismaticJointChangedCB(void *dInfo, SoDragger *dragger);
 
-  //! static callback routine for keyboard events
-  static void keyPressedCB(void *,SoEventCallback *eventCB);
+    //! static callback routine for mouse events
+    static void shiftOrCtrlDownCB(void *, SoEventCallback *eventCB);
 
-  //! static callback routine for selections
-  static void selectionCB(void *,SoPath *p);
+    //! static callback routine for keyboard events
+    static void keyPressedCB(void *, SoEventCallback *eventCB);
 
-  //! static callback routine for deselections
-  static void deselectionCB(void *,SoPath *p);
+    //! static callback routine for selections
+    static void selectionCB(void *, SoPath *p);
 
-  //! static callback routine for pick events (before selections or deselections)
-  static SoPath *pickFilterCB(void *,const SoPickedPoint *pick);
+    //! static callback routine for deselections
+    static void deselectionCB(void *, SoPath *p);
 
+    //! static callback routine for pick events (before selections or deselections)
+    static SoPath *pickFilterCB(void *, const SoPickedPoint *pick);
 
 
 public slots:
-  void drawDynamicForces();
-  void drawWorstCaseWrenches();
-  void drawUnbalancedForces();
-  void saveNextImage();
-  void saveCameraPos();
-  void restoreCameraPos();  
+
+    void drawDynamicForces();
+
+    void drawWorstCaseWrenches();
+
+    void drawUnbalancedForces();
+
+    void saveNextImage();
+
+    void saveCameraPos();
+
+    void restoreCameraPos();
 
 
 signals:
-  //! Signal that planner grasps should be processed or sent out for execution
-  void processWorldPlanner(int solutionIndex);
+
+    //! Signal that planner grasps should be processed or sent out for execution
+    void processWorldPlanner(int solutionIndex);
 
 
 public:
-  IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);
-  ~IVmgr();
+    IVmgr(QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
 
-  void setBackgroundColor(float r, float g, float b);
-  void emitProcessWorldPlanner(int i){emit processWorldPlanner(i);}
-  void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0,0.0,0.0));
+    ~IVmgr();
 
-  void deselectBody(Body *b);
-  /*! 
-    Returns a pointer to the main World that the user interacts with through
-    this manager.
-   */
-  World *getWorld() const {return world;}
+    void setBackgroundColor(float r, float g, float b);
 
-  /*!
-    Returns a pointer to the Inventor examiner viewer.
-  */
-  StereoViewer *getViewer() const {return myViewer;}  
+    void emitProcessWorldPlanner(int i) {
+        emit processWorldPlanner(i);
+    }
 
-  /*!
-    Returns the Inventor sub-tree that holds the pointer shapes (arrow and
-    torque pointer) read in during start up.
-  */
-  SoSeparator *getPointers() const {return pointers;}
+    void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0, 0.0, 0.0));
 
-  void setTool(ToolType newTool);
-  void emptyWorld();
-  void hilightObjContact(int contactNum);
-  void unhilightObjContact(int contactNum);
+    void deselectBody(Body *b);
 
-  void saveImageSequence(const char *fileStr);
-  int saveCameraPositions(const char *filename);
-  int useSavedCameraPositions(const char *filename);
-  //! Sets the camera position, orientaion and focal distance
-  void setCamera(double px, double py, double pz, double q1, double q2, double q3, double q4, double fd);
-  //! Gets the camera position, orientaion and focal distance
-  void getCamera(float &px, float &py, float &pz, float &q1, float &q2, float &q3, float &q4, float &fd);
-  void setCameraTransf(transf tr);
-  transf getCameraTransf();
+    /*!
+      Returns a pointer to the main World that the user interacts with through
+      this manager.
+     */
+    World *getWorld() const {
+        return world;
+    }
 
-  
-  void saveImage(QString filename, SoSeparator *root = NULL);
-  QImage* generateImage(SoSeparator * root = NULL, QString debugFileName = "");
+    /*!
+      Returns a pointer to the Inventor examiner viewer.
+    */
+    StereoViewer *getViewer() const {
+        return myViewer;
+    }
 
-  void beginMainLoop();
+    /*!
+      Returns the Inventor sub-tree that holds the pointer shapes (arrow and
+      torque pointer) read in during start up.
+    */
+    SoSeparator *getPointers() const {
+        return pointers;
+    }
 
-  void setStereo(bool s);
-  //! Not implemented
-  void flipStereo();
+    void setTool(ToolType newTool);
 
-  //! Get the main database manager, when CGDB support is enabled
-  db_planner::DatabaseManager* getDBMgr(){return mDBMgr;}
-  //! Set the main database manager. Should only be called by the DB connection dialog
+    void emptyWorld();
+
+    void hilightObjContact(int contactNum);
+
+    void unhilightObjContact(int contactNum);
+
+    void saveImageSequence(const char *fileStr);
+
+    int saveCameraPositions(const char *filename);
+
+    int useSavedCameraPositions(const char *filename);
+
+    //! Sets the camera position, orientaion and focal distance
+    void setCamera(double px, double py, double pz, double q1, double q2, double q3, double q4, double fd);
+
+    //! Gets the camera position, orientaion and focal distance
+    void getCamera(float &px, float &py, float &pz, float &q1, float &q2, float &q3, float &q4, float &fd);
+
+    void setCameraTransf(transf tr);
+
+    transf getCameraTransf();
+
+
+    void saveImage(QString filename, SoSeparator *root = NULL);
+
+    QImage *generateImage(SoSeparator *root = NULL, QString debugFileName = "");
+
+    void beginMainLoop();
+
+    void setStereo(bool s);
+
+    //! Not implemented
+    void flipStereo();
+
+    //! Get the main database manager, when CGDB support is enabled
+    db_planner::DatabaseManager *getDBMgr() {
+        return mDBMgr;
+    }
+    //! Set the main database manager. Should only be called by the DB connection dialog
 #ifdef CGDB_ENABLED
-  void setDBMgr(db_planner::DatabaseManager *mgr){mDBMgr = mgr;}
+
+    void setDBMgr(db_planner::DatabaseManager *mgr) {
+        mDBMgr = mgr;
+    }
+
 #else
   void setDBMgr(db_planner::DatabaseManager*){}
 #endif
-  void setStereoWindow(QWidget *parent);
 
-  void drawCircle(const QString & stringName, double x, double y, float scale, SbColor & color,
-                  double transparency, double thickness);
+    void setStereoWindow(QWidget *parent);
 
+    void drawCircle(const QString &stringName, double x, double y, float scale, SbColor &color,
+            double transparency, double thickness);
 
 
 };
 
-class BackgroundBlinker : public QThread{
-  Q_OBJECT
- private:
-  StereoViewer * viewer_;
-  int mSecDuration_;
-  int times_;  
-  SbColor blinkColor_;
+class BackgroundBlinker : public QThread {
+Q_OBJECT
+
+private:
+    StereoViewer *viewer_;
+    int mSecDuration_;
+    int times_;
+    SbColor blinkColor_;
 
 protected:
-  virtual void run()
-  {
-    blinkBackground();
-    msleep(mSecDuration_);
-    if(times_)
-      run();
-    else
-      exit();
-  };
+    virtual void run() {
+        blinkBackground();
+        msleep(mSecDuration_);
+        if (times_)
+            run();
+        else
+            exit();
+    };
 
 
- public slots:
-  void blinkBackground()
-  {    
-    SbColor currentColor = viewer_->getBackgroundColor();
-    SbColor newColor;
-    if(currentColor.equals(blinkColor_, 0.01f))
-      newColor = SbColor(1.0,1.0,1.0);
-    else
-      newColor = blinkColor_;
+public slots:
 
-    viewer_->setBackgroundColor(newColor);
-    if (currentColor.equals(blinkColor_, .01f))
-      times_ -= 1;
-  };
+    void blinkBackground() {
+        SbColor currentColor = viewer_->getBackgroundColor();
+        SbColor newColor;
+        if (currentColor.equals(blinkColor_, 0.01f))
+            newColor = SbColor(1.0, 1.0, 1.0);
+        else
+            newColor = blinkColor_;
 
- public:
-  BackgroundBlinker (StereoViewer *viewer, int mSecDuration = 100, int times = 1, 
-                        SbColor blinkColor = SbColor(0.0,0.0,0.0)) : viewer_(viewer), mSecDuration_(mSecDuration),
-                        times_(times), blinkColor_(blinkColor)
-  {
-    start();
-  }
-    
-  
+        viewer_->setBackgroundColor(newColor);
+        if (currentColor.equals(blinkColor_, .01f))
+            times_ -= 1;
+    };
+
+public:
+    BackgroundBlinker(StereoViewer *viewer, int mSecDuration = 100, int times = 1,
+            SbColor blinkColor = SbColor(0.0, 0.0, 0.0)) : viewer_(viewer), mSecDuration_(mSecDuration),
+                                                           times_(times), blinkColor_(blinkColor) {
+        start();
+    }
+
 
 };
 

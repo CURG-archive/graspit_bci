@@ -32,6 +32,7 @@
 #include "grasp.h"
 
 class Matrix;
+
 class Joint;
 
 //! A type of gripper that we define some particular optimizations for
@@ -59,48 +60,52 @@ class Joint;
 
 	Some of this maybe should (and will) end up in a DOF subclass.
 */
-class McGrip : public Hand
-{
-	Q_OBJECT
+class McGrip : public Hand {
+Q_OBJECT
+
 private:
 
-	//! Computes the contribution of insertion points from a given link on a given joint
-	void assembleTorqueMatrices(int refJointNum, int thisJointNum, int nextJointNum,
-								double tx, double ty,
-								double theta, double theta_n,
-								Matrix &B, Matrix &a);
+    //! Computes the contribution of insertion points from a given link on a given joint
+    void assembleTorqueMatrices(int refJointNum, int thisJointNum, int nextJointNum,
+            double tx, double ty,
+            double theta, double theta_n,
+            Matrix &B, Matrix &a);
 
-	//! Construction paramter, for now fixed and hard-coded in the constructor
-	double mLinkLength;
-	//! Construction paramter, for now fixed and hard-coded in the constructor
-	double mJointRadius;
+    //! Construction paramter, for now fixed and hard-coded in the constructor
+    double mLinkLength;
+    //! Construction paramter, for now fixed and hard-coded in the constructor
+    double mJointRadius;
 
 public:
-	//! Sets some fixed construction parameters and initializes grasp to the specialized class
-	McGrip(World *w,const char *name);
+    //! Sets some fixed construction parameters and initializes grasp to the specialized class
+    McGrip(World *w, const char *name);
 
-	//! Computes the full routing matrices that relate construction parameters to joint torques
-	void getRoutingMatrices(Matrix **B, Matrix **a);
+    //! Computes the full routing matrices that relate construction parameters to joint torques
+    void getRoutingMatrices(Matrix **B, Matrix **a);
 
-	//! Returns the construction paramters link length
-	double getLinkLength() const {return mLinkLength;}
+    //! Returns the construction paramters link length
+    double getLinkLength() const {
+        return mLinkLength;
+    }
 
-	//! Returns the construction paramters joint radius
-	double getJointRadius() const {return mJointRadius;}
+    //! Returns the construction paramters joint radius
+    double getJointRadius() const {
+        return mJointRadius;
+    }
 };
 
 //! The McGrip also comes with a specialized Grasp class to perform some optimizations
-class McGripGrasp : public Grasp
-{
-	Q_OBJECT
-public:
-	//! Also check that the hand is indeed a McGrip
-	McGripGrasp(Hand *h) : Grasp(h) {
-		assert(h->isA("McGrip"));
-	}
+class McGripGrasp : public Grasp {
+Q_OBJECT
 
-	//! Optimizes contact forces tendon routes and construction parameters for one particular grasp
-	int tendonAndHandOptimization(Matrix *parameters);
+public:
+    //! Also check that the hand is indeed a McGrip
+    McGripGrasp(Hand *h) : Grasp(h) {
+        assert(h->isA("McGrip"));
+    }
+
+    //! Optimizes contact forces tendon routes and construction parameters for one particular grasp
+    int tendonAndHandOptimization(Matrix *parameters);
 };
 
 #endif

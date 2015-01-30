@@ -47,46 +47,50 @@
   make more sense to have these presentations take place in another window, so
   as not to move elements in the main world.
 */
-class grasp_presenter
-{
- private:
-  
-  //! A pointer to the main viewer
-  SoQtExaminerViewer *myViewer;
+class grasp_presenter {
+private:
 
-  //! A pointer to the hand used to present the grasp
-  Hand               *my_hand;
+    //! A pointer to the main viewer
+    SoQtExaminerViewer *myViewer;
 
-  //! A pointer to the world containing the hand
-  World              *my_world;
+    //! A pointer to the hand used to present the grasp
+    Hand *my_hand;
 
-  //! A pointer the Inventor manager
-  IVmgr              *ivmgr;
+    //! A pointer to the world containing the hand
+    World *my_world;
 
-  //! A pointer to the render area for this presentation (not used yet)
-  SoQtRenderArea     *graspViewer;
+    //! A pointer the Inventor manager
+    IVmgr *ivmgr;
 
-  //! A list of the grasps being presented
-  std::list<plannedGrasp*> graspList;
-    
-  //! An iterator for the grasp list
-  std::list<plannedGrasp*>::iterator it_gr;
+    //! A pointer to the render area for this presentation (not used yet)
+    SoQtRenderArea *graspViewer;
+
+    //! A list of the grasps being presented
+    std::list<plannedGrasp *> graspList;
+
+    //! An iterator for the grasp list
+    std::list<plannedGrasp *>::iterator it_gr;
 
 
-  int processing;
+    int processing;
 
-  void updateGlobals();
-  void breakContacts();
-  void putHand(finalGraspPosition,bool);
-  
-  
- public:
-  grasp_presenter();
-  ~grasp_presenter();
-  
-  void takeList(std::list<plannedGrasp*>);
-  void showGrasp(int, bool);
-  void chooseGrasp();
+    void updateGlobals();
+
+    void breakContacts();
+
+    void putHand(finalGraspPosition, bool);
+
+
+public:
+    grasp_presenter();
+
+    ~grasp_presenter();
+
+    void takeList(std::list<plannedGrasp *>);
+
+    void showGrasp(int, bool);
+
+    void chooseGrasp();
 };
 
 

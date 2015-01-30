@@ -43,28 +43,30 @@ class CalibrationPose;
 	This class is obsolete, only used by the GraspCaptureDlg. It is in a very
 	poor state, not recommended for use.
 */
-class GraspRecord
-{
+class GraspRecord {
 private:
-	int mSize;
+    int mSize;
 public:
-	GraspRecord(int size);
-	~GraspRecord();
+    GraspRecord(int size);
 
-	CalibrationPose *mPose;
-	QString mObjectName;
-	QString mRobotName;
-	transf mTran;
+    ~GraspRecord();
 
-	//modified to DBase project
-	double quality;
-	int originalIndex;
+    CalibrationPose *mPose;
+    QString mObjectName;
+    QString mRobotName;
+    transf mTran;
 
-	void writeToFile(FILE *fp);
-	void readFromFile(FILE *fp);
+    //modified to DBase project
+    double quality;
+    int originalIndex;
+
+    void writeToFile(FILE *fp);
+
+    void readFromFile(FILE *fp);
 };
 
-void loadGraspListFromFile(std::vector<GraspRecord*> *list, const char *filename);
-void writeGraspListToFile (std::vector<GraspRecord*> *list, const char *filename);
+void loadGraspListFromFile(std::vector<GraspRecord *> *list, const char *filename);
+
+void writeGraspListToFile(std::vector<GraspRecord *> *list, const char *filename);
 
 #endif

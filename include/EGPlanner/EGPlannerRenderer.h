@@ -1,5 +1,6 @@
 #ifndef EGPLANNERRENDERER_H
 #define EGPLANNERRENDERER_H
+
 #include <QObject>
 #include "EGPlanner/egPlanner.h"
 #include <graspitGUI.h>
@@ -8,16 +9,14 @@
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
 
-class EGPlannerRenderer : public QObject
-{
-    Q_OBJECT
+class EGPlannerRenderer : public QObject {
+Q_OBJECT
 
 public slots:
-    void render(EGPlanner * planner)
-    {
+
+    void render(EGPlanner *planner) {
         SoQtExaminerViewer *ra = dynamic_cast<SoQtExaminerViewer *>(GraspItGUI::getInstance()->getIVmgr()->getViewer());
-        if(ra)
-        {
+        if (ra) {
             ra->render();
             ra->getRenderAreaWidget()->update();
         }

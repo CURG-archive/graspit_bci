@@ -28,6 +28,7 @@
 */
 
 #ifndef _GRASPITAPP_H_
+
 #include <qapplication.h>
 //Added by qt3to4:
 #include <QLabel>
@@ -41,18 +42,24 @@ class QLabel;
   added to this.  One instance of this class should be defined in the main
   program.
 */
-class GraspItApp : public QApplication
-{
- public:
-  /*! Stub constructor */
-  GraspItApp(int &argc, char **argv) : QApplication(argc,argv) {}
+class GraspItApp : public QApplication {
+public:
+    /*! Stub constructor */
+    GraspItApp(int &argc, char **argv) : QApplication(argc, argv) {
+    }
 
-  /*! Returns the name of this class. */
-  const char *className() const { return "GraspItApp"; }
-  virtual bool notify(QObject *obj, QEvent *evt);
-  static void showSplash();
-  static void closeSplash();
+    /*! Returns the name of this class. */
+    const char *className() const {
+        return "GraspItApp";
+    }
+
+    virtual bool notify(QObject *obj, QEvent *evt);
+
+    static void showSplash();
+
+    static void closeSplash();
 
 };
+
 #define _GRASPITAPP_H_
 #endif

@@ -37,22 +37,23 @@
     load method.
  */
 class Pr2Gripper : public Hand {
-	Q_OBJECT
+Q_OBJECT
 
- public:
+public:
 
-  /*! Empty constructor (placeholder) */
-  Pr2Gripper(World *w,const char *name) : Hand(w,name) {}
-  
-   /*! Performs the normal robot load routine from xml then turns off collisions 
-       between the first links of the two chains
- */
-  virtual int loadFromXml(const TiXmlElement* root,QString rootPath);
+    /*! Empty constructor (placeholder) */
+    Pr2Gripper(World *w, const char *name) : Hand(w, name) {
+    }
 
- /*! Performs the normal robot clone routine then turns off collisions between
-     the first links of the two chains
- */
-  virtual void cloneFrom(Hand *original);
+    /*! Performs the normal robot load routine from xml then turns off collisions
+        between the first links of the two chains
+  */
+    virtual int loadFromXml(const TiXmlElement *root, QString rootPath);
+
+    /*! Performs the normal robot clone routine then turns off collisions between
+        the first links of the two chains
+    */
+    virtual void cloneFrom(Hand *original);
 
 };
 

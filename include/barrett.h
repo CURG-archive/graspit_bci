@@ -38,26 +38,29 @@ class BarrettHand;
 	to mimic the behavior of the simulated Barrett, or vice versa.
 */
 class Barrett : public Hand {
-	Q_OBJECT
+Q_OBJECT
 
 protected:
-	//! The interface to the real Barrett hand (or NULL if no real hand is used)
-  BarrettHand *mRealHand;
+    //! The interface to the real Barrett hand (or NULL if no real hand is used)
+    BarrettHand *mRealHand;
 
- public:
-  //! Just sets the interface to NULL, no real hand used by default
-  Barrett(World *w,const char *name) : Hand(w,name) {mRealHand = NULL;}
-  //! Also deletes the interface, if any
-  ~Barrett();
+public:
+    //! Just sets the interface to NULL, no real hand used by default
+    Barrett(World *w, const char *name) : Hand(w, name) {
+        mRealHand = NULL;
+    }
 
-  //! Also sets the real hand interface to NULL
-  int loadFromXml(const TiXmlElement* root,QString rootPath);
+    //! Also deletes the interface, if any
+    ~Barrett();
 
-  //! Returns the interface to the real barrett hand
-  BarrettHand *getRealHand();
+    //! Also sets the real hand interface to NULL
+    int loadFromXml(const TiXmlElement *root, QString rootPath);
 
-  //! Returns true if the real hand is currently executing a motor command
-  bool isBusy();
+    //! Returns the interface to the real barrett hand
+    BarrettHand *getRealHand();
+
+    //! Returns true if the real hand is currently executing a motor command
+    bool isBusy();
 };
 
 #define BARRETT__H

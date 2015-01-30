@@ -31,24 +31,27 @@
 #define _M7_H_
 
 #include "robot.h"
+
 /*! A special class who loads normally but turns off collisions between
 	 all the links in it
 */
 class M7 : public Hand {
-	Q_OBJECT
-public:
-  /*! Empty constructor (placeholder) */
-  M7(World *w,const char *name) : Hand(w,name) {}
-  
- /*! Performs the normal robot load routine then turns off collisions between
-	 all the links in the robot
- */
-  virtual int loadFromXml(const TiXmlElement* root,QString rootPath);
+Q_OBJECT
 
- /*! Performs the normal robot clone routine then turns off collisions between
-	 all the links in the robot
- */
-  virtual void cloneFrom(Hand *original);
+public:
+    /*! Empty constructor (placeholder) */
+    M7(World *w, const char *name) : Hand(w, name) {
+    }
+
+    /*! Performs the normal robot load routine then turns off collisions between
+        all the links in the robot
+    */
+    virtual int loadFromXml(const TiXmlElement *root, QString rootPath);
+
+    /*! Performs the normal robot clone routine then turns off collisions between
+        all the links in the robot
+    */
+    virtual void cloneFrom(Hand *original);
 };
 
 #endif

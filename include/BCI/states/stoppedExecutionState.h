@@ -7,12 +7,13 @@
 #include "BCI/state_views/stoppedExecutionView.h"
 
 
-class StoppedExecutionState:public State
-{
+class StoppedExecutionState : public State {
 public:
-    StoppedExecutionState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
-     virtual void onEntry(QEvent *e);
-     virtual void onExit(QEvent *e);
+    StoppedExecutionState(BCIControlWindow *_bciControlWindow, QState *parent = 0);
+
+    virtual void onEntry(QEvent *e);
+
+    virtual void onExit(QEvent *e);
 
 private:
     BCIControlWindow *bciControlWindow;

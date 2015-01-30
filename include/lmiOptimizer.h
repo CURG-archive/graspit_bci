@@ -52,145 +52,159 @@ class Grasp;
 	Note that this file and this version of the GFO code might be removed from
 	future releases of GraspIt.
 */
-class LMIOptimizer
-{
+class LMIOptimizer {
 private:
-   //! GFO parameter
-  static double GFO_WEIGHT_FACTOR;
+    //! GFO parameter
+    static double GFO_WEIGHT_FACTOR;
 
-  //! The grasp that the computations are performed for
-  Grasp *mGrasp;
+    //! The grasp that the computations are performed for
+    Grasp *mGrasp;
 
-  //! Number of basis wrenches for grasp map (3 * numContacts for PCWF)
-  int numWrenches; 
+    //! Number of basis wrenches for grasp map (3 * numContacts for PCWF)
+    int numWrenches;
 
-  //! A \a (6 * numWrenches) matrix containing basis wrenches for each contact vertex (stored in column-major format)
-  double *graspMap; 
+    //! A \a (6 * numWrenches) matrix containing basis wrenches for each contact vertex (stored in column-major format)
+    double *graspMap;
 
-  //! Dimension of the null space of the grasp map
-  int nullDim;
+    //! Dimension of the null space of the grasp map
+    int nullDim;
 
-  //! The null space of the grasp map; (column-major)
-  double *nullSpace;
+    //! The null space of the grasp map; (column-major)
+    double *nullSpace;
 
-  //! vector of size \a (numWrenches+1), the optimal grasp contact forces, computed from optmz0 and the objective value.
-  double *optmx0;   
+    //! vector of size \a (numWrenches+1), the optimal grasp contact forces, computed from optmz0 and the objective value.
+    double *optmx0;
 
-  //! vector of size \a numDOF storing the optimal torque for each DOF
-  double *optTorques; 
+    //! vector of size \a numDOF storing the optimal torque for each DOF
+    double *optTorques;
 
-  //! The grasp jacobian
-  double *Jacobian;
+    //! The grasp jacobian
+    double *Jacobian;
 
-  //! Min norm solution to \f$\mbox{GraspMap} * x = F_{ext}\f$
-  double *minNormSln;
+    //! Min norm solution to \f$\mbox{GraspMap} * x = F_{ext}\f$
+    double *minNormSln;
 
-  //! The number of degrees of freedom of the hand
-  int numDOF;
+    //! The number of degrees of freedom of the hand
+    int numDOF;
 
-  //! temporary: should come from hand object
-  double *externalTorques; 
-  
-  //! These variables are used by maxdet package.  Refer to maxdet manual for their explainations.
-  int L, K, GPkRow, *F_blkszs,*G_blkszs;                 
+    //! temporary: should come from hand object
+    double *externalTorques;
 
-  //! These variables are used by maxdet package.  Refer to maxdet manual for their explainations.
-  double *F, *G, *Z, *W, *c, constOffset;
+    //! These variables are used by maxdet package.  Refer to maxdet manual for their explainations.
+    int L, K, GPkRow, *F_blkszs, *G_blkszs;
 
-  //! Termination criteria used in maxdet algorithm. Refer to maxdet manual.
-  double gamma, abstol, reltol; 
+    //! These variables are used by maxdet package.  Refer to maxdet manual for their explainations.
+    double *F, *G, *Z, *W, *c, constOffset;
 
-  //! If it is 1, then terminate the force feasibility phase whenever the objective value becomes negative, i.e. find one valid grasp force. Otherwise, use the regular maxdet termination.
-  int negativeFlag;
+    //! Termination criteria used in maxdet algorithm. Refer to maxdet manual.
+    double gamma, abstol, reltol;
 
-  //! Is the grasp force optimization feasible?
-  int feasible;
+    //! If it is 1, then terminate the force feasibility phase whenever the objective value becomes negative, i.e. find one valid grasp force. Otherwise, use the regular maxdet termination.
+    int negativeFlag;
 
-  //! On entry, the maximum number of total Newton iteraions, and on exit, the real number of Newton Iterations in the feasible phase.
-  int feasNTiters;
+    //! Is the grasp force optimization feasible?
+    int feasible;
 
-  //! Used when saving output from grasp force optimization analysis
-  int graspCounter;
+    //! On entry, the maximum number of total Newton iteraions, and on exit, the real number of Newton Iterations in the feasible phase.
+    int feasNTiters;
 
-  //! Vector of size \a m, the \a z value corrsponding to the initial feasible grasp forces computed in force feasibility phase.
-  double *initz0;
+    //! Used when saving output from grasp force optimization analysis
+    int graspCounter;
 
-  //! The counterpart to feasNTiters
-  int optmNTiters;
+    //! Vector of size \a m, the \a z value corrsponding to the initial feasible grasp forces computed in force feasibility phase.
+    double *initz0;
 
-  //! Vector of size \a m, the \a z value corresponding to optimal grasp forces, computed in force optimization phase.
-  double *optmz0;
+    //! The counterpart to feasNTiters
+    int optmNTiters;
 
-  //! Vector of size \a (m+3), \a optmz0, as well as the corresponding objective value, duality gap, and number of optimization iteration steps.
-  double *extendOptmz0;
+    //! Vector of size \a m, the \a z value corresponding to optimal grasp forces, computed in force optimization phase.
+    double *optmz0;
 
-  //! array of dimension \a (m+3)*Number_of_Iterations_at_the_Feasibility_Phase, the history (iterative values) of z, objective value, duality gap and iteration number in force feasibility phase at each simulation step.
-  double *feasZHistory; 
+    //! Vector of size \a (m+3), \a optmz0, as well as the corresponding objective value, duality gap, and number of optimization iteration steps.
+    double *extendOptmz0;
 
- // array of dimension \a (m+3)*Number_of_Iterations_at_the_Optimization_Phase, the counterpart to feasZHistory in the optimization phase.
-  double *optmZHistory;
+    //! array of dimension \a (m+3)*Number_of_Iterations_at_the_Feasibility_Phase, the history (iterative values) of z, objective value, duality gap and iteration number in force feasibility phase at each simulation step.
+    double *feasZHistory;
 
-  //! array of dimension \a (m+3)*(Number_of_Iterations_at_Optimization_Phase+1), optmZHistory, + 1: the initial feasible grasp force, its objective value, duality gap and number of iterations 
-  double *extendOptmZHistory; 
+    // array of dimension \a (m+3)*Number_of_Iterations_at_the_Optimization_Phase, the counterpart to feasZHistory in the optimization phase.
+    double *optmZHistory;
 
- //! array of dimension \a (NumWrenches+1)*Number_of_Iterations_at_the_Feasibility_Phase, the history of grasp forces x and objective value in the force feasibility phase at the last simulation step.
-  double *feasXHistory;
+    //! array of dimension \a (m+3)*(Number_of_Iterations_at_Optimization_Phase+1), optmZHistory, + 1: the initial feasible grasp force, its objective value, duality gap and number of iterations
+    double *extendOptmZHistory;
 
- //! array of dimension \a (NumWrenches+1)*(Number_of_Iterations_at_the_Optimization_Phase+1), the counterpart to feasXHistory in the optimization phase at the last step.
-  double *optmXHistory;
+    //! array of dimension \a (NumWrenches+1)*Number_of_Iterations_at_the_Feasibility_Phase, the history of grasp forces x and objective value in the force feasibility phase at the last simulation step.
+    double *feasXHistory;
 
-  //! Output file pointer for saving the results of a GFO analysis
-  FILE *pRstFile;
+    //! array of dimension \a (NumWrenches+1)*(Number_of_Iterations_at_the_Optimization_Phase+1), the counterpart to feasXHistory in the optimization phase at the last step.
+    double *optmXHistory;
 
-  //! GFO routine
-  void minimalNorm();
-  //! GFO routine
-  void computeNullSpace();
+    //! Output file pointer for saving the results of a GFO analysis
+    FILE *pRstFile;
 
-  //! Constructs a version of the hand jacobian 
-  void buildJacobian();
+    //! GFO routine
+    void minimalNorm();
 
-  //! Builds the grasp map computing net object wrench from contact wrenches
-  void buildGraspMap();
+    //! GFO routine
+    void computeNullSpace();
 
-  //! Friction LMI helper function
-  void lmiFL(double *lmi,int rowInit, int colInit, int totalRow);
-  //! Friction LMI helper function
-  void lmiPCWF(double cof, double *lmi,int rowInit, int colInit, int totalRow);
-  //! Friction LMI helper function
-  void lmiSFCE(double cof, double cof_t,double *lmi,int rowInit, int colInit,
-	       int totalRow);
-  //! Friction LMI helper function
-  void lmiSFCL(double cof, double cof_t,double *lmi,int rowInit, int colInit,
-	       int totalRow);
-  //! Friction LMI helper function
-  double *lmiTorqueLimits();
-  //! Friction LMI helper function
-  void lmiFL();
-  //! Friction LMI helper function
-  void lmiPWCF();
-  //! Friction LMI helper function
-  void lmiSFCE();
-  //! Friction LMI helper function
-  void lmiSFCL();
-  //! Friction LMI helper function
-  double *lmiFrictionCones();
+    //! Constructs a version of the hand jacobian
+    void buildJacobian();
 
-  //! GFO routine
-  double *weightVec();
-  //! GFO routine
-  void feasibilityAnalysis();
-  //! GFO routine
-  void optm_EffortBarrier();
-  //! GFO routine
-  void computeObjectives();
-  //! GFO routine
-  double *xzHistoryTransfrom(double *zHistory,int numIters);
+    //! Builds the grasp map computing net object wrench from contact wrenches
+    void buildGraspMap();
+
+    //! Friction LMI helper function
+    void lmiFL(double *lmi, int rowInit, int colInit, int totalRow);
+
+    //! Friction LMI helper function
+    void lmiPCWF(double cof, double *lmi, int rowInit, int colInit, int totalRow);
+
+    //! Friction LMI helper function
+    void lmiSFCE(double cof, double cof_t, double *lmi, int rowInit, int colInit,
+            int totalRow);
+
+    //! Friction LMI helper function
+    void lmiSFCL(double cof, double cof_t, double *lmi, int rowInit, int colInit,
+            int totalRow);
+
+    //! Friction LMI helper function
+    double *lmiTorqueLimits();
+
+    //! Friction LMI helper function
+    void lmiFL();
+
+    //! Friction LMI helper function
+    void lmiPWCF();
+
+    //! Friction LMI helper function
+    void lmiSFCE();
+
+    //! Friction LMI helper function
+    void lmiSFCL();
+
+    //! Friction LMI helper function
+    double *lmiFrictionCones();
+
+    //! GFO routine
+    double *weightVec();
+
+    //! GFO routine
+    void feasibilityAnalysis();
+
+    //! GFO routine
+    void optm_EffortBarrier();
+
+    //! GFO routine
+    void computeObjectives();
+
+    //! GFO routine
+    double *xzHistoryTransfrom(double *zHistory, int numIters);
 
 public:
-  LMIOptimizer(Grasp *g) : mGrasp(g) {}
+    LMIOptimizer(Grasp *g) : mGrasp(g) {
+    }
 
-  //! Main GFO routine
-  int  findOptimalGraspForce();
+    //! Main GFO routine
+    int findOptimalGraspForce();
 
 };

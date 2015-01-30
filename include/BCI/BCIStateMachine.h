@@ -12,10 +12,10 @@
 #include "ivmgr.h"
 
 
-class BCIStateMachine
-{
+class BCIStateMachine {
 public:
     BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService *_bciService);
+
     void start();
 
 

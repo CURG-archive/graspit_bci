@@ -36,27 +36,41 @@
 //Inventor includes
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
+
 class SoTransform;
+
 class SoCoordinate3;
+
 class SoIndexedFaceSet;
 
 class vec3;
+
 class transf;
+
 class position;
+
 class Hand;
+
 class GraspableBody;
+
 class Contact;
+
 class GWS;
+
 class QualityMeasure;
+
 class QMDlg;
+
 class GWSprojection;
+
 class Matrix;
+
 class Joint;
 
 //! Max iteration steps in a feasibility phase
-#define MAX_FEAS_LOOPS	100 
+#define MAX_FEAS_LOOPS    100
 //! Max iteration steps in a optimization phase
-#define MAX_OPTM_LOOPS  100 
+#define MAX_OPTM_LOOPS  100
 
 extern bool saveSetup;
 extern int saveCounter;
@@ -89,165 +103,199 @@ extern int saveCounter;
 	and constraints in any way you want. A good starting point is the
 	computeQuasistaticForcesAndTorques(...) function.
 */
-class Grasp : public QObject{
-  Q_OBJECT
+class Grasp : public QObject {
+Q_OBJECT
 
 public:
-  //! Default option for building a GWS on all 6 dimensions
-  static const std::vector<int> ALL_DIMENSIONS;
+    //! Default option for building a GWS on all 6 dimensions
+    static const std::vector<int> ALL_DIMENSIONS;
 
 protected:
-  friend class LMIOptimizer;
+    friend class LMIOptimizer;
 
-  //! A pointer to the hand that owns this grasp object
-  Hand *hand;
+    //! A pointer to the hand that owns this grasp object
+    Hand *hand;
 
-  //! A pointer to the object that is the focus of this grasp
-  GraspableBody *object;
+    //! A pointer to the object that is the focus of this grasp
+    GraspableBody *object;
 
-  //! \c TRUE if the grasp has been updated since the last time the contacts changed
-  bool valid;
+    //! \c TRUE if the grasp has been updated since the last time the contacts changed
+    bool valid;
 
-  //! A list of pointers to the associated grasp wrench spaces
-  std::list<GWS *> gwsList;
+    //! A list of pointers to the associated grasp wrench spaces
+    std::list<GWS *> gwsList;
 
-  //! A list of pointers to the associated quality measures
-  std::list<QualityMeasure *> qmList;
+    //! A list of pointers to the associated quality measures
+    std::list<QualityMeasure *> qmList;
 
-  //! A list of pointer to the associated grasp wrench space projections
-  std::list<GWSprojection *> projectionList;
+    //! A list of pointer to the associated grasp wrench space projections
+    std::list<GWSprojection *> projectionList;
 
-  //! Number of quality meausre in the list
-  int numQM;
+    //! Number of quality meausre in the list
+    int numQM;
 
-  //! A vector of pointers to the contacts on the object where it touches the hand 
-  std::vector<Contact *> contactVec;
+    //! A vector of pointers to the contacts on the object where it touches the hand
+    std::vector<Contact *> contactVec;
 
-  //! Number of grasp contacts
-  int numContacts;
+    //! Number of grasp contacts
+    int numContacts;
 
-  //! Minimum grasp wrench that can be applied given contact forces that sum to 1
-  double minWrench[6];  
+    //! Minimum grasp wrench that can be applied given contact forces that sum to 1
+    double minWrench[6];
 
-  //! Tells us if quality metrics should take into account gravity
-  bool useGravity;
+    //! Tells us if quality metrics should take into account gravity
+    bool useGravity;
 
-  //! Computes the Jacobian of a link wrt the base of the finger, in link coordinates
-  double *getLinkJacobian(int f, int l);
+    //! Computes the Jacobian of a link wrt the base of the finger, in link coordinates
+    double *getLinkJacobian(int f, int l);
 
-  //! Sets the reference point that is used for grasp wrench computations as the center of the virtual contacts
-  void setVirtualCentroid();
+    //! Sets the reference point that is used for grasp wrench computations as the center of the virtual contacts
+    void setVirtualCentroid();
 
-  //! Computes the virtual center of the internally assembled list of virtual contacts
-  vec3 virtualCentroid();
+    //! Computes the virtual center of the internally assembled list of virtual contacts
+    vec3 virtualCentroid();
 
-  //! Sets the reference points of all virtual contacts using the c.o.g of the given object 
-  void setRealCentroid(GraspableBody *body);
+    //! Sets the reference points of all virtual contacts using the c.o.g of the given object
+    void setRealCentroid(GraspableBody *body);
 
-  friend class QMDlg;
+    friend class QMDlg;
 
 signals:
-  //! Called when contacts have changes and the wrench spaces need to be updated
-  void graspUpdated();
+
+    //! Called when contacts have changes and the wrench spaces need to be updated
+    void graspUpdated();
 
 public:
-  Grasp(Hand *h);
+    Grasp(Hand *h);
 
-  ~Grasp();
+    ~Grasp();
 
-  /*! Returns whether the grasp has been updated since the last time grasp
-    contacts have changed. */
-  bool                    isValid() const {return valid;}
+    /*! Returns whether the grasp has been updated since the last time grasp
+      contacts have changed. */
+    bool isValid() const {
+        return valid;
+    }
 
-  /*! Returns whether the grasp force optimization problem is feasible. */
-  //bool                    isFeasible() const {return feasible;}
+    /*! Returns whether the grasp force optimization problem is feasible. */
+    //bool                    isFeasible() const {return feasible;}
 
-  /*! Returns the number of quality measures defined for this grasp. */
-  int                     getNumQM() const {return numQM;}
+    /*! Returns the number of quality measures defined for this grasp. */
+    int getNumQM() const {
+        return numQM;
+    }
 
-  /*! Return a pointer to the object that is the focus of this grasp. */
-  GraspableBody *         getObject() const {return object;}
+    /*! Return a pointer to the object that is the focus of this grasp. */
+    GraspableBody *getObject() const {
+        return object;
+    }
 
-  /*! Return the number of grasp contacts. */
-  int                     getNumContacts() const {return numContacts;}
+    /*! Return the number of grasp contacts. */
+    int getNumContacts() const {
+        return numContacts;
+    }
 
-  /*! Return a pointer to the i-th grasp contact on the object. */
-  Contact *               getContact(int i) const {return contactVec[i];}
+    /*! Return a pointer to the i-th grasp contact on the object. */
+    Contact *getContact(int i) const {
+        return contactVec[i];
+    }
 
-  void                    getMinWrench(double *w) const
-  {
-    if (w) memcpy(w,minWrench,6*sizeof(double));
-  }
+    void getMinWrench(double *w) const {
+        if (w) memcpy(w, minWrench, 6 * sizeof(double));
+    }
 
-  void                    setMinWrench(double *w)
-  {
-    if (w) memcpy(minWrench,w,6*sizeof(double));
-  }
+    void setMinWrench(double *w) {
+        if (w) memcpy(minWrench, w, 6 * sizeof(double));
+    }
 
-  /*! Sets graspableBody \a g to be the new focus of the grasp and updates the
-    grasp. */
-  void                    setObject(GraspableBody *g) {object = g; update();}
+    /*! Sets graspableBody \a g to be the new focus of the grasp and updates the
+      grasp. */
+    void setObject(GraspableBody *g) {
+        object = g;
+        update();
+    }
 
-  /* this is a hack; I had to do it due to some bug I was never able to trace down*/
-  void                    setObjectNoUpdate(GraspableBody *g) {object = g;}
+    /* this is a hack; I had to do it due to some bug I was never able to trace down*/
+    void setObjectNoUpdate(GraspableBody *g) {
+        object = g;
+    }
 
-  //! Collects all the contacts between the hand and the object in an internal list
-  void collectContacts();
-  //! Collects all the virtual contacts on the hand n an internal list
-  void collectVirtualContacts();
-  //! Collect all the virtual contacts on the object
-  void collectVirtualContactsOnObject();
+    //! Collects all the contacts between the hand and the object in an internal list
+    void collectContacts();
 
-  //! Collects all the contacts in the internal list and updates the wrench spaces
-  void update(std::vector<int> useDimensions = ALL_DIMENSIONS);
-  //! Updates (re-computes) the wrench spaces of this grasp and all of their projections
-  void updateWrenchSpaces(std::vector<int> useDimensions = ALL_DIMENSIONS);
+    //! Collects all the virtual contacts on the hand n an internal list
+    void collectVirtualContacts();
 
-  //! Returns the max radius used in GWS computations, either from the object of from virtual contacts
-  double getMaxRadius();
-  //! Returns the c.o.g. used in GWS computations, either from the object of from virtual contacts
-  position getCoG();
+    //! Collect all the virtual contacts on the object
+    void collectVirtualContactsOnObject();
 
-  //! Adds a GWS of a given type to the grasp, unless one exists already
-  GWS *addGWS(const char *type);
-  GWS *getGWS(const char *type);
-  //! Decrements the reference count on a GWS of the given type, and deletes it if the ref count reaches 0
-  void removeGWS(GWS *gws);
-  //! Adds a quality measure to this grasp
-  void addQM(QualityMeasure *qm);
-  //! Replaces a QM in the list associated with this grasp with another QM
-  void replaceQM(int which,QualityMeasure *qm);
-  //! Returns one of the quality measures that have been associated with this grasp
-  QualityMeasure *getQM(int which);
-  //! Removes a quality measure that has been associated with this grasp
-  void removeQM(int which);
-  
-  void addProjection(GWSprojection *gp);
-  void removeProjection(GWSprojection *gp);
-  static void destroyProjection(void * user, SoQtComponent * component);
+    //! Collects all the contacts in the internal list and updates the wrench spaces
+    void update(std::vector<int> useDimensions = ALL_DIMENSIONS);
 
-  //! Sets whether QM's should take gravity into account; not very thoroughly tested yet
-  void setGravity(bool g){useGravity = g;}
-  bool isGravitySet(){return useGravity;}
+    //! Updates (re-computes) the wrench spaces of this grasp and all of their projections
+    void updateWrenchSpaces(std::vector<int> useDimensions = ALL_DIMENSIONS);
 
-  //------------------- Grasp Force Optimization (GFO) routines --------------------------
+    //! Returns the max radius used in GWS computations, either from the object of from virtual contacts
+    double getMaxRadius();
 
-  //! Computes the contact forces and joint torques that give the most robust equilibrium
-  int computeQuasistaticForcesAndTorques(Matrix *robotTau);
-  //! Given a vector of joint torques, computes the contact forces that balance the system
-  int computeQuasistaticForces(const Matrix &robotTau);
+    //! Returns the c.o.g. used in GWS computations, either from the object of from virtual contacts
+    position getCoG();
 
-  //! A version of the contact grasp Jacobian, used for GFO routines
-  Matrix contactJacobian(const std::list<Joint*> &joints, 
-						 const std::list<Contact*> &contacts);
-  //! Computes the grasp map matrix G from friction and normal force matrices R and D
-  static Matrix graspMapMatrix(const Matrix &R, const Matrix &D);
+    //! Adds a GWS of a given type to the grasp, unless one exists already
+    GWS *addGWS(const char *type);
 
-  //! Sets local contact wrenches into the contact wrench slots so they can be rendered
-  void displayContactWrenches(std::list<Contact*> *contacts, const Matrix &contactWrenches);
-  //! Accumulates object wrenches in the external wrench accumulator for the objects
-  void accumulateAndDisplayObjectWrenches(std::list<Contact*> *contacts, 
-										  const Matrix &objectWrenches);
+    GWS *getGWS(const char *type);
+
+    //! Decrements the reference count on a GWS of the given type, and deletes it if the ref count reaches 0
+    void removeGWS(GWS *gws);
+
+    //! Adds a quality measure to this grasp
+    void addQM(QualityMeasure *qm);
+
+    //! Replaces a QM in the list associated with this grasp with another QM
+    void replaceQM(int which, QualityMeasure *qm);
+
+    //! Returns one of the quality measures that have been associated with this grasp
+    QualityMeasure *getQM(int which);
+
+    //! Removes a quality measure that has been associated with this grasp
+    void removeQM(int which);
+
+    void addProjection(GWSprojection *gp);
+
+    void removeProjection(GWSprojection *gp);
+
+    static void destroyProjection(void *user, SoQtComponent *component);
+
+    //! Sets whether QM's should take gravity into account; not very thoroughly tested yet
+    void setGravity(bool g) {
+        useGravity = g;
+    }
+
+    bool isGravitySet() {
+        return useGravity;
+    }
+
+    //------------------- Grasp Force Optimization (GFO) routines --------------------------
+
+    //! Computes the contact forces and joint torques that give the most robust equilibrium
+    int computeQuasistaticForcesAndTorques(Matrix *robotTau);
+
+    //! Given a vector of joint torques, computes the contact forces that balance the system
+    int computeQuasistaticForces(const Matrix &robotTau);
+
+    //! A version of the contact grasp Jacobian, used for GFO routines
+    Matrix contactJacobian(const std::list<Joint *> &joints,
+            const std::list<Contact *> &contacts);
+
+    //! Computes the grasp map matrix G from friction and normal force matrices R and D
+    static Matrix graspMapMatrix(const Matrix &R, const Matrix &D);
+
+    //! Sets local contact wrenches into the contact wrench slots so they can be rendered
+    void displayContactWrenches(std::list<Contact *> *contacts, const Matrix &contactWrenches);
+
+    //! Accumulates object wrenches in the external wrench accumulator for the objects
+    void accumulateAndDisplayObjectWrenches(std::list<Contact *> *contacts,
+            const Matrix &objectWrenches);
 };
 
 #define GRASP_HXX

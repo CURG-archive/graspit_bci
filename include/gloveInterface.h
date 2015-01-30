@@ -27,8 +27,11 @@
 #define _GLOVEINTERFACE_H_
 
 class vec3;
+
 class position;
+
 class CyberGlove;
+
 class Robot;
 
 #include <QString>
@@ -44,54 +47,91 @@ class Robot;
 */
 class CalibrationPose {
 private:
-	//! The number of raw sensor values from the glove. Usually hard-coded to 24
-	int mSize;
-	//! A set of joint values that the given sensor values should correspond to
-	double *jointValues;
-	//! A set of raw sensor values that the given joint values should correspond to
-	int *sensorValues;
-	//! Tells us to which robot DOF number each CyberGlove sensor is related to. 
-	/*! A map of -1 means this sensor is not calibrated by this pose (like for 
-		example the thumb, which this calibration poses ignore)*/
-	int *sensorMap;
-	//! A transform that is associated with this pose, for doing calibrations wrt objects or using flocks
-	transf mTransf;
-	//! Initializes an empty pose with no recorded information
-	void init(int size);
+    //! The number of raw sensor values from the glove. Usually hard-coded to 24
+    int mSize;
+    //! A set of joint values that the given sensor values should correspond to
+    double *jointValues;
+    //! A set of raw sensor values that the given joint values should correspond to
+    int *sensorValues;
+    //! Tells us to which robot DOF number each CyberGlove sensor is related to.
+    /*! A map of -1 means this sensor is not calibrated by this pose (like for
+        example the thumb, which this calibration poses ignore)*/
+    int *sensorMap;
+    //! A transform that is associated with this pose, for doing calibrations wrt objects or using flocks
+    transf mTransf;
+
+    //! Initializes an empty pose with no recorded information
+    void init(int size);
+
 public:
-	CalibrationPose(int size);
-	CalibrationPose(int size, double *joints, int *map);
-	~CalibrationPose();
+    CalibrationPose(int size);
 
-	void setJointValue(int j, double jv);
-	void setAllJointValues(double *jv);
-	void setSensorValue(int i, int sv);
-	void setAllSensorValues(int *sv);
-	void setMap(int i, int mv);
-	void setAllMaps(int *m);
-	void setTransf(transf t){mTransf = t;}
+    CalibrationPose(int size, double *joints, int *map);
 
-	double getJointValue(int i){return jointValues[i];}
-	double *getAllJointValues(){return jointValues;}
-	int getSensorValue(int i){return sensorValues[i];}
-	int *getAllSensorValues(){return sensorValues;}
-	int getMap(int i){return sensorMap[i];}
-	int *getAllMaps(){return sensorMap;}
-	transf getTransf(){return mTransf;}
+    ~CalibrationPose();
 
-	//! Tells us if this pose is ready to be used (i.e. all the required data has been set)
-	bool isSet();
-	int getSize(){return mSize;}
-	bool jointsSet, sensorsSet, mapSet, poseSet;
+    void setJointValue(int j, double jv);
 
-	//! Used for thumb calibration to record the expected distance between the index and the thumb
-	double recordedDistance;
+    void setAllJointValues(double *jv);
 
-	//! Some misc. info you might need later. Actually used to store object file name for grasp poses
-	QString miscInfo;
+    void setSensorValue(int i, int sv);
 
-	void writeToFile(FILE *fp);
-	void readFromFile(FILE *fp);
+    void setAllSensorValues(int *sv);
+
+    void setMap(int i, int mv);
+
+    void setAllMaps(int *m);
+
+    void setTransf(transf t) {
+        mTransf = t;
+    }
+
+    double getJointValue(int i) {
+        return jointValues[i];
+    }
+
+    double *getAllJointValues() {
+        return jointValues;
+    }
+
+    int getSensorValue(int i) {
+        return sensorValues[i];
+    }
+
+    int *getAllSensorValues() {
+        return sensorValues;
+    }
+
+    int getMap(int i) {
+        return sensorMap[i];
+    }
+
+    int *getAllMaps() {
+        return sensorMap;
+    }
+
+    transf getTransf() {
+        return mTransf;
+    }
+
+    //! Tells us if this pose is ready to be used (i.e. all the required data has been set)
+    bool isSet();
+
+    int getSize() {
+        return mSize;
+    }
+
+    bool jointsSet, sensorsSet, mapSet, poseSet;
+
+    //! Used for thumb calibration to record the expected distance between the index and the thumb
+    double recordedDistance;
+
+    //! Some misc. info you might need later. Actually used to store object file name for grasp poses
+    QString miscInfo;
+
+    void writeToFile(FILE *fp);
+
+    void readFromFile(FILE *fp);
 };
 
 //! Holds the information for linear conversion of raw glove senor readings to dof values
@@ -112,18 +152,26 @@ public:
 */
 class CData {
 private:
-	double *slopes,*intercepts;
-	int nDOF, nSensors;
+    double *slopes, *intercepts;
+    int nDOF, nSensors;
 public:
-	CData(int nd, int ns);
-	~CData();
-	double getSlope(int d, int s);
-	double getIntercept(int d);
-	void setSlope(int d, int s, double val);
-	void setIntercept(int d, double val);
-	void addToSlope(int d, int s, double val);
-	void addToIntercept(int d, double val);
-	void reset();
+    CData(int nd, int ns);
+
+    ~CData();
+
+    double getSlope(int d, int s);
+
+    double getIntercept(int d);
+
+    void setSlope(int d, int s, double val);
+
+    void setIntercept(int d, double val);
+
+    void addToSlope(int d, int s, double val);
+
+    void addToIntercept(int d, double val);
+
+    void reset();
 };
 
 //! Interface between a GraspIt robot and the CyberGlove
@@ -155,108 +203,143 @@ public:
 */
 class GloveInterface {
 private:
-	//! The instance of the raw glove where raw sensor values come from
-	CyberGlove *rawGlove;
-	//! The robot that uses this interface.
-	Robot *mRobot;
-	//! The data for performing linear conversion from raw sensor data to dof values
-	CData *mData;
+    //! The instance of the raw glove where raw sensor values come from
+    CyberGlove *rawGlove;
+    //! The robot that uses this interface.
+    Robot *mRobot;
+    //! The data for performing linear conversion from raw sensor data to dof values
+    CData *mData;
 
-	//! A list of poses currently used for calibration
-	std::list<CalibrationPose*> cPoses;
-	//! The current pose selected (for recording data or for display)
-	std::list<CalibrationPose*>::iterator currentPose;
-	//! The type of calibration currently being performed
-	int cType;
-	//! Whether this interface is calibrated (and ready to use) or not
-	bool mCalibrated;
+    //! A list of poses currently used for calibration
+    std::list<CalibrationPose *> cPoses;
+    //! The current pose selected (for recording data or for display)
+    std::list<CalibrationPose *>::iterator currentPose;
+    //! The type of calibration currently being performed
+    int cType;
+    //! Whether this interface is calibrated (and ready to use) or not
+    bool mCalibrated;
 
-	double *savedDOFVals;
+    double *savedDOFVals;
 
-	bool computeMeanPose();
-	bool performSimpleCalibration();
-	bool performThumbCalibration();
-	bool performComplexCalibration();
-	bool complexCalibrationStep();
+    bool computeMeanPose();
 
-	//! Main interface function, gets a dof value from a list of raw sensor readings
-	float getDOFValue(int d, int *rawValues);
+    bool performSimpleCalibration();
+
+    bool performThumbCalibration();
+
+    bool performComplexCalibration();
+
+    bool complexCalibrationStep();
+
+    //! Main interface function, gets a dof value from a list of raw sensor readings
+    float getDOFValue(int d, int *rawValues);
+
 public:
-	GloveInterface(Robot *robot);
-	~GloveInterface();
-	Robot* getRobot(){return mRobot;}
-	void setGlove(CyberGlove *glove);
+    GloveInterface(Robot *robot);
 
-	//! Initializes the glove, in case we want to use it during the calibration
-	/*! We can also use pre-recorded poses if we don't want to. */
-	void startGlove();
-	//! Asks the raw CyberGlove to refresh its readings from the sensors via the serial port
-	int instantRead();
+    ~GloveInterface();
 
-	//! Tells wether a particular robot DOF is controlled via the CyberGlove or not
-	bool isDOFControlled(int d);
-	//! Uses the latest sensor values from the CyberGlove and computes the values of a particular DOF
-	float getDOFValue(int d);
+    Robot *getRobot() {
+        return mRobot;
+    }
 
-	//! Returns the number of raw sensors in the CyberGlove
-	int getNumSensors();
-	//! Computes parametes for linear conversion for a particular combination of raw sensor and dof number
-	void setParameters(int s, int d, float sMin, float sMax, float dMin, float dMax);
-	//! Sets the parametes for linear conversion for a particular combination of raw sensor and dof number
-	void setParameters(int s, int d, float slope, float intercept);
+    void setGlove(CyberGlove *glove);
 
-	/* All the other function here are used for calibration of various types*/		
+    //! Initializes the glove, in case we want to use it during the calibration
+    /*! We can also use pre-recorded poses if we don't want to. */
+    void startGlove();
 
-	//! The types of calibrations available with this interface
-	/*! Here is what each does:
+    //! Asks the raw CyberGlove to refresh its readings from the sensors via the serial port
+    int instantRead();
 
-		FIST: asks the user for only two poses: with the hand flat and with the fist
-		closed. Then, uses the two resulting values for each finger flexion dof
-		to compute the slope and intercept. Does NOT calibrate the thumb at all,
-		or the abduction / adduction dofs.
+    //! Tells wether a particular robot DOF is controlled via the CyberGlove or not
+    bool isDOFControlled(int d);
 
-		SIMPLE_THUMB:
+    //! Uses the latest sensor values from the CyberGlove and computes the values of a particular DOF
+    float getDOFValue(int d);
 
-		COMPLEX_THUMB: asks the user to record as many poses as pssible where the
-		distance between the index finger and the thumb is known. This is done
-		either by touching the index and the thumb, or by holding between them
-		an object of know size. Then attempts to use this data to calibrate
-		the thumb sensors.
+    //! Returns the number of raw sensors in the CyberGlove
+    int getNumSensors();
 
-		ABD_ADD: asks for two poses, at the two ends of abd / add to compute
-		the linear parameters for those dofs.
+    //! Computes parametes for linear conversion for a particular combination of raw sensor and dof number
+    void setParameters(int s, int d, float sMin, float sMax, float dMin, float dMax);
 
-		MEAN_POSE: not really a calibration; the user records as many poses
-		as she want, then this computes the mean of those poses.
-	*/
-	enum calibrationTypes{FIST, SIMPLE_THUMB, COMPLEX_THUMB, ABD_ADD, MEAN_POSE};
+    //! Sets the parametes for linear conversion for a particular combination of raw sensor and dof number
+    void setParameters(int s, int d, float slope, float intercept);
 
-	void nextPose(int direction);
-	void showCurrentPose();
-	void recordPoseFromGlove(int d=0);
+    /* All the other function here are used for calibration of various types*/
 
-	bool poseSet();
-	bool readyToCalibrate();
-	bool calibrated(){return mCalibrated;}
+    //! The types of calibrations available with this interface
+    /*! Here is what each does:
 
-	void saveCalibrationPoses(const char* filename);
-	void loadCalibrationPoses(const char* filename);
-	void clearPoses();
-	int getNumPoses(){return cPoses.size();}
+        FIST: asks the user for only two poses: with the hand flat and with the fist
+        closed. Then, uses the two resulting values for each finger flexion dof
+        to compute the slope and intercept. Does NOT calibrate the thumb at all,
+        or the abduction / adduction dofs.
 
-	bool loadCalibration(const char* filename);
-	void saveCalibration(const char* filename);
+        SIMPLE_THUMB:
 
-	void initCalibration(int type);
-	bool performCalibration();
+        COMPLEX_THUMB: asks the user to record as many poses as pssible where the
+        distance between the index finger and the thumb is known. This is done
+        either by touching the index and the thumb, or by holding between them
+        an object of know size. Then attempts to use this data to calibrate
+        the thumb sensors.
 
-	double getPoseError(vec3* error=NULL, position* thumbLocation=NULL);
-	double getTotalError();
-	void getPoseJacobian(double *J);
-	void assembleJMatrix(double *D, int lda);
-	void assemblePMatrix( double *P );
+        ABD_ADD: asks for two poses, at the two ends of abd / add to compute
+        the linear parameters for those dofs.
 
-	void saveRobotPose();
-	void revertRobotPose();
+        MEAN_POSE: not really a calibration; the user records as many poses
+        as she want, then this computes the mean of those poses.
+    */
+    enum calibrationTypes {
+        FIST, SIMPLE_THUMB, COMPLEX_THUMB, ABD_ADD, MEAN_POSE
+    };
+
+    void nextPose(int direction);
+
+    void showCurrentPose();
+
+    void recordPoseFromGlove(int d = 0);
+
+    bool poseSet();
+
+    bool readyToCalibrate();
+
+    bool calibrated() {
+        return mCalibrated;
+    }
+
+    void saveCalibrationPoses(const char *filename);
+
+    void loadCalibrationPoses(const char *filename);
+
+    void clearPoses();
+
+    int getNumPoses() {
+        return cPoses.size();
+    }
+
+    bool loadCalibration(const char *filename);
+
+    void saveCalibration(const char *filename);
+
+    void initCalibration(int type);
+
+    bool performCalibration();
+
+    double getPoseError(vec3 *error = NULL, position *thumbLocation = NULL);
+
+    double getTotalError();
+
+    void getPoseJacobian(double *J);
+
+    void assembleJMatrix(double *D, int lda);
+
+    void assemblePMatrix(double *P);
+
+    void saveRobotPose();
+
+    void revertRobotPose();
 };
+
 #endif

@@ -25,17 +25,22 @@
 
 #ifndef MATERIAL_HXX
 
-enum materialT {frictionless, glass, metal, wood,plastic, rubber, stone, invalid};
+enum materialT {
+    frictionless, glass, metal, wood, plastic, rubber, stone, invalid
+};
 
 #define NUM_MATERIAL 8
 
 extern double Cof[NUM_MATERIAL][NUM_MATERIAL];
 extern double KineticCof[NUM_MATERIAL][NUM_MATERIAL];
-extern char *matNameList[NUM_MATERIAL];
+extern const char *matNameList[NUM_MATERIAL];
 
 void initCof();
+
 materialT readMaterial(const char *matStr);
-void getMaterialStr(materialT mat,char *str);
+
+void getMaterialStr(materialT mat, char *str);
+
 const char *getMaterialStr(materialT mat);
 
 #define MATERIAL_HXX

@@ -34,8 +34,11 @@
 #include "simAnnPlanner.h"
 
 class Hand;
+
 class GraspPlanningState;
+
 class SearchEnergy;
+
 class SimAnn;
 
 //! A planner that will fire off child threads to investigate promising states in more detail
@@ -74,68 +77,81 @@ class SimAnn;
 	stopChild(...) function for details about how the solutions recovered from
 	children threads are saved.
 */
-class GuidedPlanner : public SimAnnPlanner
-{
-	Q_OBJECT
+class GuidedPlanner : public SimAnnPlanner {
+Q_OBJECT
+
 protected:
-	//! The max number of children that canbe used. Usually correlated with the number of cores available.
-	int mMaxChildren;
-	//! The list of currently active child planners.
-	std::vector<SimAnnPlanner*> mChildPlanners;
+    //! The max number of children that canbe used. Usually correlated with the number of cores available.
+    int mMaxChildren;
+    //! The list of currently active child planners.
+    std::vector<SimAnnPlanner *> mChildPlanners;
 
-	//! A list of seeds that haven't been used yet
-	std::list<GraspPlanningState*> mChildSeeds;
+    //! A list of seeds that haven't been used yet
+    std::list<GraspPlanningState *> mChildSeeds;
 
-	//! A list of states that should be avoided by the search
-	/*! They are avoded because they have either been used by a child or are 
-		scheduled to be used by one. Essentially, it is the union of 
-		mChildSeeds and mBestList.
-	*/
-	std::list<GraspPlanningState*> mAvoidList;
+    //! A list of states that should be avoided by the search
+    /*! They are avoded because they have either been used by a child or are
+        scheduled to be used by one. Essentially, it is the union of
+        mChildSeeds and mBestList.
+    */
+    std::list<GraspPlanningState *> mAvoidList;
 
-	//! Whether the children use clones of the current hand
-	/*! True by default, should be set to false only for debugging purposes.*/
-	bool mChildClones;
-	//! Whether the children run in their own threads
-	/*! True by default, should be set to false only for debugging purposes.*/
-	bool mChildThreads;
+    //! Whether the children use clones of the current hand
+    /*! True by default, should be set to false only for debugging purposes.*/
+    bool mChildClones;
+    //! Whether the children run in their own threads
+    /*! True by default, should be set to false only for debugging purposes.*/
+    bool mChildThreads;
 
-	//! Fires of a child planner that will be seeded with the given state
-	void startChild(const GraspPlanningState *s);
-	//! Stops a child planner, gets its solutions and stops its thread
-	void stopChild(SimAnnPlanner *pl);
-	//! Checks if any of the currently active children have finished their execution
-	void checkChildren();
+    //! Fires of a child planner that will be seeded with the given state
+    void startChild(const GraspPlanningState *s);
 
-	//! Stores states to be used as "seeds" for children, and fires new children when appropriate
-	void mainLoop();
+    //! Stops a child planner, gets its solutions and stops its thread
+    void stopChild(SimAnnPlanner *pl);
+
+    //! Checks if any of the currently active children have finished their execution
+    void checkChildren();
+
+    //! Stores states to be used as "seeds" for children, and fires new children when appropriate
+    void mainLoop();
+
 public:
-	//! Number of child results that are saved 
-	int mBestListSize;
-	//! Max size of child seeds list
-	int mChildSeedSize;
-	//! Min distance separating child seeds
-	float mDistanceThreshold;
-	//! Min energy for a state to be deemed good enough to be used to seed a child
-	float mMinChildEnergy;
-	//! Energy computation type used by children
-	SearchEnergyType mChildEnergyType;
-	//! Max iterations done by a child
-	int mMaxChildSteps;
-	
-	GuidedPlanner(Hand *h);
-	~GuidedPlanner();
-	virtual PlannerType getType(){return PLANNER_MT;}
+    //! Number of child results that are saved
+    int mBestListSize;
+    //! Max size of child seeds list
+    int mChildSeedSize;
+    //! Min distance separating child seeds
+    float mDistanceThreshold;
+    //! Min energy for a state to be deemed good enough to be used to seed a child
+    float mMinChildEnergy;
+    //! Energy computation type used by children
+    SearchEnergyType mChildEnergyType;
+    //! Max iterations done by a child
+    int mMaxChildSteps;
 
-	//! Also hides the friction cones on the object
-	void startPlanner();
-	//! Also stops all children, for good (stops their threads)
-	void stopPlanner();
-	//! Not properly implemented yet as this also stops children for good (instead of pausing them)
-	void pausePlanner();
-	//! Also clears the list of states to be avoided
-	bool resetPlanner();
-	void setMaxChildren(int c){mMaxChildren=c;}
+    GuidedPlanner(Hand *h);
+
+    ~GuidedPlanner();
+
+    virtual PlannerType getType() {
+        return PLANNER_MT;
+    }
+
+    //! Also hides the friction cones on the object
+    void startPlanner();
+
+    //! Also stops all children, for good (stops their threads)
+    void stopPlanner();
+
+    //! Not properly implemented yet as this also stops children for good (instead of pausing them)
+    void pausePlanner();
+
+    //! Also clears the list of states to be avoided
+    bool resetPlanner();
+
+    void setMaxChildren(int c) {
+        mMaxChildren = c;
+    }
 };
 
 #endif

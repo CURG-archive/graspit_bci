@@ -1,5 +1,6 @@
 #ifndef RENDERABLEPROTODRAWER_H
 #define RENDERABLEPROTODRAWER_H
+
 #include "Renderable.pb.h"
 #include "ivmgr.h"
 #include "graspitGUI.h"
@@ -7,9 +8,7 @@
 #include <Inventor/nodes/SoSeparator.h>
 
 
-
-class Renderer : public QObject
-{
+class Renderer : public QObject {
 protected:
 
     /*!
@@ -20,8 +19,8 @@ protected:
      * @param[in] maxResultsExpected  The maximum number of hits allowed. Violating this results in logging
      *                                output and returns a list containing a single null pointer.
     */
-    virtual SoNodeList getChildByName(SoSeparator * ivRoot, SbName & childName,
-                                      SoType targetType = SoSeparator::getClassTypeId(), int maxResultsExpected = 1);
+    virtual SoNodeList getChildByName(SoSeparator *ivRoot, SbName &childName,
+            SoType targetType = SoSeparator::getClassTypeId(), int maxResultsExpected = 1);
 
     /*!
      * Find a separator node below a given subtree or insert it as the last child of
@@ -31,7 +30,7 @@ protected:
      * @param[in] childName  The name of the child to insert or return
      *
      */
-    virtual SoSeparator * getOrAddSeparator(SoSeparator * ivRoot, SbName & childName);
+    virtual SoSeparator *getOrAddSeparator(SoSeparator *ivRoot, SbName &childName);
 
     /*!
      * @brief getRenderRoot Find or insert the root separator to use to build this renderable on.
@@ -41,7 +40,7 @@ protected:
      * @return the root separator to use to build this renderable on or
      *         NULL if none can be created.
      */
-    virtual SoSeparator * getRenderRoot(SbName &childName, Renderable & renderable);
+    virtual SoSeparator *getRenderRoot(SbName &childName, Renderable &renderable);
 
     /*!
      * @brief renderImpl The function to override to actually render the renderable
@@ -49,18 +48,18 @@ protected:
      * @param renderable The proto message containing the renderable.
      * @return True if the rendering succeeds.
      */
-    virtual bool renderImpl(SoSeparator * ivRoot, Renderable & renderable) = 0;
+    virtual bool renderImpl(SoSeparator *ivRoot, Renderable &renderable) = 0;
+
 public:
     /*!
      * @brief render      Builds an ivroot that draws a given proto
      * @param renderable  The proto message containing the renderable
      * @return True if the rendering succeeds.
      */
-    virtual bool render(Renderable & renderable, QString & renderableRootName);
+    virtual bool render(Renderable &renderable, QString &renderableRootName);
 };
 
-class PointCloudRenderer : public Renderer
-{
+class PointCloudRenderer : public Renderer {
     typedef Renderable_PointCloudXYZRGB PointCloudXYZRGB;
     typedef Renderable_PointXYZRGB PointXYZRGB;
     typedef Renderable_PointXYZ PointXYZ;
@@ -73,14 +72,14 @@ class PointCloudRenderer : public Renderer
      * @param renderable    The proto message to build.
      * @return True if creating the nodes succeeds.
      */
-    virtual bool createNodes(SoSeparator * ivRoot, Renderable & renderable);
+    virtual bool createNodes(SoSeparator *ivRoot, Renderable &renderable);
 
     /*!
      * @brief setScale      Set the scale of the point clouds to draw
      * @param ivRoot        The root to build the structure on
      * @param renderable    The proto message to build.
      */
-    virtual void setScale(SoSeparator * ivRoot, Renderable & renderable);
+    virtual void setScale(SoSeparator *ivRoot, Renderable &renderable);
 
     /*!
      * @brief  renderImpl The function to override to actually render the renderable
@@ -89,6 +88,7 @@ class PointCloudRenderer : public Renderer
      * @return True if the rendering succeeds.
      */
     virtual bool renderImpl(SoSeparator *ivRoot, Renderable &renderable);
+
     /*!
      * \brief fillPointList Fills the points and colors structures with data
      *        from the renderable
@@ -96,14 +96,13 @@ class PointCloudRenderer : public Renderer
      * \param colors - vector of colors to fill
      * \return number of points if read succeeded
      */
-    virtual int fillPointList(Renderable & renderable, std::vector<SbVec3f> & points,
-                               std::vector<SbColor> & colors);
+    virtual int fillPointList(Renderable &renderable, std::vector<SbVec3f> &points,
+            std::vector<SbColor> &colors);
 
-    virtual float getProtoScale(Renderable & renderable);
+    virtual float getProtoScale(Renderable &renderable);
 };
 
-class PointCloud2Renderer : public PointCloudRenderer
-{
+class PointCloud2Renderer : public PointCloudRenderer {
     typedef Renderable_PointCloud2 PointCloud2;
 
     /*!
@@ -113,28 +112,27 @@ class PointCloud2Renderer : public PointCloudRenderer
      * \param colors - vector of colors to fill
      * \return number of points if read succeeded
      */
-    virtual int fillPointList(Renderable & renderable,
-                              std::vector<SbVec3f> &points, std::vector<SbColor> &colors);
-    virtual float getProtoScale(Renderable & renderable);
+    virtual int fillPointList(Renderable &renderable,
+            std::vector<SbVec3f> &points, std::vector<SbColor> &colors);
+
+    virtual float getProtoScale(Renderable &renderable);
 
 };
 
-class FrameRenderer : public Renderer
-{
+class FrameRenderer : public Renderer {
 public:
 
-    virtual bool renderImpl(SoSeparator * ivRoot, Renderable &renderable);
+    virtual bool renderImpl(SoSeparator *ivRoot, Renderable &renderable);
 };
 
 
-class RenderableProtoDrawer : public QObject
-{
+class RenderableProtoDrawer : public QObject {
     /*!
      * \brief renderMessage  Render a proto message containing multiple geometry types
      * \param renderable     The proto message containing the renderable.
      */
-    public:
-        void renderMessage(Renderable & renderable);
+public:
+    void renderMessage(Renderable &renderable);
 };
 
 #endif // RENDERABLEPROTODRAWER_H

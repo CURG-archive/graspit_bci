@@ -43,25 +43,26 @@
 */
 class SoTorquePointer : public SoComplexShape {
 
-   SO_NODE_HEADER(SoTorquePointer);
+SO_NODE_HEADER(SoTorquePointer);
 
- public:
+public:
 
-   // Fields
-   //! Defines the width of the shaft
-   SoSFFloat     cylRadius;
+    // Fields
+    //! Defines the width of the shaft
+    SoSFFloat cylRadius;
 
-   //! Defines the height of the shaft
-   SoSFFloat     height;
+    //! Defines the height of the shaft
+    SoSFFloat height;
 
-   static void   initClass();
-   SoTorquePointer();
+    static void initClass();
 
- private:
-   //! A pointer to the geometry of the curved arrow
-   static SoSeparator *curvedArrow;
-   
-   virtual ~SoTorquePointer();
+    SoTorquePointer();
 
-   void generateChildren();
+private:
+    //! A pointer to the geometry of the curved arrow
+    static SoSeparator *curvedArrow;
+
+    virtual ~SoTorquePointer();
+
+    void generateChildren();
 };

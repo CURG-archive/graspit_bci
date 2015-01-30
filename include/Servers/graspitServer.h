@@ -28,6 +28,7 @@
  */
 
 #ifndef GRASPITSERVER_HXX
+
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <qstringlist.h>
@@ -38,8 +39,11 @@
 #include "egPlanner.h"
 
 class Body;
+
 class Robot;
+
 class EGPlanner;
+
 class transf;
 //! Subclass of QSocket that parses input, implements commands, and writes output
 /*!
@@ -72,92 +76,131 @@ class transf;
   the input.
 
 */
-class ClientSocket : public QObject
-{
-  Q_OBJECT
-    
+class ClientSocket : public QObject {
+Q_OBJECT
+
 public:
 
-  /*! 
-    Connects the readyRead signal to the readClient slot, and the
-    connectionClosed signal to the connectionClosed slot.  Sets the socket
-    to use \a sock .
-  */
-  ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len = 3000);
-  
-  ~ClientSocket();
-  
+    /*!
+      Connects the readyRead signal to the readClient slot, and the
+      connectionClosed signal to the connectionClosed slot.  Sets the socket
+      to use \a sock .
+    */
+    ClientSocket(QObject *parent, QTcpSocket *socket, unsigned int maximum_len = 3000);
+
+    ~ClientSocket();
+
 private:
-  //! Individual Socket connection
-  QTcpSocket *sock;
+    //! Individual Socket connection
+    QTcpSocket *sock;
 
-  //! Maximum size of socket's buffer
-  unsigned int maxLen;
+    //! Maximum size of socket's buffer
+    unsigned int maxLen;
 
-  //! The current line of text read from the socket
-  QString line;
-  
-  //! The list of strings after splitting the line at each space character
-  QStringList lineStrList;
+    //! The current line of text read from the socket
+    QString line;
 
-  //! An iterator into the string list
-  QStringList::const_iterator strPtr;
+    //! The list of strings after splitting the line at each space character
+    QStringList lineStrList;
 
-  int readBodyIndList(std::vector<Body *> &bodyVec);
-  int readRobotIndList(std::vector<Robot *> &robVec);
-  void sendContacts(Body *bod,int numData);
-  void sendAverageContacts(Body *bod);
-  void sendBodyName(Body* bod);
-  void computeNewVelocities(double ts);
-  void moveDynamicBodies(double ts);
-  void setGraspAttribute();
+    //! An iterator into the string list
+    QStringList::const_iterator strPtr;
 
-  void sendRobotName(Robot* rob);
-  void sendDOFVals(Robot *rob);
+    int readBodyIndList(std::vector<Body *> &bodyVec);
 
-  int readDOFVals();
-  int readDOFForces(Robot *rob);
-  void connectToWorldPlanner();
-  void updatePlannerParams(QStringList & qsl);
-  bool verifyInput(int minimum_arg_number);
-  void addObstacle(const QString & bodyName);
-  void addGraspableBody(const QString & bodyName, const QString & objectName);
-  bool setPlannerTarget(const QString & bodyName);
-  void sendBodyTransf();
-  void setBodyTransf();
-  int readTransf(transf * tr);
-  void removeBodies(bool graspable = false);
-  void getCurrentHandTran();
-  void outputCurrentGrasp();
-  bool rotateHandLat();
-  bool rotateHandLong();
-  bool addPointCloud();
-  bool exec();
-  bool next();
+    int readRobotIndList(std::vector<Robot *> &robVec);
 
-  bool setCameraOrigin();
-  void drawCircle();
-  void drawCursor();
-  bool setBodyColor();
-  bool setRobotColor();
-  
-  
+    void sendContacts(Body *bod, int numData);
+
+    void sendAverageContacts(Body *bod);
+
+    void sendBodyName(Body *bod);
+
+    void computeNewVelocities(double ts);
+
+    void moveDynamicBodies(double ts);
+
+    void setGraspAttribute();
+
+    void sendRobotName(Robot *rob);
+
+    void sendDOFVals(Robot *rob);
+
+    int readDOFVals();
+
+    int readDOFForces(Robot *rob);
+
+    void connectToWorldPlanner();
+
+    void updatePlannerParams(QStringList &qsl);
+
+    bool verifyInput(int minimum_arg_number);
+
+    void addObstacle(const QString &bodyName);
+
+    void addGraspableBody(const QString &bodyName, const QString &objectName);
+
+    bool setPlannerTarget(const QString &bodyName);
+
+    void sendBodyTransf();
+
+    void setBodyTransf();
+
+    int readTransf(transf *tr);
+
+    void removeBodies(bool graspable = false);
+
+    void getCurrentHandTran();
+
+    void outputCurrentGrasp();
+
+    bool rotateHandLat();
+
+    bool rotateHandLong();
+
+    bool addPointCloud();
+
+    bool exec();
+
+    bool next();
+
+    bool setCameraOrigin();
+
+    void drawCircle();
+
+    void drawCursor();
+
+    bool setBodyColor();
+
+    bool setRobotColor();
+
+
 
 
 // not finished yet:
-  // void readTorques();
-  // void moveBody(Body* bod); 
+    // void readTorques();
+    // void moveBody(Body* bod);
 
 private slots:
-  void readClient();
-  void outputPlannerResults(int solutionIndex);
-  void runObjectRecognition();
-  void sendString(const QString & message);
-  void analyzeGrasp(const GraspPlanningState * gps);
-/*! Deletes this instance of ClientSocket */ 
-  void connectionClosed() { delete this;}
-  void analyzeNextGrasp();
-  void analyzeApproachDir(GraspPlanningState * gs);
+
+    void readClient();
+
+    void outputPlannerResults(int solutionIndex);
+
+    void runObjectRecognition();
+
+    void sendString(const QString &message);
+
+    void analyzeGrasp(const GraspPlanningState *gps);
+
+/*! Deletes this instance of ClientSocket */
+    void connectionClosed() {
+        delete this;
+    }
+
+    void analyzeNextGrasp();
+
+    void analyzeApproachDir(GraspPlanningState *gs);
 };
 
 //! TCP server that listens for connections and spawns new ClientSockets 
@@ -166,21 +209,27 @@ private slots:
   port and if a connection is requested, it creates a new ClientSocket, which
   will handle all communication.
 */
-class GraspItServer : public QThread
-{
-  Q_OBJECT
-  //  std::vector<SocketNotifier *> snVec;
-  unsigned int port_num;
-  QTcpServer* server;
+class GraspItServer : public QThread {
+Q_OBJECT
+
+    //  std::vector<SocketNotifier *> snVec;
+    unsigned int port_num;
+    QTcpServer *server;
 
 public:
-  GraspItServer(unsigned int port_num, QObject *parent = 0);
+    GraspItServer(unsigned int port_num, QObject *parent = 0);
 
-  /*! Stub */
-  ~GraspItServer() {delete server;}
+    /*! Stub */
+    ~GraspItServer() {
+        delete server;
+    }
+
 public slots:
-  void onConnection();
-  void run();
+
+    void onConnection();
+
+    void run();
 };
+
 #define GRASPITSERVER_HXX
 #endif

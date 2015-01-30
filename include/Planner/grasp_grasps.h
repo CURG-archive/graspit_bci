@@ -45,6 +45,7 @@
 #include <vector>
 
 class grasp_representation;
+
 class GraspableBody;
 
 //! The final pose of the hand after a grasp candidate has been tested.
@@ -53,26 +54,30 @@ class GraspableBody;
   DOF values after the tester has perfomed its tests with a particular grasp
   candidate.
 */
-class finalGraspPosition
-{
+class finalGraspPosition {
 private:
-  //! Final pose of the hand
-  transf finalTran;
+    //! Final pose of the hand
+    transf finalTran;
 
-  //! Final DOF values
+    //! Final DOF values
     std::list<double> dof;
 
 public:
     finalGraspPosition();
-    finalGraspPosition(const finalGraspPosition&);
+
+    finalGraspPosition(const finalGraspPosition &);
+
     ~finalGraspPosition();
 
-    transf get_finalTran()const;
-    void   set_finalTran(transf);
-    
-    std::list<double> get_dof()      const;
-    void              add_dof(double);
-    bool              change_dof(unsigned int, double);
+    transf get_finalTran() const;
+
+    void set_finalTran(transf);
+
+    std::list<double> get_dof() const;
+
+    void add_dof(double);
+
+    bool change_dof(unsigned int, double);
 };
 
 /**********************/
@@ -86,39 +91,41 @@ public:
   in this class as well.  This class also has a pointer to the
   associated grasp_representation 
 */
-class plannedGrasp
-{
- private:
-  //! Grasp direction includes a point and a direction
-  cartesianGraspDirection myGraspDir;
-  
-  //! Direction of the thumb
-  cartesian_coordinates fixedFingerDirection;
-  
-  //! Stores the final grasp position (after testing)
-  finalGraspPosition finalGPos;
-  
-  //      /* reachability of GraspDirection for the platform, arm and hand */
-  //      bool isReachable;
-  
-  //! This grasp's quality as evaluated by the tester
-  double myQuality;
-  
-  //! The grasp preshape
-  preshape myPreshape;
-  
-  //! Pointer to the grasped object
-  GraspableBody *myGraspableBody;
-  
-  //! Pointer to the associated grasp visualization
-  grasp_representation *myCP;
-  
- public:
+class plannedGrasp {
+private:
+    //! Grasp direction includes a point and a direction
+    cartesianGraspDirection myGraspDir;
+
+    //! Direction of the thumb
+    cartesian_coordinates fixedFingerDirection;
+
+    //! Stores the final grasp position (after testing)
+    finalGraspPosition finalGPos;
+
+    //      /* reachability of GraspDirection for the platform, arm and hand */
+    //      bool isReachable;
+
+    //! This grasp's quality as evaluated by the tester
+    double myQuality;
+
+    //! The grasp preshape
+    preshape myPreshape;
+
+    //! Pointer to the grasped object
+    GraspableBody *myGraspableBody;
+
+    //! Pointer to the associated grasp visualization
+    grasp_representation *myCP;
+
+public:
 
     /* constructor, destructor */
     plannedGrasp();
-    plannedGrasp(const plannedGrasp&);
+
+    plannedGrasp(const plannedGrasp &);
+
     plannedGrasp(cartesianGraspDirection);
+
     ~plannedGrasp();
 
     /* return value: 0 <= val <= 1.0 */
@@ -126,29 +133,37 @@ class plannedGrasp
 
     /* access methods */
     cartesianGraspDirection get_graspDirection() const;
-    void                    set_graspDirection(cartesianGraspDirection);
-    
-    cartesian_coordinates   get_fixedFingerDirection() const;
-    void                    set_fixedFingerDirection(cartesian_coordinates);
 
-    finalGraspPosition      get_finalGraspPosition() const;
-    void                    set_finalGraspPosition(finalGraspPosition);
+    void set_graspDirection(cartesianGraspDirection);
+
+    cartesian_coordinates get_fixedFingerDirection() const;
+
+    void set_fixedFingerDirection(cartesian_coordinates);
+
+    finalGraspPosition get_finalGraspPosition() const;
+
+    void set_finalGraspPosition(finalGraspPosition);
 
 //      bool           get_isReachable()         const;
 //      void           set_isReachable(bool);
 
-    double         get_quality()                 const;
-    void           set_quality(double);
+    double get_quality() const;
 
-    preshape       get_preshape()                const;
-    void           set_preshape(preshape in);
+    void set_quality(double);
 
-    GraspableBody* get_graspableBody()           const;
-    void           set_graspableBody(GraspableBody*);
+    preshape get_preshape() const;
 
-    grasp_representation* get_graspRepresentation()  const;
-    void                  set_graspRepresentation(grasp_representation*);
-    void                  remove_graspRepresentation();
+    void set_preshape(preshape in);
+
+    GraspableBody *get_graspableBody() const;
+
+    void set_graspableBody(GraspableBody *);
+
+    grasp_representation *get_graspRepresentation() const;
+
+    void set_graspRepresentation(grasp_representation *);
+
+    void remove_graspRepresentation();
 };
 
 
@@ -168,9 +183,8 @@ struct compareGraspQM : public std::greater<plannedGrasp *>
 #else
 
 //! An operator to compare two planned grasps
-struct compareGraspQM : public std::less<plannedGrasp *>
-{
-  bool operator()(plannedGrasp *&, plannedGrasp *&) const;
+struct compareGraspQM : public std::less<plannedGrasp *> {
+    bool operator()(plannedGrasp *&, plannedGrasp *&) const;
 };
 
 #endif
@@ -183,9 +197,9 @@ struct compareGraspQM : public std::less<plannedGrasp *>
 
 
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/
 
 

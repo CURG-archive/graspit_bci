@@ -86,7 +86,7 @@
    Presh: PRESHAPE_CYLINDER_SIDE_GRASP
    Thumb dir: z */
 #define GP_MAX_CYL_SIDEGRASP_HEIGHT 200.0
-   
+
 /* Prim: Cylinder
    Presh: PRESHAPE_CYLINDER_TOP_BOTTOM_GRASP
    Thumb dir: R */
@@ -136,7 +136,7 @@
 
 
 /* Grasp preshapes for existing primitives */
-#define PRESHAPE_CUBE_GRASP                PR_two_opp_one 
+#define PRESHAPE_CUBE_GRASP                PR_two_opp_one
 #define PRESHAPE_CYLINDER_TOP_BOTTOM_GRASP PR_circle
 #define PRESHAPE_CYLINDER_SIDE_GRASP       PR_two_opp_one
 #define PRESHAPE_SPHERE_GRASP              PR_circle
@@ -150,18 +150,26 @@
 #define DELTA_360_DEG_ERROR  0.0001
 
 class Body;
+
 class SoQtExaminerViewer;
+
 class GraspableBody;
+
 class IVmgr;
+
 class plannedGrasp;
+
 class GraspDirection;
+
 class SoPath;
+
 class SoSeparator;
 
 #include "matvec3D.h"
 #include <Inventor/SoLists.h>
 #include <vector>
-typedef std::pair<Body *,Body *> BodyPair;
+
+typedef std::pair<Body *, Body *> BodyPair;
 
 //! This class is used to automatically generate a set of candidate grasps given a set of shape primitives for an object.
 /*!
@@ -185,59 +193,58 @@ typedef std::pair<Body *,Body *> BodyPair;
    At the completion of the planning process, a list of candidate grasps is
    returned to the grasp manager.
  */
-class grasp_planner
-{
+class grasp_planner {
 private:
 
-  //! a pointer to the main window viewer
-  SoQtExaminerViewer *myViewer;
+    //! a pointer to the main window viewer
+    SoQtExaminerViewer *myViewer;
 
-  //! a pointer to the grasped object
-  GraspableBody      *my_body;
+    //! a pointer to the grasped object
+    GraspableBody *my_body;
 
-  //! a pointer to the inventor manager
-  IVmgr                *ivmgr;
+    //! a pointer to the inventor manager
+    IVmgr *ivmgr;
 
-  //! a pointer to an Inventor scene graph containing the shape primitives 
-  SoGroup *IVGeomPrimitives;
-    
-  //! The parameter mode sets the way the parameters for the planning step are determined.
-  int parameterMode;
+    //! a pointer to an Inventor scene graph containing the shape primitives
+    SoGroup *IVGeomPrimitives;
+
+    //! The parameter mode sets the way the parameters for the planning step are determined.
+    int parameterMode;
 
 /* The meaning of these variables is equivalent to the 
    corresponding definitions above. The values of these are 
    initially taken from the #defines, but may be changed
    by the user via the motif interface. */
 
-  //! When grasping a cylinder, cone, or sphere, this sets how many samples of 360 degrees are used.  Should be an even number
-  int nr_of_360_deg_steps;
+    //! When grasping a cylinder, cone, or sphere, this sets how many samples of 360 degrees are used.  Should be an even number
+    int nr_of_360_deg_steps;
 
-  //! Number of parallel planes of grasping positions along the width of a cube
-  int nr_of_parallel_planes_width;
-  
-  //! Number of parallel planes of grasping positions along the height of a cube
-  int nr_of_parallel_planes_height;
+    //! Number of parallel planes of grasping positions along the width of a cube
+    int nr_of_parallel_planes_width;
 
-  //! Number of parallel planes of grasping positions along the depth of a cube
-  int nr_of_parallel_planes_depth;
+    //! Number of parallel planes of grasping positions along the height of a cube
+    int nr_of_parallel_planes_height;
 
-  //! Number of hand rotations about the approach vector for boxes and side grasps of cylinders, either 1 or 2. 
-  int nr_of_180_deg_grasps;
+    //! Number of parallel planes of grasping positions along the depth of a cube
+    int nr_of_parallel_planes_depth;
 
-  //! Number of hand rotations about the approach vector for spheres and end grasps of cylinders. 
-  int nr_of_grasp_rotations;
+    //! Number of hand rotations about the approach vector for boxes and side grasps of cylinders, either 1 or 2.
+    int nr_of_180_deg_grasps;
+
+    //! Number of hand rotations about the approach vector for spheres and end grasps of cylinders.
+    int nr_of_grasp_rotations;
 
 /*
  * private methods
  */
 
-  SoPathList searchPrimitives(GraspableBody*);
+    SoPathList searchPrimitives(GraspableBody *);
 
     /* Takes prasp list with local cartesian coordinates
        and changes these to global. */
-    void localToGlobalCoordinates(std::list<plannedGrasp*>&,
-				  SoPath *,const transf &);
-  
+    void localToGlobalCoordinates(std::list<plannedGrasp *> &,
+            SoPath *, const transf &);
+
     /* Returns the global path
        of a given node */
     SoPath *getGlobalPath(SoNode *node);
@@ -245,25 +252,33 @@ private:
     /* Compute all starting points and directions 
        from which the given primitive can be grasped.
        Does no collision detection. */
-    std::list <plannedGrasp*>    getPlannedGraspDirections(SoPath*);
+    std::list<plannedGrasp *> getPlannedGraspDirections(SoPath *);
+
     /* Calls one of: */
-    std::list <GraspDirection*> getCubeGraspDirections    (SoPath* sop);
-    std::list <GraspDirection*> getCylinderGraspDirections(SoPath* sop);
-    std::list <GraspDirection*> getSphereGraspDirections  (SoPath* sop);
-    std::list <GraspDirection*> getConeGraspDirections    (SoPath* sop);
+    std::list<GraspDirection *> getCubeGraspDirections(SoPath *sop);
+
+    std::list<GraspDirection *> getCylinderGraspDirections(SoPath *sop);
+
+    std::list<GraspDirection *> getSphereGraspDirections(SoPath *sop);
+
+    std::list<GraspDirection *> getConeGraspDirections(SoPath *sop);
 
     /* Compute preshapes for all grasps in list that have
        implemented heuristics; return grasp list */
-    void computeGraspPreshapes        (std::list<plannedGrasp*>&, SoPath*);
+    void computeGraspPreshapes(std::list<plannedGrasp *> &, SoPath *);
+
     /* Calls one or more of: */
-    void computeCubeGraspPreshapes    (std::list<plannedGrasp*>&, SoPath*);
-    void computeCylinderGraspPreshapes(std::list<plannedGrasp*>&, SoPath*);
-    void computeSphereGraspPreshapes  (std::list<plannedGrasp*>&, SoPath*);
-    void computeConeGraspPreshapes    (std::list<plannedGrasp*>&, SoPath*);
+    void computeCubeGraspPreshapes(std::list<plannedGrasp *> &, SoPath *);
+
+    void computeCylinderGraspPreshapes(std::list<plannedGrasp *> &, SoPath *);
+
+    void computeSphereGraspPreshapes(std::list<plannedGrasp *> &, SoPath *);
+
+    void computeConeGraspPreshapes(std::list<plannedGrasp *> &, SoPath *);
 
     /* helper for eliminating obsolete grasps which may occur if
        obj consists of several primitives */
-    bool existsInList(plannedGrasp, std::list<plannedGrasp*>);
+    bool existsInList(plannedGrasp, std::list<plannedGrasp *>);
 
     /* this returns the number of grasps that will be planned. 
        If spheres are involved, this is only an estimate :-) */
@@ -272,7 +287,7 @@ private:
     /* If the planning parameters are set automatically, this method
        does it. The parameters depend on the parameterMode, the size
        and the shape of the primitive. */
-    bool set_planningParametersFromPrimitive(SoPath*);
+    bool set_planningParametersFromPrimitive(SoPath *);
 
 public:
 
@@ -280,24 +295,26 @@ public:
  * constructor, destructor 
  */
     grasp_planner();
+
     ~grasp_planner();
 
     /* this method calls all planning stuff */
-    std::list<plannedGrasp*> planIt(GraspableBody*,SoGroup *);
+    std::list<plannedGrasp *> planIt(GraspableBody *, SoGroup *);
 
     /* used by the motif interface */
-    bool set_planningParameters(int nr_of_360_deg_steps_in, 
-				int nr_of_parallel_planes_in,
-				int nr_of_180_deg_grasps_in,
-				int nr_of_grasp_rotations_in);
+    bool set_planningParameters(int nr_of_360_deg_steps_in,
+            int nr_of_parallel_planes_in,
+            int nr_of_180_deg_grasps_in,
+            int nr_of_grasp_rotations_in);
 
-    void get_planningParameters(int& nr_of_360_deg_steps_in, 
-				int& nr_of_parallel_planes_in,
-				int& nr_of_180_deg_grasps_in,
-				int& nr_of_grasp_rotations_in);
+    void get_planningParameters(int &nr_of_360_deg_steps_in,
+            int &nr_of_parallel_planes_in,
+            int &nr_of_180_deg_grasps_in,
+            int &nr_of_grasp_rotations_in);
 
 
-    int  get_parameterMode();
+    int get_parameterMode();
+
     bool set_parameterMode(int);
 };
 
@@ -307,7 +324,7 @@ public:
 
 
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/

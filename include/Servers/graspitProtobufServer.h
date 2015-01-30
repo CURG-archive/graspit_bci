@@ -1,21 +1,26 @@
 #ifndef GRASPITPROTOBUFSERVER_H
 #define GRASPITPROTOBUFSERVER_H
+
 #include <QtNetwork>
 #include <QTimer>
 #include "RenderableProtoDrawer.h"
+
 class GraspitProtobufMessage;
+
 class DrawableFrame;
 
-class GraspitProtobufConnection : public QObject
-{
-    Q_OBJECT
+class GraspitProtobufConnection : public QObject {
+Q_OBJECT
+
 public:
-    GraspitProtobufConnection(QObject * parent, QTcpSocket * socket,
-                              unsigned int maximum_len = 38575230);
+    GraspitProtobufConnection(QObject *parent, QTcpSocket *socket,
+            unsigned int maximum_len = 38575230);
+
     ~GraspitProtobufConnection();
 
 signals:
-    void updateFrame(DrawableFrame & drawing);
+
+    void updateFrame(DrawableFrame &drawing);
 
 private:
     //! Individual Socket connection
@@ -41,6 +46,7 @@ private:
     quint32 getMessageSize();
 
 private slots:
+
     //! Read the message and act on it.
     void parseMessage();
 
@@ -48,12 +54,14 @@ private slots:
     bool readMessage();
 };
 
-class GraspitProtobufServer : public QTcpServer
-{
-    Q_OBJECT
+class GraspitProtobufServer : public QTcpServer {
+Q_OBJECT
+
 public:
-    GraspitProtobufServer(unsigned int port_num,QObject * parent = 0);
+    GraspitProtobufServer(unsigned int port_num, QObject *parent = 0);
+
 private slots:
+
     void onConnection();
 };
 

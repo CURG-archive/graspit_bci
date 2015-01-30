@@ -37,6 +37,7 @@
 */
 
 void jacobian(double t1, double t2, double t3, double t4, double px, double py, double pz, double *J);
+
 void compute_dTdG(double s0, double s1, double s2, double s3, double *dTdG);
 
 #endif

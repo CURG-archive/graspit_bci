@@ -30,6 +30,7 @@
 #ifndef GRASPITGUI_HXX
 
 class MainWindow;
+
 class IVmgr;
 
 //! This is the main user interface class that is responsible for creating and destroying the MainWindow and IVmgr.
@@ -39,40 +40,45 @@ class IVmgr;
   allows access to these two main pieces of the UI.  This class also has
   methods for both the entry and exit to the interactive program loop.
 */
-class GraspItGUI
-{
-  //! A pointer to the MainWindow.
-  MainWindow *mainWindow;
+class GraspItGUI {
+    //! A pointer to the MainWindow.
+    MainWindow *mainWindow;
 
-  //! A pointer to the IVmgr.
-  IVmgr *ivmgr;
+    //! A pointer to the IVmgr.
+    IVmgr *ivmgr;
 
-  //! TRUE if this class has been initialized.
-  static bool initialized;
+    //! TRUE if this class has been initialized.
+    static bool initialized;
 
-  //! Holds result of UI initialization.
-  static int initResult;
-  
- protected:
-  int processArgs(int argc, char **argv);
+    //! Holds result of UI initialization.
+    static int initResult;
 
- public:
-  GraspItGUI(int argc,char **argv);
-  ~GraspItGUI();
+protected:
+    int processArgs(int argc, char **argv);
 
-  /*! Returns whether the UI pieces were successfully initialized. */
-  bool terminalFailure() const;
+public:
+    GraspItGUI(int argc, char **argv);
 
-  /*! Returns a pointer to the MainWindow. */
-  MainWindow *getMainWindow() const {return mainWindow;}
+    ~GraspItGUI();
 
-  /*! Returns a pointer to the IVmgr. */
-  IVmgr *getIVmgr() const {return ivmgr;}
-  
-  void startMainLoop();
-  void exitMainLoop();
+    /*! Returns whether the UI pieces were successfully initialized. */
+    bool terminalFailure() const;
 
-  static GraspItGUI * getInstance();
+    /*! Returns a pointer to the MainWindow. */
+    MainWindow *getMainWindow() const {
+        return mainWindow;
+    }
+
+    /*! Returns a pointer to the IVmgr. */
+    IVmgr *getIVmgr() const {
+        return ivmgr;
+    }
+
+    void startMainLoop();
+
+    void exitMainLoop();
+
+    static GraspItGUI *getInstance();
 };
 
 extern GraspItGUI *graspItGUI;

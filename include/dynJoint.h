@@ -33,8 +33,11 @@
 #include "matvec3D.h"
 
 class Joint;
+
 class DynamicBody;
+
 class Body;
+
 class Matrix;
 
 //! The parent class for each of the joint modules used in the dynamics.
@@ -68,63 +71,70 @@ class Matrix;
 */
 class DynJoint {
 public:
-	enum DynamicJointT{FIXED, REVOLUTE, UNIVERSAL, BALL, PRISMATIC};
- protected:
-  
-  //! The link preceding this joint in the kinematic chain, could be NULL if joint is connected to the world space.
-  DynamicBody *prevLink;
+    enum DynamicJointT {
+        FIXED, REVOLUTE, UNIVERSAL, BALL, PRISMATIC
+    };
+protected:
 
-  //! The link succeeding this joint in the kinematic chain
-  DynamicBody *nextLink;
+    //! The link preceding this joint in the kinematic chain, could be NULL if joint is connected to the world space.
+    DynamicBody *prevLink;
 
-  //! The position and orientation of the end frame of the preceding link
-  transf prevFrame;
-    
-  //! The position and orientation of the end frame of the succeeding link
-  transf nextFrame;
+    //! The link succeeding this joint in the kinematic chain
+    DynamicBody *nextLink;
+
+    //! The position and orientation of the end frame of the preceding link
+    transf prevFrame;
+
+    //! The position and orientation of the end frame of the succeeding link
+    transf nextFrame;
 
 public:
 
-  /*! 
-     Initializes the class with pointers and transfroms of the two links
-     connected to this joint.
-  */
-  DynJoint(DynamicBody *pLink,DynamicBody *nLink,const transf &pFrame,
-	const transf &nFrame):
-    prevLink(pLink),nextLink(nLink),prevFrame(pFrame),nextFrame(nFrame) {}
+    /*!
+       Initializes the class with pointers and transfroms of the two links
+       connected to this joint.
+    */
+    DynJoint(DynamicBody *pLink, DynamicBody *nLink, const transf &pFrame,
+            const transf &nFrame) :
+            prevLink(pLink), nextLink(nLink), prevFrame(pFrame), nextFrame(nFrame) {
+    }
 
-  /*! Creates the dynamic constraints for this joint.  \a Nu is the joint
-      constraint matrix, \a eps is the constraint error.
-  */
-  virtual void buildConstraints(double *Nu,double *eps,int numBodies,
-								std::map<Body*,int> &islandIndices,int &ncn);
+    /*! Creates the dynamic constraints for this joint.  \a Nu is the joint
+        constraint matrix, \a eps is the constraint error.
+    */
+    virtual void buildConstraints(double *Nu, double *eps, int numBodies,
+            std::map<Body *, int> &islandIndices, int &ncn);
 
-  //! Fills in a array of binary chars showing what constraints are enforced by this joint
-  virtual void getConstraints(char *c) = 0;
+    //! Fills in a array of binary chars showing what constraints are enforced by this joint
+    virtual void getConstraints(char *c) = 0;
 
-  /*! Update the joint values from the current position of the connected links. */
-  virtual void updateValues() = 0;
+    /*! Update the joint values from the current position of the connected links. */
+    virtual void updateValues() = 0;
 
-  /*! Returns the transform from the next link to the coordinate system of this joint */
-  virtual transf getNextTrans() = 0;
+    /*! Returns the transform from the next link to the coordinate system of this joint */
+    virtual transf getNextTrans() = 0;
 
-  /*! Returns the transform from the previous link to the coordinate system of this joint */
-  virtual transf getPrevTrans() = 0;
+    /*! Returns the transform from the previous link to the coordinate system of this joint */
+    virtual transf getPrevTrans() = 0;
 
-  /*! Returns the number of constrained DOF's for this joint. */
-  virtual int getNumConstraints()=0;
+    /*! Returns the number of constrained DOF's for this joint. */
+    virtual int getNumConstraints() = 0;
 
-  /*! Returns a pointer to the preceding link */
-  DynamicBody *getPrevLink() const {return prevLink;}
+    /*! Returns a pointer to the preceding link */
+    DynamicBody *getPrevLink() const {
+        return prevLink;
+    }
 
-  /*! Returns a pointer to the succeeding link */
-  DynamicBody *getNextLink() const {return nextLink;}
+    /*! Returns a pointer to the succeeding link */
+    DynamicBody *getNextLink() const {
+        return nextLink;
+    }
 
-  //! Returns the type of this dynamic joint
-  virtual DynamicJointT getType() = 0;
+    //! Returns the type of this dynamic joint
+    virtual DynamicJointT getType() = 0;
 
-  //! Computes the 6x6 Jacobian of this joint wrt to a point 
-  void jacobian(transf toTarget, Matrix *J, bool worldCoords);
+    //! Computes the 6x6 Jacobian of this joint wrt to a point
+    void jacobian(transf toTarget, Matrix *J, bool worldCoords);
 };
 
 //! A fixed joint constrains all translations and rotations.
@@ -134,33 +144,42 @@ public:
   the nextLink to its current location in the world.
 */
 class FixedDynJoint : public DynJoint {
- public:
-  /*! 
-     Initializes the class with pointers and transforms of the two links
-     connected to this joint.
-  */
-  FixedDynJoint(DynamicBody *pLink,DynamicBody *nLink,
-		const transf &pFrame=transf::IDENTITY,
-		const transf &nFrame=transf::IDENTITY) :
-    DynJoint(pLink,nLink,pFrame,nFrame) {}
-  
-  virtual int getNumConstraints() {return 6;}
+public:
+    /*!
+       Initializes the class with pointers and transforms of the two links
+       connected to this joint.
+    */
+    FixedDynJoint(DynamicBody *pLink, DynamicBody *nLink,
+            const transf &pFrame = transf::IDENTITY,
+            const transf &nFrame = transf::IDENTITY) :
+            DynJoint(pLink, nLink, pFrame, nFrame) {
+    }
 
-	/*! This joint enforces all 6 constraints */
-   virtual void getConstraints(char *c) {
-	   c[0] = c[1] = c[2] = c[3] = c[4] = c[5] = 1;
-   }
+    virtual int getNumConstraints() {
+        return 6;
+    }
 
-   virtual void buildConstraints(double *Nu,double *eps,int numBodies,
-								std::map<Body*,int> &islandIndices,int &ncn);
+    /*! This joint enforces all 6 constraints */
+    virtual void getConstraints(char *c) {
+        c[0] = c[1] = c[2] = c[3] = c[4] = c[5] = 1;
+    }
 
-  virtual void updateValues();
+    virtual void buildConstraints(double *Nu, double *eps, int numBodies,
+            std::map<Body *, int> &islandIndices, int &ncn);
 
-  virtual transf getNextTrans(){return transf::IDENTITY;}
+    virtual void updateValues();
 
-  virtual transf getPrevTrans(){return prevFrame;}
+    virtual transf getNextTrans() {
+        return transf::IDENTITY;
+    }
 
-  virtual DynamicJointT getType(){return FIXED;}
+    virtual transf getPrevTrans() {
+        return prevFrame;
+    }
+
+    virtual DynamicJointT getType() {
+        return FIXED;
+    }
 };
 
 //! A revolute joint constrains all 3 translations and 2 rotations.
@@ -168,36 +187,42 @@ class FixedDynJoint : public DynJoint {
   It only allows relative rotation about a single axis.
 */
 class RevoluteDynJoint : public DynJoint {
- protected:  
-  //! A pointer to the associated joint in the kinematic chain
-  Joint *joint;
+protected:
+    //! A pointer to the associated joint in the kinematic chain
+    Joint *joint;
 
- public:
+public:
 
-  /*! 
-     Initializes the class with pointers and transfroms of the two links
-     connected to this joint.  It also requires a pointer to the joint
-     in the kinematic chain that this dynJoint is associated with.
-  */
-  RevoluteDynJoint(Joint *j,DynamicBody *pLink,DynamicBody *nLink,
-		  const transf &pFrame=transf::IDENTITY,
-		  const transf &nFrame=transf::IDENTITY) :
-    DynJoint(pLink,nLink,pFrame,nFrame),joint(j) {}
-  
-  virtual int getNumConstraints() {return 5;}
+    /*!
+       Initializes the class with pointers and transfroms of the two links
+       connected to this joint.  It also requires a pointer to the joint
+       in the kinematic chain that this dynJoint is associated with.
+    */
+    RevoluteDynJoint(Joint *j, DynamicBody *pLink, DynamicBody *nLink,
+            const transf &pFrame = transf::IDENTITY,
+            const transf &nFrame = transf::IDENTITY) :
+            DynJoint(pLink, nLink, pFrame, nFrame), joint(j) {
+    }
 
-  //! Enforces all constraints except one axis of rotation
-  virtual void getConstraints(char *c) {
-    c[0] = c[1] = c[2] = c[3] = c[4] = 1;
-	c[5] = 0;
-  }
-  virtual transf getNextTrans();
+    virtual int getNumConstraints() {
+        return 5;
+    }
 
-  virtual transf getPrevTrans();
+    //! Enforces all constraints except one axis of rotation
+    virtual void getConstraints(char *c) {
+        c[0] = c[1] = c[2] = c[3] = c[4] = 1;
+        c[5] = 0;
+    }
 
-  virtual void updateValues();
+    virtual transf getNextTrans();
 
-  virtual DynamicJointT getType(){return REVOLUTE;}
+    virtual transf getPrevTrans();
+
+    virtual void updateValues();
+
+    virtual DynamicJointT getType() {
+        return REVOLUTE;
+    }
 };
 
 
@@ -210,39 +235,44 @@ class RevoluteDynJoint : public DynJoint {
 */
 class UniversalDynJoint : public DynJoint {
 
-  //! Revolute joint connected to the end of the prevLink
-  Joint *joint1;
+    //! Revolute joint connected to the end of the prevLink
+    Joint *joint1;
 
-  //! Revolute joint connected to the start of the nextLink
-  Joint *joint2;
+    //! Revolute joint connected to the start of the nextLink
+    Joint *joint2;
 
- public:
+public:
 
-  /*! 
-     Initializes the class with pointers and transfroms of the two links
-     connected to this joint.  It also requires a pointer to the 2 joints
-     in the kinematic chain that this dynJoint is associated with.
-  */
-  UniversalDynJoint(Joint *j1,Joint *j2,DynamicBody *pLink,DynamicBody *nLink,
-		    const transf &pFrame=transf::IDENTITY,
-		    const transf &nFrame=transf::IDENTITY) :
-    DynJoint(pLink,nLink,pFrame,nFrame),joint1(j1),joint2(j2) {}
+    /*!
+       Initializes the class with pointers and transfroms of the two links
+       connected to this joint.  It also requires a pointer to the 2 joints
+       in the kinematic chain that this dynJoint is associated with.
+    */
+    UniversalDynJoint(Joint *j1, Joint *j2, DynamicBody *pLink, DynamicBody *nLink,
+            const transf &pFrame = transf::IDENTITY,
+            const transf &nFrame = transf::IDENTITY) :
+            DynJoint(pLink, nLink, pFrame, nFrame), joint1(j1), joint2(j2) {
+    }
 
-  virtual int getNumConstraints() {return 4;}
+    virtual int getNumConstraints() {
+        return 4;
+    }
 
-  //! Allows rotation around two axes
-  virtual void getConstraints(char *c) {
-	c[0] = c[1] = c[2] = c[3] = 1;
-	c[4] = c[5] = 0;
-  }
+    //! Allows rotation around two axes
+    virtual void getConstraints(char *c) {
+        c[0] = c[1] = c[2] = c[3] = 1;
+        c[4] = c[5] = 0;
+    }
 
-  virtual void updateValues();
+    virtual void updateValues();
 
-  virtual transf getNextTrans();
+    virtual transf getNextTrans();
 
-  virtual transf getPrevTrans();
+    virtual transf getPrevTrans();
 
-  virtual DynamicJointT getType(){return UNIVERSAL;}
+    virtual DynamicJointT getType() {
+        return UNIVERSAL;
+    }
 };
 
 //! A ball joint constrains all 3 translations.
@@ -252,41 +282,46 @@ class UniversalDynJoint : public DynJoint {
   between the two connected links but not of the rotational motions.
 */
 class BallDynJoint : public DynJoint {
-  //! Revolute joint connected to the end of the prevLink
-  Joint *joint1;
+    //! Revolute joint connected to the end of the prevLink
+    Joint *joint1;
 
-  //! Revolute joint connected to joint1 and joint2
-  Joint *joint2;
+    //! Revolute joint connected to joint1 and joint2
+    Joint *joint2;
 
-  //! Revolute joint connected to the start of the nextLink
-  Joint *joint3;
+    //! Revolute joint connected to the start of the nextLink
+    Joint *joint3;
 
- public:
-  /*! 
-     Initializes the class with pointers and transforms of the two links
-     connected to this joint.  It also requires a pointer to the 3 joints
-     in the kinematic chain that this dynJoint is associated with.
-  */
-  BallDynJoint(Joint *j1,Joint *j2,Joint *j3,DynamicBody *pLink,DynamicBody *nLink,
-		    const transf &pFrame=transf::IDENTITY,
-		    const transf &nFrame=transf::IDENTITY) :
-    DynJoint(pLink,nLink,pFrame,nFrame),joint1(j1),joint2(j2),joint3(j3) {}
+public:
+    /*!
+       Initializes the class with pointers and transforms of the two links
+       connected to this joint.  It also requires a pointer to the 3 joints
+       in the kinematic chain that this dynJoint is associated with.
+    */
+    BallDynJoint(Joint *j1, Joint *j2, Joint *j3, DynamicBody *pLink, DynamicBody *nLink,
+            const transf &pFrame = transf::IDENTITY,
+            const transf &nFrame = transf::IDENTITY) :
+            DynJoint(pLink, nLink, pFrame, nFrame), joint1(j1), joint2(j2), joint3(j3) {
+    }
 
-  virtual int getNumConstraints() {return 3;}
+    virtual int getNumConstraints() {
+        return 3;
+    }
 
-  //! Only enforces translation; allows all rotation axes
-  virtual void getConstraints(char *c) {
-    c[0] = c[1] = c[2] = 1;
-    c[3] = c[4] = c[5] = 0;
-  }
+    //! Only enforces translation; allows all rotation axes
+    virtual void getConstraints(char *c) {
+        c[0] = c[1] = c[2] = 1;
+        c[3] = c[4] = c[5] = 0;
+    }
 
-  virtual void updateValues();
+    virtual void updateValues();
 
-  virtual transf getNextTrans();
+    virtual transf getNextTrans();
 
-  virtual transf getPrevTrans();
+    virtual transf getPrevTrans();
 
-  virtual DynamicJointT getType(){return BALL;}
+    virtual DynamicJointT getType() {
+        return BALL;
+    }
 };
 
 #define _DYNJOINT_H_

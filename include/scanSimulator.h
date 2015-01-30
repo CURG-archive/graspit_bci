@@ -38,9 +38,9 @@
 	ray that an object was hit.
 */
 struct RawScanPoint {
-	float hAngle,vAngle;
-	float dx, dy, dz;
-	float distance;
+    float hAngle, vAngle;
+    float dx, dy, dz;
+    float distance;
 };
 
 /*! A scan simulator can simulate a laser scanner scanning the GraspIt world.
@@ -54,53 +54,79 @@ struct RawScanPoint {
 	scanner coordinates.
 */
 class ScanSimulator {
- public:
-	enum Type{SCANNER_COORDINATES,WORLD_COORDINATES};
+public:
+    enum Type {
+        SCANNER_COORDINATES, WORLD_COORDINATES
+    };
 
- private:
-	 //! The location of the scanner in the GraspIt world
-	position mPosition;
-	//! The orientation of the scanner, what it is aimed at
-	vec3 mDirection;
-	//! The "up" direction of the scanner
-	vec3 mUp;
-	//! The "horizontal" direction; together with "up" and "direction" forms a right-handed coord system.
-	vec3 mHorizDirection;
+private:
+    //! The location of the scanner in the GraspIt world
+    position mPosition;
+    //! The orientation of the scanner, what it is aimed at
+    vec3 mDirection;
+    //! The "up" direction of the scanner
+    vec3 mUp;
+    //! The "horizontal" direction; together with "up" and "direction" forms a right-handed coord system.
+    vec3 mHorizDirection;
 
-	//! The scanner's transform in the GraspIt world
-	/*! Set so that the z axis is pointing "up" and the x axis id pointing
-		in the scanning direction.*/
-	transf mTran;
-	//! The inverse of the scanner tranforms, precomputed and stored to save time
-	transf mTranInv;
+    //! The scanner's transform in the GraspIt world
+    /*! Set so that the z axis is pointing "up" and the x axis id pointing
+        in the scanning direction.*/
+    transf mTran;
+    //! The inverse of the scanner tranforms, precomputed and stored to save time
+    transf mTranInv;
 
-	Type mType;
+    Type mType;
 
-	float mHMin, mHMax;
-	int mHLines; 
-	float mVMin, mVMax;
-	int mVLines;
+    float mHMin, mHMax;
+    int mHLines;
+    float mVMin, mVMax;
+    int mVLines;
 
-	bool shootRay(const vec3 &rayDirection, position &rayPoint);
-	void computeTransform();
- public:
-	ScanSimulator();
-	void setPosition(position p, vec3 v, vec3 u);
-	void setPosition(vec3 p, vec3 v, vec3 u){position pp(p.x(), p.y(), p.z()); setPosition(pp,v,u);}
-	void getPosition(position &p, vec3 &v, vec3 &u){
-		p = mPosition; v = mDirection; u = mUp;}
-	void setOptics( float hMin, float hMax, int hLines, 
-			float vMin, float vMax, int vLines) {
-		mHMin = hMin; mHMax = hMax; mHLines = hLines;
-		mVMin = vMin; mVMax = vMax; mVLines = vLines;}
-	void setType(Type t){mType=t;}
-	Type getType() const {return mType;}
-	void computeRayDirection(float hAngle, float vAngle, vec3 &rayDirection);
+    bool shootRay(const vec3 &rayDirection, position &rayPoint);
 
-	//! The main function for scanning. 
-	/*! Returns the full result as a point cloud and, if wanted 
-		(\a rawData is not NULL), also as raw data. */
-	void scan(std::vector<position> *cloud, std::vector<RawScanPoint> *rawData = NULL);
+    void computeTransform();
+
+public:
+    ScanSimulator();
+
+    void setPosition(position p, vec3 v, vec3 u);
+
+    void setPosition(vec3 p, vec3 v, vec3 u) {
+        position pp(p.x(), p.y(), p.z());
+        setPosition(pp, v, u);
+    }
+
+    void getPosition(position &p, vec3 &v, vec3 &u) {
+        p = mPosition;
+        v = mDirection;
+        u = mUp;
+    }
+
+    void setOptics(float hMin, float hMax, int hLines,
+            float vMin, float vMax, int vLines) {
+        mHMin = hMin;
+        mHMax = hMax;
+        mHLines = hLines;
+        mVMin = vMin;
+        mVMax = vMax;
+        mVLines = vLines;
+    }
+
+    void setType(Type t) {
+        mType = t;
+    }
+
+    Type getType() const {
+        return mType;
+    }
+
+    void computeRayDirection(float hAngle, float vAngle, vec3 &rayDirection);
+
+    //! The main function for scanning.
+    /*! Returns the full result as a point cloud and, if wanted
+        (\a rawData is not NULL), also as raw data. */
+    void scan(std::vector<position> *cloud, std::vector<RawScanPoint> *rawData = NULL);
 };
 
 #endif

@@ -32,5 +32,5 @@
 
 class World;
 
-void create_arch(World *world, double inner_radius, double outer_radius, 
-				double thickness, int n_blocks, bool add_supports);
+void create_arch(World *world, double inner_radius, double outer_radius,
+        double thickness, int n_blocks, bool add_supports);

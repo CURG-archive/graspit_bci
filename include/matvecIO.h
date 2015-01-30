@@ -28,26 +28,32 @@
 */
 
 #ifndef _MATVECIO_H_
+
 #include <QTextStream>
 #include "matvec3D.h"
 
 
-QTextStream& operator>>(QTextStream &is, vec3 &v);
-QTextStream& operator<<(QTextStream &os, const vec3 &v);  
+QTextStream &operator>>(QTextStream &is, vec3 &v);
 
-QTextStream& operator>>(QTextStream &is, position &p);
-QTextStream& operator<<(QTextStream &os, const position &p);
+QTextStream &operator<<(QTextStream &os, const vec3 &v);
 
-QTextStream& operator>>(QTextStream &is, mat3 &m);
-QTextStream& operator<<(QTextStream &os, const mat3 &m);  
+QTextStream &operator>>(QTextStream &is, position &p);
 
-QTextStream& operator>>(QTextStream &is, Quaternion &q);
-QTextStream& operator<<(QTextStream &os, const Quaternion &q);
+QTextStream &operator<<(QTextStream &os, const position &p);
 
-QTextStream& operator>>(QTextStream &is, transf &tr);
-QTextStream& operator<<(QTextStream &os, const transf &tr);
+QTextStream &operator>>(QTextStream &is, mat3 &m);
 
-int readTransRotFromQTextStream(QTextStream &is,transf &tr);
+QTextStream &operator<<(QTextStream &os, const mat3 &m);
+
+QTextStream &operator>>(QTextStream &is, Quaternion &q);
+
+QTextStream &operator<<(QTextStream &os, const Quaternion &q);
+
+QTextStream &operator>>(QTextStream &is, transf &tr);
+
+QTextStream &operator<<(QTextStream &os, const transf &tr);
+
+int readTransRotFromQTextStream(QTextStream &is, transf &tr);
 
 #define _MATVECIO_H_
 #endif

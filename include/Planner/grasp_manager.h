@@ -36,6 +36,7 @@
 
 #ifndef __GRASP_MANAGER_H__
 #define __GRASP_MANAGER_H__
+
 #include <qstring.h>
 
 /* This is the number of iterations used to compute
@@ -78,10 +79,15 @@
 #define ROTATIONS_STEP 3
 
 class GraspableBody;
+
 class plannedGrasp;
+
 class grasp_planner;
+
 class grasp_presenter;
+
 class grasp_tester;
+
 class IVmgr;
 
 //! Manages the various components of the grasp planning system.
@@ -93,53 +99,53 @@ class IVmgr;
   The tester returns a sorted list of the force closure grasps which are then
   sent to the presenter to allow the user to view each grasp in succession.
 */
-class grasp_manager{
+class grasp_manager {
 
-  //! A pointer to the grasped object
+    //! A pointer to the grasped object
     GraspableBody *my_body;
 
-  //! A list of candidate grasps, before testing.  After testing, contains a sorted list of force closure grasps.
-    std::list<plannedGrasp*> graspList;
+    //! A list of candidate grasps, before testing.  After testing, contains a sorted list of force closure grasps.
+    std::list<plannedGrasp *> graspList;
 
-  //! if TRUE, the whole testing process is visualized. 
+    //! if TRUE, the whole testing process is visualized.
     bool renderIt;
 
-  //! if TRUE, previously generated grasps (if there are any) are used to pick those out of the current set to be tested that are near to stable grasps.
+    //! if TRUE, previously generated grasps (if there are any) are used to pick those out of the current set to be tested that are near to stable grasps.
     bool doIteration;
 
-  //! TRUE if the graspList has not yet been sent to the presenter.
+    //! TRUE if the graspList has not yet been sent to the presenter.
     int graspsNotShown;
 
-  //! a pointer to the grasp planner
+    //! a pointer to the grasp planner
     grasp_planner *myPlanner;
 
-  //! a pointer to the grasp presenter
-    grasp_presenter* myPresent;
+    //! a pointer to the grasp presenter
+    grasp_presenter *myPresent;
 
-  //! a pointer to the inventor manager
-  IVmgr *ivmgr;
+    //! a pointer to the inventor manager
+    IVmgr *ivmgr;
 
-  //! a pointer to the shape primitive scene graph
-  SoGroup *primitives;
+    //! a pointer to the shape primitive scene graph
+    SoGroup *primitives;
 
-  // a pointer to the grasp tester, now global because of idle Sensor stuff */
+    // a pointer to the grasp tester, now global because of idle Sensor stuff */
 //    grasp_tester  *myTester;
 
     /* same as define above */
 //    int nrOfPlanTestIteration;
 
-  //! a threshold value for deteriming if grasps in a new set are close enough to previously found good grasp
+    //! a threshold value for deteriming if grasps in a new set are close enough to previously found good grasp
     double maxdist;
-    
-  //! a quality threshold value for determining if a grasp in the first set of tested grasps can be considered "good"
+
+    //! a quality threshold value for determining if a grasp in the first set of tested grasps can be considered "good"
     double itQualThresh;
 
 //    struct timeval computingTime;
 
-  //! Counter for keeping statistics
+    //! Counter for keeping statistics
     int nrOfPlannedGrasps;
 
-  //! Counter for keeping statistics
+    //! Counter for keeping statistics
     int nrOfStableGrasps;
 
     /* changes the parameters of the planner according to
@@ -147,38 +153,48 @@ class grasp_manager{
        with increasing stepnumber */
 //    void changePlanningParameters(int);
 
-  void loadPrimitives();
-  void compareGraspListsByDist(std::list<plannedGrasp*>&, std::list<plannedGrasp*>);
+    void loadPrimitives();
+
+    void compareGraspListsByDist(std::list<plannedGrasp *> &, std::list<plannedGrasp *>);
 
 public:
     grasp_manager();
+
     ~grasp_manager();
 
-  int readCandidateGraspsFile(const QString& filename);
-  void generateGrasps();
-  void testGrasps();
+    int readCandidateGraspsFile(const QString &filename);
+
+    void generateGrasps();
+
+    void testGrasps();
+
     void showGrasps(int next);
+
     void chooseGrasp();
 
     void set_render(bool);
-    bool get_render()const;
+
+    bool get_render() const;
 
     void set_doIteration(bool);
-    bool get_doIteration()const;
 
-    bool set_iterationParameters(double,double);
-    void get_iterationParameters(double&,double&)const;
+    bool get_doIteration() const;
 
-    grasp_planner* get_graspPlanner()const;
-    grasp_tester*  get_graspTester()const;
+    bool set_iterationParameters(double, double);
+
+    void get_iterationParameters(double &, double &) const;
+
+    grasp_planner *get_graspPlanner() const;
+
+    grasp_tester *get_graspTester() const;
 };
 
 
 #endif
 /******************
-   Local Variables:
-   mode:c++
-   End:
+Local Variables:
+mode:c++
+End:
 ******************/
 
 

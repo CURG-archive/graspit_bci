@@ -27,9 +27,13 @@
 #include "search.h"
 
 class GraspPlanningState;
+
 class VariableSet;
+
 class SearchEnergy;
+
 class Hand;
+
 class Body;
 
 class SoSensor;
@@ -41,73 +45,87 @@ class SoSensor;
 /*!	This class performs simulated annealing on a collection of variables 
 	(a GraspPlanningState*). It has no idea of grasps, hands, etc. The cooling 
 	schedule is inspired from L. Ingber, "Very Fast Simulated Re-Annealing", 
-	J. Mathl. Comput. Modelling, vol. 12, no. 8, pp. 967–973, December 1989.
+	J. Mathl. Comput. Modelling, vol. 12, no. 8, pp. 967ï¿½973, December 1989.
 */
-class SimAnn : public QObject
-{
-	Q_OBJECT
+class SimAnn : public QObject {
+Q_OBJECT
+
 public:
-	//! Possible return codes for an annealing step
-	/*! <ul>
-		<li> FAIL - no legal neighbor of the current state was found
-		<li> KEEP - a legal neighbor was found, but the annealing procedure
-				decided to keep the current state
-		<li> JUMP - a jump was performed to a newly generated neighbor
-		</ul>
-	*/
-	enum Result{FAIL = 0, JUMP = 1, KEEP =2};
+    //! Possible return codes for an annealing step
+    /*! <ul>
+        <li> FAIL - no legal neighbor of the current state was found
+        <li> KEEP - a legal neighbor was found, but the annealing procedure
+                decided to keep the current state
+        <li> JUMP - a jump was performed to a newly generated neighbor
+        </ul>
+    */
+    enum Result {
+        FAIL = 0, JUMP = 1, KEEP = 2
+    };
 private:
 
-	//Annealing parameters
-	//! Annealing constant for neighbor generation schedule
-	double YC; 
-	//! Annealing constant for error acceptance schedule
-	double HC; 
-	//! Number of dimensions for neighbor generation schedule
-	double YDIMS; 
-	//! Number of dimensions for error acceptance schedule
-	double HDIMS; 
-	//! Adjust factor for neighbor generation schedule
-	double NBR_ADJ; 
-	//! Adjust raw errors reported by states to be in the relevant range of the annealing schedule	
-	double ERR_ADJ; 
-	//! Starting temperatue
-	double DEF_T0; 
-	//! Starting step
-	double DEF_K0; 
+    //Annealing parameters
+    //! Annealing constant for neighbor generation schedule
+    double YC;
+    //! Annealing constant for error acceptance schedule
+    double HC;
+    //! Number of dimensions for neighbor generation schedule
+    double YDIMS;
+    //! Number of dimensions for error acceptance schedule
+    double HDIMS;
+    //! Adjust factor for neighbor generation schedule
+    double NBR_ADJ;
+    //! Adjust raw errors reported by states to be in the relevant range of the annealing schedule
+    double ERR_ADJ;
+    //! Starting temperatue
+    double DEF_T0;
+    //! Starting step
+    double DEF_K0;
 
-	//! The current step index, used by annealing schedule
-	long int mCurrentStep;
-	//! The temperature at the beginning of the annealing process
-	double mT0;
+    //! The current step index, used by annealing schedule
+    long int mCurrentStep;
+    //! The temperature at the beginning of the annealing process
+    double mT0;
 
-	//! Total steps since last reset (saved over re-anneals)	
-	int mTotalSteps; 
-	//! For writing results to file
-	bool mWriteResults;
-	//! For writing results to file
-	FILE* mFile;
+    //! Total steps since last reset (saved over re-anneals)
+    int mTotalSteps;
+    //! For writing results to file
+    bool mWriteResults;
+    //! For writing results to file
+    FILE *mFile;
 
-	double prob(double e_old, double e_new, double t);
-	double cooling(double t0, double c, int k, int d);
-	//! Computes a neighbor of a given HandObjectState
-	GraspPlanningState* stateNeighbor(GraspPlanningState *s, double T, GraspPlanningState *t = NULL);
-	//! Computes the neighbor of one individual variable
-	void variableNeighbor(VariableSet *set, double T, VariableSet *target = NULL);
-	double neighborDistribution(double T);
-	double neighborInverse(double T, double y);
-	//! Generates neighbors according to a desired value, or "input", along each dimension
-	double biasedNeighborDistribution(double T, double in, double conf);
+    double prob(double e_old, double e_new, double t);
+
+    double cooling(double t0, double c, int k, int d);
+
+    //! Computes a neighbor of a given HandObjectState
+    GraspPlanningState *stateNeighbor(GraspPlanningState *s, double T, GraspPlanningState *t = NULL);
+
+    //! Computes the neighbor of one individual variable
+    void variableNeighbor(VariableSet *set, double T, VariableSet *target = NULL);
+
+    double neighborDistribution(double T);
+
+    double neighborInverse(double T, double y);
+
+    //! Generates neighbors according to a desired value, or "input", along each dimension
+    double biasedNeighborDistribution(double T, double in, double conf);
 
 public:
-	SimAnn();
-	~SimAnn();
+    SimAnn();
 
-	//! The main interface to this class. Performs one annealing step
-	Result iterate(GraspPlanningState *currentState, SearchEnergy *energyCalculator, GraspPlanningState *targetState = NULL);
+    ~SimAnn();
 
-	void reset();
-	int getCurrentStep(){return mCurrentStep;}
-	void setParameters(AnnealingType type);
-	void writeResults(bool w);
+    //! The main interface to this class. Performs one annealing step
+    Result iterate(GraspPlanningState *currentState, SearchEnergy *energyCalculator, GraspPlanningState *targetState = NULL);
+
+    void reset();
+
+    int getCurrentStep() {
+        return mCurrentStep;
+    }
+
+    void setParameters(AnnealingType type);
+
+    void writeResults(bool w);
 };

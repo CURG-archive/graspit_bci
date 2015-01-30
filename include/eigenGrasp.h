@@ -41,7 +41,9 @@
 #define EIGENGRASP_LOOSE
 
 class Matrix;
+
 class Robot;
+
 class QTextStream;
 //! A single eigengrasp direction
 /*!	An eigengrasp holds a generalized direction of motion in \a mSize 
@@ -53,66 +55,92 @@ class QTextStream;
 	range. They only make sense when defined relative to an ORIGIN of 
 	motion!
 */
-class EigenGrasp
-{
+class EigenGrasp {
 private:
-	//! Dimension of this eigengrasp
-	int mSize;
-	//! The actual vector
-	double *mVals;
-	//! The eigenvalue corresponding to this EG. Not actually used anywhere, just here if ever needed
-	double mEigenValue;
+    //! Dimension of this eigengrasp
+    int mSize;
+    //! The actual vector
+    double *mVals;
+    //! The eigenvalue corresponding to this EG. Not actually used anywhere, just here if ever needed
+    double mEigenValue;
 
 public:
-	//! Stores the min value along this eigengrasp that is inside the legal joint range.
-	double mMin;
-	//! Stores the max value along this eigengrasp that is inside the legal joint range.
-	double mMax;
-	//! Remembers if the amplitude along this EG is fixed (no motion along this EG is allowed)
-	bool mFixed;
-	//! If this eigengrasp is fixed, this is the value that is was fixed at
-	double fixedAmplitude;
+    //! Stores the min value along this eigengrasp that is inside the legal joint range.
+    double mMin;
+    //! Stores the max value along this eigengrasp that is inside the legal joint range.
+    double mMax;
+    //! Remembers if the amplitude along this EG is fixed (no motion along this EG is allowed)
+    bool mFixed;
+    //! If this eigengrasp is fixed, this is the value that is was fixed at
+    double fixedAmplitude;
 
-	//! Initializes an empty eigengrasp of a given size
-	EigenGrasp(int size, double e=0);
-	//! Copy constructor
-	EigenGrasp(const EigenGrasp *orig);
-	~EigenGrasp();
+    //! Initializes an empty eigengrasp of a given size
+    EigenGrasp(int size, double e = 0);
 
-	int getSize() const {return mSize;}
+    //! Copy constructor
+    EigenGrasp(const EigenGrasp *orig);
 
-	//! Returns the mSize-dimensional vector itself
-	void getEigenGrasp (double *eg) const;
-	//! Sets the mSize-dimensional vector itself
-	void setEigenGrasp(const double *eg);
-	
-	//! Gets the eigenvalue associated w. this eigengrasp; not used.
-	double getEigenValue() const {return mEigenValue;}
-	//! Sets the eigenvalue associated w. this eigengrasp; not used.
-	void setEigenValue(double e){mEigenValue = e;}
+    ~EigenGrasp();
 
-	//! Sets this eigengrasp to the vector [1,...,1]
-	void setOnes(){for (int i=0; i<mSize; i++) mVals[i]=1.0;}
+    int getSize() const {
+        return mSize;
+    }
 
-	//! Returns the comonent of this eigengrasp along the i-th dimension
-	double getAxisValue(int i) const {assert(i<mSize&&i>=0); return mVals[i];}
-	//! Sets the component of this eigengrasp along the i-th dimension
-	void setAxisValue(int i, double val){assert(i<mSize&&i>=0); mVals[i]=val;}
+    //! Returns the mSize-dimensional vector itself
+    void getEigenGrasp(double *eg) const;
 
-	//! Normalizes this eigengrasp to norm 1
-	double normalize();
+    //! Sets the mSize-dimensional vector itself
+    void setEigenGrasp(const double *eg);
 
-	//! This is the main function that is used: dot the EG against another mSize-dimensional vector
-	double dot(double *d);
+    //! Gets the eigenvalue associated w. this eigengrasp; not used.
+    double getEigenValue() const {
+        return mEigenValue;
+    }
 
-	void writeToFile(FILE *fp);
-	void readFromFile(FILE *fp);
-	int readFromStream(QTextStream *stream);
+    //! Sets the eigenvalue associated w. this eigengrasp; not used.
+    void setEigenValue(double e) {
+        mEigenValue = e;
+    }
 
-	//! Tells this eigengrasp that it is fixed at the given value
-	void fix(double a){mFixed = true; fixedAmplitude = a;}
-	//! Tells this eigengrasp that it can move freely
-	void unfix(){mFixed = false;}
+    //! Sets this eigengrasp to the vector [1,...,1]
+    void setOnes() {
+        for (int i = 0; i < mSize; i++) mVals[i] = 1.0;
+    }
+
+    //! Returns the comonent of this eigengrasp along the i-th dimension
+    double getAxisValue(int i) const {
+        assert(i < mSize && i >= 0);
+        return mVals[i];
+    }
+
+    //! Sets the component of this eigengrasp along the i-th dimension
+    void setAxisValue(int i, double val) {
+        assert(i < mSize && i >= 0);
+        mVals[i] = val;
+    }
+
+    //! Normalizes this eigengrasp to norm 1
+    double normalize();
+
+    //! This is the main function that is used: dot the EG against another mSize-dimensional vector
+    double dot(double *d);
+
+    void writeToFile(FILE *fp);
+
+    void readFromFile(FILE *fp);
+
+    int readFromStream(QTextStream *stream);
+
+    //! Tells this eigengrasp that it is fixed at the given value
+    void fix(double a) {
+        mFixed = true;
+        fixedAmplitude = a;
+    }
+
+    //! Tells this eigengrasp that it can move freely
+    void unfix() {
+        mFixed = false;
+    }
 };
 
 /*!	This is the complete interface for controlling a robot in an eigengrasp
@@ -125,104 +153,131 @@ public:
 	dimensionality \a eSize. It simply defines the eigengrasp subspace and 
 	provides a linear mapping between the two.
 */
-class EigenGraspInterface
-{
+class EigenGraspInterface {
 private:
-	//! The robot that this interface refers to. Should have the right number of joints.
-	Robot *mRobot;
-	//! The dimensionality of the dof space
-	int dSize;
-	//! The dimensionality of the eigengrasp space.
-	int eSize;
+    //! The robot that this interface refers to. Should have the right number of joints.
+    Robot *mRobot;
+    //! The dimensionality of the dof space
+    int dSize;
+    //! The dimensionality of the eigengrasp space.
+    int eSize;
 
-	//! The eigengrasps themselves; the bases of the subspace
-	std::vector<EigenGrasp*> mGrasps;
-	//! The origin of the EG subspace
-	EigenGrasp *mOrigin;
+    //! The eigengrasps themselves; the bases of the subspace
+    std::vector<EigenGrasp *> mGrasps;
+    //! The origin of the EG subspace
+    EigenGrasp *mOrigin;
 
-	//! Used if each EG has been "normalized". 
-	/*! Values along each axis are first multiplied by the respective
-		value in here, then added back to the origin (mean). */
-	EigenGrasp *mNorm;
+    //! Used if each EG has been "normalized".
+    /*! Values along each axis are first multiplied by the respective
+        value in here, then added back to the origin (mean). */
+    EigenGrasp *mNorm;
 
-	//! Helper that allows us to display what file the EG's where loaded from .
-	QString mName;
+    //! Helper that allows us to display what file the EG's where loaded from .
+    QString mName;
 
-	//!Matrix that projects from dof space to eigen space
-	Matrix *mP;
-	//!Matrix that projects from eigen space to dof space
-	Matrix *mPInv;
+    //!Matrix that projects from dof space to eigen space
+    Matrix *mP;
+    //!Matrix that projects from eigen space to dof space
+    Matrix *mPInv;
 
-	//! Shows if motion of the robot is RIGID 
-	/*! In rigid motion, only configuration that are strictly inside the
-		EG subspace are allowed. Otherwise, any configuration is allowed. 
-		This is relevant when getAmp(...) and getDOF(...) are used. */
-	mutable bool mRigid;
+    //! Shows if motion of the robot is RIGID
+    /*! In rigid motion, only configuration that are strictly inside the
+        EG subspace are allowed. Otherwise, any configuration is allowed.
+        This is relevant when getAmp(...) and getDOF(...) are used. */
+    mutable bool mRigid;
 
-	void clear();
+    void clear();
 
-	//! Builds the projection matrices based on eigengrasp definitions.
-	void computeProjectionMatrices();
+    //! Builds the projection matrices based on eigengrasp definitions.
+    void computeProjectionMatrices();
 
-	//! Goes from EG space to DOF space
-	void toDOFSpace(const double *amp, double *dof, const double *origin) const;
-	//! Goes from DOF space to EG space
-	void toEigenSpace(double *amp, const double *dof, const double *origin) const;
+    //! Goes from EG space to DOF space
+    void toDOFSpace(const double *amp, double *dof, const double *origin) const;
+
+    //! Goes from DOF space to EG space
+    void toEigenSpace(double *amp, const double *dof, const double *origin) const;
+
 public:
-	EigenGraspInterface(Robot *r);
-	EigenGraspInterface(const EigenGraspInterface *orig);
-	~EigenGraspInterface();
+    EigenGraspInterface(Robot *r);
 
-	//! Returns the g-th eigengrasp
-	const EigenGrasp* getGrasp(int g){return mGrasps[g];}
-	//! Returns the size of the eigengrasp space (the number of eigengrasps)
-	int getSize() const {return (int)mGrasps.size();}
+    EigenGraspInterface(const EigenGraspInterface *orig);
 
-	//! Returns whether the interface is rigid.
-	bool isRigid() const {return mRigid;}
-	//! Sets the interface to rigid mode or non-rigis mode
-	/*! In rigid motion, only configuration that are strictly inside the
-		EG subspace are allowed. Otherwise, any configuration is allowed. 
-		This is relevant when getAmp(...) and getDOF(...) are used. */
-	void setRigid(bool r) const {mRigid = r;}
+    ~EigenGraspInterface();
 
-	//! Saves all the eigengrasps that define the subspace to a file, then also writes the origin
-	int writeToFile(const char *filename);
-	//! Loads all the eigengrasps, as well as the origin, from a file
-	int readFromFile(QString filename);
-	//! The trivial set of EG's is the identity set, where the EG (sub)space is identical to the dof space
-	int setTrivial();
+    //! Returns the g-th eigengrasp
+    const EigenGrasp *getGrasp(int g) {
+        return mGrasps[g];
+    }
 
-	//! Sets the name of this space; used used to show what file these eigengrasps were loaded from
-	void setName(QString n){mName = n;}
-	//! Gets the name of this space; used only for gui and debug purposes
-	const QString getName() const {return mName;}
+    //! Returns the size of the eigengrasp space (the number of eigengrasps)
+    int getSize() const {
+        return (int) mGrasps.size();
+    }
 
-	//! Sets the origin of the eigengrasp space, as a point in the dof space
-	void setOrigin(const double *dof);
-	//! Sets the origin of eigengrasp space as the point halfway between each dof's range
-	void setSimpleOrigin();
+    //! Returns whether the interface is rigid.
+    bool isRigid() const {
+        return mRigid;
+    }
+    //! Sets the interface to rigid mode or non-rigis mode
+    /*! In rigid motion, only configuration that are strictly inside the
+        EG subspace are allowed. Otherwise, any configuration is allowed.
+        This is relevant when getAmp(...) and getDOF(...) are used. */
+    void setRigid(bool r) const {
+        mRigid = r;
+    }
 
-	//! Re-computes the min and max allowable amplitudes along each EG direction. 
-	void setMinMax();
-	//! Checks if the origin of the eigengrasp space is inside the legal range of the dofs
-	void checkOrigin();
+    //! Saves all the eigengrasps that define the subspace to a file, then also writes the origin
+    int writeToFile(const char *filename);
 
-	//! Sets one of the eigengrasps as "fixed", meaning no movement is allowed along it
-	/*! This is relevant when a point in dof space has to be projected in eigengrasp
-		space and then back to dof space; if a certain eigengrasp is fixed, the projection
-		is forced to assume the fixed value for that eigengrasp.
-	*/
-	void fixEigenGrasp(int i, double fa){mGrasps[i]->fix(fa);}
-	//! Removes the "fixed" tag from an eigengrasp, allowing free movement
-	void unfixEigenGrasp(int i){mGrasps[i]->unfix();}
+    //! Loads all the eigengrasps, as well as the origin, from a file
+    int readFromFile(QString filename);
 
-	// These are the main functions that interface the EG:
+    //! The trivial set of EG's is the identity set, where the EG (sub)space is identical to the dof space
+    int setTrivial();
 
-	//! Converts a set of eigengrasp amplitudes into dof values
-	void getDOF (const double *amp, double *dof) const;
-	//! Converts a set of dof values to eigengrasp amplitudes
-	void getAmp(double *amp, const double *dof) const;
+    //! Sets the name of this space; used used to show what file these eigengrasps were loaded from
+    void setName(QString n) {
+        mName = n;
+    }
+
+    //! Gets the name of this space; used only for gui and debug purposes
+    const QString getName() const {
+        return mName;
+    }
+
+    //! Sets the origin of the eigengrasp space, as a point in the dof space
+    void setOrigin(const double *dof);
+
+    //! Sets the origin of eigengrasp space as the point halfway between each dof's range
+    void setSimpleOrigin();
+
+    //! Re-computes the min and max allowable amplitudes along each EG direction.
+    void setMinMax();
+
+    //! Checks if the origin of the eigengrasp space is inside the legal range of the dofs
+    void checkOrigin();
+
+    //! Sets one of the eigengrasps as "fixed", meaning no movement is allowed along it
+    /*! This is relevant when a point in dof space has to be projected in eigengrasp
+        space and then back to dof space; if a certain eigengrasp is fixed, the projection
+        is forced to assume the fixed value for that eigengrasp.
+    */
+    void fixEigenGrasp(int i, double fa) {
+        mGrasps[i]->fix(fa);
+    }
+
+    //! Removes the "fixed" tag from an eigengrasp, allowing free movement
+    void unfixEigenGrasp(int i) {
+        mGrasps[i]->unfix();
+    }
+
+    // These are the main functions that interface the EG:
+
+    //! Converts a set of eigengrasp amplitudes into dof values
+    void getDOF(const double *amp, double *dof) const;
+
+    //! Converts a set of dof values to eigengrasp amplitudes
+    void getAmp(double *amp, const double *dof) const;
 };
 
 #endif

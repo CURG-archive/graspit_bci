@@ -197,7 +197,7 @@ void writePoseListToFile(std::list<CalibrationPose *> *list, const char *filenam
         fprintf(stderr, "Unable to open calibration file!\n");
         return;
     }
-    fprintf(fp, "%d\n", list->size());
+    fprintf(fp, "%ld\n", list->size());
     std::list<CalibrationPose *>::iterator it;
     for (it = list->begin(); it != list->end(); it++) {
         (*it)->writeToFile(fp);

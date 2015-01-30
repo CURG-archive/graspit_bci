@@ -48,10 +48,15 @@
 #include "robot.h"
 
 class SoSeparator;
+
 class SoSphere;
+
 class SoCylinder;
+
 class SoTransform;
+
 class SoDrawStyle;
+
 class Tendon;
 
 /*! An insertion point is a point where a tendon inserts into, or
@@ -64,182 +69,259 @@ class Tendon;
 */
 class TendonInsertionPoint {
 private:
-	//! This tells wether the insertion point is permanent, or dynamic
-	/*! Dynamic insertion points are those created when a tendon wraps 
-		around a wrapper.*/
-	bool permanent;
+    //! This tells wether the insertion point is permanent, or dynamic
+    /*! Dynamic insertion points are those created when a tendon wraps
+        around a wrapper.*/
+    bool permanent;
 
-	//! Robot chain nnumber that tendon is attached to
-	/*! -1 means insertion point is on the base of the robot*/
-	int attachChainNr;
-	//! Link number for the link that the insertion point is on
-	int attachLinkNr;
+    //! Robot chain nnumber that tendon is attached to
+    /*! -1 means insertion point is on the base of the robot*/
+    int attachChainNr;
+    //! Link number for the link that the insertion point is on
+    int attachLinkNr;
 
-	SoSeparator *IVInsertion;
-	SoMaterial *IVInsertionMaterial;
-	SoTransform *IVInsertionTran;
-	SoSphere *IVInsertionGeom;
+    SoSeparator *IVInsertion;
+    SoMaterial *IVInsertionMaterial;
+    SoTransform *IVInsertionTran;
+    SoSphere *IVInsertionGeom;
 
-	SoSeparator *IVConnector;
-	SoMaterial *IVConnectorMaterial;
-	SoTransform *IVConnectorTran;
-	SoCylinder *IVConnectorGeom;
+    SoSeparator *IVConnector;
+    SoMaterial *IVConnectorMaterial;
+    SoTransform *IVConnectorTran;
+    SoCylinder *IVConnectorGeom;
 
-	Tendon* owner;
+    Tendon *owner;
 public:
 
-	//! The location of the insertion point, in link coordinates.
-	vec3 attachPoint;
-	//! The force applied by the tendon at this insertion point, in world coordinates.
-	vec3 insertionForce;
+    //! The location of the insertion point, in link coordinates.
+    vec3 attachPoint;
+    //! The force applied by the tendon at this insertion point, in world coordinates.
+    vec3 insertionForce;
 
-	TendonInsertionPoint(Tendon* myOwner,int chain,int link,vec3 point,bool isPerm=true);
+    TendonInsertionPoint(Tendon *myOwner, int chain, int link, vec3 point, bool isPerm = true);
 
-	void createInsertionGeometry();
-	void createConnectorGeometry();
-	void removeAllGeometry();
-	Tendon* getTendon(){return owner;}
-	void setPermanent(bool p){permanent=p;}
-	bool isPermanent(){return permanent;}
-	SbVec3f getWorldPosition();
+    void createInsertionGeometry();
 
-	//! Use this function to get the link the insertion point is attached to.
-	/*! Handles the case where tendon is attached to base correctly*/
-	Link *getAttachedLink();
+    void createConnectorGeometry();
 
-	SoSeparator* getIVInsertion(){return IVInsertion;}
-	SoSphere* getIVInsertionGeom(){return IVInsertionGeom;}
-	SoMaterial* getIVInsertionMaterial(){return IVInsertionMaterial;}
+    void removeAllGeometry();
 
-	SoSeparator* getIVConnector(){return IVConnector;}
-	SoMaterial* getIVConnectorMaterial(){return IVConnectorMaterial;}
-	SoTransform* getIVConnectorTran(){return IVConnectorTran;}
-	SoCylinder* getIVConnectorGeom(){return IVConnectorGeom;}
+    Tendon *getTendon() {
+        return owner;
+    }
+
+    void setPermanent(bool p) {
+        permanent = p;
+    }
+
+    bool isPermanent() {
+        return permanent;
+    }
+
+    SbVec3f getWorldPosition();
+
+    //! Use this function to get the link the insertion point is attached to.
+    /*! Handles the case where tendon is attached to base correctly*/
+    Link *getAttachedLink();
+
+    SoSeparator *getIVInsertion() {
+        return IVInsertion;
+    }
+
+    SoSphere *getIVInsertionGeom() {
+        return IVInsertionGeom;
+    }
+
+    SoMaterial *getIVInsertionMaterial() {
+        return IVInsertionMaterial;
+    }
+
+    SoSeparator *getIVConnector() {
+        return IVConnector;
+    }
+
+    SoMaterial *getIVConnectorMaterial() {
+        return IVConnectorMaterial;
+    }
+
+    SoTransform *getIVConnectorTran() {
+        return IVConnectorTran;
+    }
+
+    SoCylinder *getIVConnectorGeom() {
+        return IVConnectorGeom;
+    }
 };
 
 /*! The TendonWrapper is a cylindrical shape that a tendon is not alowed 
 	to penetrate and must wrap around. Like an insertion point, it is 
 	attached to a robot link, and defined in the link's coordinate system.
 */
-class TendonWrapper{
+class TendonWrapper {
 private:
-	int attachLinkNr;
-	int attachChainNr;
-	Robot *owner;
+    int attachLinkNr;
+    int attachChainNr;
+    Robot *owner;
 
-	SoSeparator *IVWrapper;
-	SoMaterial *IVWrapperMaterial;
-	SoTransform *IVWrapperTran;
-	SoCylinder *IVWrapperGeom;
+    SoSeparator *IVWrapper;
+    SoMaterial *IVWrapperMaterial;
+    SoTransform *IVWrapperTran;
+    SoCylinder *IVWrapperGeom;
 
 public:
-	vec3 location,orientation;
-	double radius;
+    vec3 location, orientation;
+    double radius;
 
-	TendonWrapper(Robot* myOwner, int chain, int link, vec3 loc, vec3 ort, double r);
-	Link* getAttachedLink();
-	Robot* getRobot(){return owner;}
+    TendonWrapper(Robot *myOwner, int chain, int link, vec3 loc, vec3 ort, double r);
 
-	void createGeometry();
-	SoSeparator* getIVRoot(){return IVWrapper;}
-	int getChainNr(){return attachChainNr;}
-	int getLinkNr(){return attachLinkNr;}
+    Link *getAttachedLink();
+
+    Robot *getRobot() {
+        return owner;
+    }
+
+    void createGeometry();
+
+    SoSeparator *getIVRoot() {
+        return IVWrapper;
+    }
+
+    int getChainNr() {
+        return attachChainNr;
+    }
+
+    int getLinkNr() {
+        return attachLinkNr;
+    }
 };
 
 //! Defines a tendon geometry by listing its insertion points
-class Tendon{
+class Tendon {
 private:
-	Robot* owner;
-	SoSeparator *IVRoot;
+    Robot *owner;
+    SoSeparator *IVRoot;
 
-	//! Used to toggle wether the tendon is visible or not; is inserted as first child of the root.
-	SoDrawStyle* IVVisibleToggle;
+    //! Used to toggle wether the tendon is visible or not; is inserted as first child of the root.
+    SoDrawStyle *IVVisibleToggle;
 
-	//! Force applied as a result of voluntary muscle contraction
-	float activeForce;
+    //! Force applied as a result of voluntary muscle contraction
+    float activeForce;
 
-	//! Force applied as a result of tendon / muscle elongation
-	float passiveForce;
+    //! Force applied as a result of tendon / muscle elongation
+    float passiveForce;
 
-	//! Used to flip passive force application on or off
-	bool applyPassiveForce;
+    //! Used to flip passive force application on or off
+    bool applyPassiveForce;
 
-	//! The list of insertion points that defines the geometry of the tendon
-	/*! This has to be a list because we create ins points dynamically when 
-		wrapping around wrappers. */
-	std::list<TendonInsertionPoint *> insPointList;
+    //! The list of insertion points that defines the geometry of the tendon
+    /*! This has to be a list because we create ins points dynamically when
+        wrapping around wrappers. */
+    std::list<TendonInsertionPoint *> insPointList;
 
-	QString tendonName;
-	bool visible;
-	bool selected;
+    QString tendonName;
+    bool visible;
+    bool selected;
 
-	//! The length of the tendon at the resting position
-	float restLength;
+    //! The length of the tendon at the resting position
+    float restLength;
 
-	//! The current length of the tendon
-	float currentLength;
+    //! The current length of the tendon
+    float currentLength;
 
 public:
-	int nrInsPoints;
+    int nrInsPoints;
 
-	Tendon(Robot* myOwner);
-	Robot *getRobot(){return owner;}
-	SoSeparator* getIVRoot(){return IVRoot;}
+    Tendon(Robot *myOwner);
 
-	//! Adds an insertion point at the end of the insPointList
-	void addInsertionPoint(int chain,int link,vec3 point, bool isPerm);
+    Robot *getRobot() {
+        return owner;
+    }
 
-	//! Inserts an insertion point at a given position in insPointList
-	std::list<TendonInsertionPoint*>::iterator 
-		insertInsertionPoint(std::list<TendonInsertionPoint*>::iterator itPos, 
-							 int chain, int link, vec3 point, bool isPerm);
+    SoSeparator *getIVRoot() {
+        return IVRoot;
+    }
 
-	//! Removes the insertion point pointed to by the given iterator
-	void removeInsertionPoint(std::list<TendonInsertionPoint*>::iterator itPos);
+    //! Adds an insertion point at the end of the insPointList
+    void addInsertionPoint(int chain, int link, vec3 point, bool isPerm);
 
-	//! Updates connector geometry based on movement of links that tendon inserts into
-	void updateGeometry();
+    //! Inserts an insertion point at a given position in insPointList
+    std::list<TendonInsertionPoint *>::iterator
+            insertInsertionPoint(std::list<TendonInsertionPoint *>::iterator itPos,
+            int chain, int link, vec3 point, bool isPerm);
 
-	//! Updates insertion point forces based on movement of links that tendon inserts into
-	void updateInsertionForces();
+    //! Removes the insertion point pointed to by the given iterator
+    void removeInsertionPoint(std::list<TendonInsertionPoint *>::iterator itPos);
 
-	//! Computes a naive version of passive forces based on tendon excursion; more of a placeholder.
-	void computeSimplePassiveForces();
+    //! Updates connector geometry based on movement of links that tendon inserts into
+    void updateGeometry();
 
-	//! Checks if tendon intersect a wrapper and adds insertion points around the wrapper if needed
-	void checkWrapperIntersections();
+    //! Updates insertion point forces based on movement of links that tendon inserts into
+    void updateInsertionForces();
 
-	//! Removes wrapper intersections if they are no longer needed
-	void removeWrapperIntersections();
+    //! Computes a naive version of passive forces based on tendon excursion; more of a placeholder.
+    void computeSimplePassiveForces();
 
-	void select();
-	void deselect();
-	bool isSelected(){return selected;}
+    //! Checks if tendon intersect a wrapper and adds insertion points around the wrapper if needed
+    void checkWrapperIntersections();
 
-	void setActiveForce(float f);
-	void setPassiveForce(float f);
-	float getActiveForce(){return activeForce;}
-	float getPassiveForce(){return passiveForce;}
-	float getTotalForce(){if (applyPassiveForce) return activeForce+passiveForce; else return activeForce;}
+    //! Removes wrapper intersections if they are no longer needed
+    void removeWrapperIntersections();
 
-	void setName(QString name){tendonName=name;}
-	QString getName(){return tendonName;}
+    void select();
 
-	void setVisible(bool v);
-	bool isVisible(){return visible;}
+    void deselect();
 
-	//! Applies previously computed forces at links that have insertion points. 
-	/*! Forces MUST have been updated by updateGeometry() and updateInsertionForces()*/
-	void applyForces();
-	void setApplyPassiveForce(bool b){applyPassiveForce=b;}
+    bool isSelected() {
+        return selected;
+    }
 
-	/*sets the current state of the tendon as rest state*/
-	void setRestPosition();
+    void setActiveForce(float f);
 
-	//! Returns the excursion of the end of the tendon compared to its rest position.
-	/*! For the moment we consider that tendon elongation is actually 
-		excursion, as if the origin was free to move. */
-	float getExcursion(){return currentLength - restLength;}
+    void setPassiveForce(float f);
+
+    float getActiveForce() {
+        return activeForce;
+    }
+
+    float getPassiveForce() {
+        return passiveForce;
+    }
+
+    float getTotalForce() {
+        if (applyPassiveForce) return activeForce + passiveForce; else return activeForce;
+    }
+
+    void setName(QString name) {
+        tendonName = name;
+    }
+
+    QString getName() {
+        return tendonName;
+    }
+
+    void setVisible(bool v);
+
+    bool isVisible() {
+        return visible;
+    }
+
+    //! Applies previously computed forces at links that have insertion points.
+    /*! Forces MUST have been updated by updateGeometry() and updateInsertionForces()*/
+    void applyForces();
+
+    void setApplyPassiveForce(bool b) {
+        applyPassiveForce = b;
+    }
+
+    /*sets the current state of the tendon as rest state*/
+    void setRestPosition();
+
+    //! Returns the excursion of the end of the tendon compared to its rest position.
+    /*! For the moment we consider that tendon elongation is actually
+        excursion, as if the origin was free to move. */
+    float getExcursion() {
+        return currentLength - restLength;
+    }
 };
 
 //! A hand with tendon information
@@ -250,25 +332,47 @@ public:
 	might gain more features.
 */
 class HumanHand : public Hand {
-	Q_OBJECT
+Q_OBJECT
+
 private:
-	std::vector<Tendon *> tendonVec;
-	std::vector<TendonWrapper *> tendonWrapperVec;
-	//! Applies dynamic tendon forces, to be called during an interation of the dynamic engine
-	void applyTendonForces();
+    std::vector<Tendon *> tendonVec;
+    std::vector<TendonWrapper *> tendonWrapperVec;
+
+    //! Applies dynamic tendon forces, to be called during an interation of the dynamic engine
+    void applyTendonForces();
+
 public:
-	HumanHand(World*,const char*);
-	int nrTendons;
-	int nrTendonWrappers;
-	virtual int loadFromXml(const TiXmlElement* root,QString rootPath);
-	void updateTendonGeometry();
-	int getNumTendons(){return nrTendons;}
-	Tendon* getTendon(int i){return tendonVec[i];}
-	TendonWrapper* getTendonWrapper(int i){return tendonWrapperVec[i];}
-	void selectTendon(int i){tendonVec[i]->select();}
-	void deselectTendon(int i){tendonVec[i]->deselect();}
-	//! Applies tendon forces rather than calling the PD Controller
-	virtual void DOFController(double timeStep);
+    HumanHand(World *, const char *);
+
+    int nrTendons;
+    int nrTendonWrappers;
+
+    virtual int loadFromXml(const TiXmlElement *root, QString rootPath);
+
+    void updateTendonGeometry();
+
+    int getNumTendons() {
+        return nrTendons;
+    }
+
+    Tendon *getTendon(int i) {
+        return tendonVec[i];
+    }
+
+    TendonWrapper *getTendonWrapper(int i) {
+        return tendonWrapperVec[i];
+    }
+
+    void selectTendon(int i) {
+        tendonVec[i]->select();
+    }
+
+    void deselectTendon(int i) {
+        tendonVec[i]->deselect();
+    }
+
+    //! Applies tendon forces rather than calling the PD Controller
+    virtual void DOFController(double timeStep);
 };
 
 #endif

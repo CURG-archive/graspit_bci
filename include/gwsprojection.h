@@ -28,12 +28,19 @@
  */
 
 #include <set>
+
 class SoQtRenderArea;
+
 class SoQtExaminerViewer;
+
 class SoCoordinate3;
+
 class SoIndexedFaceSet;
+
 class SoSeparator;
+
 class QWidget;
+
 class GWS;
 
 //! Produces an Inventor window with a 3-D projection of a GWS.  
@@ -44,52 +51,60 @@ class GWS;
   hull boundary is sent back to this class, where it is used to create
   an indexed face set.  This geometry, along with axes is then viewable
   in the new window. 
-*/ 
+*/
 class GWSprojection {
 
-  //! A pointer to the GWS that this projection comes from
-  GWS *gws;
+    //! A pointer to the GWS that this projection comes from
+    GWS *gws;
 
-  //! Coordinate of the projection (only 3 values are used)
-  double projCoords[6];
+    //! Coordinate of the projection (only 3 values are used)
+    double projCoords[6];
 
-  //! A set of 3 indices that are fixed (3 coordinates)
-  std::set<int> fixedCoordIndex;
+    //! A set of 3 indices that are fixed (3 coordinates)
+    std::set<int> fixedCoordIndex;
 
-  //! A pointer to the QT widget holding the projection window.
-  QWidget *projWin;
+    //! A pointer to the QT widget holding the projection window.
+    QWidget *projWin;
 
-  //! A pointer to the viewer for this window
-  SoQtRenderArea *projectionViewer;
+    //! A pointer to the viewer for this window
+    SoQtRenderArea *projectionViewer;
 
-  //! Root of the convex hull geometry
-  SoSeparator *hullSep;
+    //! Root of the convex hull geometry
+    SoSeparator *hullSep;
 
-  //! 3D hull vertices
-  SoCoordinate3 *hullCoords;
+    //! 3D hull vertices
+    SoCoordinate3 *hullCoords;
 
-  //! Inventor geometry node for the hull
-  SoIndexedFaceSet *hullIFS;
+    //! Inventor geometry node for the hull
+    SoIndexedFaceSet *hullIFS;
 
-  //! Inventor node for the projection
-  SoSeparator *sg;
+    //! Inventor node for the projection
+    SoSeparator *sg;
 
-  void setWinTitle();
+    void setWinTitle();
 
 public:
 
-  GWSprojection(SoQtExaminerViewer* mainViewer,GWS *g,double *c, std::set<int> whichFixed);
-  ~GWSprojection();
+    GWSprojection(SoQtExaminerViewer *mainViewer, GWS *g, double *c, std::set<int> whichFixed);
 
-  /*! Returns a pointer to the main QT widget for the projection window. */
-  QWidget *getProjWin() const {return projWin;}
+    ~GWSprojection();
 
-  /*! Returns a pointer to the gws. */
-  GWS *getGWS() const {return gws;}
+    /*! Returns a pointer to the main QT widget for the projection window. */
+    QWidget *getProjWin() const {
+        return projWin;
+    }
 
-  /*! Returns a pointer to the root of the GWS*/
-  SoSeparator * getGWSRoot() { return sg; }
+    /*! Returns a pointer to the gws. */
+    GWS *getGWS() const {
+        return gws;
+    }
 
-  void update();
-  void deleteHull();
+    /*! Returns a pointer to the root of the GWS*/
+    SoSeparator *getGWSRoot() {
+        return sg;
+    }
+
+    void update();
+
+    void deleteHull();
 };

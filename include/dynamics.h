@@ -32,26 +32,28 @@
  */
 
 class DynamicBody;
+
 class Contact;
+
 class Robot;
 
 //original GraspIt: 0.2
 #define ERP 0.05
 
 typedef struct StructDynamicParameters {
-	double timeStep;
-	bool useContactEps;
-	double gravityMultiplier;
+    double timeStep;
+    bool useContactEps;
+    double gravityMultiplier;
 } DynamicParameters;
 
 //! Moves all dynamic bodies for one time step
 int
-moveBodies(int numBodies,std::vector<DynamicBody *> bodyVec,double h);
+        moveBodies(int numBodies, std::vector<DynamicBody *> bodyVec, double h);
 
 //! Computes the new velocites of all bodies, based on contact and joint constraints
 int
-iterateDynamics(std::vector<Robot *> robotVec,
-		std::vector<DynamicBody *> bodyVec,
-		DynamicParameters *dp);
+        iterateDynamics(std::vector < Robot * > robotVec,
+        std::vector < DynamicBody * > bodyVec,
+        DynamicParameters * dp);
 
 

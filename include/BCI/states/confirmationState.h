@@ -5,21 +5,27 @@
 #include "BCI/bciControlWindow.h"
 #include "BCI/state.h"
 #include "BCI/state_views/confirmationView.h"
-class ConfirmationState:public State
-{
-    Q_OBJECT
+
+class ConfirmationState : public State {
+Q_OBJECT
 
 public:
-    ConfirmationState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
+    ConfirmationState(BCIControlWindow *_bciControlWindow, QState *parent = 0);
 
-     virtual void onEntry(QEvent *e);
-     virtual void onExit(QEvent *e);
-    GraspPlanningState * sentChoice;
-    void respondOptionChoice(unsigned int option, float confidence, std::vector<float> & interestLevel);
+    virtual void onEntry(QEvent *e);
+
+    virtual void onExit(QEvent *e);
+
+    GraspPlanningState *sentChoice;
+
+    void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+
 public slots:
-    void onNextGrasp(QEvent *e=NULL);
+
+    void onNextGrasp(QEvent *e = NULL);
+
 private:
-    ConfirmationView* confirmationView;
+    ConfirmationView *confirmationView;
     BCIControlWindow *bciControlWindow;
 
 protected:

@@ -34,9 +34,9 @@
 class Body;
 
 //! Adds a new pair of contacts between two bodies
-void addContacts(Body *body1, Body *body2, ContactReport &contactSet, 
-				 bool softContactsOn = false );
+void addContacts(Body *body1, Body *body2, ContactReport &contactSet,
+        bool softContactsOn = false);
 
 //! Adds a virtual contact on a body pointing at another body
-void addVirtualContacts(Body *body1, int f, int l, Body *body2, 
-						ContactReport &contactSet, bool softContactsOn );
+void addVirtualContacts(Body *body1, int f, int l, Body *body2,
+        ContactReport &contactSet, bool softContactsOn);
