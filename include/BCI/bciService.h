@@ -114,9 +114,9 @@ public:
             QObject *callbackReceiver,
             const char *slot);
 
-    bool sendOptionChoices(std::vector<QImage *> &images,
-            std::vector<QString> &optionDescriptions,
-            std::vector<float> &imageCosts, float minimumConfidence);
+    bool sendOptionChoices(std::vector<QImage *> images,
+            std::vector<QString> optionDescriptions,
+            std::vector<float> imageCosts, float minimumConfidence);
 
     static BCIService *getInstance();
 
@@ -185,7 +185,7 @@ signals:
     void analyzeApproachDir(GraspPlanningState *gps);
 
     void optionChoice(unsigned int option, float confidence,
-            std::vector<float> &interestLevel);
+            std::vector<float> interestLevel);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);

@@ -114,7 +114,7 @@ void GraspSelectionState::onRotateHandLong() {
 
 
 //!*******************************************
-//! Option Choice Paradigm related functions *   
+//! Option Choice Paradigm related functions *
 //!*******************************************
 
 
@@ -173,7 +173,7 @@ void GraspSelectionState::generateImageOptions(bool debug) {
 
 }
 
-void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
+void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
     const GraspPlanningState *currentGrasp = NULL;
     if (option == 0) {
         //Go back to object selection state.

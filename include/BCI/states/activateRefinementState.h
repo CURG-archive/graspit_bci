@@ -27,7 +27,7 @@ public slots:
 
     void setTimerRunning();
 
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel);
 
 protected:
     ActiveRefinementView *activeRefinementView;

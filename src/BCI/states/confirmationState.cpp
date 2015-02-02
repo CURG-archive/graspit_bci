@@ -75,7 +75,7 @@ void ConfirmationState::generateImageOptions(bool debug) {
 }
 
 void
-ConfirmationState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
+ConfirmationState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
     //if (!sentChoice)
     //    return;
     DBGA("ConfirmationSTate::respondOptionChoice - Entered");

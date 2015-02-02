@@ -141,14 +141,14 @@ bool BCIService::executeGrasp(const GraspPlanningState *gps,
     return rosServer->executeGrasp(gps, callbackReceiver, slot);
 }
 
-bool BCIService::sendOptionChoices(std::vector<QImage *> &images,
-        std::vector<QString> &optionDescriptions, std::vector<float> &imageCosts,
+bool BCIService::sendOptionChoices(std::vector<QImage *> images,
+        std::vector<QString> optionDescriptions, std::vector<float> imageCosts,
         float minimumConfidence) {
     if (!rosServer) {
         DBGA("invalid ros server");
         return false;
     }
-    //return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
+    return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
 }
 
 void BCIService::emitOptionChoice(unsigned int option, float confidence,

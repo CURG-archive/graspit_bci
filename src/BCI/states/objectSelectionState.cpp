@@ -143,11 +143,14 @@ void ObjectSelectionState::generateImageOptions(bool debug) {
 
 void ObjectSelectionState::respondOptionChoice(unsigned int option,
         float confidence,
-        std::vector<float> &interestLevel) {
+        std::vector<float> interestLevel) {
+
+    DBGA("option: " << option);
 
     // Test for rerun command
     if (option == 0) {
         this->onRunVision(NULL);
+        return;
     }
     // If it isn't a rerun command, it is an object index, offset by one since the rerun command is inserted first.
     unsigned int objectID = option - 1;
