@@ -114,11 +114,13 @@ void State::sendOptionChoice() {
     if (imageOptions.size() != imageCosts.size())
         DBGA("imageOptions size != imageCosts size");
 
+    DBGA("imageOptions size" << imageOptions.size() << " " << imageDescriptions.size());
+
     BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
 }
 
 
-void State::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
+void State::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
     DBGA("Choice Recieved: " << option << " " << confidence);
 }
 
@@ -139,18 +141,18 @@ void State::setImageText(QImage *image, QString &text,
 
 void State::connectOptionChoice() {
     connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned
-            int, float, std::vector<float> & )),
+            int, float, std::vector<float> )),
             this, SLOT(respondOptionChoice(unsigned
-            int, float, std::vector<float> &)));
+            int, float, std::vector<float> )));
 
 }
 
 void State::disconnectOptionChoice() {
     DBGA("Disconnected option choice");
     disconnect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned
-            int, float, std::vector<float> & )),
+            int, float, std::vector<float> )),
             this, SLOT(respondOptionChoice(unsigned
-            int, float, std::vector<float> &)));
+            int, float, std::vector<float> )));
 
 }
 

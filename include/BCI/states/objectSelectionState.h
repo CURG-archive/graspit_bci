@@ -38,7 +38,7 @@ public slots:
 
     void onVisionFinished();
 
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel);
 
 protected:
     virtual void generateImageOptions(bool debug);
