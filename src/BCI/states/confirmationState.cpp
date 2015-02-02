@@ -76,9 +76,9 @@ void ConfirmationState::generateImageOptions(bool debug) {
 
 void
 ConfirmationState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
-    if (!sentChoice)
-        return;
-
+    //if (!sentChoice)
+    //    return;
+    DBGA("ConfirmationSTate::respondOptionChoice - Entered");
     switch (option) {
         case 0: {
             BCIService::getInstance()->emitNext();
