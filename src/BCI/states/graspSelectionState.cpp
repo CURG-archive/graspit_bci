@@ -206,9 +206,12 @@ void GraspSelectionState::respondOptionChoice(unsigned int option, float confide
             onNext();
 
         }
-        //Go to grasp refinement state
+        //Go to grasp refinement state or exec state -- FIXME this is an ugly ugly hack.
         DBGA("Found Current Grasp");
-        BCIService::getInstance()->emitNext();
+        if(stateName.contains(QString("Final")))
+            BCIService::getInstance()->emitExec();
+        else
+            BCIService::getInstance()->emitNext();
     }
 
 }
