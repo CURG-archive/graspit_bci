@@ -121,17 +121,31 @@ SimAnnPlanner::mainLoop()
 
 	//put result in list if there's room or it's better than the worst solution so far
 	double worstEnergy;
-	if ((int)mBestList.size() < BEST_LIST_SIZE) worstEnergy = 1.0e5;
-	else worstEnergy = mBestList.back()->getEnergy();
-	if (result == SimAnn::JUMP && mCurrentState->getEnergy() < worstEnergy) {
+    if ((int)mBestList.size() < BEST_LIST_SIZE)
+    {
+        worstEnergy = 1.0e5;
+    }
+    else
+    {
+        worstEnergy = mBestList.back()->getEnergy();
+    }
+
+    if (result == SimAnn::JUMP && mCurrentState->getEnergy() < worstEnergy)
+    {
 		GraspPlanningState *insertState = new GraspPlanningState(mCurrentState);
 		//but check if a similar solution is already in there
-		if (!addToListOfUniqueSolutions(insertState,&mBestList,5)) {
+        if (!addToListOfUniqueSolutions(insertState,&mBestList,5))
+        {
 			delete insertState;
-		} else {
+        }
+        else
+        {
 			if (mBestList.size() > 0)
-        mBestList.sort(GraspPlanningState::compareStates);
-			while ((int)mBestList.size() > BEST_LIST_SIZE) {
+            {
+                mBestList.sort(GraspPlanningState::compareStates);
+            }
+            while ((int)mBestList.size() > BEST_LIST_SIZE)
+            {
 				delete(mBestList.back());
 				mBestList.pop_back();
 			}

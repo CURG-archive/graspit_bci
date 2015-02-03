@@ -503,7 +503,7 @@
   <action name="fileNewAction">
    <property name="icon">
     <iconset>
-     <normaloff>filenew.xpm</normaloff>filenew.xpm</iconset>
+     <normaloff>src/images/filenew.xpm</normaloff>src/images/filenew.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -521,7 +521,7 @@
   <action name="fileOpenAction">
    <property name="icon">
     <iconset>
-     <normaloff>fileopen.xpm</normaloff>fileopen.xpm</iconset>
+     <normaloff>src/images/fileopen.xpm</normaloff>src/images/fileopen.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -539,7 +539,7 @@
   <action name="fileSaveAction">
    <property name="icon">
     <iconset>
-     <normaloff>filesave.xpm</normaloff>filesave.xpm</iconset>
+     <normaloff>src/images/filesave.xpm</normaloff>src/images/filesave.xpm</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -743,7 +743,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>play.xpm</normaloff>play.xpm</iconset>
+     <normaloff>src/images/play.xpm</normaloff>src/images/play.xpm</iconset>
    </property>
    <property name="text">
     <string>Start Simulation</string>
@@ -758,7 +758,7 @@
   <action name="dynamicsPopAction">
    <property name="icon">
     <iconset>
-     <normaloff>prevMark.xpm</normaloff>prevMark.xpm</iconset>
+     <normaloff>src/images/prevMark.xpm</normaloff>src/images/prevMark.xpm</iconset>
    </property>
    <property name="text">
     <string>Pop State</string>
@@ -773,7 +773,7 @@
   <action name="dynamicsPushAction">
    <property name="icon">
     <iconset>
-     <normaloff>mark.xpm</normaloff>mark.xpm</iconset>
+     <normaloff>src/images/mark.xpm</normaloff>src/images/mark.xpm</iconset>
    </property>
    <property name="text">
     <string>Push State</string>
@@ -791,7 +791,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>collide.xpm</normaloff>collide.xpm</iconset>
+     <normaloff>src/images/collide.xpm</normaloff>src/images/collide.xpm</iconset>
    </property>
    <property name="text">
     <string>Collisions ON</string>
@@ -1016,7 +1016,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>selectTool.xpm</normaloff>selectTool.xpm</iconset>
+     <normaloff>src/images/selectTool.xpm</normaloff>src/images/selectTool.xpm</iconset>
    </property>
    <property name="text">
     <string>bciView</string>
@@ -1047,7 +1047,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>translateTool.xpm</normaloff>translateTool.xpm</iconset>
+      <normaloff>src/images/translateTool.xpm</normaloff>src/images/translateTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Translate</string>
@@ -1071,7 +1071,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>rotateTool.xpm</normaloff>rotateTool.xpm</iconset>
+      <normaloff>src/images/rotateTool.xpm</normaloff>src/images/rotateTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Rotate</string>
@@ -1095,7 +1095,7 @@
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>selectTool.xpm</normaloff>selectTool.xpm</iconset>
+      <normaloff>src/images/selectTool.xpm</normaloff>src/images/selectTool.xpm</iconset>
     </property>
     <property name="text">
      <string>Select</string>

@@ -331,52 +331,68 @@ void OnLinePlanner::setGraspAttribute(int i, const QString &attribute, double va
 void
 OnLinePlanner::updateSolutionList()
 {
-  QMutexLocker lock(&mListAttributeMutex);
+    QMutexLocker lock(&mListAttributeMutex);
   
 	transf stateTran, currentHandTran = mRefHand->getTran();
 
 	std::list<GraspPlanningState*>::iterator it;
 	//re-compute distance between current hand position and solutions. 
-	for ( it = mBestList.begin(); it != mBestList.end(); it++ )	{
+    for ( it = mBestList.begin(); it != mBestList.end(); it++ )
+    {
 		stateTran = (*it)->getTotalTran();
 		//compute distance between each solution and current hand position	
-    double dist = distanceOutsideApproach(stateTran, currentHandTran, false);
+        double dist = distanceOutsideApproach(stateTran, currentHandTran, false);
+
 		if (dist < 0) dist = -dist;        
-    dist += 1000 * (1-(*it)->getAttribute("testResult"));    
+            dist += 1000 * (1-(*it)->getAttribute("testResult"));
+
 		(*it)->setDistance(dist);
-		if (mMarkSolutions) {
-			if (dist<1) (*it)->setIVMarkerColor(1-dist, dist, 0);
-			else (*it)->setIVMarkerColor(0 , 1, 1);
+        if (mMarkSolutions)
+        {
+            if (dist<1)
+            {
+                (*it)->setIVMarkerColor(1-dist, dist, 0);
+            }
+            else
+            {
+                (*it)->setIVMarkerColor(0 , 1, 1);
+            }
 		}
 	}
 	
 	//sort list according to distance from current hand position
 	mBestList.sort(GraspPlanningState::compareStatesDistances);
+
 	//keep only best in list
-  std::list<GraspPlanningState *>::iterator it2 = mBestList.begin();
+    std::list<GraspPlanningState *>::iterator it2 = mBestList.begin();
   
-  for(int i = 0; it2 != mBestList.end();)
-  {
-      if ((*it2)->getAttribute("testResult") <= 0)
-      break;
-    
-    if(i >= SOLUTION_BUFFER_SIZE)
+    for(int i = 0; it2 != mBestList.end();)
     {
-      delete *it2;
-      std::list<GraspPlanningState *>::iterator it3 = it2;
-      ++it2;
-      mBestList.erase(it3);
+        if ((*it2)->getAttribute("testResult") <= 0)
+        {
+            break;
+        }
+
+        if(i >= SOLUTION_BUFFER_SIZE)
+        {
+            delete *it2;
+            std::list<GraspPlanningState *>::iterator it3 = it2;
+            ++it2;
+            mBestList.erase(it3);
+        }
+        else
+        {
+            ++it2;
+        }
+
+        ++i;
     }
-    else
-      ++it2;
-      
-      ++i;
-  }  
-  
-	while (mBestList.size() > 2*SOLUTION_BUFFER_SIZE) {
-		delete mBestList.back();
-		mBestList.pop_back();
-	}
+
+    while (mBestList.size() > 2*SOLUTION_BUFFER_SIZE)
+    {
+        delete mBestList.back();
+        mBestList.pop_back();
+    }
   
 }
 

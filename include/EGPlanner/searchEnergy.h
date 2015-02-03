@@ -32,6 +32,8 @@
 
 #include "search.h"
 #include "matvec3D.h"
+#include <flann/flann.hpp>
+#include "image_geometry/pinhole_camera_model.h"
 
 class Hand;
 class Body;
@@ -61,6 +63,12 @@ protected:
 	/*! If this flag is set, the hand is disconnected from the scene graph while 
 		the calculator does energy computations */
 	bool mDisableRendering;
+    std::vector<std::vector<std::vector<double> > > heatmaps;
+    image_geometry::PinholeCameraModel model_;
+
+    flann::Index<flann::L2<double> > *grasp_priors_index_;
+    flann::Matrix<double> *grasp_priors_matrix;
+
 
 	//! If not null, it will print its output here
 	mutable std::ostream *mOut;
@@ -74,6 +82,9 @@ protected:
 	double approachAutograspQualityEnergy() const;
 	double guidedAutograspEnergy() const;
 	double strictAutograspEnergy() const;
+
+    double heatmapProjectionEnergy() const;
+    int getGraspType() const;
 
 	//! Closes the hand in dynamics mode, then computes grasp quality
 	double dynamicAutograspEnergy() const;

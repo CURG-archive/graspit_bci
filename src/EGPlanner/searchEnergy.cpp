@@ -44,6 +44,8 @@
 
 //#define PROF_ENABLED
 #include "profiling.h"
+#include <fstream>
+#include <stdlib.h>     /* getenv */
 
 PROF_DECLARE(QS);
 
@@ -60,6 +62,139 @@ SearchEnergy::SearchEnergy()
 	mEpsQual = NULL;
 	mDisableRendering = true;
 	mOut = NULL;
+
+
+//    from rgb camera info topic for my kinect
+
+//    header:
+//      seq: 336
+//      stamp:
+//        secs: 1422642684
+//        nsecs: 378085858
+//      frame_id: /camera_rgb_optical_frame
+//    height: 480
+//    width: 640
+//    distortion_model: plumb_bob
+//    D: [0.0, 0.0, 0.0, 0.0, 0.0]
+//    K: [525.0, 0.0, 319.5, 0.0, 525.0, 239.5, 0.0, 0.0, 1.0]
+//    R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+//    P: [525.0, 0.0, 319.5, 0.0, 0.0, 525.0, 239.5, 0.0, 0.0, 0.0, 1.0, 0.0]
+//    binning_x: 0
+//    binning_y: 0
+//    roi:
+//      x_offset: 0
+//      y_offset: 0
+//      height: 0
+//      width: 0
+//      do_rectify: False
+
+    sensor_msgs::CameraInfo cam_info;
+
+    double D[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    std::vector<double> D_vec (D, D + sizeof(D) / sizeof(double) );
+
+    boost::array<double, 9> K =  {{525.0, 0.0, 319.5, 0.0, 525.0, 239.5, 0.0, 0.0, 1.0}};
+    boost::array<double, 9> R =  {{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}};
+    boost::array<double, 12> P =  {{525.0, 0.0, 319.5, 0.0, 0.0, 525.0, 239.5, 0.0, 0.0, 0.0, 1.0, 0.0}};
+
+    cam_info.height = 480;
+    cam_info.width = 640;
+    cam_info.distortion_model = "plumb_bob";
+    cam_info.D = D_vec;
+    cam_info.K = K;
+    cam_info.R = R;
+    cam_info.P = P;
+    cam_info.binning_x = 0;
+    cam_info.binning_y = 0;
+    cam_info.roi.x_offset = 0;
+    cam_info.roi.y_offset = 0;
+    cam_info.roi.height = 0;
+    cam_info.roi.width = 0;
+    cam_info.roi.do_rectify = false;
+
+    model_.fromCameraInfo(cam_info);
+
+    int height = 72;
+    int width = 400;
+    int depth = 400;
+
+    heatmaps.resize(height);
+    for(int i=0; i < height; i++){
+
+        heatmaps[i].resize(width);
+
+        for(int j=0; j < width; j++){
+            heatmaps[i][j].resize(depth);
+        }
+    }
+
+    char* heatmapsPath;
+    heatmapsPath = getenv ("HEATMAPS_PATH");
+    printf("The current path is: %s\n",heatmapsPath);
+
+
+    double value;
+    std::ifstream iFile;
+    for(int i=0; i < height; i++)
+    {
+        std::ostringstream filename;
+        filename << heatmapsPath <<"/heatmaps/" << i << ".txt";
+
+        iFile.open(filename.str());
+        for(int j=0; j < width; j++)
+        {
+            for(int k=0; k < depth; k++)
+            {
+                iFile >> value;
+                heatmaps[i][j][k] =  value;
+            }
+        }
+        iFile.close();
+    }
+
+    std::cout<< "Heatmaps read in sucessfully \n";
+
+    int num_grasp_priors = 18;
+    int num_dof = 4;
+    std::cout<< "starting grasp priors import1" << std::endl;
+    std::vector<double*> grasp_priors;
+    std::cout<< "starting grasp priors import2" << std::endl;
+    char* graspit_path;
+    graspit_path = getenv ("GRASPIT");
+
+    std::cout<< "starting grasp priors import3" << std::endl;
+
+    for(int i=0; i < num_grasp_priors; i++)
+    {
+        std::ostringstream filename;
+        filename << graspit_path << "/grasp_priors/" << i << ".txt";
+        iFile.open(filename.str());
+
+        std::cout<< "looking at: " << filename.str() << std::endl;
+
+        double *dof_values = new double[ num_dof ];
+
+        for (int j=0; j <num_dof; j++)
+        {
+            std::cout<< i << " " << j <<  "\n";
+            iFile >> value;
+            dof_values[j] = value;
+        }
+
+        iFile.close();
+
+        grasp_priors.push_back(dof_values);
+
+    }
+    std::cout<< "Grasp Priors read in successfully \n";
+
+    grasp_priors_matrix = new flann::Matrix<double>(grasp_priors[0], num_grasp_priors, num_dof);
+    grasp_priors_index_ = new flann::Index< flann::L2<double> >(*grasp_priors_matrix, flann::KDTreeIndexParams(1));
+    grasp_priors_index_->buildIndex();
+
+    std::cout<< "Flann Index built successfully \n";
+
+
 }
 
 void
@@ -205,6 +340,11 @@ double SearchEnergy::energy() const
 		case ENERGY_DYNAMIC:
 			e = dynamicAutograspEnergy();
 			break;
+
+        case ENERGY_HEATMAP:
+            e = heatmapProjectionEnergy();
+            break;
+
 		default:
 			fprintf(stderr,"Wrong type of energy requested!\n");
 			e = 0;
@@ -215,7 +355,7 @@ double SearchEnergy::energy() const
 double
 SearchEnergy::contactEnergy() const
 {
-	//DBGP("Contact energy computation")
+    //DBGP("Contact energy computation")
 	//average error per contact
 	VirtualContact *contact;
 	vec3 p,n,cn;
@@ -651,6 +791,129 @@ SearchEnergy::strictAutograspEnergy() const
 	if (gq==0) return 1.0e8;
 	else return gq;
 }
+
+
+ int SearchEnergy::getGraspType() const
+ {
+     std::vector<double> query_joint_state;
+
+     double *dof_values = new double[ mHand->getNumDOF() ];
+
+     mHand->getDOFVals(dof_values);
+
+     for (int dof_index=0; dof_index < mHand->getNumDOF(); ++dof_index)
+     {
+         query_joint_state.push_back(dof_values[dof_index]);
+         std::cout << "building query; adding for dof_index: " << dof_index << " value: " <<dof_values[dof_index] << std::endl;
+     }
+
+
+
+     std::vector<std::vector<int> > query_results_tmp;
+     flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1,mHand->getNumDOF());
+
+     std::vector<std::vector<double> >query_distances;
+     flann::SearchParams params(32, 0.0, true);
+     double max_neighbor_distance = 100.0;
+     std::cout << "about to query flann" << std::endl;
+
+     grasp_priors_index_->radiusSearch(query_pose_mat, query_results_tmp,  query_distances, max_neighbor_distance,params);
+     std::cout << "about to return result" << std::endl;
+     return query_results_tmp[0][0];
+ }
+
+ double SearchEnergy::heatmapProjectionEnergy() const
+ {
+     std::cout << std::endl << std::endl << "Entered heatmapProjectionEnergy" << std::endl;
+
+     //negative is better
+     double contact_quality = .0005 * contactEnergy();
+
+     double heatmap_quality = 0;
+     VirtualContact *contact;
+
+     mHand->getGrasp()->collectVirtualContacts();
+     for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
+     {
+
+         int PALM_INDEX = 0;
+         int FINGER_1_INDEX = 5;
+         int FINGER_2_INDEX = 6;
+         int FINGER_3_INDEX = 7;
+
+         //NEED TO ENSURE THAT WE HAVE PALM OR F1, F2, F3, VC
+         if(i==PALM_INDEX || i == FINGER_1_INDEX || i == FINGER_2_INDEX || i ==FINGER_3_INDEX)
+         {
+             contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
+
+             //Need to get contact location in relation to camera:
+             position worldPoint = contact->getWorldLocation();
+
+             //Need to get uv from image_geometry camera model
+             cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
+             cv::Point2d uv = model_.project3dToPixel(worldPointCV);
+
+             std::cout << "World Point in Meters\n" << worldPointCV << std::endl << uv << std::endl;
+
+             int grasp_type = getGraspType();
+
+             std::cout << "Grasp Type: " << grasp_type << std::endl;
+             int heatmap_index = 4*grasp_type ;
+
+             if (i == PALM_INDEX)
+             {
+                 std::cout << "Computing Palm Energy" << std::endl;
+                 heatmap_index += 0;
+             }
+             else if(i==FINGER_1_INDEX)
+             {
+                 std::cout << "Computing FINGER_1_INDEX Energy" << std::endl;
+                 heatmap_index += 1;
+             }
+             else if(i==FINGER_2_INDEX)
+             {
+                 std::cout << "Computing FINGER_2_INDEX Energy" << std::endl;
+                 heatmap_index += 2;
+             }
+             else if(i==FINGER_3_INDEX)
+             {
+                 std::cout << "Computing FINGER_3_INDEX Energy" << std::endl;
+                 heatmap_index += 3;
+             }
+
+             std::cout << "Heatmap index is: " << heatmap_index << std::endl;
+
+             int x_index = int(uv.x);
+             int y_index = int(uv.y);
+
+             std::cout << "x: " << x_index << " y: " << y_index << std::endl;
+
+             if (heatmaps[heatmap_index].size() > x_index && x_index > 0)
+             {
+                 if (heatmaps[heatmap_index][x_index].size() > y_index && y_index > 0)
+                 {
+                     std::cout << "appending to HeatMapQuality" << std::endl;
+                     heatmap_quality -= heatmaps[heatmap_index][x_index][y_index];
+                     std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][x_index][y_index] << std::endl;
+
+                 }
+             }
+
+
+         }
+     }
+
+     double grasp_quality = heatmap_quality - contact_quality;
+
+     std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
+     std::cout << "contact_quality: " << contact_quality << std::endl;
+     std::cout << "grasp_quality: " << grasp_quality << std::endl;
+
+     return grasp_quality;
+
+ }
+
+
 
 /* ---------------------------------- SCALING FUNCTIONS ---------------------------------- */
 double

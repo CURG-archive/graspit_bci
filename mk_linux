@@ -1,33 +1,22 @@
 #!/bin/bash
 #graspit compilation script
-cd qhull
-make
-cd ..
-export GRASPIT=$PWD
-export CGDB_MODEL_ROOT=$GRASPIT/cgdb
-echo $GRASPIT
-echo $CGDB_MODEL_ROOT
-#if libraries are not installed on the standard path variable, add them here.
-#libspaths="\"LIBS+=-L/usr/local/libs
+ROOT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+red='\033[0;31m'
+blue='\033[0;34m'
+none='\033[0m'
+
+echo -e "${blue}Graspit is located in${none} $ROOT_PATH"
+echo -e "${blue}Making build directory${none} $ROOT_PATH/build"
+mkdir -p $ROOT_PATH/build
+cd $ROOT_PATH/build
+
+echo -e "${blue}Calling CMake!${none}"
+cmake $ROOT_PATH
+
+cores=$(nproc)
+echo -e "${blue}Calling make with ${red}$cores${blue} cores${none}"
+make -j $cores
 
 
-#Build rpcz
-if [ -d rpcz ] 
-then
-    cd rpcz
-    if [ ! -e build ]
-    then
-	mkdir build	
-    fi
-    cd build
-    cmake ..
-    make    
-fi
-
-qmake $libspaths ./graspit.pro 
-cd $GRASPIT
-make -j4
-
-
-
-
+echo -e "${blue}Returning to Graspit root${none}"
+cd $ROOT_PATH

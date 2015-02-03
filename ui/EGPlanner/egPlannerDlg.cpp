@@ -81,6 +81,7 @@ void EigenGraspPlannerDlg::init()
   energyBox->insertItem("Contacts AND Quality");
   energyBox->insertItem("Autograsp Quality");
   energyBox->insertItem("Guided Autograsp");
+  energyBox->insertItem("Heatmap Quality");
   energyBox->setCurrentItem(1);//CHANGED!
   plannerTypeBox->insertItem("Sim. Ann.");
   plannerTypeBox->insertItem("Loop");
@@ -633,7 +634,9 @@ void EigenGraspPlannerDlg::readPlannerSettings()
     mPlanner->setEnergyType(ENERGY_CONTACT_QUALITY);
   } else if ( s == QString("Guided Autograsp") ) {
     mPlanner->setEnergyType(ENERGY_GUIDED_AUTOGRASP);
-  } else {
+  }else if ( s == QString("Heatmap Quality") ) {
+      mPlanner->setEnergyType(ENERGY_HEATMAP);
+  }else {
     fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");
   }
 

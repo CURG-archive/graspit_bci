@@ -1,8 +1,16 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.7)
 project(graspit_core)
 
 ###### ---[ Add modules for finding libraries
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
+
+find_package(catkin REQUIRED    
+	std_msgs
+   	geometry_msgs
+   	sensor_msgs
+   	actionlib_msgs
+   	image_geometry
+	)
 
 
 
@@ -61,6 +69,7 @@ find_package(Threads REQUIRED)
 find_package(SoQt REQUIRED)
 #find_package(Coin3D REQUIRED)
 find_package(Boost COMPONENTS filesystem system REQUIRED)
+find_package(Eigen REQUIRED)
 
 
 include(${QT_USE_FILE})
@@ -95,7 +104,7 @@ endif()
 ################
 #Core sources  #
 ################
-set(GRASPIT_CORE_INCLUDE_DIRS src src/Collision include include/math include/Planner include/EGPlanner ui ui/Planner ui/EGPlanner include/Servers)
+set(GRASPIT_CORE_INCLUDE_DIRS src src/Collision include include/math include/Planner include/EGPlanner ui ui/Planner ui/EGPlanner include/Servers rpcz)
 set(GRASPIT_CORE_SOURCE_DIRS src src/Collision src/Planner src/Servers src/EGPlanner ui ui/Planner ui/EGPlanner)
 set(GRASPIT_CORE_FORM_DIRS ui ui/Planner ui/EGPlanner)
 set(GRASPIT_CORE_RESOURCES ${GRASPIT_DIR}/images.qrc)
@@ -232,10 +241,22 @@ list(APPEND GRASPIT_CORE_SOURCES ${GRASPIT_CORE_RESOURCES_CPP} ${GRASPIT_CORE_FO
 ADD_EXECUTABLE(graspit ${GRASPIT_CORE_SOURCES}  ${GRASPIT_CORE_HEADERS})
 
 message("QHull Libraries ${QHULL_LIBRARIES}")
-TARGET_LINK_LIBRARIES(graspit optimized ${GRASPIT_CORE_SUBDIR_LIBS} ${QHULL_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SoQt_LIBRARIES} ${QT_LIBRARIES} ${Boost_LIBRARIES} Coin GL)
+TARGET_LINK_LIBRARIES(graspit
+                        optimized
+                        ${GRASPIT_CORE_SUBDIR_LIBS}
+                        ${QHULL_LIBRARIES}
+                        ${LAPACK_LIBRARIES}
+                        ${BLAS_LIBRARIES}
+                        ${CMAKE_THREAD_LIBS_INIT}
+                        ${SoQt_LIBRARIES}
+                        ${QT_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        Coin
+                        GL
+                        ${catkin_LIBRARIES})
 
 
-INCLUDE_DIRECTORIES(graspit ${QHULL_INCLUDE_DIR} ${GRASPIT_CORE_INCLUDE_DIRS} ${QT_INCLUDES} ${SoQt_INCLUDE_DIRS} ${COIN3D_Include_DIRS})
+INCLUDE_DIRECTORIES(graspit ${QHULL_INCLUDE_DIR} ${GRASPIT_CORE_INCLUDE_DIRS} ${QT_INCLUDES} ${SoQt_INCLUDE_DIRS} ${COIN3D_Include_DIRS} ${Eigen_INCLUDE_DIRS})
 
 SET_TARGET_PROPERTIES(graspit PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${GRASPIT_DIR}/bin)
 #message("Graspit core source:  ${GRASPIT_CORE_SOURCES}")
