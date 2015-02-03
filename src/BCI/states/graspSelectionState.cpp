@@ -1,6 +1,7 @@
 #include "BCI/states/graspSelectionState.h"
 #include "BCI/onlinePlannerController.h"
 #include <QPushButton>
+#include <QGLWidget>
 
 using bci_experiment::OnlinePlannerController;
 
@@ -75,6 +76,7 @@ void GraspSelectionState::onNext() {
             currentGrasp->execute(OnlinePlannerController::getInstance()->getRefHand());
             OnlinePlannerController::getInstance()->alignHand();
             graspSelectionView->showSelectedGrasp(hand, currentGrasp);
+            OnlinePlannerController::getInstance()->emitRender();
             QString graspID;
             bciControlWindow->currentState->setText(stateName + "- Grasp: " + graspID.setNum(currentGrasp->getAttribute("graspId")));
         }
@@ -98,8 +100,9 @@ void GraspSelectionState::onPlannerUpdated() {
     }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
 
-    if (choiceReady())
+    if (choiceReady()) {
         sendOptionChoice();
+    }
 }
 
 
@@ -122,13 +125,21 @@ bool GraspSelectionState::choiceReady() {
     if (choicesValid && OnlinePlannerController::getInstance()->getNumGrasps()) {
         for (int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i) {
             const GraspPlanningState *currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
-            if (currentGrasp->getAttribute("testResult") == 0.0)
+#if 0 // TODO: figure out what this is for
+            if (currentGrasp->getAttribute("testResult") == 0.0) {}
                 return false;
+            }
+#endif
         }
         choicesValid = false;
         return true;
     }
     else {
+        if (choicesValid) {
+            DBGA("No choice found");
+        } else {
+            DBGA("Choices already sent!");
+        }
         return false;
     }
 
@@ -143,6 +154,8 @@ void GraspSelectionState::generateImageOptions(bool debug) {
         delete sentChoices[i];
     }
 
+    DBGA("Generating image options");
+
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
@@ -150,21 +163,34 @@ void GraspSelectionState::generateImageOptions(bool debug) {
 
     stringOptions.push_back(QString("Select Different Object"));
 
+    OnlinePlannerController * ctrl = OnlinePlannerController::getInstance();
+    Hand * hand = ctrl->getGraspDemoHand();
+
+    ctrl->sortGrasps();
     generateStringImageOptions(debug);
     imageDescriptions.push_back(stringOptions[0]);
     imageCosts.push_back(.5);
+
+    while(!graspSelectionView->getHandView()) {
+        DBGA("waiting for handview")
+        sleep(1);
+    }
+
     const GraspPlanningState *currentGrasp;
     for (int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i) {
-        onNext();
-        currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
-        sentChoices.push_back(new GraspPlanningState(currentGrasp));
+        currentGrasp = ctrl->getGrasp(i);
+        currentGrasp->execute(hand);
+        graspSelectionView->showSelectedGrasp(hand, currentGrasp);
 
-        QImage * img = graspSelectionView->getHandView()->getSnapShot();
+        QString debugFileName = "";
 
         if (debug) {
-            QString debugFileName = QString("grasp_selection_img" + QString::number(imageOptions.size()) + ".png");
-            img->save(debugFileName);
+            debugFileName = QString("grasp_selection_img" + QString::number(imageOptions.size()) + ".png");
         }
+
+        QImage * img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
+
+        sentChoices.push_back(new GraspPlanningState(currentGrasp));
 
         imageOptions.push_back(img);
         imageCosts.push_back(.25);

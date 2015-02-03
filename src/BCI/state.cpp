@@ -114,8 +114,6 @@ void State::sendOptionChoice() {
     if (imageOptions.size() != imageCosts.size())
         DBGA("imageOptions size != imageCosts size");
 
-    DBGA("imageOptions size" << imageOptions.size() << " " << imageDescriptions.size());
-
     BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
 }
 
