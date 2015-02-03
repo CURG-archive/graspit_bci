@@ -45,7 +45,7 @@ void ExecutionState::generateImageOptions(bool debug) {
 
 
 void
-ExecutionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel) {
-    //! Fixme 
+ExecutionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
+    //! Fixme
 }
 

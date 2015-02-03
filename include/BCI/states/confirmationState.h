@@ -22,7 +22,7 @@ public:
 public slots:
 
     void onNextGrasp(QEvent *e = NULL);
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel);
 
 private:
     ConfirmationView *confirmationView;

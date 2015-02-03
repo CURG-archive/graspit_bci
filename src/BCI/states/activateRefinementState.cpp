@@ -164,7 +164,7 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
 
 void ActivateRefinementState::respondOptionChoice(unsigned int option,
         float confidence,
-        std::vector<float> &interestLevel) {
+        std::vector<float> interestLevel) {
     if (!choicesValid) {
         DBGA("Respond received before choices!");
         return;

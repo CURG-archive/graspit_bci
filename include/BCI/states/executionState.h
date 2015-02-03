@@ -13,7 +13,7 @@ public:
 
     virtual void onExit(QEvent *e);
 
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
+    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel);
 
 private:
     BCIControlWindow *bciControlWindow;
