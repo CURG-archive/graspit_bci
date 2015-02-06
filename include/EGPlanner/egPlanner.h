@@ -158,6 +158,8 @@ public:
 	virtual ~EGPlanner();
 	//! The type of this planner, for easier run-time check.
 	virtual PlannerType getType()=0;
+
+    void setHeatmapsDir(QString dir);
 	
 	//! Tells the planner if it has all the information needed to start planning
 	virtual bool initialized(){return true;} 

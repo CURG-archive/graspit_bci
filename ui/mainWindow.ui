@@ -477,7 +477,7 @@
         <cstring>fileNewAction</cstring>
       </property>
       <property name="icon" >
-        <iconset>filenew.xpm</iconset>
+        <iconset>src/images/filenew.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>New</string>
@@ -494,7 +494,7 @@
         <cstring>fileOpenAction</cstring>
       </property>
       <property name="icon" >
-        <iconset>fileopen.xpm</iconset>
+        <iconset>src/images/fileopen.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Open</string>
@@ -511,7 +511,7 @@
         <cstring>fileSaveAction</cstring>
       </property>
       <property name="icon" >
-        <iconset>filesave.xpm</iconset>
+        <iconset>src/images/filesave.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Save</string>
@@ -714,7 +714,7 @@
         <bool>true</bool>
       </property>
       <property name="icon" >
-        <iconset>play.xpm</iconset>
+        <iconset>src/images/play.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Start Simulation</string>
@@ -728,7 +728,7 @@
         <cstring>dynamicsPopAction</cstring>
       </property>
       <property name="icon" >
-        <iconset>prevMark.xpm</iconset>
+        <iconset>src/images/prevMark.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Pop State</string>
@@ -742,7 +742,7 @@
         <cstring>dynamicsPushAction</cstring>
       </property>
       <property name="icon" >
-        <iconset>mark.xpm</iconset>
+        <iconset>src/images/mark.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Push State</string>
@@ -759,7 +759,7 @@
         <bool>true</bool>
       </property>
       <property name="icon" >
-        <iconset>collide.xpm</iconset>
+        <iconset>src/images/collide.xpm</iconset>
       </property>
       <property name="iconText" >
         <string>Collisions ON</string>
@@ -983,7 +983,7 @@
           <bool>false</bool>
         </property>
         <property name="icon" >
-          <iconset>selectTool.xpm</iconset>
+          <iconset>src/images/selectTool.xpm</iconset>
         </property>
         <property name="iconText" >
           <string>bciView</string>
@@ -1010,7 +1010,7 @@
           <bool>true</bool>
         </property>
         <property name="icon" >
-          <iconset>translateTool.xpm</iconset>
+          <iconset>src/images/translateTool.xpm</iconset>
         </property>
         <property name="iconText" >
           <string>Translate</string>
@@ -1033,7 +1033,7 @@
           <bool>true</bool>
         </property>
         <property name="icon" >
-          <iconset>rotateTool.xpm</iconset>
+          <iconset>src/images/rotateTool.xpm</iconset>
         </property>
         <property name="iconText" >
           <string>Rotate</string>
@@ -1056,7 +1056,7 @@
           <bool>true</bool>
         </property>
         <property name="icon" >
-          <iconset>selectTool.xpm</iconset>
+          <iconset>src/images/selectTool.xpm</iconset>
         </property>
         <property name="iconText" >
           <string>Select</string>

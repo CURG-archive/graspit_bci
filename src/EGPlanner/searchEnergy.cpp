@@ -113,58 +113,9 @@ SearchEnergy::SearchEnergy()
     cam_info.roi.do_rectify = false;
 
     model_.fromCameraInfo(cam_info);
-
-    int height = 72;
-    int width = 352;
-    int depth = 512;
-
-    heatmaps.resize(height);
-    for(int i=0; i < height; i++){
-
-        heatmaps[i].resize(width);
-
-        for(int j=0; j < width; j++){
-            heatmaps[i][j].resize(depth);
-        }
-    }
-
-    char* heatmapsPath;
-    heatmapsPath = getenv ("HEATMAPS_PATH");
-    printf("The current path is: %s\n",heatmapsPath);
-
-
     double value;
     std::ifstream iFile;
-    for(int i=0; i < height; i++)
-    {
-        std::ostringstream filename;
-        //filename << heatmapsPath <<"/heatmaps/" << i << ".txt";
-        filename << "/home/jvarley/grasp_deep_learning/gdl/src/graspit_bci/models/captured_meshes/1423149664/heatmaps/" << i << ".txt";
 
-
-        std::cout << filename.str() << std::endl;
-        iFile.open(filename.str());
-        if (iFile.is_open())
-        {
-            for(int j=0; j < width; j++)
-            {
-                for(int k=0; k < depth; k++)
-                {
-                    iFile >> value;
-                    heatmaps[i][j][k] =  value;
-                }
-            }
-        }
-        else
-        {
-            std::cout << "Error reaading heatmaps, file is not open" << std::endl;
-        }
-
-
-        iFile.close();
-    }
-
-    std::cout<< "Heatmaps read in sucessfully \n";
 
     int num_grasp_priors = 18;
     int num_dof = 4;
@@ -207,6 +158,60 @@ SearchEnergy::SearchEnergy()
     std::cout<< "Flann Index built successfully \n";
 
 
+}
+
+void SearchEnergy::setHeatmapsDir(QString dir)
+{
+    int height = 72;
+    int width = 352;
+    int depth = 512;
+
+    heatmaps.resize(height);
+    for(int i=0; i < height; i++){
+
+        heatmaps[i].resize(width);
+
+        for(int j=0; j < width; j++){
+            heatmaps[i][j].resize(depth);
+        }
+    }
+
+    char* graspit_path;
+    graspit_path = getenv ("GRASPIT");
+    printf("The current path is: %s\n",dir.toStdString().c_str());
+
+
+    double value;
+    std::ifstream iFile;
+    for(int i=0; i < height; i++)
+    {
+        std::ostringstream filename;
+        filename << graspit_path << "/models/captured_meshes/"  << dir.toStdString().c_str() << "/heatmaps/" << i << ".txt";
+
+
+        std::cout << filename.str() << std::endl;
+        iFile.open(filename.str());
+        if (iFile.is_open())
+        {
+            for(int j=0; j < width; j++)
+            {
+                for(int k=0; k < depth; k++)
+                {
+                    iFile >> value;
+                    heatmaps[i][j][k] =  value;
+                }
+            }
+        }
+        else
+        {
+            std::cout << "Error reaading heatmaps, file is not open" << std::endl;
+        }
+
+
+        iFile.close();
+    }
+
+    std::cout<< "Heatmaps read in sucessfully \n";
 }
 
 void

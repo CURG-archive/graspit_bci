@@ -117,6 +117,8 @@ public:
 	SearchEnergy();
 	~SearchEnergy();
 
+    void setHeatmapsDir(QString dir);
+
 	void setType(SearchEnergyType t){mType = t;}
 	void setContactType(SearchContactType t){mContactType = t;}
 	SearchContactType getContactType() const {return mContactType;}

@@ -59,7 +59,7 @@
 #include "DBase/graspit_db_grasp.h"
 #include "DBase/graspit_db_model.h"
 
-
+#include <dirent.h>
 //#define GRASPITDBG
 #include "debug.h"
 
@@ -73,6 +73,23 @@ void EigenGraspPlannerDlg::exitButton_clicked()
   QDialog::accept();
 }
 
+
+int getdir (std::string dir, vector<std::string> &files)
+{
+    DIR *dp;
+    struct dirent *dirp;
+    if((dp  = opendir(dir.c_str())) == NULL) {
+        std::cout << "Error(" << errno << ") opening " << dir << std::endl;
+        return errno;
+    }
+
+    while ((dirp = readdir(dp)) != NULL) {
+        files.push_back(string(dirp->d_name));
+    }
+    closedir(dp);
+    return 0;
+}
+
 void EigenGraspPlannerDlg::init()
 { 
 
@@ -82,14 +99,33 @@ void EigenGraspPlannerDlg::init()
   energyBox->insertItem("Autograsp Quality");
   energyBox->insertItem("Guided Autograsp");
   energyBox->insertItem("Heatmap Quality");
-  energyBox->setCurrentItem(1);//CHANGED!
+  energyBox->setCurrentItem(5);//CHANGED!
   plannerTypeBox->insertItem("Sim. Ann.");
   plannerTypeBox->insertItem("Loop");
   plannerTypeBox->insertItem("Multi-Threaded");
   plannerTypeBox->insertItem("Online");
   plannerTypeBox->insertItem("Assisted Control");
   plannerTypeBox->insertItem("Time Test");
-  plannerTypeBox->setCurrentItem(3);//CHANGED!
+  plannerTypeBox->setCurrentItem(0);
+
+  vector<std::string> files = vector<std::string>();
+
+  char* graspitPath = getenv ("GRASPIT");
+
+  std::ostringstream heatmaps_dir;
+
+  heatmaps_dir << graspitPath << "/models/captured_meshes/";
+
+  getdir(heatmaps_dir.str() ,files);
+  for (int i = 0; i < files.size(); ++i)
+  {
+      heatmapsComboBox->insertItem(QString::fromStdString(files.at(i)));
+  }
+  heatmapsComboBox->setCurrentIndex(2);
+
+
+
+
 
   plannerInitButton->setEnabled(TRUE);
   plannerResetButton->setEnabled(FALSE);
@@ -642,6 +678,7 @@ void EigenGraspPlannerDlg::readPlannerSettings()
     mPlanner->setEnergyType(ENERGY_GUIDED_AUTOGRASP);
   }else if ( s == QString("Heatmap Quality") ) {
       mPlanner->setEnergyType(ENERGY_HEATMAP);
+      mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
   }else {
     fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");
   }

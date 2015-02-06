@@ -251,6 +251,12 @@ EGPlanner::showClone(bool s)
 }
 
 void
+EGPlanner::setHeatmapsDir(QString dir)
+{
+    mEnergyCalculator->setHeatmapsDir(dir);
+}
+
+void
 EGPlanner::setEnergyType(SearchEnergyType s)
 {
 	assert (mEnergyCalculator);
