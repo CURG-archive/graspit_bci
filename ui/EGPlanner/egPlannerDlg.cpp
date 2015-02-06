@@ -280,36 +280,42 @@ void EigenGraspPlannerDlg::updateVariableLayout()
 void EigenGraspPlannerDlg::updateInputLayout()
 {
   int i;
-  for (i=0; i<mHandObjectState->getNumVariables(); i++) {
-    if ( !mPlanner || !(mPlanner->isReady() || mPlanner->isActive()) ) {
+  for (i=0; i<mHandObjectState->getNumVariables(); i++)
+  {
+    if ( !mPlanner || !(mPlanner->isReady() || mPlanner->isActive()) )
+    {
       varInput[i]->setEnabled(FALSE);
       varInput[i]->setChecked(false);
       varTarget[i]->setText("N/A");
       varTarget[i]->setEnabled(FALSE);
       varConfidence[i]->setValue( 0 );
       varConfidence[i]->setEnabled(FALSE);
-    } else {
+    }
+    else
+    {
       GraspPlanningState *t = mPlanner->getTargetState();
       varInput[i]->setEnabled(TRUE);
       QString n;
       n.setNum(t->getVariable(i)->getValue(),'f',3);
       varTarget[i]->setText(n);
       varConfidence[i]->setValue( t->getVariable(i)->getConfidence() * 100 );
-      if ( t->getVariable(i)->isFixed() ) {
+      if ( t->getVariable(i)->isFixed() )
+      {
         varInput[i]->setChecked(TRUE);
         varTarget[i]->setEnabled(TRUE);
         varConfidence[i]->setEnabled(TRUE);
-      } else {
+      } else
+      {
         varInput[i]->setChecked(FALSE);
         varTarget[i]->setEnabled(FALSE);
         varConfidence[i]->setEnabled(FALSE);
       }
-      if (mHandObjectState->getVariable(i)->getName() == "Tx" || mHandObjectState->getVariable(i)->getName() == "Ty") {
-        varInput[i]->setChecked(true);
-        varConfidence[i]->setEnabled(true);
-        varConfidence[i]->setValue(70);
-        mHandObjectState->getVariable(i)->setConfidence(.70);
-      }
+//      if (mHandObjectState->getVariable(i)->getName() == "Tx" || mHandObjectState->getVariable(i)->getName() == "Ty") {
+//        varInput[i]->setChecked(true);
+//        varConfidence[i]->setEnabled(true);
+//        varConfidence[i]->setValue(70);
+//        mHandObjectState->getVariable(i)->setConfidence(.70);
+//      }
     }
   }
 

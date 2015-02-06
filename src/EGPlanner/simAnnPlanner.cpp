@@ -134,7 +134,7 @@ SimAnnPlanner::mainLoop()
     {
 		GraspPlanningState *insertState = new GraspPlanningState(mCurrentState);
 		//but check if a similar solution is already in there
-        if (!addToListOfUniqueSolutions(insertState,&mBestList,5))
+        if (!addToListOfUniqueSolutions(insertState,&mBestList,.4))
         {
 			delete insertState;
         }

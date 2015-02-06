@@ -115,8 +115,8 @@ SearchEnergy::SearchEnergy()
     model_.fromCameraInfo(cam_info);
 
     int height = 72;
-    int width = 400;
-    int depth = 400;
+    int width = 352;
+    int depth = 512;
 
     heatmaps.resize(height);
     for(int i=0; i < height; i++){
@@ -138,17 +138,29 @@ SearchEnergy::SearchEnergy()
     for(int i=0; i < height; i++)
     {
         std::ostringstream filename;
-        filename << heatmapsPath <<"/heatmaps/" << i << ".txt";
+        //filename << heatmapsPath <<"/heatmaps/" << i << ".txt";
+        filename << "/home/jvarley/grasp_deep_learning/gdl/src/graspit_bci/models/captured_meshes/1423149664/heatmaps/" << i << ".txt";
 
+
+        std::cout << filename.str() << std::endl;
         iFile.open(filename.str());
-        for(int j=0; j < width; j++)
+        if (iFile.is_open())
         {
-            for(int k=0; k < depth; k++)
+            for(int j=0; j < width; j++)
             {
-                iFile >> value;
-                heatmaps[i][j][k] =  value;
+                for(int k=0; k < depth; k++)
+                {
+                    iFile >> value;
+                    heatmaps[i][j][k] =  value;
+                }
             }
         }
+        else
+        {
+            std::cout << "Error reaading heatmaps, file is not open" << std::endl;
+        }
+
+
         iFile.close();
     }
 
@@ -342,6 +354,7 @@ double SearchEnergy::energy() const
 			break;
 
         case ENERGY_HEATMAP:
+            mHand->getGrasp()->collectVirtualContacts();
             e = heatmapProjectionEnergy();
             break;
 
@@ -355,34 +368,50 @@ double SearchEnergy::energy() const
 double
 SearchEnergy::contactEnergy() const
 {
-    //DBGP("Contact energy computation")
-	//average error per contact
+
 	VirtualContact *contact;
-	vec3 p,n,cn;
+    vec3 objectDistance,n,cn;
+    vec3 objectNormal;
 	double totalError = 0;
-	for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++) {
-		contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
-		contact->getObjectDistanceAndNormal(mObject, &p, NULL);
 
-		double dist = p.len();
-		//this should never happen anymore since we're never inside the object
-		//if ( (-1.0 * p) % n  < 0) dist = -dist;
-	
-		//BEST WORKING VERSION, strangely enough
-		totalError += fabs(dist);
-		//let's try this some more
-		//totalError += distanceFunction(dist);
-		//cn = -1.0 * contact->getWorldNormal();
+    int PALM_INDEX = 0;
+    int FINGER_1_INDEX = 7;
+    int FINGER_2_INDEX = 11;
+    int FINGER_3_INDEX = 15;
 
-		//new version
-		cn = contact->getWorldNormal();
-		n = normalise(p);
-		double d = 1 - cn % n;
-        totalError += d * 10000.0 / 2.0;
+
+    for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
+    {
+        if (i < 4)
+        {
+
+            contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
+            contact->getObjectDistanceAndNormal(mObject, &objectDistance, &objectNormal);
+
+            double dist = objectDistance.len();
+
+            cn = contact->getWorldNormal();
+            n = normalise(objectNormal);
+
+            double d = 1 - cn % n;
+
+            std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
+            std::cout << "object normal: " << objectNormal << std::endl;
+            std::cout << "contact normal: " << cn << std::endl;
+
+
+            //beter grasps have contacts closer to the object
+            totalError += dist;
+
+            //better grasps contacts normals are better aligned with the object normal at
+            //projected point of contact
+            totalError += d * 1000.0 / 2.0;
+        }
+
+
 	}
 	
-	totalError /= mHand->getGrasp()->getNumContacts();
-	//DBGP("Contact energy: " << totalError);
+    totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
 		
 	return totalError;
 }
@@ -807,8 +836,6 @@ SearchEnergy::strictAutograspEnergy() const
          std::cout << "building query; adding for dof_index: " << dof_index << " value: " <<dof_values[dof_index] << std::endl;
      }
 
-
-
      std::vector<std::vector<int> > query_results_tmp;
      flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1,mHand->getNumDOF());
 
@@ -827,19 +854,24 @@ SearchEnergy::strictAutograspEnergy() const
      std::cout << std::endl << std::endl << "Entered heatmapProjectionEnergy" << std::endl;
 
      //negative is better
-     double contact_quality = .0005 * contactEnergy();
+     double contact_quality = 20.0 * contactEnergy();
 
      double heatmap_quality = 0;
      VirtualContact *contact;
 
-     mHand->getGrasp()->collectVirtualContacts();
      for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
      {
 
+//         int PALM_INDEX = 0;
+//         int FINGER_1_INDEX = 5;
+//         int FINGER_2_INDEX = 6;
+//         int FINGER_3_INDEX = 7;
+
          int PALM_INDEX = 0;
-         int FINGER_1_INDEX = 5;
-         int FINGER_2_INDEX = 6;
-         int FINGER_3_INDEX = 7;
+         int FINGER_1_INDEX = 7;
+         int FINGER_2_INDEX = 11;
+         int FINGER_3_INDEX = 15;
+
 
          //NEED TO ENSURE THAT WE HAVE PALM OR F1, F2, F3, VC
          if(i==PALM_INDEX || i == FINGER_1_INDEX || i == FINGER_2_INDEX || i ==FINGER_3_INDEX)
@@ -883,8 +915,8 @@ SearchEnergy::strictAutograspEnergy() const
 
              std::cout << "Heatmap index is: " << heatmap_index << std::endl;
 
-             int x_index = int(uv.x);
-             int y_index = int(uv.y);
+             int x_index = int(uv.x) - 64 ;
+             int y_index = int(uv.y) - 64 ;
 
              std::cout << "x: " << x_index << " y: " << y_index << std::endl;
 
@@ -903,7 +935,7 @@ SearchEnergy::strictAutograspEnergy() const
          }
      }
 
-     double grasp_quality = heatmap_quality - contact_quality;
+     double grasp_quality = heatmap_quality + contact_quality;
 
      std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
      std::cout << "contact_quality: " << contact_quality << std::endl;
@@ -955,7 +987,7 @@ SearchEnergy::potentialQualityScalingFunction(double dist, double cosTheta) cons
 	if (sf < 0.25) sf = 0; //cut down on computation for tiny values. more than 50mm away
 	return sf;
 	*/
-    if (cosTheta < 0.99) return 0;
+    if (cosTheta < 0.7) return 0;
 	if (dist > 50) return 0;
 	sf = cos ( 3.14 * dist / 50.0) + 1;
 	return sf;
