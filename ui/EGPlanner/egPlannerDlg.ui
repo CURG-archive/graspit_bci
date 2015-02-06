@@ -128,7 +128,7 @@
     <rect>
      <x>270</x>
      <y>10</y>
-     <width>280</width>
+     <width>321</width>
      <height>200</height>
     </rect>
    </property>
@@ -204,7 +204,7 @@
      <rect>
       <x>27</x>
       <y>129</y>
-      <width>63</width>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
@@ -273,8 +273,8 @@
    <widget class="QLabel" name="textLabel1_4">
     <property name="geometry">
      <rect>
-      <x>147</x>
-      <y>77</y>
+      <x>180</x>
+      <y>80</y>
       <width>30</width>
       <height>20</height>
      </rect>
@@ -291,7 +291,7 @@
      <rect>
       <x>13</x>
       <y>78</y>
-      <width>120</width>
+      <width>151</width>
       <height>20</height>
      </rect>
     </property>
@@ -359,9 +359,9 @@
    <widget class="QLabel" name="rankLabel">
     <property name="geometry">
      <rect>
-      <x>142</x>
-      <y>135</y>
-      <width>120</width>
+      <x>200</x>
+      <y>130</y>
+      <width>111</width>
       <height>20</height>
      </rect>
     </property>
@@ -375,8 +375,8 @@
    <widget class="QLabel" name="energyLabel">
     <property name="geometry">
      <rect>
-      <x>135</x>
-      <y>152</y>
+      <x>200</x>
+      <y>150</y>
       <width>130</width>
       <height>20</height>
      </rect>
@@ -391,8 +391,8 @@
    <widget class="QLabel" name="iterationLabel">
     <property name="geometry">
      <rect>
-      <x>131</x>
-      <y>169</y>
+      <x>200</x>
+      <y>170</y>
       <width>140</width>
       <height>20</height>
      </rect>
@@ -407,8 +407,8 @@
    <widget class="QLineEdit" name="annStepsEdit">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>76</y>
+      <x>210</x>
+      <y>80</y>
       <width>60</width>
       <height>21</height>
      </rect>
@@ -528,7 +528,7 @@
      <rect>
       <x>208</x>
       <y>119</y>
-      <width>50</width>
+      <width>71</width>
       <height>21</height>
      </rect>
     </property>
@@ -673,7 +673,7 @@
      <rect>
       <x>10</x>
       <y>50</y>
-      <width>100</width>
+      <width>131</width>
       <height>20</height>
      </rect>
     </property>
@@ -686,7 +686,7 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>121</width>
+      <width>181</width>
       <height>21</height>
      </rect>
     </property>
@@ -740,7 +740,7 @@
   <widget class="QComboBox" name="heatmapsComboBox">
    <property name="geometry">
     <rect>
-     <x>587</x>
+     <x>630</x>
      <y>50</y>
      <width>151</width>
      <height>27</height>
@@ -750,7 +750,7 @@
   <widget class="QLabel" name="heatmapsDirLabel">
    <property name="geometry">
     <rect>
-     <x>600</x>
+     <x>640</x>
      <y>20</y>
      <width>121</width>
      <height>17</height>

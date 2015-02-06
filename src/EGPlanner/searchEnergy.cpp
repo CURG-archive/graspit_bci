@@ -162,17 +162,17 @@ SearchEnergy::SearchEnergy()
 
 void SearchEnergy::setHeatmapsDir(QString dir)
 {
-    int height = 72;
-    int width = 352;
-    int depth = 512;
+    int num_heatmaps = 72;
+    int height = 352;
+    int width = 512;
 
-    heatmaps.resize(height);
-    for(int i=0; i < height; i++){
+    heatmaps.resize(num_heatmaps);
+    for(int i=0; i < num_heatmaps; i++){
 
-        heatmaps[i].resize(width);
+        heatmaps[i].resize(height);
 
-        for(int j=0; j < width; j++){
-            heatmaps[i][j].resize(depth);
+        for(int j=0; j < height; j++){
+            heatmaps[i][j].resize(width);
         }
     }
 
@@ -183,7 +183,7 @@ void SearchEnergy::setHeatmapsDir(QString dir)
 
     double value;
     std::ifstream iFile;
-    for(int i=0; i < height; i++)
+    for(int i=0; i < num_heatmaps; i++)
     {
         std::ostringstream filename;
         filename << graspit_path << "/models/captured_meshes/"  << dir.toStdString().c_str() << "/heatmaps/" << i << ".txt";
@@ -193,9 +193,9 @@ void SearchEnergy::setHeatmapsDir(QString dir)
         iFile.open(filename.str());
         if (iFile.is_open())
         {
-            for(int j=0; j < width; j++)
+            for(int j=0; j < height; j++)
             {
-                for(int k=0; k < depth; k++)
+                for(int k=0; k < width; k++)
                 {
                     iFile >> value;
                     heatmaps[i][j][k] =  value;
@@ -362,7 +362,10 @@ double SearchEnergy::energy() const
             mHand->getGrasp()->collectVirtualContacts();
             e = heatmapProjectionEnergy();
             break;
-
+        case ENERGY_HEATMAP_CONTACT:
+            mHand->getGrasp()->collectVirtualContacts();
+            e = heatmapProjectionEnergyAndContactEnergy();
+            break;
 		default:
 			fprintf(stderr,"Wrong type of energy requested!\n");
 			e = 0;
@@ -858,9 +861,6 @@ SearchEnergy::strictAutograspEnergy() const
  {
      std::cout << std::endl << std::endl << "Entered heatmapProjectionEnergy" << std::endl;
 
-     //negative is better
-     double contact_quality = 20.0 * contactEnergy();
-
      double heatmap_quality = 0;
      VirtualContact *contact;
 
@@ -890,48 +890,44 @@ SearchEnergy::strictAutograspEnergy() const
              cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
              cv::Point2d uv = model_.project3dToPixel(worldPointCV);
 
-             std::cout << "World Point in Meters\n" << worldPointCV << std::endl << uv << std::endl;
+             std::cout << "World Point in Meters: " << worldPointCV << std::endl;
+             std::cout << "UV for rgbd image: " << uv << std::endl;
 
              int grasp_type = getGraspType();
 
-             std::cout << "Grasp Type: " << grasp_type << std::endl;
              int heatmap_index = 4*grasp_type ;
 
              if (i == PALM_INDEX)
              {
-                 std::cout << "Computing Palm Energy" << std::endl;
                  heatmap_index += 0;
              }
              else if(i==FINGER_1_INDEX)
              {
-                 std::cout << "Computing FINGER_1_INDEX Energy" << std::endl;
                  heatmap_index += 1;
              }
              else if(i==FINGER_2_INDEX)
              {
-                 std::cout << "Computing FINGER_2_INDEX Energy" << std::endl;
                  heatmap_index += 2;
              }
              else if(i==FINGER_3_INDEX)
              {
-                 std::cout << "Computing FINGER_3_INDEX Energy" << std::endl;
                  heatmap_index += 3;
              }
 
              std::cout << "Heatmap index is: " << heatmap_index << std::endl;
 
-             int x_index = int(uv.x) - 64 ;
-             int y_index = int(uv.y) - 64 ;
+             int width_index = int(uv.x) - 64 ; //uv.x is between 0 and 640
+             int height_index = int(uv.y) - 64 ;  //uv.y is between 0 and 480
 
-             std::cout << "x: " << x_index << " y: " << y_index << std::endl;
+             std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
 
-             if (heatmaps[heatmap_index].size() > x_index && x_index > 0)
+             if (heatmaps[heatmap_index].size() > height_index && height_index > 0)
              {
-                 if (heatmaps[heatmap_index][x_index].size() > y_index && y_index > 0)
+                 if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
                  {
                      std::cout << "appending to HeatMapQuality" << std::endl;
-                     heatmap_quality -= heatmaps[heatmap_index][x_index][y_index];
-                     std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][x_index][y_index] << std::endl;
+                     heatmap_quality -= heatmaps[heatmap_index][height_index][width_index];
+                     std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][height_index][width_index] << std::endl;
 
                  }
              }
@@ -940,16 +936,36 @@ SearchEnergy::strictAutograspEnergy() const
          }
      }
 
-     double grasp_quality = heatmap_quality + contact_quality;
 
-     std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
-     std::cout << "contact_quality: " << contact_quality << std::endl;
-     std::cout << "grasp_quality: " << grasp_quality << std::endl;
-
-     return grasp_quality;
+     return -heatmap_quality;
 
  }
 
+double
+SearchEnergy::heatmapProjectionEnergyAndContactEnergy() const
+{
+    //negative is better
+    double contact_quality = contactEnergy();
+    double heatmap_quality = heatmapProjectionEnergy();
+
+    double heatmap_weight = .1;
+
+    std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
+    std::cout << "contact_quality: " << contact_quality << std::endl;
+    std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
+
+    double weighted_heatmap_quality = heatmap_weight * heatmap_quality;
+    double weighted_contact_quality = (1.0 - heatmap_weight) * contact_quality;
+
+    double grasp_quality = weighted_heatmap_quality + weighted_contact_quality;
+
+    std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
+    std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
+    std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
+
+
+    return grasp_quality;
+}
 
 
 /* ---------------------------------- SCALING FUNCTIONS ---------------------------------- */

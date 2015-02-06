@@ -99,6 +99,7 @@ void EigenGraspPlannerDlg::init()
   energyBox->insertItem("Autograsp Quality");
   energyBox->insertItem("Guided Autograsp");
   energyBox->insertItem("Heatmap Quality");
+  energyBox->insertItem("Heatmap and Contacts");
   energyBox->setCurrentItem(5);//CHANGED!
   plannerTypeBox->insertItem("Sim. Ann.");
   plannerTypeBox->insertItem("Loop");
@@ -495,6 +496,7 @@ void EigenGraspPlannerDlg::updateResults(bool render, bool execute)
     mDisplayState = 0;
   } 
 
+
   if ( d!=0 ){
     const GraspPlanningState *s = mPlanner->getGrasp( mDisplayState);
     rank = mDisplayState+1;
@@ -503,18 +505,7 @@ void EigenGraspPlannerDlg::updateResults(bool render, bool execute)
     energy = s->getEnergy();
   }
 
-  /*
-    FILE *f = fopen("foo.txt","w");
-    for (int i=0; i<mPlanner->getListSize(); i++) {
-    for(int j=i+1; j<mPlanner->getListSize(); j++) {
-    float d = mPlanner->getGrasp(i)->distance( mPlanner->getGrasp(j) );
-    fprintf(stderr,"%d -- %d: %f\n",i+1,j+1,d);
-    }
-    fprintf(stderr,"\n");
-    mPlanner->getGrasp(i)->writeToFile(f);
-    }
-    fclose(f);
-  */
+
 
   QString n1,n2;
   n1.setNum(rank);
@@ -678,6 +669,9 @@ void EigenGraspPlannerDlg::readPlannerSettings()
     mPlanner->setEnergyType(ENERGY_GUIDED_AUTOGRASP);
   }else if ( s == QString("Heatmap Quality") ) {
       mPlanner->setEnergyType(ENERGY_HEATMAP);
+      mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
+  }else if ( s == QString("Heatmap and Contacts") ) {
+      mPlanner->setEnergyType(ENERGY_HEATMAP_CONTACT);
       mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
   }else {
     fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");

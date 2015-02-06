@@ -84,6 +84,7 @@ protected:
 	double strictAutograspEnergy() const;
 
     double heatmapProjectionEnergy() const;
+    double heatmapProjectionEnergyAndContactEnergy() const;
     int getGraspType() const;
 
 	//! Closes the hand in dynamics mode, then computes grasp quality
