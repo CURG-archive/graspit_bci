@@ -66,7 +66,7 @@ void GraspSelectionView::showSelectedGrasp(Hand *hand, const GraspPlanningState 
 
     if (graspPlanningState) {
         handView->update(*graspPlanningState, *hand);
-        DBGA("GraspSelectionView::showSelectedGrasp::Showing grasp:" << graspPlanningState->getItNumber());
+        DBGA("GraspSelectionView::showSelectedGrasp::Showing grasp:" << graspPlanningState->getAttribute("graspId"));
     }
     else {
         DBGA("GraspSelectionView::showSelectedGrasp::No grasp");

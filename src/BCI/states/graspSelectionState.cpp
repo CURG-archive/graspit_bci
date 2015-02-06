@@ -160,6 +160,7 @@ void GraspSelectionState::generateImageOptions(bool debug) {
     imageDescriptions.clear();
     imageCosts.clear();
     sentChoices.clear();
+    stringOptions.clear();
 
     stringOptions.push_back(QString("Select Different Object"));
 
@@ -215,9 +216,10 @@ void GraspSelectionState::respondOptionChoice(unsigned int option, float confide
         else {
             // Otherwise use the send choices
             if (OnlinePlannerController::getInstance()->getGrasp(i)->getAttribute("graspId") ==
-                    sentChoices[option - stringOptions.size()]->getAttribute("graspId"))
+                    sentChoices[option - stringOptions.size()]->getAttribute("graspId")) {
                 currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
-            break;
+                break;
+            }
         }
     }
     if (!currentGrasp) {
