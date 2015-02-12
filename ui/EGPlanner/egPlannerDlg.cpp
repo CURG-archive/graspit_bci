@@ -100,6 +100,8 @@ void EigenGraspPlannerDlg::init()
   energyBox->insertItem("Guided Autograsp");
   energyBox->insertItem("Heatmap Quality");
   energyBox->insertItem("Heatmap and Contacts");
+  energyBox->insertItem("Partial View Contacts");
+  energyBox->insertItem("Heatmap and Partial View Contacts");
   energyBox->setCurrentItem(5);//CHANGED!
   plannerTypeBox->insertItem("Sim. Ann.");
   plannerTypeBox->insertItem("Loop");
@@ -673,7 +675,13 @@ void EigenGraspPlannerDlg::readPlannerSettings()
   }else if ( s == QString("Heatmap and Contacts") ) {
       mPlanner->setEnergyType(ENERGY_HEATMAP_CONTACT);
       mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
-  }else {
+  }else if ( s == QString("Partial View Contacts") ) {
+        mPlanner->setEnergyType(ENERGY_PARTIAL_VIEW_CONTACT);
+        mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
+    }else if ( s == QString("Heatmap and Partial View Contacts") ) {
+        mPlanner->setEnergyType(ENERGY_HEATMAP_PARTIAL_VIEW_CONTACT);
+        mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
+    }else {
     fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");
   }
 

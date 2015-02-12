@@ -111,6 +111,8 @@ signals:
   //! Emitted by moveDOFToCOntacts each time a step is taken
   void moveDOFStepTaken(int numCols, bool &stopRequest);
 
+
+
 private:
   // Connection to a parent robot 
   //! Points to a parent robot that this robot is attached to
@@ -192,10 +194,8 @@ protected:
   //! An internal method called by setTran.  
   inline virtual void simpleSetTran(transf const& tr);
 
-  //! Asks all chains to set the given joint values
-  inline void setJointValues(const double* jointVals);
-  //! Asks all chains to set the given joint values, then update the position of all links
-  inline void setJointValuesAndUpdate(const double* jointVals);
+
+
   //! Gets the current joint values from the chains
   inline void getJointValues(double* jointVals) const;
   //! Informs the dof's that certain values have been set.
@@ -220,7 +220,10 @@ protected:
   friend void KinematicChain::attachRobot(Robot *r,const transf &offsetTr);
 
  public:
-
+  //! Asks all chains to set the given joint values, then update the position of all links
+  inline void setJointValuesAndUpdate(const double* jointVals);
+  //! Asks all chains to set the given joint values
+  inline void setJointValues(const double* jointVals);
   /*! Simply initializes an empty robot within world w.  The load method must be called to read a 
 	  configuration file and give structure to the robot. */
   Robot(World *w,const char *name) : WorldElement(w,name) {
@@ -627,7 +630,7 @@ void Robot::forceDOFVal(int dofNum,double val) {
 	getJointValues(jointVals);
 	dofVec[dofNum]->reset();
 	dofVec[dofNum]->accumulateMove(val, jointVals, NULL);
-	setJointValuesAndUpdate(jointVals);
+    setJointValuesAndUpdate(jointVals);
 	dofVec[dofNum]->updateVal(val);
 	delete [] jointVals;
 }

@@ -80,7 +80,7 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     stateMachine.addState(executionState);
     stateMachine.addState(stoppedExecutionState);
 
-    stateMachine.setInitialState(objectSelectionState);
+    stateMachine.setInitialState(activateRefinementState);
 }
 
 void BCIStateMachine::start()

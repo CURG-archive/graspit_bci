@@ -88,8 +88,6 @@ namespace bci_experiment
 
 
 
-
-
         void importGraspsFromDBMgr( OnLinePlanner * mPlanner, db_planner::DatabaseManager * mDbMgr)
         {
             Hand*mHand = mPlanner->getHand();

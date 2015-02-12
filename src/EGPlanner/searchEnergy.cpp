@@ -331,6 +331,10 @@ double SearchEnergy::energy() const
 			mHand->getGrasp()->collectVirtualContacts();
 			e = contactEnergy();
 			break;
+        case ENERGY_PARTIAL_VIEW_CONTACT:
+            mHand->getGrasp()->collectVirtualContacts();
+            e = partialViewContactEnergy();
+            break;
 		case ENERGY_POTENTIAL_QUALITY:
 			mHand->getGrasp()->collectVirtualContacts();
 			e = potentialQualityEnergy();
@@ -366,6 +370,10 @@ double SearchEnergy::energy() const
             mHand->getGrasp()->collectVirtualContacts();
             e = heatmapProjectionEnergyAndContactEnergy();
             break;
+        case ENERGY_HEATMAP_PARTIAL_VIEW_CONTACT:
+            mHand->getGrasp()->collectVirtualContacts();
+            e = heatmapProjectionEnergyAndPartialViewContactEnergy();
+            break;
 		default:
 			fprintf(stderr,"Wrong type of energy requested!\n");
 			e = 0;
@@ -378,10 +386,11 @@ SearchEnergy::contactEnergy() const
 {
 
 	VirtualContact *contact;
-    vec3 objectDistance,n,cn;
+    vec3 contactToBodyPointVec, n, cn;
+
     vec3 objectNormal;
 	double totalError = 0;
-
+    int num_visible = 0;
     int PALM_INDEX = 0;
     int FINGER_1_INDEX = 7;
     int FINGER_2_INDEX = 11;
@@ -394,34 +403,112 @@ SearchEnergy::contactEnergy() const
         {
 
             contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
-            contact->getObjectDistanceAndNormal(mObject, &objectDistance, &objectNormal);
+            contact->getObjectDistanceAndNormal(mObject, &contactToBodyPointVec, &objectNormal);
 
-            double dist = objectDistance.len();
+            double dist = contactToBodyPointVec.len();
+
+            position vc_in_world = contact->getWorldLocation();
+
+            vec3 bodyContactPointInWorld;
+            bodyContactPointInWorld.set(vc_in_world.x() - contactToBodyPointVec.x(),
+                                        vc_in_world.y() - contactToBodyPointVec.y(),
+                                        vc_in_world.z() - contactToBodyPointVec.z());
 
             cn = contact->getWorldNormal();
             n = normalise(objectNormal);
 
-            double d = 1 - cn % n;
+            //if camera to body_point and bodypoint to vc normals
+            //have common direction, then contact point is visible.
+            //if ( bodyContactPointInWorld % n > 0)
+            //{
+                num_visible += 1;
+                double d = 1 - cn % n;
 
-            std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
-            std::cout << "object normal: " << objectNormal << std::endl;
-            std::cout << "contact normal: " << cn << std::endl;
+                std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
+                std::cout << "object normal: " << objectNormal << std::endl;
+                std::cout << "contact normal: " << cn << std::endl;
 
 
-            //beter grasps have contacts closer to the object
-            totalError += dist;
+                //beter grasps have contacts closer to the object
+                totalError += dist;
 
-            //better grasps contacts normals are better aligned with the object normal at
-            //projected point of contact
-            totalError += d * 1000.0 / 2.0;
+                //better grasps contacts normals are better aligned with the object normal at
+                //projected point of contact
+                totalError += d * 1000.0 / 2.0;
+            //}
+
+
         }
 
 
 	}
 	
     totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
+    //totalError /= num_visible;
 		
 	return totalError;
+}
+
+
+double
+SearchEnergy::partialViewContactEnergy() const
+{
+
+    VirtualContact *contact;
+    vec3 contactToBodyPointVec, n, cn;
+
+    vec3 objectNormal;
+    double totalError = 0;
+    int num_visible = 0;
+    int PALM_INDEX = 0;
+    int FINGER_1_INDEX = 7;
+    int FINGER_2_INDEX = 11;
+    int FINGER_3_INDEX = 15;
+
+
+    for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
+    {
+            contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
+            contact->getObjectDistanceAndNormal(mObject, &contactToBodyPointVec, &objectNormal);
+
+            double dist = contactToBodyPointVec.len();
+
+            position vc_in_world = contact->getWorldLocation();
+
+            vec3 bodyContactPointInWorld;
+            bodyContactPointInWorld.set(vc_in_world.x() - contactToBodyPointVec.x(),
+                                        vc_in_world.y() - contactToBodyPointVec.y(),
+                                        vc_in_world.z() - contactToBodyPointVec.z());
+
+            cn = contact->getWorldNormal();
+            n = normalise(objectNormal);
+
+            //if camera to body_point and bodypoint to vc normals
+            //have common direction, then contact point is visible.
+            if ( bodyContactPointInWorld % n > 0)
+            {
+                num_visible += 1;
+                double d = 1 - cn % n;
+
+                std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
+                std::cout << "object normal: " << objectNormal << std::endl;
+                std::cout << "contact normal: " << cn << std::endl;
+
+
+                //beter grasps have contacts closer to the object
+                totalError += dist;
+
+                //better grasps contacts normals are better aligned with the object normal at
+                //projected point of contact
+                totalError += d * 1000.0 / 2.0;
+            }
+
+    }
+
+    totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
+    //totalError /= num_visible;
+
+    return totalError;
 }
 
 /*!	This formulation combines virtual contact energy with autograsp energy. Virtual contact energy is used to "guide"
@@ -946,6 +1033,32 @@ SearchEnergy::heatmapProjectionEnergyAndContactEnergy() const
 {
     //negative is better
     double contact_quality = contactEnergy();
+    double heatmap_quality = heatmapProjectionEnergy();
+
+    double heatmap_weight = .1;
+
+    std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
+    std::cout << "contact_quality: " << contact_quality << std::endl;
+    std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
+
+    double weighted_heatmap_quality = heatmap_weight * heatmap_quality;
+    double weighted_contact_quality = (1.0 - heatmap_weight) * contact_quality;
+
+    double grasp_quality = weighted_heatmap_quality + weighted_contact_quality;
+
+    std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
+    std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
+    std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
+
+
+    return grasp_quality;
+}
+
+double
+SearchEnergy::heatmapProjectionEnergyAndPartialViewContactEnergy() const
+{
+    //negative is better
+    double contact_quality = partialViewContactEnergy();
     double heatmap_quality = heatmapProjectionEnergy();
 
     double heatmap_weight = .1;

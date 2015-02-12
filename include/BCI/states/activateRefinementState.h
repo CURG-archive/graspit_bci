@@ -14,6 +14,9 @@ class ActivateRefinementState: public HandRotationState
 
 public:
     ActivateRefinementState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
+    std::vector<double*> jvs;
+    std::vector<double*> poses;
+    int grasp_index;
 
 public slots:
     virtual void onEntry(QEvent *e);

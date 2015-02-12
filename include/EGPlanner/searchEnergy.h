@@ -76,6 +76,7 @@ protected:
 	void createQualityMeasures();
 	void setHandAndObject(Hand *h, Body *o);
 	double contactEnergy() const;
+    double partialViewContactEnergy() const;
 	double potentialQualityEnergy(bool verbose = false) const;
 	double guidedPotentialQualityEnergy() const;
 	double autograspQualityEnergy() const;
@@ -85,6 +86,7 @@ protected:
 
     double heatmapProjectionEnergy() const;
     double heatmapProjectionEnergyAndContactEnergy() const;
+    double heatmapProjectionEnergyAndPartialViewContactEnergy() const;
     int getGraspType() const;
 
 	//! Closes the hand in dynamics mode, then computes grasp quality

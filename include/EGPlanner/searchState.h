@@ -249,10 +249,7 @@ class HandObjectState
 {
 private:
 	void init();
-	//! The variables that define the hand posture
-	PostureState *mPosture;
-	//! The variables that define the hand position relative to mRefTran
-	PositionState *mPosition;
+
 	//! A set of attributes with numerical values that are used to store information, but not to search on
 	/*! The attributes stored here are strictly characteristics of the HandObjectState,
 		they have no functional importance to saving or restoring the state. For
@@ -277,6 +274,10 @@ private:
 	SoMaterial *IVMat;
 	
 public:
+    //! The variables that define the hand posture
+    PostureState *mPosture;
+    //! The variables that define the hand position relative to mRefTran
+    PositionState *mPosition;
 	HandObjectState(Hand *h);
 	HandObjectState(const HandObjectState *s){init();copyFrom(s);}
 	virtual ~HandObjectState();
