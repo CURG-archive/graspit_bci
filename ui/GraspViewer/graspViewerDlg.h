@@ -30,7 +30,6 @@ private:
 
     void showGrasp();
 
-  
 public:
   GraspViewerDlg(QWidget *parent = 0) :
         QDialog(parent)

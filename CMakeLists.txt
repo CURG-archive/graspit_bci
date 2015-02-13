@@ -181,6 +181,12 @@ list(APPEND GRASPIT_CORE_FORM_DIRS ui/BCI ui/BCI/state_views ui/BCI/control_view
 list(APPEND GRASPIT_CORE_INCLUDE_DIRS include/BCI include/BCI/states include/BCI/state_views include/BCI/requests include/BCI/utils ui/BCI ui/BCI/state_views ui/BCI/control_views)
 list(APPEND GRASPIT_CORE_SOURCE_DIRS src/BCI src/BCI/requests src/Servers src/BCI/states src/BCI/utils ui/BCI/ ui/BCI/control_views ui/BCI/state_views)
 
+####################################
+#Grasp View
+####################################
+list(APPEND GRASPIT_CORE_FORM_DIRS ui/GraspViewer)
+list(APPEND GRASPIT_CORE_INCLUDE_DIRS  ui/GraspViewer)
+list(APPEND GRASPIT_CORE_SOURCE_DIRS  ui/GraspViewer)
 
 add_subdirectory(protocols)
 list(APPEND GRASPIT_CORE_SUBDIR_LIBS graspit_proto_msgs)
