@@ -358,7 +358,7 @@ void MainWindow::fileImportObstacle()
 void MainWindow::fileImportObject()
 {
   QString fn( QFileDialog::getOpenFileName(mWindow, QString(),
-			  QString(getenv("GRASPIT"))+QString("/models/objects"),
+			  QString(getenv("MODEL_PATH")),
 			  "Graspit XML Files (*.xml*)" ) );
 
   if ( !fn.isEmpty() ) {

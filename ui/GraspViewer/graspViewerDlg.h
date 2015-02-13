@@ -18,15 +18,23 @@ class GraspViewerDlg : public QDialog, public Ui::GraspViewerDlgUI
 
 private:
 
-    std::vector<double*> jointValues;
+    /*std::vector<double*> jointValues;
     std::vector<double*> poses;
-    std::vector<double> energy;
+    std::vector<double> energy;*/
 
     int graspIndex;
 
     GraspPlanningState *mHandObjectState;
     GraspableBody *mObject;
     Hand *mHand;
+
+    struct Grasp {
+        double energy;
+        double *joint_values; // = new double[ 8 ];
+        double *pose; // = new double[ 7 ];
+    };
+
+    std::vector<Grasp> grasps;
 
     void showGrasp();
 
