@@ -79,8 +79,8 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
         double *joint_values = new double[ 8 ];
         double *pose = new double[ 7 ];
         std::ostringstream filename;
-        filename << b->getName().toStdString() << "/graspExample.txt";
-
+        //filename << b->getName().toStdString() << "/graspExample.txt";
+        filename <<  "graspExample.txt";
 
         std::cout << filename.str() << std::endl;
         std::ifstream iFile;
@@ -102,7 +102,7 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
         }
         else
         {
-            std::cout << "Error reaading heatmaps, file is not open" << std::endl;
+            std::cout << "Error reading heatmaps, file is not open" << std::endl;
         }
         iFile.close();
 
@@ -111,33 +111,22 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
         vec3 t = vec3(pose[0], pose[1], pose[2]);
         transf tpos= transf(r,t);
 
-
-        //FILE *myfile  = fopen("graspExample.txt","w");
         Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
         GraspPlanningState grasp = GraspPlanningState(refHand);
         grasp.setPositionType(SPACE_COMPLETE);
-        refHand->updateDOFFromJoints(joint_values);
-        grasp.saveCurrentHandState();
+
+        //refHand->setJointValuesAndUpdate(joint_values);
+        //refHand->updateDOFFromJoints(joint_values);
+        //grasp.saveCurrentHandState();
         //grasp.setPostureType(SPACE_COMPLETE);
         grasp.mPosition->setTran(tpos);
-        //grasp.mPosture->storeHandDOF(joint_values);
+        grasp.mPosture->storeHandDOF(joint_values);
 
         std::cout << "num_variables: " << grasp.mPosture->getNumVariables() << std::endl;
 
-        //grasp.setObject(nextGrasp->getObject());
-        grasp.execute(refHand);
-        //activeRefinementView->showSelectedGrasp(refHand,grasp);
 
-//        //grasp.setTran(tpos);
-//        //Grasp g;
-//        grasp.setPositionType(SPACE_COMPLETE);
-//        grasp.setPostureType(SPACE_COMPLETE);
-//        //grasp.w
-//        grasp.execute(refHand);
-        //nextGrasp->changeHand(refHand);
-   //     grasp.execute(refHand);
-        //OnlinePlannerController::getInstance()->alignHand();
-        //OnlinePlannerController::getInstance()->sortGrasps();
+        grasp.execute(refHand);
+
         grasp_index ++;
 
     //}
@@ -145,28 +134,7 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
 
 void ActivateRefinementState::onPlannerUpdated(QEvent * e)
 {
-//    OnlinePlannerController::getInstance()->sortGrasps();
-//    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
-//    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-//    const GraspPlanningState *nextGrasp = bestGrasp;
-//    if(OnlinePlannerController::getInstance()->getNumGrasps())
-//    {
-//        nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);
-//    }
 
-//    if(bestGrasp)
-//    {
-//        activeRefinementView->showSelectedGrasp(hand,bestGrasp);
-//        QString graspID;
-//        bciControlWindow->currentState->setText("Refinement State - Grasp:" + graspID.setNum(bestGrasp->getAttribute("graspId")) );
-//    }
-
-//    if(nextGrasp)
-//    {
-//        activeRefinementView->showNextGrasp(hand, nextGrasp);
-//    }
-
-//    OnlinePlannerController::getInstance()->analyzeNextGrasp();
 }
 
 

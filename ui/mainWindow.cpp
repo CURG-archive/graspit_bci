@@ -67,6 +67,7 @@
 #include "gfoDlg.h"
 #include "contactExaminerDlg.h"
 #include "egPlannerDlg.h"
+#include "GraspViewer/graspViewerDlg.h"
 #ifdef CGDB_ENABLED
 #include "DBase/dbaseDlg.h"
 #include "DBase/dbasePlannerDlg.h"
@@ -127,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(mUI->graspGFOAction, SIGNAL(triggered()), this, SLOT(graspForceOptimization()));
 	// -- grasp menu, part I
 	QObject::connect(mUI->graspEigenGrasp_InterfaceAction, SIGNAL(triggered()), 
-					 this, SLOT(eigenGraspActivated()));
+                     this, SLOT(eigenGraspActivated()));
 	QObject::connect(mUI->graspContact_ExaminerAction, SIGNAL(triggered()),
 					 this, SLOT(graspContactExaminer_activated()));
 	QObject::connect(mUI->graspEigenGrasp_PlannerAction, SIGNAL(triggered()),
@@ -1302,18 +1303,9 @@ void MainWindow::updateTendonNamesBox()
 
 void MainWindow::bciActionView()
 {
-    //RosRPCZClient *rosClient = new RosRPCZClient();
-    //rosClient->runObjectRecognition();
-
-    BCIControlWindow *bciControlWindow = new BCIControlWindow(mWindow);    
-    bciControlWindow->showMaximized();
-
-    BCIService::getInstance()->init(bciControlWindow);
-
-    //must run this for stateMachine to take effect
-    bciControlWindow->exec();
-
-
-
+    int gb = mUI->graspedBodyBox->currentItem();
+    GraspViewerDlg *dlg = new GraspViewerDlg(mWindow);
+    dlg->setMembers(world->getCurrentHand(), world->getGB(gb));
+    dlg->show();
 }
 
