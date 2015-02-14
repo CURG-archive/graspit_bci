@@ -74,11 +74,8 @@ void HeatmapEnergyCalculator::setDir(QString dir)
         pathStream  << graspit_path << "/models/captured_meshes/"  << dir.toStdString().c_str() << "/";
         capturedMeshDir = pathStream.str();
 
-        std::cout << "updateGraspPriors1" << std::endl;
         updateGraspPriors();
-        std::cout << "updateGraspPriors2" << std::endl;
         updateHeatmaps();
-        std::cout << "updateGraspPriors3" << std::endl;
 
         heatmaps_inited = true;
     }
@@ -102,15 +99,15 @@ void HeatmapEnergyCalculator::updateGraspPriors()
 
         if (iFile.is_open())
         {
-            double *dof_values = new double[ num_dof ];
+            double *joint_values = new double[ num_joints ];
 
-            for (int j=0; j <num_dof; j++)
+            for (int j=0; j <num_joints; j++)
             {
                 iFile >> value;
-                dof_values[j] = value;
+                joint_values[j] = value;
             }
 
-            grasp_priors.push_back(dof_values);
+            grasp_priors.push_back(joint_values);
         }
         else
         {
@@ -121,7 +118,7 @@ void HeatmapEnergyCalculator::updateGraspPriors()
 
     }
 
-    grasp_priors_matrix = new flann::Matrix<double>(grasp_priors[0], num_grasp_priors, num_dof);
+    grasp_priors_matrix = new flann::Matrix<double>(grasp_priors[0], num_grasp_priors, num_joints);
     grasp_priors_index_ = new flann::Index< flann::L2<double> >(*grasp_priors_matrix, flann::KDTreeIndexParams(1));
     grasp_priors_index_->buildIndex();
 }
@@ -157,12 +154,15 @@ void HeatmapEnergyCalculator::readGraspPriorConfig()
 
     if (iFile.is_open())
     {
-        iFile >> num_grasp_priors >> num_dof;
+        iFile >> num_grasp_priors >> num_joints;
     }
     else
     {
         std::cout << "Error reading graspPriorsConfig.txt, file is not open" << std::endl;
     }
+
+    std::cout << "num_grasp_priors: " << num_grasp_priors << std::endl;
+    std::cout << "num_joints: " << num_joints << std::endl;
 }
 
 
@@ -213,17 +213,17 @@ int HeatmapEnergyCalculator::getGraspType() const
  {
      std::vector<double> query_joint_state;
 
-     double *dof_values = new double[ mHand->getNumDOF() ];
+     double *joint_values = new double[ mHand->getNumJoints() ];
 
-     mHand->getDOFVals(dof_values);
+     mHand->getJointValues(joint_values);
 
-     for (int dof_index=0; dof_index < mHand->getNumDOF(); ++dof_index)
+     for (int joint_index=0; joint_index < mHand->getNumJoints(); ++joint_index)
      {
-         query_joint_state.push_back(dof_values[dof_index]);
+         query_joint_state.push_back(joint_values[joint_index]);
      }
 
      std::vector<std::vector<int> > query_results_tmp;
-     flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1,mHand->getNumDOF());
+     flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1, mHand->getNumJoints());
 
      std::vector<std::vector<double> >query_distances;
      flann::SearchParams params(32, 0.0, true);
@@ -285,8 +285,8 @@ int HeatmapEnergyCalculator::getGraspType() const
 
              std::cout << "Heatmap index is: " << heatmap_index << std::endl;
 
-             int width_index = int(uv.x) - 64 ; //uv.x is between 0 and 640
-             int height_index = int(uv.y) - 64 ;  //uv.y is between 0 and 480
+             int width_index = int(uv.x) - int((640-width)/2) ; //uv.x is between 0 and 640
+             int height_index = int(uv.y) - int((480-height)/2) ;  //uv.y is between 0 and 480
 
              std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
 
@@ -295,7 +295,7 @@ int HeatmapEnergyCalculator::getGraspType() const
                  if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
                  {
                      std::cout << "appending to HeatMapQuality" << std::endl;
-                     heatmap_quality -= heatmaps[heatmap_index][height_index][width_index];
+                     heatmap_quality += heatmaps[heatmap_index][height_index][width_index];
                      std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][height_index][width_index] << std::endl;
 
                  }
@@ -306,7 +306,7 @@ int HeatmapEnergyCalculator::getGraspType() const
      }
 
 
-     return -heatmap_quality;
+     return heatmap_quality;
 
  }
 

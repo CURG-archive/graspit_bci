@@ -196,8 +196,7 @@ protected:
 
 
 
-  //! Gets the current joint values from the chains
-  inline void getJointValues(double* jointVals) const;
+
   //! Informs the dof's that certain values have been set.
   inline void updateDofVals(double *dofVals);
   //! Main function for obtaining joint values from the dofs given desired dof values
@@ -220,6 +219,9 @@ protected:
   friend void KinematicChain::attachRobot(Robot *r,const transf &offsetTr);
 
  public:
+
+  //! Gets the current joint values from the chains
+  inline void getJointValues(double* jointVals) const;
   //! Asks all chains to set the given joint values, then update the position of all links
   inline void setJointValuesAndUpdate(const double* jointVals);
   //! Asks all chains to set the given joint values
