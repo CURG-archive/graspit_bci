@@ -10,7 +10,7 @@
 class GraspPlanningState;
 class GraspableBody;
 class Hand;
-
+class QLabel;
 
 class GraspViewerDlg : public QDialog, public Ui::GraspViewerDlgUI
 {
@@ -44,6 +44,8 @@ public:
 
   {
       setupUi(this);
+      energyLabel->setText("Energy: ");
+      graspNumLabel->setText("Grasp 0/0");
   }
 	
   ~GraspViewerDlg(){destroy();}
