@@ -8,6 +8,8 @@
 #include "stdio.h"
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <stdlib.h>
 
 
 void GraspViewerDlg::setMembers( Hand *h, GraspableBody *b )
@@ -32,26 +34,34 @@ void GraspViewerDlg::prevGraspButton_clicked()
         graspIndex++ ;
     }
 
+    std::cout << "id: " << graspIndex << std::endl;
     showGrasp();
 }
-
 
 void GraspViewerDlg::nextGraspButton_clicked()
 {
     graspIndex++;
 
-    if(graspIndex = poses.size())
+    if(graspIndex == grasps.size())
     {
         graspIndex--;
     }
 
+    std::cout << "id: " << graspIndex << std::endl;
     showGrasp();
 }
 
 void GraspViewerDlg::showGrasp()
 {
-    double* pose = poses.at(graspIndex);
-    double* joints = jointValues.at(graspIndex);
+    double* pose = (grasps.at(graspIndex))->pose;
+    double* joints = (grasps.at(graspIndex))->joint_values;
+    double energy = (grasps.at(graspIndex))->energy;
+    std::cout << "energy: " <<energy << std::endl;
+
+    for (int i=0; i<7; i++)
+        std::cout << "p:" << pose[i] << std::endl;
+    for (int i=0; i<8; i++)
+        std::cout << "j:" << joints[i] << std::endl;
 
     vec3 translation = vec3(pose[0], pose[1], pose[2]);
     Quaternion rotation = Quaternion(pose[3], pose[4], pose[5], pose[6]);
@@ -59,7 +69,7 @@ void GraspViewerDlg::showGrasp()
 
     GraspPlanningState grasp = GraspPlanningState(mHand);
     grasp.setPositionType(SPACE_COMPLETE);
-    grasp.mPosition->setTran(handTransform);
+    grasp.mPosition->setTran(handTransform * mObject->getTran());
     grasp.mPosture->storeHandDOF(joints);
     grasp.execute(mHand);
 }
@@ -70,29 +80,65 @@ void GraspViewerDlg::showGrasp()
 void GraspViewerDlg::loadButton_clicked()
 {
     std::ostringstream filename;
-    filename <<  mObject->getName().toStdString() << "/grasps.txt";
+    QString dir = QString(getenv("GRASPS_PATH")) + QString("/");
+    filename << dir.toStdString() << mObject->getName().toStdString() << "/grasps.txt";
 
     std::cout << filename.str() << std::endl;
 
     std::ifstream iFile;
     iFile.open(filename.str());
 
-    double value;
-    double *joint_values = new double[ 8 ];
-    double *pose = new double[ 7 ];
     if (iFile.is_open())
     {
-        for(int j=0; j < 8; j++)
+        while(!iFile.eof())
         {
-            iFile >> value;
-            joint_values[j] =  value;
-        }
+            char buf[200];
 
-        for(int j=0; j < 7; j++)
-        {
-            iFile >> value;
-            pose[j] =  value;
+            iFile.getline(buf, sizeof(buf));
+
+            if (strncmp(" graspId", buf, 8) != 0) {
+                continue;
+            }
+
+            Grasp *g = new Grasp;
+
+            const char* token[10] = {};
+
+            //energy
+            iFile.getline(buf, sizeof(buf));
+
+
+            token[0] = strtok(buf, " ");
+            token[1] = strtok(0, " ");
+            g->energy = atof(token[1]);
+
+            
+            //joint angles
+            iFile.getline(buf, sizeof(buf));
+            //pose
+            iFile.getline(buf, sizeof(buf));
+
+            token[0] = strtok(buf, " ");
+            strtok(0, " ");
+            g->pose = new double[ 7 ];
+            for (int i=0; i<7; i++) {
+                token[i+1] = strtok(0, " ");
+                g->pose[i] = atof(token[i+1]);
+            }
+
+            //joint values
+            iFile.getline(buf, sizeof(buf));
+            token[0] = strtok(buf, " ");
+            g->joint_values = new double[ 8 ];
+            for (int i=0; i<8; i++) {
+                token[i+1] = strtok(0, " ");
+                g->joint_values[i] = atof(token[i+1]);
+            }
+
+            grasps.push_back(g);
+
         }
+        std::cout << "All grasps loaded..." <<std::endl;
     }
     else
     {
@@ -100,6 +146,7 @@ void GraspViewerDlg::loadButton_clicked()
     }
 
     iFile.close();
+
 }
 
 

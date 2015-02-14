@@ -72,5 +72,54 @@
   <include location="global">vector</include>
  </includes>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>loadGrasps</sender>
+   <signal>clicked()</signal>
+   <receiver>GraspViewerDlgUI</receiver>
+   <slot>loadButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nextGrasp</sender>
+   <signal>clicked()</signal>
+   <receiver>GraspViewerDlgUI</receiver>
+   <slot>nextGraspButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>prevGrasp</sender>
+   <signal>clicked()</signal>
+   <receiver>GraspViewerDlgUI</receiver>
+   <slot>prevGraspButton_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
