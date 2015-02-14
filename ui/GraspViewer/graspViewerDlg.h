@@ -34,13 +34,13 @@ private:
         double *pose; // = new double[ 7 ];
     };
 
-    std::vector<Grasp> grasps;
+    std::vector<Grasp*> grasps;
 
     void showGrasp();
 
 public:
   GraspViewerDlg(QWidget *parent = 0) :
-        QDialog(parent)
+      QDialog(parent),graspIndex(0)
 
   {
       setupUi(this);
