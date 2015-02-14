@@ -46,6 +46,7 @@
 #include "profiling.h"
 #include <fstream>
 #include <stdlib.h>     /* getenv */
+#include "heatmapEnergyCalculator.h"
 
 PROF_DECLARE(QS);
 
@@ -62,156 +63,17 @@ SearchEnergy::SearchEnergy()
 	mEpsQual = NULL;
 	mDisableRendering = true;
 	mOut = NULL;
-
-
-//    from rgb camera info topic for my kinect
-
-//    header:
-//      seq: 336
-//      stamp:
-//        secs: 1422642684
-//        nsecs: 378085858
-//      frame_id: /camera_rgb_optical_frame
-//    height: 480
-//    width: 640
-//    distortion_model: plumb_bob
-//    D: [0.0, 0.0, 0.0, 0.0, 0.0]
-//    K: [525.0, 0.0, 319.5, 0.0, 525.0, 239.5, 0.0, 0.0, 1.0]
-//    R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-//    P: [525.0, 0.0, 319.5, 0.0, 0.0, 525.0, 239.5, 0.0, 0.0, 0.0, 1.0, 0.0]
-//    binning_x: 0
-//    binning_y: 0
-//    roi:
-//      x_offset: 0
-//      y_offset: 0
-//      height: 0
-//      width: 0
-//      do_rectify: False
-
-    sensor_msgs::CameraInfo cam_info;
-
-    double D[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    std::vector<double> D_vec (D, D + sizeof(D) / sizeof(double) );
-
-    boost::array<double, 9> K =  {{525.0, 0.0, 319.5, 0.0, 525.0, 239.5, 0.0, 0.0, 1.0}};
-    boost::array<double, 9> R =  {{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}};
-    boost::array<double, 12> P =  {{525.0, 0.0, 319.5, 0.0, 0.0, 525.0, 239.5, 0.0, 0.0, 0.0, 1.0, 0.0}};
-
-    cam_info.height = 480;
-    cam_info.width = 640;
-    cam_info.distortion_model = "plumb_bob";
-    cam_info.D = D_vec;
-    cam_info.K = K;
-    cam_info.R = R;
-    cam_info.P = P;
-    cam_info.binning_x = 0;
-    cam_info.binning_y = 0;
-    cam_info.roi.x_offset = 0;
-    cam_info.roi.y_offset = 0;
-    cam_info.roi.height = 0;
-    cam_info.roi.width = 0;
-    cam_info.roi.do_rectify = false;
-
-    model_.fromCameraInfo(cam_info);
-    double value;
-    std::ifstream iFile;
-
-
-    int num_grasp_priors = 18;
-    int num_dof = 4;
-    std::cout<< "starting grasp priors import1" << std::endl;
-    std::vector<double*> grasp_priors;
-    std::cout<< "starting grasp priors import2" << std::endl;
-    char* graspit_path;
-    graspit_path = getenv ("GRASPIT");
-
-    std::cout<< "starting grasp priors import3" << std::endl;
-
-    for(int i=0; i < num_grasp_priors; i++)
-    {
-        std::ostringstream filename;
-        filename << graspit_path << "/grasp_priors/" << i << ".txt";
-        iFile.open(filename.str());
-
-        std::cout<< "looking at: " << filename.str() << std::endl;
-
-        double *dof_values = new double[ num_dof ];
-
-        for (int j=0; j <num_dof; j++)
-        {
-            std::cout<< i << " " << j <<  "\n";
-            iFile >> value;
-            dof_values[j] = value;
-        }
-
-        iFile.close();
-
-        grasp_priors.push_back(dof_values);
-
-    }
-    std::cout<< "Grasp Priors read in successfully \n";
-
-    grasp_priors_matrix = new flann::Matrix<double>(grasp_priors[0], num_grasp_priors, num_dof);
-    grasp_priors_index_ = new flann::Index< flann::L2<double> >(*grasp_priors_matrix, flann::KDTreeIndexParams(1));
-    grasp_priors_index_->buildIndex();
-
-    std::cout<< "Flann Index built successfully \n";
-
-
+    heatmapEnergyCalculator = new HeatmapEnergyCalculator();
 }
 
 void SearchEnergy::setHeatmapsDir(QString dir)
 {
-    int num_heatmaps = 72;
-    int height = 352;
-    int width = 512;
+    heatmapEnergyCalculator->setDir(dir);
+}
 
-    heatmaps.resize(num_heatmaps);
-    for(int i=0; i < num_heatmaps; i++){
-
-        heatmaps[i].resize(height);
-
-        for(int j=0; j < height; j++){
-            heatmaps[i][j].resize(width);
-        }
-    }
-
-    char* graspit_path;
-    graspit_path = getenv ("GRASPIT");
-    printf("The current path is: %s\n",dir.toStdString().c_str());
-
-
-    double value;
-    std::ifstream iFile;
-    for(int i=0; i < num_heatmaps; i++)
-    {
-        std::ostringstream filename;
-        filename << graspit_path << "/models/captured_meshes/"  << dir.toStdString().c_str() << "/heatmaps/" << i << ".txt";
-
-
-        std::cout << filename.str() << std::endl;
-        iFile.open(filename.str());
-        if (iFile.is_open())
-        {
-            for(int j=0; j < height; j++)
-            {
-                for(int k=0; k < width; k++)
-                {
-                    iFile >> value;
-                    heatmaps[i][j][k] =  value;
-                }
-            }
-        }
-        else
-        {
-            std::cout << "Error reaading heatmaps, file is not open" << std::endl;
-        }
-
-
-        iFile.close();
-    }
-
-    std::cout<< "Heatmaps read in sucessfully \n";
+double SearchEnergy::heatmapProjectionEnergy() const
+{
+    return heatmapEnergyCalculator->heatmapProjectionEnergy();
 }
 
 void
@@ -232,6 +94,7 @@ SearchEnergy::setHandAndObject(Hand *h, Body *o)
 		createQualityMeasures();
 	}
 	mObject = o;
+    heatmapEnergyCalculator->setHandAndObject(h, o);
 }
 
 SearchEnergy::~SearchEnergy()
@@ -917,116 +780,9 @@ SearchEnergy::strictAutograspEnergy() const
 }
 
 
- int SearchEnergy::getGraspType() const
- {
-     std::vector<double> query_joint_state;
-
-     double *dof_values = new double[ mHand->getNumDOF() ];
-
-     mHand->getDOFVals(dof_values);
-
-     for (int dof_index=0; dof_index < mHand->getNumDOF(); ++dof_index)
-     {
-         query_joint_state.push_back(dof_values[dof_index]);
-         std::cout << "building query; adding for dof_index: " << dof_index << " value: " <<dof_values[dof_index] << std::endl;
-     }
-
-     std::vector<std::vector<int> > query_results_tmp;
-     flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1,mHand->getNumDOF());
-
-     std::vector<std::vector<double> >query_distances;
-     flann::SearchParams params(32, 0.0, true);
-     double max_neighbor_distance = 100.0;
-     std::cout << "about to query flann" << std::endl;
-
-     grasp_priors_index_->radiusSearch(query_pose_mat, query_results_tmp,  query_distances, max_neighbor_distance,params);
-     std::cout << "about to return result" << std::endl;
-     return query_results_tmp[0][0];
- }
-
- double SearchEnergy::heatmapProjectionEnergy() const
- {
-     std::cout << std::endl << std::endl << "Entered heatmapProjectionEnergy" << std::endl;
-
-     double heatmap_quality = 0;
-     VirtualContact *contact;
-
-     for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
-     {
-
-//         int PALM_INDEX = 0;
-//         int FINGER_1_INDEX = 5;
-//         int FINGER_2_INDEX = 6;
-//         int FINGER_3_INDEX = 7;
-
-         int PALM_INDEX = 0;
-         int FINGER_1_INDEX = 7;
-         int FINGER_2_INDEX = 11;
-         int FINGER_3_INDEX = 15;
 
 
-         //NEED TO ENSURE THAT WE HAVE PALM OR F1, F2, F3, VC
-         if(i==PALM_INDEX || i == FINGER_1_INDEX || i == FINGER_2_INDEX || i ==FINGER_3_INDEX)
-         {
-             contact = (VirtualContact*)mHand->getGrasp()->getContact(i);
 
-             //Need to get contact location in relation to camera:
-             position worldPoint = contact->getWorldLocation();
-
-             //Need to get uv from image_geometry camera model
-             cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
-             cv::Point2d uv = model_.project3dToPixel(worldPointCV);
-
-             std::cout << "World Point in Meters: " << worldPointCV << std::endl;
-             std::cout << "UV for rgbd image: " << uv << std::endl;
-
-             int grasp_type = getGraspType();
-
-             int heatmap_index = 4*grasp_type ;
-
-             if (i == PALM_INDEX)
-             {
-                 heatmap_index += 0;
-             }
-             else if(i==FINGER_1_INDEX)
-             {
-                 heatmap_index += 1;
-             }
-             else if(i==FINGER_2_INDEX)
-             {
-                 heatmap_index += 2;
-             }
-             else if(i==FINGER_3_INDEX)
-             {
-                 heatmap_index += 3;
-             }
-
-             std::cout << "Heatmap index is: " << heatmap_index << std::endl;
-
-             int width_index = int(uv.x) - 64 ; //uv.x is between 0 and 640
-             int height_index = int(uv.y) - 64 ;  //uv.y is between 0 and 480
-
-             std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
-
-             if (heatmaps[heatmap_index].size() > height_index && height_index > 0)
-             {
-                 if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
-                 {
-                     std::cout << "appending to HeatMapQuality" << std::endl;
-                     heatmap_quality -= heatmaps[heatmap_index][height_index][width_index];
-                     std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][height_index][width_index] << std::endl;
-
-                 }
-             }
-
-
-         }
-     }
-
-
-     return -heatmap_quality;
-
- }
 
 double
 SearchEnergy::heatmapProjectionEnergyAndContactEnergy() const

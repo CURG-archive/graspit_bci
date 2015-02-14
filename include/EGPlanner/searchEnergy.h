@@ -39,6 +39,7 @@ class Hand;
 class Body;
 class QualityMeasure;
 class GraspPlanningState;
+class HeatmapEnergyCalculator;
 
 //! Computes the "quality" of a HandObjectState, which encapsulates the state of the hand 
 /*!	This class can compute the "quality" (or in other terms "energy") of a
@@ -60,15 +61,10 @@ protected:
 	QualityMeasure *mVolQual, *mEpsQual;
 	SearchEnergyType mType;
 	SearchContactType mContactType;
+    HeatmapEnergyCalculator *heatmapEnergyCalculator;
 	/*! If this flag is set, the hand is disconnected from the scene graph while 
 		the calculator does energy computations */
 	bool mDisableRendering;
-    std::vector<std::vector<std::vector<double> > > heatmaps;
-    image_geometry::PinholeCameraModel model_;
-
-    flann::Index<flann::L2<double> > *grasp_priors_index_;
-    flann::Matrix<double> *grasp_priors_matrix;
-
 
 	//! If not null, it will print its output here
 	mutable std::ostream *mOut;
