@@ -200,7 +200,7 @@ GraspItGUI::startMainLoop()
   mainWindow->setMainWorld(ivmgr->getWorld());
   mainWindow->mWindow->resize(QSize(1070,937));
   if(ivmgr->getWorld()->getNumRobots() > 0)
-      mainWindow->bciActionView();
+      mainWindow->graspActionView();
   SoQt::mainLoop();
 }
 

@@ -157,7 +157,7 @@ public slots:
 	void tendonNamesBoxActivated( int i);
 	void tendonVisibleCheckBox_toggled( bool vis);
     //--------------
-    void bciActionView();
+    void graspActionView();
 };
 
 #endif
