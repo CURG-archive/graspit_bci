@@ -874,7 +874,7 @@ SearchEnergy::potentialQualityScalingFunction(double dist, double cosTheta) cons
 		sf = cos( sf*sf ) + 1;
 	}
 	sf = sf*10;
-	if (sf < 0.25) sf = 0; //cut down on computation for tiny values. more than 50mm away
+    if (sf < 0.25) sf = 0; //cut down on comJakeputation for tiny values. more than 50mm away
 	return sf;
 	*/
     if (cosTheta < 0.7) return 0;

@@ -30,7 +30,7 @@ protected:
     int width;
 
     int num_grasp_priors;
-    int num_dof;
+    int num_joints;
 
     std::vector<std::vector<std::vector<double> > > heatmaps;
     image_geometry::PinholeCameraModel mCameraModel;
