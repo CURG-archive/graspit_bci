@@ -165,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(mUI->TendonForceInput, SIGNAL(valueChanged(int)), this, SLOT(TendonForceInput_valueChanged(int)));
 	QObject::connect(mUI->tendonNamesBox, SIGNAL(activated(int)), this, SLOT(tendonNamesBoxActivated(int)));
 	QObject::connect(mUI->tendonVisibleCheckBox, SIGNAL(toggled(bool)), this, SLOT(tendonVisibleCheckBox_toggled(bool)));  
-    QObject::connect(mUI->bciViewAction, SIGNAL(triggered()), this, SLOT(bciActionView()));
+    QObject::connect(mUI->graspViewAction, SIGNAL(triggered()), this, SLOT(graspActionView()));
 }
 
 /*!
@@ -1301,7 +1301,7 @@ void MainWindow::updateTendonNamesBox()
 }
 
 
-void MainWindow::bciActionView()
+void MainWindow::graspActionView()
 {
     int gb = mUI->graspedBodyBox->currentItem();
     GraspViewerDlg *dlg = new GraspViewerDlg(mWindow);

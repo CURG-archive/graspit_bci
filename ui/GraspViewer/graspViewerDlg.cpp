@@ -11,6 +11,7 @@
 #include <vector>
 #include <stdlib.h>
 
+#include <QLabel>
 
 void GraspViewerDlg::setMembers( Hand *h, GraspableBody *b )
 {
@@ -33,8 +34,10 @@ void GraspViewerDlg::prevGraspButton_clicked()
     {
         graspIndex++ ;
     }
-
-    std::cout << "id: " << graspIndex << std::endl;
+    graspNumLabel->setText(QString("Grasp: ") +
+                           QString::number(graspIndex) +
+                           QString("/") +
+                           QString::number(grasps.size()));
     showGrasp();
 }
 
@@ -46,8 +49,10 @@ void GraspViewerDlg::nextGraspButton_clicked()
     {
         graspIndex--;
     }
-
-    std::cout << "id: " << graspIndex << std::endl;
+    graspNumLabel->setText(QString("Grasp: ") +
+                           QString::number(graspIndex) +
+                           QString("/") +
+                           QString::number(grasps.size()));
     showGrasp();
 }
 
@@ -56,12 +61,9 @@ void GraspViewerDlg::showGrasp()
     double* pose = (grasps.at(graspIndex))->pose;
     double* joints = (grasps.at(graspIndex))->joint_values;
     double energy = (grasps.at(graspIndex))->energy;
-    std::cout << "energy: " <<energy << std::endl;
 
-    for (int i=0; i<7; i++)
-        std::cout << "p:" << pose[i] << std::endl;
-    for (int i=0; i<8; i++)
-        std::cout << "j:" << joints[i] << std::endl;
+    energyLabel->setText(QString("Energy: ") +
+                         QString::number(energy));
 
     vec3 translation = vec3(pose[0], pose[1], pose[2]);
     Quaternion rotation = Quaternion(pose[3], pose[4], pose[5], pose[6]);
@@ -146,6 +148,13 @@ void GraspViewerDlg::loadButton_clicked()
     }
 
     iFile.close();
+
+    //enable prev and next buttons, disable load button
+    loadGrasps->setEnabled(FALSE);
+    nextGrasp->setEnabled(TRUE);
+    prevGrasp->setEnabled(TRUE);
+
+    nextGraspButton_clicked();
 
 }
 
