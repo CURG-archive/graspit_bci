@@ -91,6 +91,7 @@ HEADERS	+= include/barrett.h \
 	include/EGPlanner/guidedPlanner.h \
 	include/EGPlanner/loopPlanner.h \
 	include/EGPlanner/timeTest.h \
+        include/EGPlanner/heatmapEnergyCalculator.h \
 	include/EGPlanner/graspTesterThread.h \
 	include/EGPlanner/onLineGraspInterface.h \
 	include/EGPlanner/listPlanner.h \
@@ -173,6 +174,7 @@ SOURCES	+= src/arch.cpp \
 	src/EGPlanner/guidedPlanner.cpp \
 	src/EGPlanner/loopPlanner.cpp \
 	src/EGPlanner/timeTest.cpp \
+        src/EGPlanner/heatmapEnergyCalculator.cpp \ 
 	src/EGPlanner/graspTesterThread.cpp \
 	src/EGPlanner/onLineGraspInterface.cpp \
 	src/EGPlanner/listPlanner.cpp \

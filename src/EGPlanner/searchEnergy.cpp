@@ -73,7 +73,7 @@ void SearchEnergy::setHeatmapsDir(QString dir)
 
 double SearchEnergy::heatmapProjectionEnergy() const
 {
-    return heatmapEnergyCalculator->heatmapProjectionEnergy();
+    return heatmapEnergyCalculator->heatmapProjectionEnergy(debug);
 }
 
 void
@@ -287,10 +287,12 @@ SearchEnergy::contactEnergy() const
                 num_visible += 1;
                 double d = 1 - cn % n;
 
-                std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
-                std::cout << "object normal: " << objectNormal << std::endl;
-                std::cout << "contact normal: " << cn << std::endl;
-
+                if(debug)
+                {
+                    std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
+                    std::cout << "object normal: " << objectNormal << std::endl;
+                    std::cout << "contact normal: " << cn << std::endl;
+                }
 
                 //beter grasps have contacts closer to the object
                 totalError += dist;
@@ -308,6 +310,11 @@ SearchEnergy::contactEnergy() const
 	
     totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
     //totalError /= num_visible;
+
+//    if (totalError < 30)
+//    {
+//        return 0;
+//    }
 		
 	return totalError;
 }

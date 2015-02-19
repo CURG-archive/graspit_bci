@@ -62,6 +62,7 @@ protected:
 	SearchEnergyType mType;
 	SearchContactType mContactType;
     HeatmapEnergyCalculator *heatmapEnergyCalculator;
+    bool debug;
 	/*! If this flag is set, the hand is disconnected from the scene graph while 
 		the calculator does energy computations */
 	bool mDisableRendering;
@@ -115,7 +116,7 @@ private slots:
 public:
 	SearchEnergy();
 	~SearchEnergy();
-
+    void setDebug(bool _debug){debug = _debug;}
     void setHeatmapsDir(QString dir);
 
 	void setType(SearchEnergyType t){mType = t;}

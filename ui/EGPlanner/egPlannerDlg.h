@@ -113,7 +113,7 @@ public slots:
 	void nextGraspButton_clicked();
 	void executeGraspButton_clicked();
 	void plannerUpdate();
-	void updateResults(bool render, bool execute);
+    void updateResults(bool render, bool execute, bool debug);
 	void updateStatus();
 	void energyBox_activated( const QString & );
 	void setContactsBox_toggled( bool checked);

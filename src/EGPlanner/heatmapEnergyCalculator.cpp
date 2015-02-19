@@ -2,6 +2,7 @@
 
 #include "EGPlanner/heatmapEnergyCalculator.h"
 #include <time.h>
+#include <sys/stat.h> //for checking if directory already exists in saveImage and mkdir
 
 #include "robot.h"
 #include "barrett.h"
@@ -18,6 +19,10 @@
 
 #include <fstream>
 #include <stdlib.h>
+
+#include <QGLWidget>
+#include <QRegion>
+#include <QPainter>
 
 
 
@@ -76,6 +81,7 @@ void HeatmapEnergyCalculator::setDir(QString dir)
 
         updateGraspPriors();
         updateHeatmaps();
+        updateRGBD();
 
         heatmaps_inited = true;
     }
@@ -208,6 +214,47 @@ void HeatmapEnergyCalculator::updateHeatmaps()
     }
 }
 
+void HeatmapEnergyCalculator::updateRGBD()
+{
+    rgbd.resize(4);
+    for(int i=0; i < 4; i++){
+
+        rgbd[i].resize(480);
+
+        for(int j=0; j < 480; j++){
+            rgbd[i][j].resize(640);
+        }
+    }
+
+    double value;
+    std::ifstream iFile;
+
+    std::ostringstream filename;
+    filename << capturedMeshDir << "rgbd.txt";
+
+    iFile.open(filename.str());
+    if (iFile.is_open())
+    {
+        for(int i = 0; i < 4; i++)
+            {
+            for(int j=0; j < 480; j++)
+            {
+                for(int k=0; k < 640; k++)
+                {
+                    iFile >> value;
+                    rgbd[i][j][k] =  value*255;
+                }
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Error reading rgbd, file is not open" << std::endl;
+    }
+
+    iFile.close();
+}
+
 
 int HeatmapEnergyCalculator::getGraspType() const
  {
@@ -230,10 +277,12 @@ int HeatmapEnergyCalculator::getGraspType() const
      double max_neighbor_distance = 100.0;
 
      grasp_priors_index_->radiusSearch(query_pose_mat, query_results_tmp,  query_distances, max_neighbor_distance,params);
-     return query_results_tmp[0][0];
+     //return query_results_tmp[0][0];
+    //return 2;
+     return 0;
  }
 
- double HeatmapEnergyCalculator::heatmapProjectionEnergy() const
+ double HeatmapEnergyCalculator::heatmapProjectionEnergy(bool debug) const
  {
      double heatmap_quality = 0;
      VirtualContact *contact;
@@ -259,9 +308,6 @@ int HeatmapEnergyCalculator::getGraspType() const
              cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
              cv::Point2d uv = mCameraModel.project3dToPixel(worldPointCV);
 
-             std::cout << "World Point in Meters: " << worldPointCV << std::endl;
-             std::cout << "UV for rgbd image: " << uv << std::endl;
-
              int grasp_type = getGraspType();
 
              int heatmap_index = 4*grasp_type ;
@@ -283,31 +329,145 @@ int HeatmapEnergyCalculator::getGraspType() const
                  heatmap_index += 3;
              }
 
-             std::cout << "Heatmap index is: " << heatmap_index << std::endl;
+             int width_index = int(uv.x)+ int((640-width)/2) ; //uv.x is between 0 and 640
+             int height_index = int(uv.y)+ int((480-height)/2) ;  //uv.y is between 0 and 480
 
-             int width_index = int(uv.x) - int((640-width)/2) ; //uv.x is between 0 and 640
-             int height_index = int(uv.y) - int((480-height)/2) ;  //uv.y is between 0 and 480
+             if(debug)
+             {
+                 std::cout << "World Point in Meters: " << worldPointCV << std::endl;
+                 std::cout << "UV for rgbd image: " << uv << std::endl;
+                 std::cout << "Heatmap index is: " << heatmap_index << std::endl;
+                 std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
+             }
 
-             std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
+
 
              if (heatmaps[heatmap_index].size() > height_index && height_index > 0)
              {
                  if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
                  {
-                     std::cout << "appending to HeatMapQuality" << std::endl;
-                     heatmap_quality += heatmaps[heatmap_index][height_index][width_index];
-                     std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][height_index][width_index] << std::endl;
+                     heatmap_quality += heatmaps[heatmap_index][480-height_index][640-width_index];
+
+                     if (debug)
+                     {
+                         std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][480-height_index][640-width_index] << std::endl;
+                         saveImage(heatmap_index, height_index, width_index);
+                     }
 
                  }
-             }
+                 else
+                 {
+                     heatmap_quality += 100;
+                 }
 
+             }
+             else{
+                 heatmap_quality += 100;
+             }
 
          }
      }
 
+//     QImage *img = new QImage(640, 480, QImage::Format_RGB16);
+
+//     for (int height_index = 0; height_index < 480; ++height_index)
+//     {
+//         for (int width_index = 0; width_index < 640; ++width_index)
+//         {
+//            double r = rgbd[0][height_index][width_index];
+//            double g = rgbd[1][height_index][width_index];
+//            double b = rgbd[2][height_index][width_index];
+//            img->setPixel(width_index, height_index,qRgb(r, g, b) );
+//         }
+//     }
+
+//     for (int index=0; index<mHand->getGrasp()->getNumContacts(); index++)
+//     {
+
+//         contact = (VirtualContact*)mHand->getGrasp()->getContact(index);
+//         //Need to get contact location in relation to camera:
+//         position worldPoint = contact->getWorldLocation();
+
+//         //Need to get uv from image_geometry camera model
+//         cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
+//         cv::Point2d uv = mCameraModel.project3dToPixel(worldPointCV);
+
+//         int width_index = int(uv.x) + int((640-width)/2) ; //uv.x is between 0 and 640
+//         int height_index = int(uv.y) + int((480-height)/2) ;  //uv.y is between 0 and 480
+
+//         for(int i=-4; i < 4; i++)
+//         {
+//             for(int j=-4; j < 4; j++)
+//             {
+//                 img->setPixel(640-width_index + i, 480-height_index+ j, qRgb(100, 100, 100));
+//             }
+//         }
+//     }
+
+//     QString debugFileName = QString("all_contacts.png");
+//     img->save(debugFileName);
+
 
      return heatmap_quality;
 
+ }
+
+
+ void HeatmapEnergyCalculator::saveImage(int heatmap_index, int height_intersect, int width_intersect) const
+ {
+     std::string saveImgDir = capturedMeshDir + "imgs/";
+     struct stat status = {0};
+     if ( stat(saveImgDir.c_str(), &status) == -1 ) {
+         mkdir(saveImgDir.c_str(), 0700);
+     }
+
+
+     QImage *img = new QImage(width, height, QImage::Format_RGB16);
+
+     for (int height_index = 0; height_index < height; ++height_index)
+     {
+         for (int width_index = 0; width_index < width; ++width_index)
+         {
+            double value = heatmaps[heatmap_index][height_index][width_index];
+            img->setPixel(width_index, height_index,qRgb(value, value, value) );
+         }
+     }
+
+     VirtualContact *contact;
+     for (int index=0; index<mHand->getGrasp()->getNumContacts(); index++)
+     {
+
+         contact = (VirtualContact*)mHand->getGrasp()->getContact(index);
+         //Need to get contact location in relation to camera:
+         position worldPoint = contact->getWorldLocation();
+
+         //Need to get uv from image_geometry camera model
+         cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
+         cv::Point2d uv = mCameraModel.project3dToPixel(worldPointCV);
+
+         int width_index = int(uv.x)+int((640-width)/2) ; //uv.x is between 0 and 640
+         int height_index = int(uv.y)+int((480-height)/2) ;  //uv.y is between 0 and 480
+
+         for(int i=-4; i < 4; i++)
+         {
+             for(int j=-4; j < 4; j++)
+             {
+                 img->setPixel(640-width_index + i, 480-height_index+ j, qRgb(0, 0, 254));
+             }
+         }
+     }
+
+     for(int i=-4; i < 4; i++)
+     {
+         for(int j=-4; j < 4; j++)
+         {
+             img->setPixel(640- width_intersect + i, 480 -height_intersect+ j, qRgb(254, 0, 0));
+         }
+     }
+
+
+     QString debugFileName = QString(saveImgDir.c_str()) + QString("heatmap_" + QString::number(heatmap_index) + ".png");
+     img->save(debugFileName);
  }
 
 

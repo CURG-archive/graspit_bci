@@ -33,6 +33,7 @@ protected:
     int num_joints;
 
     std::vector<std::vector<std::vector<double> > > heatmaps;
+    std::vector<std::vector<std::vector<double> > > rgbd;
     image_geometry::PinholeCameraModel mCameraModel;
 
     flann::Index<flann::L2<double> > *grasp_priors_index_;
@@ -45,6 +46,8 @@ protected:
 
     void updateGraspPriors();
     void updateHeatmaps();
+    void updateRGBD();
+    void saveImage(int heatmap_index, int height_intersect, int width_intersect) const;
 
     int getGraspType() const;
 
@@ -54,7 +57,7 @@ public:
     void setHandAndObject(Hand *h, Body *o);
     void setDir(QString dir);
 
-    double heatmapProjectionEnergy() const;
+    double heatmapProjectionEnergy(bool debug) const;
 
 };
 
