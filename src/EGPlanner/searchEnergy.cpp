@@ -377,9 +377,9 @@ SearchEnergy::partialViewContactEnergy() const
             //we are not contacting a visible portion of the model.
             else
             {
-                totalError += dist;
+                totalError += dist/100;
                 double d = 1 ;
-                totalError += d * 1000.0 / 2.0;
+                totalError += d * 10.0 / 2.0;
             }
 
     }
