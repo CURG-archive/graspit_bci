@@ -1,7 +1,5 @@
 #include "BCI/states/executionState.h"
 
-#include "BCI/onlinePlannerController.h"
-
 ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, QState *parent)
         : State("ExecutionState", parent), bciControlWindow(_bciControlWindow) {
     executionView = new ExecutionView(bciControlWindow->currentFrame);

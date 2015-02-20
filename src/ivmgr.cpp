@@ -1605,7 +1605,6 @@ IVmgr::saveImage(QString filename, SoSeparator *root) {
 #endif
     }
 
-
     SoSeparator *renderRoot = new SoSeparator;
     renderRoot->ref();
     renderRoot->addChild(myViewer->getCamera());
@@ -1618,9 +1617,12 @@ IVmgr::saveImage(QString filename, SoSeparator *root) {
     renderRoot->addChild(lightSep);
     renderRoot->addChild(sg);
 
+    myRenderer->setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);
+
     myRenderer->render(renderRoot);
 
     SbBool result;
+
     result = myRenderer->writeToFile(SbString(filename.latin1()),
             SbName(filename.section('.', -1)));
 

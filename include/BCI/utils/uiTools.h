@@ -4,6 +4,7 @@
 #include <Inventor/SbColor.h>
 #include <QString>
 #include <vector>
+#include <QtGui/qimage.h>
 
 class World;
 
@@ -24,6 +25,7 @@ namespace bci_experiment {
 
         EGPlanner *getCurrentPlanner();
 
+        void setQImageBGColor(QImage * img, QRgb color = qRgba(0, 0, 0, 0));
         //! Make a particular body a particular color
         void highlightBody(Body *b, SbColor color);
 

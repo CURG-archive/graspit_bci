@@ -9,7 +9,6 @@
 #include <searchState.h>
 #include "BCI/utils/worldElementTools.h"
 #include "SoRing.h"
-#include <Inventor/SbColor.h>
 #include "SoArrow.h"
 
 using bci_experiment::world_element_tools::getWorld;
@@ -18,6 +17,19 @@ using bci_experiment::world_element_tools::getNextGraspableBody;
 
 namespace bci_experiment {
     namespace ui_tools {
+
+        void setQImageBGColor(QImage *img, QRgb color) {
+            QImage mask = img->createHeuristicMask(true);
+            QColor maskColor;
+            for (int y = 0; y < img->height(); ++y) {
+                for (int x = 0; x < img->width(); ++x) {
+                    maskColor = QColor(mask.pixel(x, y));
+                    if (maskColor.black() == 0) {
+                        img->setPixel(x, y, color);
+                    }
+                }
+            }
+        }
 
         void highlightBody(Body *b, SbColor color) {
             b->getIVMat()->emissiveColor.setIgnored(false);

@@ -1,7 +1,4 @@
 #include "BCI/states/confirmationState.h"
-#include  <QSignalTransition>
-#include "world.h"
-#include "BCI/onlinePlannerController.h"
 #include "BCI/handView.h"
 
 using bci_experiment::world_element_tools::getWorld;
@@ -22,6 +19,7 @@ void ConfirmationState::onEntry(QEvent *e) {
     confirmationView->show();
     bciControlWindow->currentState->setText("Confirmation");
     OnlinePlannerController::getInstance()->setPlannerToPaused();
+    sendOptionChoice();
 }
 
 void ConfirmationState::onNextGrasp(QEvent *e) {
@@ -57,9 +55,15 @@ void ConfirmationState::generateImageOptions(bool debug) {
     imageCosts.clear();
 
     stringOptions.push_back(QString("Go Back - RePlan"));
+    imageDescriptions.push_back(QString("Go Back - RePlan"));
+    size_t numDistractors = 8;
+
+    for (size_t i = 0; i < numDistractors; ++i) {
+        stringOptions.push_back(QString("Distractor"));
+        imageDescriptions.push_back(QString("Distractor"));
+    }
 
     generateStringImageOptions(debug);
-    imageDescriptions.push_back(stringOptions[0]);
 
     //! Get grasp planning state
     QString debugFileName = "";
@@ -71,6 +75,7 @@ void ConfirmationState::generateImageOptions(bool debug) {
     imageCosts.push_back(.25);
     imageDescriptions.push_back(QString("GraspID: ") + QString::number(sentChoice->getAttribute("graspId")));
 
+
     //! Add distractor images here?
 }
 
@@ -79,19 +84,17 @@ ConfirmationState::respondOptionChoice(unsigned int option, float confidence, st
     //if (!sentChoice)
     //    return;
     DBGA("ConfirmationSTate::respondOptionChoice - Entered");
-    switch (option) {
-        case 0: {
-            BCIService::getInstance()->emitNext();
-            break;
-        }
-        case 1: {
-            BCIService::getInstance()->emitExec();
-            break;
-        }
-        default: {
-            DBGA("Incorrect option index");
-            return;
-        }
-
-    }//switch
+    DBGA("Received : " << option << " " << interestLevel.size() - 1);
+    if (option == 0) {
+        // The 0th option will emit go back to replan and emit the next signal
+        BCIService::getInstance()->emitNext();
+    }
+    else if (option == interestLevel.size() - 1) {
+        // The last option will go to exec and execute the grasp
+        BCIService::getInstance()->emitExec();
+    }
+    else {
+        // Everything else will do nothing and just send again
+        sendOptionChoice();
+    }
 }

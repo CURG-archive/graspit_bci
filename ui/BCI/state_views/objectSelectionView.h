@@ -37,6 +37,8 @@ public:
 
     ~ObjectSelectionView();
 
+    Ui::ObjectSelectionView * getUI() { return ui; };
+
 private:
 
     Ui::ObjectSelectionView *ui;

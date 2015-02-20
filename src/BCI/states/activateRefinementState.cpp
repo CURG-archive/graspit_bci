@@ -1,8 +1,6 @@
 #include "BCI/states/activateRefinementState.h"
 
 #include <QGLWidget>
-#include <QRegion>
-#include <QPainter>
 
 using bci_experiment::OnlinePlannerController;
 using bci_experiment::world_element_tools::getWorld;
@@ -109,14 +107,14 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
     imageCosts.clear();
     sentChoices.clear();
 
-    OnlinePlannerController * ctrl = OnlinePlannerController::getInstance();
-    Hand * hand = ctrl->getGraspDemoHand();
+    OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
+    Hand *hand = ctrl->getGraspDemoHand();
 
     ctrl->sortGrasps();
     DBGA("Found " << ctrl->getNumGrasps() << " grasps");
 
     for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
-        GraspPlanningState * grasp = new GraspPlanningState(ctrl->getGrasp(i));
+        GraspPlanningState *grasp = new GraspPlanningState(ctrl->getGrasp(i));
         if (grasp->getAttribute("testResult") < 0) {
             DBGA("Skipping grasp " << i << " because it has score " << grasp->getAttribute("testResult"));
             continue;
@@ -127,25 +125,19 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
 
         ctrl->emitRender();
 
-        QImage * img = activeRefinementView->getHandView()->getSnapShot();
 
-        if (imageOptions.size() == 0) {
-            // set the background for the first one to a different color
-            QImage mask = img->createHeuristicMask(true);
-            QColor maskColor;
-            for (int y = 0; y < img->height(); ++y) {
-                for (int x = 0; x < img->width(); ++x) {
-                    maskColor = QColor(mask.pixel(x, y));
-                    if (maskColor.black() == 0) {
-                        img->setPixel(x, y, qRgb(100, 0, 100));
-                    }
-                }
-            }
+        QString debugFileName = "";
+        if (debug) {
+            debugFileName = QString("active_refinement_img" + QString::number(imageOptions.size()) + ".png");
         }
 
-        if (debug) {
-            QString debugFileName = QString("active_refinement_img" + QString::number(imageOptions.size()) + ".png");
-            img->save(debugFileName);
+        QImage *img = graspItGUI->getIVmgr()->generateImage(activeRefinementView->getHandView()->getIVRoot(), debugFileName);
+
+        if (imageOptions.size() == 0) {
+            ui_tools::setQImageBGColor(img, qRgb(0, 0, 255));
+            if (debug) {
+                img->save(debugFileName);
+            }
         }
 
         imageOptions.push_back(img);
@@ -171,11 +163,11 @@ void ActivateRefinementState::respondOptionChoice(unsigned int option,
     }
     choicesValid = false;
 
-    GraspPlanningState * grasp_opt = sentChoices[option - stringOptions.size()];
+    GraspPlanningState *grasp_opt = sentChoices[option - stringOptions.size()];
 
     double graspid = grasp_opt->getAttribute("graspId");
 
-    OnlinePlannerController * ctrl = OnlinePlannerController::getInstance();
+    OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
 
     int grasp_index = -1;
 
@@ -192,13 +184,14 @@ void ActivateRefinementState::respondOptionChoice(unsigned int option,
         choiceTimer->start(2500);
         return;
     } else {
-        const GraspPlanningState * grasp = ctrl->getGrasp(grasp_index);
+        const GraspPlanningState *grasp = ctrl->getGrasp(grasp_index);
+        // picked the highlighted option!
+        DBGA("Current grasp selected");
+        Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
+        grasp->execute(refHand);
+        ctrl->alignHand();
+
         if (grasp_index == 0) {
-            // picked the highlighted option!
-            DBGA("Current grasp selected");
-            Hand * refHand = OnlinePlannerController::getInstance()->getRefHand();
-            grasp->execute(refHand);
-            ctrl->alignHand();
             BCIService::getInstance()->emitGoToNextState1();
         } else {
             DBGA("Rescheduling!");

@@ -1,6 +1,5 @@
 #include "BCI/states/objectSelectionState.h"
 #include "BCI/state_views/objectSelectionView.h"
-#include "graspitGUI.h"
 #include <QGLWidget>
 
 using bci_experiment::world_element_tools::getWorld;
@@ -123,13 +122,22 @@ void ObjectSelectionState::generateImageOptions(bool debug) {
     imageDescriptions.push_back(stringOptions[0]);
     imageCosts.push_back(.5);
 
-    for (int i = 0; i < graspItGUI->getIVmgr()->getWorld()->getNumGB(); ++i) {
+    for (int i = 0; i < graspItGUI->getIVmgr()->getWorld()->getNumGB(); ++i, OnlinePlannerController::getInstance()->incrementCurrentTarget()) {
         GraspableBody *newTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
         WorldController::getInstance()->highlightCurrentBody(newTarget);
         OnlinePlannerController::getInstance()->emitRender();
-        QGLWidget *glwidget = static_cast<QGLWidget *>(graspItGUI->getIVmgr()->getViewer()->getGLWidget());
-        QImage fb = glwidget->grabFrameBuffer();
-        QImage *img = new QImage(fb);
+        //QGLWidget *glwidget = static_cast<QGLWidget *>(graspItGUI->getIVmgr()->getViewer()->getGLWidget());
+        //glwidget->swapBuffers();
+        //QImage fb = glwidget->grabFrameBuffer();
+        //QImage *img = new QImage(fb);
+        QString debugFileName = "";
+
+        if (debug) {
+            debugFileName = QString("grasp_selection_img" + QString::number(imageOptions.size()) + ".png");
+        }
+
+        QImage *img = graspItGUI->getIVmgr()->generateImage(getWorld()->getIVRoot(), debugFileName);
+
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
         imageDescriptions.push_back(QString("Select target:") + newTarget->getName());

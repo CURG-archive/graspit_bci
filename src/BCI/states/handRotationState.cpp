@@ -1,5 +1,4 @@
 #include "BCI/states/handRotationState.h"
-#include "BCI/onlinePlannerController.h"
 
 
 using bci_experiment::world_element_tools::getWorld;

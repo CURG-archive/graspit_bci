@@ -1,5 +1,4 @@
 #include "BCI/states/graspSelectionState.h"
-#include "BCI/onlinePlannerController.h"
 #include <QPushButton>
 #include <QGLWidget>
 
@@ -164,15 +163,15 @@ void GraspSelectionState::generateImageOptions(bool debug) {
 
     stringOptions.push_back(QString("Select Different Object"));
 
-    OnlinePlannerController * ctrl = OnlinePlannerController::getInstance();
-    Hand * hand = ctrl->getGraspDemoHand();
+    OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
+    Hand *hand = ctrl->getGraspDemoHand();
 
     ctrl->sortGrasps();
     generateStringImageOptions(debug);
     imageDescriptions.push_back(stringOptions[0]);
     imageCosts.push_back(.5);
 
-    while(!graspSelectionView->getHandView()) {
+    while (!graspSelectionView->getHandView()) {
         DBGA("waiting for handview")
         sleep(1);
     }
@@ -189,7 +188,7 @@ void GraspSelectionState::generateImageOptions(bool debug) {
             debugFileName = QString("grasp_selection_img" + QString::number(imageOptions.size()) + ".png");
         }
 
-        QImage * img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
+        QImage *img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
 
         sentChoices.push_back(new GraspPlanningState(currentGrasp));
 
@@ -236,7 +235,7 @@ void GraspSelectionState::respondOptionChoice(unsigned int option, float confide
         }
         //Go to grasp refinement state or exec state -- FIXME this is an ugly ugly hack.
         DBGA("Found Current Grasp");
-        if(stateName.contains(QString("Final")))
+        if (stateName.contains(QString("Final")))
             BCIService::getInstance()->emitExec();
         else
             BCIService::getInstance()->emitNext();

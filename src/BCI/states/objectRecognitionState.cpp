@@ -1,5 +1,4 @@
 #include "BCI/states/objectRecognitionState.h"
-#include "BCI/onlinePlannerController.h"
 
 using bci_experiment::OnlinePlannerController;
 
