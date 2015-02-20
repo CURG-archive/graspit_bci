@@ -53,6 +53,7 @@ class HandViewWindow;
 
 
 
+
 /*! The EGPlannerDialog can interface to most of the types of EGPlanners, 
 	pass them any type of HandObjectState as a starting position, accept 
 	changes to the Input provided to the Planner, etc. This is the primary 

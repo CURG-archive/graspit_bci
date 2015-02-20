@@ -49,7 +49,7 @@ protected:
     void updateRGBD();
     void saveImage(int heatmap_index, int height_intersect, int width_intersect) const;
 
-    int getGraspType() const;
+    int getGraspType(std::vector<std::vector<int> > neighbors, std::vector<std::vector<double> > neighbor_distances) const;
 
 public:
     HeatmapEnergyCalculator();

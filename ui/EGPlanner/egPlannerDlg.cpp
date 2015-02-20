@@ -62,7 +62,7 @@
 #include <dirent.h>
 //#define GRASPITDBG
 #include "debug.h"
-
+#include "searchEnergy.h"
 
 #include <fstream>
 
@@ -431,20 +431,20 @@ void EigenGraspPlannerDlg::spaceSearchBox_activated( const QString &s )
 void EigenGraspPlannerDlg::prevGraspButton_clicked()
 {
   mDisplayState--;
-  updateResults(true, false);
+  updateResults(true, false, true);
 }
 
 void EigenGraspPlannerDlg::bestGraspButton_clicked()
 {
   if (!mPlanner) return;
   mDisplayState = 0;
-  updateResults(true, false);
+  updateResults(true, false, true);
 }
 
 void EigenGraspPlannerDlg::nextGraspButton_clicked()
 {
   mDisplayState++;
-  updateResults(true, false);
+  updateResults(true, false, true);
 };
 
 //If there is a planner and a valid grasp, execute it
@@ -454,7 +454,7 @@ void EigenGraspPlannerDlg::executeGraspButton_clicked()
 
   if (mPlanner && mPlanner->getListSize() > 0)
     {
-      updateResults(true, true);
+      updateResults(true, true, true);
       std::cout<< " Posture in executeGraspButton_clicked():";
       const_cast<GraspPlanningState * >(mPlanner->getGrasp(mDisplayState))->getPosture()->print();
       onlineGraspButton_clicked();
@@ -465,17 +465,18 @@ void EigenGraspPlannerDlg::plannerUpdate()
 {
   assert(mPlanner);
   //  mDisplayState = 0;
-  updateResults(false, false);
+  updateResults(false, false, false);
   //if we are using the CyberGlove for input this updates the target values
   if (inputGloveBox->isChecked()) {
     updateInputLayout();
   }
 }
 
-void EigenGraspPlannerDlg::updateResults(bool render, bool execute)
+void EigenGraspPlannerDlg::updateResults(bool render, bool execute, bool debug)
 {
   {
   assert(mPlanner);
+  mPlanner->mEnergyCalculator->setDebug(debug);
   if (execute) assert( mPlanner->getType() == PLANNER_ONLINE);
 
   QString nStr;

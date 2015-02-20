@@ -353,17 +353,19 @@ SearchEnergy::partialViewContactEnergy() const
             cn = contact->getWorldNormal();
             n = normalise(objectNormal);
 
+            if(debug)
+            {
+                std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
+                std::cout << "object normal: " << objectNormal << std::endl;
+                std::cout << "contact normal: " << cn << std::endl;
+            }
+
             //if camera to body_point and bodypoint to vc normals
             //have common direction, then contact point is visible.
             if ( bodyContactPointInWorld % n > 0)
             {
                 num_visible += 1;
                 double d = 1 - cn % n;
-
-                std::cout << "dist: " << dist << " cn%n: " << cn % n << std::endl;
-                std::cout << "object normal: " << objectNormal << std::endl;
-                std::cout << "contact normal: " << cn << std::endl;
-
 
                 //beter grasps have contacts closer to the object
                 totalError += dist;
@@ -372,11 +374,18 @@ SearchEnergy::partialViewContactEnergy() const
                 //projected point of contact
                 totalError += d * 1000.0 / 2.0;
             }
+            //we are not contacting a visible portion of the model.
+            else
+            {
+                totalError += dist;
+                double d = 1 ;
+                totalError += d * 1000.0 / 2.0;
+            }
 
     }
 
-    totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
-    //totalError /= num_visible;
+    //totalError /= 4.0;//mHand->getGrasp()->getNumContacts();
+    totalError /= num_visible;
 
     return totalError;
 }
@@ -800,19 +809,20 @@ SearchEnergy::heatmapProjectionEnergyAndContactEnergy() const
 
     double heatmap_weight = .1;
 
-    std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
-    std::cout << "contact_quality: " << contact_quality << std::endl;
-    std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
-
     double weighted_heatmap_quality = heatmap_weight * heatmap_quality;
     double weighted_contact_quality = (1.0 - heatmap_weight) * contact_quality;
 
     double grasp_quality = weighted_heatmap_quality + weighted_contact_quality;
 
-    std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
-    std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
-    std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
-
+    if(debug)
+    {
+        std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
+        std::cout << "contact_quality: " << contact_quality << std::endl;
+        std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
+        std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
+        std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
+        std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
+    }
 
     return grasp_quality;
 }
@@ -826,19 +836,20 @@ SearchEnergy::heatmapProjectionEnergyAndPartialViewContactEnergy() const
 
     double heatmap_weight = .1;
 
-    std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
-    std::cout << "contact_quality: " << contact_quality << std::endl;
-    std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
-
     double weighted_heatmap_quality = heatmap_weight * heatmap_quality;
     double weighted_contact_quality = (1.0 - heatmap_weight) * contact_quality;
 
     double grasp_quality = weighted_heatmap_quality + weighted_contact_quality;
 
-    std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
-    std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
-    std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
-
+    if(debug)
+    {
+        std::cout << "heatmap_quality: " << heatmap_quality << std::endl;
+        std::cout << "contact_quality: " << contact_quality << std::endl;
+        std::cout << "heatmap_weight: " << heatmap_weight << std::endl;
+        std::cout << "weighted_heatmap_quality: " << weighted_heatmap_quality << std::endl;
+        std::cout << "weighted_contact_quality: " << weighted_contact_quality << std::endl;
+        std::cout << "grasp_quality: " << grasp_quality << std::endl << std::endl;
+    }
 
     return grasp_quality;
 }

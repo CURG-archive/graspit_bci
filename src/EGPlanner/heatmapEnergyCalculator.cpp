@@ -256,7 +256,7 @@ void HeatmapEnergyCalculator::updateRGBD()
 }
 
 
-int HeatmapEnergyCalculator::getGraspType() const
+int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbors, std::vector<std::vector<double> > neighbor_distances) const
  {
      std::vector<double> query_joint_state;
 
@@ -269,23 +269,48 @@ int HeatmapEnergyCalculator::getGraspType() const
          query_joint_state.push_back(joint_values[joint_index]);
      }
 
-     std::vector<std::vector<int> > query_results_tmp;
+     //std::vector<std::vector<int> > neighbors;
      flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1, mHand->getNumJoints());
 
-     std::vector<std::vector<double> >query_distances;
+     //std::vector<std::vector<double> >neighbor_distances;
      flann::SearchParams params(32, 0.0, true);
-     double max_neighbor_distance = 100.0;
+     double max_neighbor_distance = 30.0;
 
-     grasp_priors_index_->radiusSearch(query_pose_mat, query_results_tmp,  query_distances, max_neighbor_distance,params);
-     //return query_results_tmp[0][0];
-    //return 2;
-     return 0;
+     grasp_priors_index_->radiusSearch(query_pose_mat, neighbors,  neighbor_distances, max_neighbor_distance, params);
+
+     //no grasp types near this configuration
+     //so retrun -1, we are currently in a hand configuraton unlike any of the grasp types
+     if (neighbors.empty() || neighbors.at(0).empty())
+     {
+        return -1;
+     }
+     else
+     {
+         return neighbors[0][0];
+     }
  }
 
  double HeatmapEnergyCalculator::heatmapProjectionEnergy(bool debug) const
  {
      double heatmap_quality = 0;
      VirtualContact *contact;
+
+     std::vector<std::vector<int> > neighbors;
+     std::vector<std::vector<double> > neighbor_distances;
+
+     int grasp_type = getGraspType(neighbors, neighbor_distances);
+
+     if(debug)
+     {
+         std::cout << "grasp_type: " << grasp_type << std::endl;
+     }
+
+     //we are not close to any grasp type
+     //so we are not in a good hand configuration.
+     if (grasp_type == -1)
+     {
+         return 1000;
+     }
 
      for (int i=0; i<mHand->getGrasp()->getNumContacts(); i++)
      {
@@ -307,8 +332,6 @@ int HeatmapEnergyCalculator::getGraspType() const
              //Need to get uv from image_geometry camera model
              cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
              cv::Point2d uv = mCameraModel.project3dToPixel(worldPointCV);
-
-             int grasp_type = getGraspType();
 
              int heatmap_index = 4*grasp_type ;
 
@@ -341,7 +364,6 @@ int HeatmapEnergyCalculator::getGraspType() const
              }
 
 
-
              if (heatmaps[heatmap_index].size() > height_index && height_index > 0)
              {
                  if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
@@ -367,46 +389,6 @@ int HeatmapEnergyCalculator::getGraspType() const
 
          }
      }
-
-//     QImage *img = new QImage(640, 480, QImage::Format_RGB16);
-
-//     for (int height_index = 0; height_index < 480; ++height_index)
-//     {
-//         for (int width_index = 0; width_index < 640; ++width_index)
-//         {
-//            double r = rgbd[0][height_index][width_index];
-//            double g = rgbd[1][height_index][width_index];
-//            double b = rgbd[2][height_index][width_index];
-//            img->setPixel(width_index, height_index,qRgb(r, g, b) );
-//         }
-//     }
-
-//     for (int index=0; index<mHand->getGrasp()->getNumContacts(); index++)
-//     {
-
-//         contact = (VirtualContact*)mHand->getGrasp()->getContact(index);
-//         //Need to get contact location in relation to camera:
-//         position worldPoint = contact->getWorldLocation();
-
-//         //Need to get uv from image_geometry camera model
-//         cv::Point3d worldPointCV(-worldPoint.x()/1000,-worldPoint.y()/1000,worldPoint.z()/1000);
-//         cv::Point2d uv = mCameraModel.project3dToPixel(worldPointCV);
-
-//         int width_index = int(uv.x) + int((640-width)/2) ; //uv.x is between 0 and 640
-//         int height_index = int(uv.y) + int((480-height)/2) ;  //uv.y is between 0 and 480
-
-//         for(int i=-4; i < 4; i++)
-//         {
-//             for(int j=-4; j < 4; j++)
-//             {
-//                 img->setPixel(640-width_index + i, 480-height_index+ j, qRgb(100, 100, 100));
-//             }
-//         }
-//     }
-
-//     QString debugFileName = QString("all_contacts.png");
-//     img->save(debugFileName);
-
 
      return heatmap_quality;
 
