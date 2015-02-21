@@ -84,7 +84,30 @@ void HeatmapEnergyCalculator::setDir(QString dir)
         updateRGBD();
 
         heatmaps_inited = true;
+        std::cout << "heatmaps inited" << std::endl;
     }
+}
+
+
+void HeatmapEnergyCalculator::readGraspPriorConfig()
+{
+    std::ifstream configFile;
+    std::ostringstream filename;
+    filename << capturedMeshDir << "graspPriorsConfig.txt" ;
+    std::ifstream iFile;
+    iFile.open(filename.str());
+
+    if (iFile.is_open())
+    {
+        iFile >> num_grasp_priors >> num_joints;
+    }
+    else
+    {
+        std::cout << "Error reading graspPriorsConfig.txt, file is not open" << std::endl;
+    }
+
+    std::cout << "num_grasp_priors: " << num_grasp_priors << std::endl;
+    std::cout << "num_joints: " << num_joints << std::endl;
 }
 
 
@@ -129,6 +152,7 @@ void HeatmapEnergyCalculator::updateGraspPriors()
     grasp_priors_index_->buildIndex();
 }
 
+
 void HeatmapEnergyCalculator::readHeatmapConfig()
 {
     std::ifstream configFile;
@@ -150,26 +174,7 @@ void HeatmapEnergyCalculator::readHeatmapConfig()
     std::cout << "width: " << width << std::endl;
 }
 
-void HeatmapEnergyCalculator::readGraspPriorConfig()
-{
-    std::ifstream configFile;
-    std::ostringstream filename;
-    filename << capturedMeshDir << "graspPriorsConfig.txt" ;
-    std::ifstream iFile;
-    iFile.open(filename.str());
 
-    if (iFile.is_open())
-    {
-        iFile >> num_grasp_priors >> num_joints;
-    }
-    else
-    {
-        std::cout << "Error reading graspPriorsConfig.txt, file is not open" << std::endl;
-    }
-
-    std::cout << "num_grasp_priors: " << num_grasp_priors << std::endl;
-    std::cout << "num_joints: " << num_joints << std::endl;
-}
 
 
 void HeatmapEnergyCalculator::updateHeatmaps()
@@ -352,8 +357,11 @@ int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbo
                  heatmap_index += 3;
              }
 
-             int width_index = int(uv.x)+ int((640-width)/2) ; //uv.x is between 0 and 640
-             int height_index = int(uv.y)+ int((480-height)/2) ;  //uv.y is between 0 and 480
+             int width_index =  int(uv.x)+ int((640-width)/2) ; //uv.x is between 0 and 640
+             int height_index =  int(uv.y)+ int((480-height)/2) ;  //uv.y is between 0 and 480
+
+             int width_index_flipped =  640 - width_index ; //uv.x is between 0 and 640
+             int height_index_flipped = 480 - height_index ;  //uv.y is between 0 and 480
 
              if(debug)
              {
@@ -361,18 +369,19 @@ int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbo
                  std::cout << "UV for rgbd image: " << uv << std::endl;
                  std::cout << "Heatmap index is: " << heatmap_index << std::endl;
                  std::cout << "width: " << width_index  << " height: " << height_index<< std::endl;
+
              }
 
 
-             if (heatmaps[heatmap_index].size() > height_index && height_index > 0)
+             if (heatmaps[heatmap_index].size() > height_index_flipped && height_index_flipped > 0)
              {
-                 if (heatmaps[heatmap_index][height_index].size() > width_index && width_index > 0)
+                 if (heatmaps[heatmap_index][height_index_flipped].size() > width_index_flipped && width_index_flipped > 0)
                  {
-                     heatmap_quality += heatmaps[heatmap_index][480-height_index][640-width_index];
+                     heatmap_quality += heatmaps[heatmap_index][height_index_flipped][width_index_flipped];
 
                      if (debug)
                      {
-                         std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][480-height_index][640-width_index] << std::endl;
+                         std::cout << "HeatMapQuality: " << heatmaps[heatmap_index][height_index_flipped][width_index_flipped] << std::endl;
                          saveImage(heatmap_index, height_index, width_index);
                      }
 
