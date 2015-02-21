@@ -57,7 +57,7 @@ public:
     void setHandAndObject(Hand *h, Body *o);
     void setDir(QString dir);
 
-    double heatmapProjectionEnergy(bool debug) const;
+    double computeEnergy(bool debug) const;
 
 };
 

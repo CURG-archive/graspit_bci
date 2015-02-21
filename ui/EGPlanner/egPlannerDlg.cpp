@@ -94,13 +94,14 @@ void EigenGraspPlannerDlg::init()
 { 
 
   energyBox->insertItem("Hand Contacts");
+  energyBox->insertItem("Palm Only Contacts");
+  energyBox->insertItem("Partial View Contacts");
   energyBox->insertItem("Potential Quality");
   energyBox->insertItem("Contacts AND Quality");
   energyBox->insertItem("Autograsp Quality");
   energyBox->insertItem("Guided Autograsp");
   energyBox->insertItem("Heatmap Quality");
-  energyBox->insertItem("Heatmap and Contacts");
-  energyBox->insertItem("Partial View Contacts");
+  energyBox->insertItem("Heatmap and Palm Contacts");
   energyBox->insertItem("Heatmap and Partial View Contacts");
   energyBox->setCurrentItem(5);//CHANGED!
   plannerTypeBox->insertItem("Sim. Ann.");
@@ -658,39 +659,63 @@ void EigenGraspPlannerDlg::setContactsBox_toggled( bool checked)
 void EigenGraspPlannerDlg::readPlannerSettings()
 {
   assert(mPlanner);
-  //energy type
+
   QString s = energyBox->currentText();
-  if ( s == QString("Hand Contacts") ) {
-    mPlanner->setEnergyType(ENERGY_CONTACT);
-  } else if ( s == QString("Potential Quality") ) {
-    mPlanner->setEnergyType(ENERGY_POTENTIAL_QUALITY);
-  } else if ( s == QString("Autograsp Quality") ) {
-    mPlanner->setEnergyType(ENERGY_AUTOGRASP_QUALITY);
-  } else if ( s == QString("Contacts AND Quality") ) {
-    mPlanner->setEnergyType(ENERGY_CONTACT_QUALITY);
-  } else if ( s == QString("Guided Autograsp") ) {
-    mPlanner->setEnergyType(ENERGY_GUIDED_AUTOGRASP);
-  }else if ( s == QString("Heatmap Quality") ) {
+  if ( s == QString("Hand Contacts") )
+  {
+      mPlanner->setEnergyType(ENERGY_CONTACT);
+  }
+  else if ( s == QString("Palm Only Contacts") )
+  {
+      mPlanner->setEnergyType(ENERGY_PALM_ONLY_CONTACT);
+  }
+  else if ( s == QString("Partial View Contacts") ) {
+      mPlanner->setEnergyType(ENERGY_PARTIAL_VIEW_CONTACT);
+  }
+  else if ( s == QString("Potential Quality") )
+  {
+      mPlanner->setEnergyType(ENERGY_POTENTIAL_QUALITY);
+  }
+  else if ( s == QString("Autograsp Quality") )
+  {
+      mPlanner->setEnergyType(ENERGY_AUTOGRASP_QUALITY);
+  }
+  else if ( s == QString("Contacts AND Quality") )
+  {
+      mPlanner->setEnergyType(ENERGY_CONTACT_QUALITY);
+  }
+  else if ( s == QString("Guided Autograsp") )
+  {
+      mPlanner->setEnergyType(ENERGY_GUIDED_AUTOGRASP);
+  }
+  else if ( s == QString("Heatmap Quality") )
+  {
       mPlanner->setEnergyType(ENERGY_HEATMAP);
       mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
-  }else if ( s == QString("Heatmap and Contacts") ) {
-      mPlanner->setEnergyType(ENERGY_HEATMAP_CONTACT);
+  }
+  else if ( s == QString("Heatmap and Palm Contacts") )
+  {
+      mPlanner->setEnergyType(ENERGY_HEATMAP_PALM_CONTACT);
       mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
-  }else if ( s == QString("Partial View Contacts") ) {
-        mPlanner->setEnergyType(ENERGY_PARTIAL_VIEW_CONTACT);
-        mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
-    }else if ( s == QString("Heatmap and Partial View Contacts") ) {
-        mPlanner->setEnergyType(ENERGY_HEATMAP_PARTIAL_VIEW_CONTACT);
-        mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
-    }else {
-    fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");
+  }
+  else if ( s == QString("Heatmap and Partial View Contacts") )
+  {
+      mPlanner->setEnergyType(ENERGY_HEATMAP_PARTIAL_VIEW_CONTACT);
+      mPlanner->setHeatmapsDir(this->heatmapsComboBox->currentText());
+  }
+  else
+  {
+      fprintf(stderr,"WRONG ENERGY TYPE IN DROP BOX!\n");
   }
 
   //contact type
-  if ( setContactsBox->isChecked() ) {
-    mPlanner->setContactType(CONTACT_PRESET);
-  } else {
-    mPlanner->setContactType(CONTACT_LIVE);
+  if ( setContactsBox->isChecked() )
+  {
+      mPlanner->setContactType(CONTACT_PRESET);
+  }
+  else
+  {
+      mPlanner->setContactType(CONTACT_LIVE);
   }
 
   //steps

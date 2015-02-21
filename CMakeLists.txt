@@ -104,8 +104,8 @@ endif()
 ################
 #Core sources  #
 ################
-set(GRASPIT_CORE_INCLUDE_DIRS src src/Collision include include/math include/Planner include/EGPlanner ui ui/Planner ui/EGPlanner include/Servers rpcz)
-set(GRASPIT_CORE_SOURCE_DIRS src src/Collision src/Planner src/Servers src/EGPlanner ui ui/Planner ui/EGPlanner)
+set(GRASPIT_CORE_INCLUDE_DIRS src src/Collision include include/math include/Planner include/EGPlanner include/EGPlanner/SearchEnergyCalculators ui ui/Planner ui/EGPlanner include/Servers rpcz)
+set(GRASPIT_CORE_SOURCE_DIRS src src/Collision src/Planner src/Servers src/EGPlanner src/EGPlanner/SearchEnergyCalculators ui ui/Planner ui/EGPlanner)
 set(GRASPIT_CORE_FORM_DIRS ui ui/Planner ui/EGPlanner)
 set(GRASPIT_CORE_RESOURCES ${GRASPIT_DIR}/images.qrc)
 

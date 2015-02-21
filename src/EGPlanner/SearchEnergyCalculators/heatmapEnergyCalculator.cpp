@@ -1,6 +1,6 @@
 
 
-#include "EGPlanner/heatmapEnergyCalculator.h"
+#include "heatmapEnergyCalculator.h"
 #include <time.h>
 #include <sys/stat.h> //for checking if directory already exists in saveImage and mkdir
 
@@ -290,7 +290,7 @@ int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbo
      }
  }
 
- double HeatmapEnergyCalculator::heatmapProjectionEnergy(bool debug) const
+ double HeatmapEnergyCalculator::computeEnergy(bool debug) const
  {
      double heatmap_quality = 0;
      VirtualContact *contact;

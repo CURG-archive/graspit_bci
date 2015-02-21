@@ -40,6 +40,8 @@ class Body;
 class QualityMeasure;
 class GraspPlanningState;
 class HeatmapEnergyCalculator;
+class PartialViewContactEnergyCalculator;
+class ContactEnergyCalculator;
 
 //! Computes the "quality" of a HandObjectState, which encapsulates the state of the hand 
 /*!	This class can compute the "quality" (or in other terms "energy") of a
@@ -60,8 +62,12 @@ protected:
 	Hand *mHand; Body *mObject;
 	QualityMeasure *mVolQual, *mEpsQual;
 	SearchEnergyType mType;
-	SearchContactType mContactType;
+    SearchContactType mContactType;
+
     HeatmapEnergyCalculator *heatmapEnergyCalculator;
+    PartialViewContactEnergyCalculator *partialViewContactEnergyCalculator;
+    ContactEnergyCalculator *contactEnergyCalculator;
+
     bool debug;
 	/*! If this flag is set, the hand is disconnected from the scene graph while 
 		the calculator does energy computations */
@@ -72,7 +78,7 @@ protected:
 
 	void createQualityMeasures();
 	void setHandAndObject(Hand *h, Body *o);
-	double contactEnergy() const;
+    double contactEnergy(bool palmOnly) const;
     double partialViewContactEnergy() const;
 	double potentialQualityEnergy(bool verbose = false) const;
 	double guidedPotentialQualityEnergy() const;
