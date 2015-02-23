@@ -65,6 +65,7 @@
 #include "searchEnergy.h"
 
 #include <fstream>
+#include "bciService.h"
 
 #define X_WINDOW_OFFSET 0
 
@@ -452,14 +453,7 @@ void EigenGraspPlannerDlg::nextGraspButton_clicked()
 //by activating the online planner's execute 
 void EigenGraspPlannerDlg::executeGraspButton_clicked()
 {
-
-  if (mPlanner && mPlanner->getListSize() > 0)
-    {
-      updateResults(true, true, true);
-      std::cout<< " Posture in executeGraspButton_clicked():";
-      const_cast<GraspPlanningState * >(mPlanner->getGrasp(mDisplayState))->getPosture()->print();
-      onlineGraspButton_clicked();
-    }
+    BCIService::getInstance()->executeGrasp(mPlanner->getGrasp(mDisplayState),NULL,NULL);
 }
 
 void EigenGraspPlannerDlg::plannerUpdate()

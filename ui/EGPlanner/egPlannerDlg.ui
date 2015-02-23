@@ -740,9 +740,9 @@
   <widget class="QComboBox" name="heatmapsComboBox">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>580</x>
      <y>50</y>
-     <width>151</width>
+     <width>251</width>
      <height>27</height>
     </rect>
    </property>
