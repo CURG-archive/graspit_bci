@@ -49,7 +49,7 @@ PROF_DECLARE(EG_PLANNER);
 
 #define BEST_LIST_SIZE 20
 
-EGPlanner::EGPlanner(Hand *h) : mListAttributeMutex(QMutex::Recursive)
+EGPlanner::EGPlanner(Hand *h)
 {
 	mHand = h;
 	init();
@@ -331,6 +331,7 @@ EGPlanner::startThread()
 {
 	if (mMultiThread) {
 		DBGA("Can not start thread; already multi-threaded");
+        return;
 	}
 	if (getState()!=INIT) {
 		DBGA("Can not start thread; state is not INIT");
@@ -550,7 +551,7 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
     {
 		  s->addAttribute("graspId", mCurrentStep);
 		  s->addAttribute("testResult", 0);
-      s->addAttribute("testTime", 0);
+          s->addAttribute("testTime", 0);
     }
 		
 	}  
