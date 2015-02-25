@@ -16,14 +16,9 @@ ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
     connect(ui->buttonRotLong, SIGNAL(clicked()), this, SLOT(onRotLong()));
     connect(ui->buttonNextGrasp, SIGNAL(clicked()), this, SLOT(onNextGrasp()));
 
-    SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
-
-    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QString viewName = QString("current best grasp");
     //handView = new HandView(mainViewer,h,*parentWindow, viewName);
     createHandView();
-    showSelectedGrasp(h,NULL);
-    showNextGrasp(h,NULL);
 }
 
 
@@ -55,7 +50,10 @@ void ActiveRefinementView::onRotLong()
 }
 void ActiveRefinementView::showEvent(QShowEvent *)
 {
+    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     this->currentGraspView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    showSelectedGrasp(h,NULL);
+    showNextGrasp(h,NULL);
 }
 
 void ActiveRefinementView::showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState)

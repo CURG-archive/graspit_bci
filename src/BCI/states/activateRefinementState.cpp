@@ -8,10 +8,10 @@ using bci_experiment::WorldController;
 ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWindow,QState* parent):
     HandRotationState("ActivateRefinementState",_bciControlWindow, parent)
 {
-    addSelfTransition(BCIService::getInstance(), SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(OnlinePlannerController::getInstance()->currentPlanner, SIGNAL(update()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(next()), this, SLOT(nextGrasp()));
-    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(setTimerRunning()));
-    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(setTimerRunning()));
+    //addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(setTimerRunning()));
+    //addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(setTimerRunning()));
 
     activeRefinementView = new ActiveRefinementView(bciControlWindow->currentFrame);
     activeRefinementView->hide();
@@ -24,7 +24,7 @@ void ActivateRefinementState::onEntry(QEvent *e)
     activeRefinementView->show();
     bciControlWindow->currentState->setText("Refinement State");    
     OnlinePlannerController::getInstance()->setPlannerToRunning();
-    OnlinePlannerController::getInstance()->startTimedUpdate();
+    //OnlinePlannerController::getInstance()->startTimedUpdate();
     OnlinePlannerController::getInstance()->blockGraspAnalysis(false);
 }
 
@@ -58,6 +58,7 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
 
 void ActivateRefinementState::onPlannerUpdated(QEvent * e)
 {
+    DBGA("ActivateRefinementState::onPlannerUpdated-- entered");
     OnlinePlannerController::getInstance()->sortGrasps();
     const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);    
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
