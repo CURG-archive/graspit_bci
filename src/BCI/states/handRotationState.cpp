@@ -24,9 +24,9 @@ void HandRotationState::setRotationAllowed(bool allowed)
     if(allowed)
     {
         if(!this->transitions().contains(rotateLatTransition))
-            this->addTransition(rotateLatTransition);
+            this->addStateTransition(rotateLatTransition);
         if(!this->transitions().contains(rotateLongTransition))
-            this->addTransition(rotateLongTransition);
+            this->addStateTransition(rotateLongTransition);
 
     }
     else
