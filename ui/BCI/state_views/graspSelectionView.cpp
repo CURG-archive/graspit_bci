@@ -22,9 +22,8 @@ GraspSelectionView::GraspSelectionView(QWidget *parent) :
     QFrame *parentWindow = this->ui->renderArea;
     QString viewName = QString("current best grasp");
     handView = new HandView(mainViewer,h,*parentWindow, viewName);
-
     showSpinner();
-    showSelectedGrasp(h,NULL);
+
 
 }
 ///////////////////////////////////////////////////
@@ -51,7 +50,9 @@ void GraspSelectionView::onRotateLat()
 
 void GraspSelectionView::showEvent(QShowEvent *)
 {
+    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    showSelectedGrasp(h,NULL);
 }
 
 ///////////////////////////////////////////////////
