@@ -249,7 +249,7 @@ namespace bci_experiment
 
 
 
-        void updateCircularGuides(Hand *hand, Body *object)
+        void updateCircularGuides(Hand *hand, DynamicBody *object)
         {
             // In this case, we really do want the ivmgr owned by the gui,
             // So it is ok to get it this way
@@ -277,11 +277,12 @@ namespace bci_experiment
             zAxisSep = static_cast<SoSeparator *>(guideSeparator->getChild(2));
 
             //Update object transform
-            object->getTran().toSoTransform(objectTransform);
+            transf centerOfRotation = world_element_tools::getCenterOfRotation(object);
+            centerOfRotation.toSoTransform(objectTransform);
 
 
             //Get relative hand to object transform
-            transf handToObjectTran = hand->getTran() * object->getTran().inverse();
+            transf handToObjectTran = hand->getTran() * centerOfRotation.inverse();
 
             //update guide radii
             vec3 HandToObjectPos = handToObjectTran.translation();

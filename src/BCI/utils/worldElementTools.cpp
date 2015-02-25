@@ -225,7 +225,18 @@ void realignHand(Hand * h)
       DBGA("Aligning hand without object");
       approachDist = 300 - h->getTran().translation().len();
       h->approachToContact(-approachDist, true);
-    }
+  }
+}
+
+transf getCOGTransform(DynamicBody *b)
+{
+    return b->getTran()*translate_transf(b->getCoG().toSbVec3f());
+}
+
+transf getCenterOfRotation(DynamicBody *b)
+{
+    //return b->getTran();
+    return getCOGTransform(b);
 }
 
 }
