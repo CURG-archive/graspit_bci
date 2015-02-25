@@ -62,7 +62,7 @@ QSignalTransition * State::addSelfTransition(QObject *sender, const char * signa
     QSignalTransition *duplicate =
             dynamic_cast<QSignalTransition*>(checkForDuplicateTransitions(newTransition));
     if(!duplicate)
-        addTransition(newTransition);
+        addStateTransition(newTransition);
 
     else
     {
@@ -158,8 +158,8 @@ void State::setImageText(QImage *image, QString &text,
 
 void State::disconnectOptionChoice()
 {
-    this->addSelfTransition(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
-                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
+//    this->addSelfTransition(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
+//                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
 }
 
 
@@ -193,20 +193,20 @@ State::checkForDuplicateTransitions(QAbstractTransition * transition)
 }
 
 QSignalTransition *
-State::addTransition(QObject * sender, const char * signal,  QAbstractState * target)
+State::addStateTransition(QObject * sender, const char * signal,  QAbstractState * target)
 {
     QSignalTransition * newTransition =
             new QSignalTransition(sender,signal);
     newTransition->setTargetState(target);
-    this->addTransition(newTransition);
+    this->addStateTransition(newTransition);
     return newTransition;
 }
 
 void
-State::addTransition ( QAbstractTransition * transition )
+State::addStateTransition( QAbstractTransition * transition )
 {
     assert(!checkForDuplicateTransitions(transition));
-    static_cast<QState *>(this)->addTransition(transition);
+    addTransition(transition);
 }
 
 
