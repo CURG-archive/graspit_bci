@@ -11,7 +11,7 @@ RosRPCZClient::RosRPCZClient():
     objectRecognitionStub(NULL),
     cameraOriginStub(NULL),
     executeGraspStub(NULL),
-    _connected(false)
+    _connected(true)
 {
     DBGA("Created RosRPCZClient");
     _application = new rpcz::application();
@@ -19,43 +19,43 @@ RosRPCZClient::RosRPCZClient():
 
     rpcz::rpc_channel * channel = _application->create_rpc_channel(urlString);
 
-    if(!channel)
-    {
-        DBGA("Failed to create channel");
-    }
-    graspReachabilityStub = new GraspReachabilityStub(channel);
-    sleep(.1);
-    channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
-        DBGA("Failed to create channel");
-    }
-    sleep(.1);
-    objectRecognitionStub = new ObjectRecognitionStub(channel);
+//    if(!channel)
+//    {
+//        DBGA("Failed to create channel");
+//    }
+//    graspReachabilityStub = new GraspReachabilityStub(channel);
+//    sleep(.1);
+//    channel = _application->create_rpc_channel(urlString);
+//    if(!channel)
+//    {
+//        DBGA("Failed to create channel");
+//    }
+//    sleep(.1);
+//    objectRecognitionStub = new ObjectRecognitionStub(channel);
 
 
-    channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
-        DBGA("Failed to create channel");
-    }
-    sleep(.1);
-    objectRetrievalStub = new ObjectRecognitionStub(channel,"RetrieveObjectsService");
+//    channel = _application->create_rpc_channel(urlString);
+//    if(!channel)
+//    {
+//        DBGA("Failed to create channel");
+//    }
+//    sleep(.1);
+//    objectRetrievalStub = new ObjectRecognitionStub(channel,"RetrieveObjectsService");
 
 
-    channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
-        DBGA("Failed to create channel");
-    }
-    cameraOriginStub = new CameraOriginStub(channel);
-    sleep(.1);
+//    channel = _application->create_rpc_channel(urlString);
+//    if(!channel)
+//    {
+//        DBGA("Failed to create channel");
+//    }
+//    cameraOriginStub = new CameraOriginStub(channel);
+//    sleep(.1);
 
-    channel = _application->create_rpc_channel(urlString);
-    if(!channel)
-    {
-        DBGA("Failed to create channel");
-    }
+//    channel = _application->create_rpc_channel(urlString);
+//    if(!channel)
+//    {
+//        DBGA("Failed to create channel");
+//    }
 
     executeGraspStub = new ExecuteGraspStub(channel);
     sleep(.3);
@@ -66,8 +66,8 @@ RosRPCZClient::RosRPCZClient():
         DBGA("Failed to create channel");
     }
 
-    optionSelectionStub = new OptionSelectionStub(channel);
-    sleep(.3);
+//    optionSelectionStub = new OptionSelectionStub(channel);
+//    sleep(.3);
 
 
     DBGA("Finished building RosRPCZClient");
@@ -124,6 +124,14 @@ bool RosRPCZClient::checkGraspReachability(const GraspPlanningState * gps, QObje
 
 bool RosRPCZClient::executeGrasp(const GraspPlanningState * gps, QObject * callbackReceiver, const char * slot)
 {
+    if(!_connected)
+    {
+        DBGA("NOT connected");
+    }
+    if (!executeGraspStub)
+    {
+        DBGA("NOT executeGraspStub");
+    }
   if(!_connected || !executeGraspStub)
   {
     DBGA("Tried to send invalid executeGraspStub");

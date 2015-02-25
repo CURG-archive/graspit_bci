@@ -47,6 +47,8 @@ public:
     void emitOptionChoice(unsigned int option, float confidence,
                           std::vector<float> & interestLevel);
 
+    void emitExecuteGrasp(const GraspPlanningState * gs){emit executeGrasp(gs , NULL, NULL);}
+
 
 
     //ros server calls
@@ -64,9 +66,9 @@ public:
                                             const char * slot);
 
 
-    bool executeGrasp(const GraspPlanningState * gps,
-                                  QObject * callbackReceiver,
-                                  const char * slot);
+    //bool executeGrasp(const GraspPlanningState * gps,
+     //                             QObject * callbackReceiver,
+     //                             const char * slot);
 
     bool sendOptionChoices(std::vector<QImage*> & images,
                            std::vector<QString> & optionDescriptions,
@@ -78,6 +80,10 @@ public:
 public slots:
     //called when active planner is updated
     void onPlannerUpdated(){emit plannerUpdated();}
+
+    bool executeGrasp(const GraspPlanningState * gps,
+                                  QObject * callbackReceiver,
+                                  const char * slot);
 
 signals:
 

@@ -453,7 +453,7 @@ void EigenGraspPlannerDlg::nextGraspButton_clicked()
 //by activating the online planner's execute 
 void EigenGraspPlannerDlg::executeGraspButton_clicked()
 {
-    BCIService::getInstance()->executeGrasp(mPlanner->getGrasp(mDisplayState),NULL,NULL);
+    BCIService::getInstance()->emitExecuteGrasp(mPlanner->getGrasp(mDisplayState));
 }
 
 void EigenGraspPlannerDlg::plannerUpdate()
@@ -478,7 +478,7 @@ void EigenGraspPlannerDlg::updateResults(bool render, bool execute, bool debug)
   nStr.setNum(mPlanner->getCurrentStep());
   currentStepLabel->setText(QString("Current step: ") + nStr);
 
-  nStr.setNum(mPlanner->getRunningTime(),'f',0);
+  nStr.setNum(mPlanner->getRunningTime());
   timeLabel->setText(QString("Time used: ") + nStr + QString(" sec."));
 
   int d = mPlanner->getListSize();

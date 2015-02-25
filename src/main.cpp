@@ -50,6 +50,7 @@
 #include "graspitServer.h"
 #include "graspitProtobufServer.h"
 #include "mainWindow.h"
+#include "bciService.h"
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -81,6 +82,8 @@ int main(int argc, char **argv)
   GraspItServer server(4765);
   unsigned int portNumber = 4766;
   GraspitProtobufServer protobufServer(portNumber);
+
+  BCIService::getInstance();
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 

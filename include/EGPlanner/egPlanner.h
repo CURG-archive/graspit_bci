@@ -93,11 +93,11 @@ protected:
 
 
 	//! Time elapsed since last reset, in seconds.
-	double mRunningTime;
+    long int  mRunningTime;
 	//! Maximum time allowed. mMaxTime = -1 means no time limit
 	double mMaxTime;
 	//! The time at which the planner was started.
-	clock_t mStartTime;
+    long int mStartTime;
 
 	//! If used, this is a target state, or an "input" state provided by the user as a guideline
 	GraspPlanningState *mTargetState;

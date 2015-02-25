@@ -774,6 +774,7 @@ void MainWindow::eigenGraspPlannerActivated()
 		return;
 	}
 
+
 	EigenGraspPlannerDlg *dlg = new EigenGraspPlannerDlg(mWindow);
 	dlg->setMembers(world->getCurrentHand(), world->getGB(gb));
 	dlg->setAttribute(Qt::WA_ShowModal, false);

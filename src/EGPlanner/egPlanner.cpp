@@ -39,6 +39,7 @@
 #include "collisionInterface.h"
 #include "grasp.h"
 
+#include <sys/time.h>
 //#define GRASPITDBG
 #include "debug.h"
 
@@ -311,7 +312,11 @@ void EGPlanner::threadLoop()
 double
 EGPlanner::getRunningTime()
 {
-	if (isActive()) return mRunningTime + (float)(clock() - mStartTime) / CLOCKS_PER_SEC;
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+
+    if (isActive()) return mRunningTime + (float)(ms - mStartTime);
 	else return mRunningTime;
 }
 
@@ -366,7 +371,10 @@ EGPlanner::startPlanner()
 	}
 	PROF_RESET_ALL;
 	PROF_START_TIMER(EG_PLANNER);
-	mStartTime = clock();
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    mStartTime = ms;
 	setState( RUNNING );
 }
 
