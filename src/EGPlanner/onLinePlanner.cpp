@@ -213,7 +213,8 @@ void OnLinePlanner::createAndUseClone()
 void OnLinePlanner::startThread()
 {
     setState(INIT);
-    SimAnnPlanner::startThread();
+    if(!this->mMultiThread)
+        SimAnnPlanner::startThread();
     mGraspTester->startPlanner();
 
     mRefHand->setTransparency(0.7);
@@ -324,7 +325,7 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 void OnLinePlanner::setGraspAttribute(int i, const QString &attribute, double value)
 {
     EGPlanner::setGraspAttribute(i, attribute, value);
-    this->updateSolutionList();
+    //this->updateSolutionList();
 }
 
 /*! Keeps the list of solutions sorted according to some metric */
@@ -428,6 +429,8 @@ OnLinePlanner::mainLoop()
 
 	//retrieve solutions from the tester
 	GraspPlanningState *s;
+    {
+    QMutexLocker lock(&mListAttributeMutex);
 	while ( (s = mGraspTester->popSolution()) != NULL ) {
 		//hack - this is not ideal, but so far I don't have a better solution of how to keep track
 		//of what hand is being used at what time
@@ -438,6 +441,7 @@ OnLinePlanner::mainLoop()
 			mHand->getWorld()->getIVRoot()->addChild( s->getIVRoot() );
 		}
 	}
+    }
 	updateSolutionList();
 
 	//now shape the real hand.
