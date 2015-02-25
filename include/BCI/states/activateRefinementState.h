@@ -27,6 +27,8 @@ public slots:
 
     void setTimerRunning();
 
+    void checkSendOptionChoice();
+
     virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel);
 
 protected:

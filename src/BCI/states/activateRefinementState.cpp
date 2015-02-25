@@ -17,6 +17,7 @@ ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWi
     activeRefinementView->hide();
 
     choiceTimer = new QTimer(this);
+    choiceTimer->setSingleShot(true);
 }
 
 ActivateRefinementState::~ActivateRefinementState() {
@@ -25,13 +26,33 @@ ActivateRefinementState::~ActivateRefinementState() {
 }
 
 void ActivateRefinementState::connectChoiceTimer() {
-    connect(choiceTimer, SIGNAL(timeout()), this, SLOT(sendOptionChoice()));
-    choiceTimer->start(5000, true);
+    connect(choiceTimer, SIGNAL(timeout()), this, SLOT(checkSendOptionChoice()));
+    choiceTimer->start(5000);
 }
 
 void ActivateRefinementState::disconnectChoiceTimer() {
     choiceTimer->stop();
-    disconnect(choiceTimer, SIGNAL(timeout()), this, SLOT(sendOptionChoice()));
+    disconnect(choiceTimer, SIGNAL(timeout()), this, SLOT(checkSendOptionChoice()));
+}
+
+void ActivateRefinementState::checkSendOptionChoice() {
+    OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
+
+    ctrl->sortGrasps();
+    DBGA("Found " << ctrl->getNumGrasps() << " grasps");
+
+    for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
+        GraspPlanningState *grasp = new GraspPlanningState(ctrl->getGrasp(i));
+        if (grasp->getAttribute("testResult") < 0) {
+            DBGA("Skipping grasp " << i << " because it has score " << grasp->getAttribute("testResult"));
+            continue;
+        }
+
+        sendOptionChoice();
+        return;
+    }
+    choiceTimer->start(2500);
+    DBGA("Rescheduling!");
 }
 
 
@@ -105,6 +126,7 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
+    stringOptions.clear();
     sentChoices.clear();
 
     OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
@@ -133,7 +155,7 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
 
         QImage *img = graspItGUI->getIVmgr()->generateImage(activeRefinementView->getHandView()->getIVRoot(), debugFileName);
 
-        if (imageOptions.size() == 0) {
+        if (imageOptions.size() == 0 && grasp->getAttribute("testResult") > 0) {
             ui_tools::setQImageBGColor(img, qRgb(0, 0, 255));
             if (debug) {
                 img->save(debugFileName);
@@ -191,7 +213,7 @@ void ActivateRefinementState::respondOptionChoice(unsigned int option,
         grasp->execute(refHand);
         ctrl->alignHand();
 
-        if (grasp_index == 0) {
+        if (grasp_index == 0 && grasp->getAttribute("testResult") > 0) {
             BCIService::getInstance()->emitGoToNextState1();
         } else {
             DBGA("Rescheduling!");

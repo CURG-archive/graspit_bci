@@ -6,7 +6,7 @@
 #include <string>
 #include <QMetaType>
 
-#define HACK
+//#define HACK
 
 RosRPCZClient::RosRPCZClient() :
         _application(NULL),
@@ -17,8 +17,8 @@ RosRPCZClient::RosRPCZClient() :
     DBGA("Created RosRPCZClient");
     qRegisterMetaType<std::vector<float> >("std::vector<float>");
     _application = new rpcz::application();
-    /* std::string urlString = "tcp://192.168.11.200:5561"; */
-    std::string urlString = "tcp://127.0.0.1:5561";
+    std::string urlString = "tcp://192.168.11.200:5561";
+    //std::string urlString = "tcp://127.0.0.1:5561";
 
     rpcz::rpc_channel *channel = _application->create_rpc_channel(urlString);
 

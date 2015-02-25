@@ -53,6 +53,7 @@ void ConfirmationState::generateImageOptions(bool debug) {
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
+    stringOptions.clear();
 
     stringOptions.push_back(QString("Go Back - RePlan"));
     imageDescriptions.push_back(QString("Go Back - RePlan"));

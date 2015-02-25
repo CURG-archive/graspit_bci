@@ -34,13 +34,13 @@ void ObjectSelectionState::onEntry(QEvent *e) {
     if (BCIService::getInstance()->runObjectRetreival(this, SLOT(onVisionFinished()))) {
         visionRunning = true;
         bciControlWindow->currentState->setText("Object Selection: Running Recognition");
-        onVisionFinished();
+        //onVisionFinished();
         bciControlWindow->setBackgroundColor(QColor(255, 0, 0));
     }
     else {
         visionRunning = false;
         bciControlWindow->currentState->setText("Object Selection: Failed");
-        onVisionFinished();
+       // onVisionFinished();
     }
 }
 
@@ -115,6 +115,7 @@ void ObjectSelectionState::generateImageOptions(bool debug) {
     imageOptions.clear();
     imageDescriptions.clear();
     imageCosts.clear();
+    stringOptions.clear();
 
     stringOptions.push_back(QString("Rerun Object Detection"));
 
