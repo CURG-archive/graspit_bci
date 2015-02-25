@@ -74,7 +74,8 @@ namespace bci_experiment
         }
         else
         {
-            disconnect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate()));
+            if(!disconnect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate())))
+                DBGA("Failed to disconnect planner");
         }
     }
 
@@ -104,14 +105,16 @@ namespace bci_experiment
     void
     OnlinePlannerController::plannerTimedUpdate()
     {
+
         float currentTime = QDateTime::currentDateTime().toTime_t();
         /* If there is a planner and the planner has found some solutions
         * do some tests.
         */
+        DBGA("OnlinePlannerController::plannerTimedUpdate");
         if(currentPlanner->getListSize())
         {
             // Notify someone to analyze the current approach direction
-            analyzeApproachDir();
+            //analyzeApproachDir();
             analyzeNextGrasp();
             // If the planner is itself not updating the order of the solution list
             if(!currentPlanner->isRunning())
@@ -470,6 +473,8 @@ namespace bci_experiment
 
     void OnlinePlannerController::analyzeNextGrasp()
     {
+
+        DBGA("OnlinePlannerController::plannerTimedUpdate::entered");
         if(analysisIsBlocked())
         {
             DBGA("OnlinePlannerController:: Grasp analysis blocked");
@@ -485,57 +490,57 @@ namespace bci_experiment
           return;
       }
 
-
-        // Lock planner's grasp list
-
-      MutexTryLocker lock(currentPlanner->mListAttributeMutex);
-      if(!lock.isLocked())
-      {
-          QTimer::singleShot(100, this, SLOT(analyzeNextGrasp()));
-          return;
-      }
-      DBGA("Took the planner lock");
-
-      //Check if any test is still pending
-      //Go through all grasps
-      //Ordering of grasps may have changed based on the demonstrated hand pose,
-      //so we must examine all grasps to ensure that none of them are currently being evaluated.
       int firstUnevaluatedIndex = -1;
       float currentTime = QDateTime::currentDateTime().toTime_t();
       float expirationTime =  currentTime - 10;
-      for(int i = 0; i < currentPlanner->getListSize(); ++i)
+      const GraspPlanningState * graspToEvaluate = NULL;
+        // Lock planner's grasp list
       {
-          //If a grasp hasn't been evaluated
-          const GraspPlanningState * gs = currentPlanner->getGrasp(i);
-          if(gs->getAttribute("testResult") == 0.0)
+          MutexTryLocker lock(currentPlanner->mListAttributeMutex);
+          if(!lock.isLocked())
           {
-              if(firstUnevaluatedIndex < 0)
-                  firstUnevaluatedIndex = i;
-              //And an evaluation request was emitted for it less than some time ago
-              if(gs->getAttribute("testTime") > expirationTime)
-              {
-                  DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent.");
-                  //Don't emit another request to analyze.
-                  return;
-              }              
+              DBGA("Failed to take lock.");
+              return;
           }
-      }
-      if (firstUnevaluatedIndex < 0)
-      {
-          DBGA("OnlinePlannerController::analyzeNextGrasp::No unevaluated grasps to analyze");
-          return;
-      }
+          DBGA("Took the planner lock");
 
-      const GraspPlanningState * graspToEvaluate = currentPlanner->getGrasp(firstUnevaluatedIndex);
-      assert(graspToEvaluate->getAttribute("testResult") == 0.0);
-      //Request analysis and ask to be called gain when analysis is completed.
+          //Check if any test is still pending
+          //Go through all grasps
+          //Ordering of grasps may have changed based on the demonstrated hand pose,
+          //so we must examine all grasps to ensure that none of them are currently being evaluated.
 
-      DBGA("Analyze Grasp time elapsed: " << currentTime -  QDateTime::currentDateTime().toTime_t());
-      if(BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp())))
-        currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
-      lock.unlock();
+          for(int i = 0; i < currentPlanner->getListSize(); ++i)
+          {
+              //If a grasp hasn't been evaluated
+              const GraspPlanningState * gs = currentPlanner->getGrasp(i);
+              if(gs->getAttribute("testResult") == 0.0)
+              {
+                  if(firstUnevaluatedIndex < 0)
+                      firstUnevaluatedIndex = i;
+                  //And an evaluation request was emitted for it less than some time ago
+                  if(gs->getAttribute("testTime") > expirationTime)
+                  {
+                      DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent.");
+                      //Don't emit another request to analyze.
+                      return;
+                  }
+              }
+         }
+          if (firstUnevaluatedIndex < 0)
+          {
+              DBGA("OnlinePlannerController::analyzeNextGrasp::No unevaluated grasps to analyze");
+              return;
+          }
 
-      DBGA("checkGraspReachability: " << currentTime -  QDateTime::currentDateTime().toTime_t());
+          graspToEvaluate = currentPlanner->getGrasp(firstUnevaluatedIndex);
+          assert(graspToEvaluate->getAttribute("testResult") == 0.0);
+          //Request analysis and ask to be called gain when analysis is completed.
+
+      }// end lock scope so that we can manipulate the grasp.
+
+      currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
+      BCIService::getInstance()->checkGraspReachability(graspToEvaluate, NULL, NULL);
+      DBGA("checkGraspReachability: " << currentTime -  QDateTime::currentDateTime().toTime_t());      
     }
 
    void OnlinePlannerController::addToWorld(const QString model_filename, const QString object_name, const QString object_pose_string)
