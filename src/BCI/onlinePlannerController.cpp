@@ -339,10 +339,10 @@ namespace bci_experiment
 
     void OnlinePlannerController::rotateHandLong()
     {
-
         float stepSize = M_PI/100.0;
-        transf robotTran = currentPlanner->getRefHand()->getTran();
-        transf objectTran = currentTarget->getTran();
+        transf offsetTrans = translate_transf(vec3(0,0,-10));
+        transf robotTran = currentPlanner->getRefHand()->getTran(); //*offsetTrans;
+        transf objectTran = world_element_tools::getCenterOfRotation(currentTarget);
 
 
         transf rotationTrans = (robotTran * objectTran.inverse()) * transf(Quaternion(stepSize, vec3::Z), vec3(0,0,0));
@@ -354,9 +354,9 @@ namespace bci_experiment
     void OnlinePlannerController::rotateHandLat()
     {
         float stepSize = M_PI/100.0;
-
-        transf robotTran = currentPlanner->getRefHand()->getTran();
-        transf objectTran = currentTarget->getTran();
+        transf offsetTrans = translate_transf(vec3(0,0,-10));
+        transf robotTran = currentPlanner->getRefHand()->getTran();//*offsetTrans;
+        transf objectTran = world_element_tools::getCenterOfRotation(currentTarget);
 
 
         transf rotationTrans = (robotTran * objectTran.inverse()) * transf(Quaternion(stepSize, vec3::X), vec3(0,0,0));
