@@ -93,6 +93,7 @@ namespace bci_experiment{
             }
 
             bool analysisIsBlocked(){return analysisBlocked;}
+            OnLinePlanner * currentPlanner;
 
     private:
 
@@ -107,7 +108,6 @@ namespace bci_experiment{
             db_planner::SqlDatabaseManager * mDbMgr;
             GraspableBody * currentTarget;                        
             unsigned int currentGraspIndex;
-            OnLinePlanner * currentPlanner;
             Hand * graspDemonstrationHand;
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();
