@@ -479,7 +479,7 @@ void EigenGraspPlannerDlg::updateResults(bool render, bool execute, bool debug)
   currentStepLabel->setText(QString("Current step: ") + nStr);
 
   nStr.setNum(mPlanner->getRunningTime());
-  timeLabel->setText(QString("Time used: ") + nStr + QString(" sec."));
+  timeLabel->setText(QString("Time used: ") + nStr + QString(" ms."));
 
   int d = mPlanner->getListSize();
   int rank, size, iteration; double energy;
