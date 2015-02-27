@@ -24,7 +24,9 @@
 #include <QRegion>
 #include <QPainter>
 
+#include <limits>
 
+typedef std::numeric_limits< double > dbl;
 
 HeatmapEnergyCalculator::HeatmapEnergyCalculator():
     heatmaps_inited(false)
@@ -263,6 +265,7 @@ void HeatmapEnergyCalculator::updateRGBD()
 
 int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbors, std::vector<std::vector<double> > neighbor_distances) const
  {
+    double distance = 0;
      std::vector<double> query_joint_state;
 
      double *joint_values = new double[ mHand->getNumJoints() ];
@@ -283,30 +286,102 @@ int HeatmapEnergyCalculator::getGraspType(std::vector<std::vector<int> > neighbo
 
      grasp_priors_index_->radiusSearch(query_pose_mat, neighbors,  neighbor_distances, max_neighbor_distance, params);
 
+//     for(int i = 0; i < neighbor_distances.size(); i++){
+//         for (int j=0; j < neighbor_distances.at(i).size(); j++)
+//         {
+//             std::cout.precision(dbl::digits10);
+//             std::cout << "neighbor_distances.at(i).size()" << neighbor_distances.at(i).size() << std::endl;
+//             std::cout << std::cout << "neighbor_distances[0][0]" << neighbor_distances[0][0] << std::endl;
+//             std::cout << std::cout << "neighbor_distances.at(i).at(j)" << neighbor_distances.at(i).at(j) << std::endl;
+//         }
+//     }
+
      //no grasp types near this configuration
      //so retrun -1, we are currently in a hand configuraton unlike any of the grasp types
      if (neighbors.empty() || neighbors.at(0).empty())
      {
+         distance = 300;
         return -1;
      }
      else
      {
+         distance = neighbor_distances[0][0];
          return neighbors[0][0];
+         //return 7;
      }
  }
 
  double HeatmapEnergyCalculator::computeEnergy(bool debug) const
  {
      double heatmap_quality = 0;
+     double distance = 0;
+     int grasp_type = 0;
      VirtualContact *contact;
 
      std::vector<std::vector<int> > neighbors;
      std::vector<std::vector<double> > neighbor_distances;
 
-     int grasp_type = getGraspType(neighbors, neighbor_distances);
+     //int grasp_type = getGraspType(neighbors, neighbor_distances);
+
+
+
+     std::vector<double> query_joint_state;
+
+     double *joint_values = new double[ mHand->getNumJoints() ];
+
+     mHand->getJointValues(joint_values);
+
+     for (int joint_index=0; joint_index < mHand->getNumJoints(); ++joint_index)
+     {
+         query_joint_state.push_back(joint_values[joint_index]);
+     }
+
+     //std::vector<std::vector<int> > neighbors;
+     flann::Matrix<double> query_pose_mat(&query_joint_state[0], 1, mHand->getNumJoints());
+
+     //std::vector<std::vector<double> >neighbor_distances;
+     flann::SearchParams params(32, 0.0, true);
+     double max_neighbor_distance = 30.0;
+
+     grasp_priors_index_->radiusSearch(query_pose_mat, neighbors,  neighbor_distances, max_neighbor_distance, params);
+
+//     for(int i = 0; i < neighbor_distances.size(); i++){
+//         for (int j=0; j < neighbor_distances.at(i).size(); j++)
+//         {
+//             std::cout.precision(dbl::digits10);
+//             std::cout << "neighbor_distances.at(i).size()" << neighbor_distances.at(i).size() << std::endl;
+//             std::cout << std::cout << "neighbor_distances[0][0]" << neighbor_distances[0][0] << std::endl;
+//             std::cout << std::cout << "neighbor_distances.at(i).at(j)" << neighbor_distances.at(i).at(j) << std::endl;
+//         }
+//     }
+
+     //no grasp types near this configuration
+     //so retrun -1, we are currently in a hand configuraton unlike any of the grasp types
+     if (neighbors.empty() || neighbors.at(0).empty())
+     {
+         distance = 30;
+        grasp_type = -1;
+     }
+     else
+     {
+         distance = neighbor_distances[0][0]*10;
+         grasp_type = neighbors[0][0];
+         //return 7;
+     }
+
+     heatmap_quality += distance;
 
      if(debug)
      {
+         for(int i = 0; i < neighbor_distances.size(); i++){
+             for (int j=0; j < neighbor_distances.at(i).size(); j++)
+             {
+                 std::cout.precision(dbl::digits10);
+                 std::cout << "neighbor_distances.at(i).size()" << neighbor_distances.at(i).size() << std::endl;
+                 std::cout << std::cout << "neighbor_distances[0][0]" << neighbor_distances[0][0] << std::endl;
+                 std::cout << std::cout << "neighbor_distances.at(i).at(j)" << neighbor_distances.at(i).at(j) << std::endl;
+             }
+         }
          std::cout << "grasp_type: " << grasp_type << std::endl;
      }
 

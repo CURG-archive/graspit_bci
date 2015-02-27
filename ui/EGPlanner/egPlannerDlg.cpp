@@ -130,22 +130,15 @@ void EigenGraspPlannerDlg::init()
 
 
 
-
-
   plannerInitButton->setEnabled(TRUE);
   plannerResetButton->setEnabled(FALSE);
   plannerStartButton->setEnabled(FALSE);
-  instantEnergyButton->setEnabled(FALSE);
 
-  //useVirtualHandBox->setChecked(FALSE);
-  //showSolutionBox->setChecked(TRUE);
-  //showCloneBox->setChecked(TRUE);
-  //onlineDetailsGroup->setEnabled(TRUE);//CHANGED!
 
   QString n;
   QIntValidator* vAnnSteps = new QIntValidator(1,500000,this);
   annStepsEdit->setValidator(vAnnSteps);
-  n.setNum(70000);
+  n.setNum(40000);
   annStepsEdit->setText(n);
 
   spaceSearchBox->insertItem("Complete");
@@ -805,6 +798,7 @@ void EigenGraspPlannerDlg::plannerStart_clicked()
 {	
   
   if (!mPlanner->isActive()){
+    mPlanner->mEnergyCalculator->setDebug(false);
     startPlanner();
   } else {
     stopPlanner();
@@ -895,9 +889,12 @@ void EigenGraspPlannerDlg::onlinePlanButton_clicked()
 
 
 void EigenGraspPlannerDlg::instantEnergyButton_clicked()
-{
+{    
   assert(mPlanner);
-  // mPlanner->instantEnergy();
+  bool isLegal;
+  double stateEnergy;
+  mPlanner->mEnergyCalculator->analyzeCurrentPosture(mHand, mHand->getGrasp()->getObject(), isLegal,stateEnergy, true);
+  DBGA("State Energy: " << stateEnergy);
 }
 
 

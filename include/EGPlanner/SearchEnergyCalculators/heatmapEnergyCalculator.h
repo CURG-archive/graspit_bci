@@ -32,6 +32,9 @@ protected:
     int num_grasp_priors;
     int num_joints;
 
+    //double distance;
+
+
     std::vector<std::vector<std::vector<double> > > heatmaps;
     std::vector<std::vector<std::vector<double> > > rgbd;
     image_geometry::PinholeCameraModel mCameraModel;
