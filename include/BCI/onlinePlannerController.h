@@ -78,7 +78,19 @@ namespace bci_experiment {
 
         unsigned int getNumGrasps();
 
+        void incrementGraspIndex();
+
+        void resetGraspIndex();
+
         const GraspPlanningState *getCurrentGrasp();
+
+        const GraspPlanningState *getCurrentGraspIfExists();
+
+        int getGraspIndexByGraspId(double id);
+
+        const GraspPlanningState *getGraspByGraspId(double id);
+
+        const GraspPlanningState *setCurrentGraspId(double id);
 
         bool timedUpdateRunning;
 
@@ -100,8 +112,6 @@ namespace bci_experiment {
 
         void initializeTarget();
 
-        void incrementGraspIndex();
-
         void showRobots(bool show);
 
 
@@ -109,7 +119,6 @@ namespace bci_experiment {
 
         void connectPlannerUpdate(bool enableConnection);
 
-        void resetGraspIndex();
 
     private:
 
@@ -125,6 +134,7 @@ namespace bci_experiment {
         db_planner::SqlDatabaseManager *mDbMgr;
         GraspableBody *currentTarget;
         unsigned int currentGraspIndex;
+        double currentGraspId;
         OnLinePlanner *currentPlanner;
         Hand *graspDemonstrationHand;
 

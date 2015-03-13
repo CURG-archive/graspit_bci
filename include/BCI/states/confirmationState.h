@@ -16,7 +16,7 @@ public:
 
     virtual void onExit(QEvent *e);
 
-    GraspPlanningState *sentChoice;
+    double sentChoice;
 
 
 public slots:

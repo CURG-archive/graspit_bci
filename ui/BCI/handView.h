@@ -156,6 +156,8 @@ public:
 
   QImage * getSnapShot();
 
+  SoSeparator * getIVObjectRoot() { return IVObjectGeometry; }
+
   //---------------Getters/Setters-----------------------
   QString getViewName();
   SoSeparator *getIVRoot(){return IVRoot;}

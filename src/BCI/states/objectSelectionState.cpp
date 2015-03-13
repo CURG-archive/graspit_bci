@@ -146,7 +146,13 @@ void ObjectSelectionState::generateImageOptions(bool debug) {
             img->save(QString("objimg") + QString::number(imageOptions.size() - 1) + QString(".png"));
         }
     }
-
+    WorldController::getInstance()->highlightCurrentBody(NULL);
+    QImage *img = graspItGUI->getIVmgr()->generateImage(getWorld()->getIVRoot(), QString("world.png"));
+    for (int i = imageOptions.size(); i < 9; ++i) {
+        imageOptions.push_back(img);
+        imageCosts.push_back(.25);
+        imageDescriptions.push_back(QString("empty world"));
+    }
 }
 
 
@@ -168,6 +174,7 @@ void ObjectSelectionState::respondOptionChoice(unsigned int option,
     if (objectID > world_element_tools::getWorld()->getNumGB()) {
         DBGA("Attempted to grasp object: " << objectID <<
                 "--  however, max GB is " << world_element_tools::getWorld()->getNumGB());
+        sendOptionChoice();
         return;
     }
 

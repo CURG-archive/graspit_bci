@@ -41,17 +41,19 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     initialGraspSelectionState->addSelfTransition(bciService, SIGNAL(rotLong()), initialGraspSelectionState, SLOT(onNext()));
     initialGraspSelectionState->addTransition(bciService, SIGNAL(rotLat()), objectSelectionState);
 
-    activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
-    activateRefinementState->addTransition(bciService, SIGNAL(exec()), finalGraspSelectionState);
+    //activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
+    //activateRefinementState->addTransition(bciService, SIGNAL(exec()), finalGraspSelectionState);
+    activateRefinementState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
+    activateRefinementState->addTransition(bciService, SIGNAL(exec()), confirmationState);
 
 
-    finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
-    finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()), confirmationState);
-    finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
-    finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
+    //finalGraspSelectionState->addTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
+    //finalGraspSelectionState->addTransition(bciService, SIGNAL(exec()), confirmationState);
+    //finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(goToNextState2()), finalGraspSelectionState, SLOT(onNext()));
+    //finalGraspSelectionState->addSelfTransition(bciService, SIGNAL(next()), finalGraspSelectionState, SLOT(onNext()));
 
-    finalGraspSelectionState->setButtonLabel("buttonRefineGrasp", "Next Grasp");
-    finalGraspSelectionState->stateName = "Final Selection";
+    //finalGraspSelectionState->setButtonLabel("buttonRefineGrasp", "Next Grasp");
+    //finalGraspSelectionState->stateName = "Final Selection";
 
     //onlinePlanningState->addTransition(bciService, SIGNAL(goToNextState1()), finalGraspSelectionState);
 

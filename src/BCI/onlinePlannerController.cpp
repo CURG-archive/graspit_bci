@@ -50,6 +50,7 @@ namespace bci_experiment {
             mDbMgr(NULL),
             currentTarget(NULL),
             currentGraspIndex(0),
+            currentGraspId(-1),
             graspDemonstrationHand(NULL) {
         currentPlanner = planner_tools::createDefaultPlanner();
         connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()), Qt::QueuedConnection);
@@ -242,8 +243,6 @@ namespace bci_experiment {
         currentPlanner->getHand()->getGrasp()->setObjectNoUpdate(currentTarget);
         OnlinePlannerController::getGraspDemoHand()->getGrasp()->setObjectNoUpdate(currentTarget);
         currentPlanner->getGraspTester()->getHand()->getGrasp()->setObjectNoUpdate(currentTarget);
-
-
     }
 
     bool OnlinePlannerController::setAllowedPlanningCollisions() {
@@ -316,6 +315,22 @@ namespace bci_experiment {
 
     void OnlinePlannerController::incrementGraspIndex() {
         currentGraspIndex = (currentGraspIndex + 1) % (currentPlanner->getListSize());
+        if (currentPlanner->getListSize()) {
+            const GraspPlanningState * st = getGrasp(currentGraspIndex);
+            currentGraspId = st->getAttribute("graspId");
+        } else {
+            currentGraspId = -1;
+        }
+    }
+
+    void OnlinePlannerController::resetGraspIndex() {
+        currentGraspIndex = 0;
+        if (currentPlanner->getListSize()) {
+            const GraspPlanningState * st = getGrasp(currentGraspIndex);
+            currentGraspId = st->getAttribute("graspId");
+        } else {
+            currentGraspId = -1;
+        }
     }
 
     Hand *OnlinePlannerController::getRefHand() {
@@ -357,11 +372,6 @@ namespace bci_experiment {
             return currentPlanner->getGrasp(index);
         }
         return NULL;
-
-    }
-
-    void OnlinePlannerController::resetGraspIndex() {
-        currentGraspIndex = 0;
     }
 
     unsigned int OnlinePlannerController::getNumGrasps() {
@@ -371,7 +381,65 @@ namespace bci_experiment {
     }
 
     const GraspPlanningState *OnlinePlannerController::getCurrentGrasp() {
-        return getGrasp(currentGraspIndex);
+        const GraspPlanningState *st = getCurrentGraspIfExists();
+        if (!st) {
+            resetGraspIndex(); // set grasp index and id
+            DBGA("current grasp not found, selecting 0 as default");
+            return getGrasp(currentGraspIndex);
+        } else {
+            return st;
+        }
+    }
+
+    const GraspPlanningState *OnlinePlannerController::getCurrentGraspIfExists() {
+        if (currentGraspId < 0) {
+            DBGA("tried to get grasp id before selecting a current grasp");
+            return NULL;
+        }
+
+        const GraspPlanningState * st = getGrasp(currentGraspIndex);
+        if (st->getAttribute("graspId") == currentGraspId) {
+            return st;
+        } else {
+            int idx = getGraspIndexByGraspId(currentGraspId);
+            if (idx < 0) {
+                return NULL;
+            } else {
+                currentGraspIndex = idx;
+                return getGrasp(idx);
+            }
+        }
+    }
+
+    const GraspPlanningState *OnlinePlannerController::getGraspByGraspId(double id) {
+        int idx = getGraspIndexByGraspId(id);
+        if (idx < 0) {
+            return NULL;
+        } else {
+            return getGrasp(idx);
+        }
+    }
+
+    const GraspPlanningState *OnlinePlannerController::setCurrentGraspId(double id) {
+        int idx = getGraspIndexByGraspId(id);
+        if (idx < 0) {
+            return NULL;
+        } else {
+            currentGraspIndex = idx;
+            currentGraspId = id;
+            return getGrasp(idx);
+        }
+    }
+
+    int OnlinePlannerController::getGraspIndexByGraspId(double id) {
+        for (unsigned int i = 0; i < getNumGrasps(); ++i) {
+            const GraspPlanningState *st = getGrasp(i);
+            if (st && st->getAttribute("graspId") == id) {
+                return i;
+            }
+        }
+        DBGA("Could not find grasp with id " << id);
+        return -1;
     }
 
     bool OnlinePlannerController::stopTimedUpdate() {
@@ -416,7 +484,7 @@ namespace bci_experiment {
 
     void OnlinePlannerController::analyzeNextGrasp() {
 
-        DBGA("Analyzing next grasp");
+        //DBGA("Analyzing next grasp");
         //Planner exists
         if (!currentPlanner) {
             DBGA("OnlinePlannerController::analyzeNextGrasp:: Attempted to analyze grasp with no planner set");
@@ -431,7 +499,7 @@ namespace bci_experiment {
             QTimer::singleShot(100, this, SLOT(analyzeNextGrasp()));
             return;
         }
-        DBGA("Took the planner lock");
+        //DBGA("Took the planner lock");
 
         //Check if any test is still pending
         //Go through all grasps
@@ -448,14 +516,14 @@ namespace bci_experiment {
                     firstUnevaluatedIndex = i;
                 //And an evaluation request was emitted for it less than some time ago
                 if (gs->getAttribute("testTime") > expirationTime) {
-                    DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent.");
+                    //DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent.");
                     //Don't emit another request to analyze.
                     return;
                 }
             }
         }
         if (firstUnevaluatedIndex < 0) {
-            DBGA("OnlinePlannerController::analyzeNextGrasp::No unevaluated grasps to analyze");
+            //DBGA("OnlinePlannerController::analyzeNextGrasp::No unevaluated grasps to analyze");
             return;
         }
 
@@ -463,12 +531,12 @@ namespace bci_experiment {
         assert(graspToEvaluate->getAttribute("testResult") == 0.0);
         //Request analysis and ask to be called gain when analysis is completed.
 
-        DBGA("Analyze Grasp time elapsed: " << currentTime - QDateTime::currentDateTime().toTime_t());
+        //DBGA("Analyze Grasp time elapsed: " << currentTime - QDateTime::currentDateTime().toTime_t());
         if (BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(analyzeNextGrasp())))
             currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime", QDateTime::currentDateTime().toTime_t());
         lock.unlock();
 
-        DBGA("checkGraspReachability: " << currentTime - QDateTime::currentDateTime().toTime_t());
+        //DBGA("checkGraspReachability: " << currentTime - QDateTime::currentDateTime().toTime_t());
     }
 
     void OnlinePlannerController::addToWorld(const QString model_filename, const QString object_name, const QString object_pose_string) {

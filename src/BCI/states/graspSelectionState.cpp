@@ -149,10 +149,6 @@ void GraspSelectionState::generateImageOptions(bool debug) {
         delete imageOptions[i];
     }
 
-    for (unsigned int i = 0; i < sentChoices.size(); ++i) {
-        delete sentChoices[i];
-    }
-
     DBGA("Generating image options");
 
     imageOptions.clear();
@@ -177,7 +173,7 @@ void GraspSelectionState::generateImageOptions(bool debug) {
     }
 
     const GraspPlanningState *currentGrasp;
-    for (int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i) {
+    for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
         currentGrasp = ctrl->getGrasp(i);
         currentGrasp->execute(hand);
         graspSelectionView->showSelectedGrasp(hand, currentGrasp);
@@ -190,17 +186,35 @@ void GraspSelectionState::generateImageOptions(bool debug) {
 
         QImage *img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVRoot(), debugFileName);
 
-        sentChoices.push_back(new GraspPlanningState(currentGrasp));
+        sentChoices.push_back(currentGrasp->getAttribute("graspId"));
 
         imageOptions.push_back(img);
         imageCosts.push_back(.25);
         imageDescriptions.push_back(QString("GraspID: ") + QString::number(currentGrasp->getAttribute("graspId")));
     }
 
+    const static int MIN_IMAGES = 9;
+
+    if (ctrl->getCurrentGraspIfExists() && imageOptions.size() < MIN_IMAGES) {
+        QString debugFileName = "";
+        if (debug) {
+            debugFileName = QString("grasp_selection_img_distractor.png");
+        }
+
+        currentGrasp = ctrl->getCurrentGraspIfExists();
+        graspSelectionView->showSelectedGrasp(hand, currentGrasp);
+        while (imageOptions.size() < MIN_IMAGES) {
+            QImage *img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVObjectRoot(), debugFileName);
+            imageOptions.push_back(img);
+            imageCosts.push_back(0);
+            imageDescriptions.push_back(QString("Distractor"));
+        }
+    }
 }
 
 void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
     const GraspPlanningState *currentGrasp = NULL;
+    OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
     if (option == 0) {
         //Go back to object selection state.
         BCIService::getInstance()->emitGoToPreviousState();
@@ -210,35 +224,28 @@ void GraspSelectionState::respondOptionChoice(unsigned int option, float confide
     for (int i = 0; i < OnlinePlannerController::getInstance()->getNumGrasps(); ++i) {
         // For testing purposes, if sentChoices are empty,use the index into the grasp list
         if (!sentChoices.size()) {
-            currentGrasp = OnlinePlannerController::getInstance()->getGrasp(option);
+            currentGrasp = ctrl->getGrasp(option);
         }
         else {
             // Otherwise use the send choices
-            if (OnlinePlannerController::getInstance()->getGrasp(i)->getAttribute("graspId") ==
-                    sentChoices[option - stringOptions.size()]->getAttribute("graspId")) {
-                currentGrasp = OnlinePlannerController::getInstance()->getGrasp(i);
-                break;
-            }
+            double graspid = sentChoices[option - stringOptions.size()];
+            currentGrasp = ctrl->getGraspByGraspId(graspid);
         }
     }
     if (!currentGrasp) {
         DBGA("GraspSelectionState::respondOptionChoice -- Failed to find chosen grasp in grasp list");
+        sendOptionChoice();
         return;
     }
 
-    Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    OnlinePlannerController::getInstance()->stopTimedUpdate();
-    if (currentGrasp) {
-        while (OnlinePlannerController::getInstance()->getCurrentGrasp() != currentGrasp) {
-            onNext();
+    ctrl->stopTimedUpdate();
 
-        }
-        //Go to grasp refinement state or exec state -- FIXME this is an ugly ugly hack.
-        DBGA("Found Current Grasp");
-        if (stateName.contains(QString("Final")))
-            BCIService::getInstance()->emitExec();
-        else
-            BCIService::getInstance()->emitNext();
-    }
-
+    currentGrasp->execute(ctrl->getRefHand());
+    ctrl->alignHand();
+    ctrl->sortGrasps();
+    ctrl->resetGraspIndex();
+    graspSelectionView->showSelectedGrasp(ctrl->getGraspDemoHand(), currentGrasp);
+    ctrl->emitRender();
+    DBGA("Found Current Grasp");
+    BCIService::getInstance()->emitNext();
 }

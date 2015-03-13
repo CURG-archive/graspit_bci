@@ -119,9 +119,6 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
     for (std::vector<QImage *>::iterator it = imageOptions.begin(); it != imageOptions.end(); ++it) {
         delete *it;
     }
-    for (std::vector<GraspPlanningState *>::iterator it = sentChoices.begin(); it != sentChoices.end(); ++it) {
-        delete *it;
-    }
 
     imageOptions.clear();
     imageDescriptions.clear();
@@ -136,12 +133,12 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
     DBGA("Found " << ctrl->getNumGrasps() << " grasps");
 
     for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
-        GraspPlanningState *grasp = new GraspPlanningState(ctrl->getGrasp(i));
+        const GraspPlanningState *grasp = ctrl->getGrasp(i);
         if (grasp->getAttribute("testResult") < 0) {
             DBGA("Skipping grasp " << i << " because it has score " << grasp->getAttribute("testResult"));
             continue;
         }
-        sentChoices.push_back(grasp);
+        sentChoices.push_back(grasp->getAttribute("graspId"));
 
         activeRefinementView->showSelectedGrasp(hand, grasp);
 
@@ -171,8 +168,26 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
         DBGA("Rescheduling!");
         choiceTimer->start(2500);
         return;
+    } else {
+        const static int MIN_IMAGES = 9;
+
+        if (ctrl->getCurrentGraspIfExists() && imageOptions.size() < MIN_IMAGES) {
+            QString debugFileName = "";
+            if (debug) {
+                debugFileName = QString("active_refinement_img_distractor.png");
+            }
+
+            const GraspPlanningState * currentGrasp = ctrl->getCurrentGraspIfExists();
+            activeRefinementView->showSelectedGrasp(hand, currentGrasp);
+            while (imageOptions.size() < MIN_IMAGES) {
+                QImage *img = graspItGUI->getIVmgr()->generateImage(activeRefinementView->getHandView()->getIVObjectRoot(), debugFileName);
+                imageOptions.push_back(img);
+                imageCosts.push_back(0);
+                imageDescriptions.push_back(QString("Distractor"));
+            }
+        }
     }
-    activeRefinementView->showSelectedGrasp(hand, ctrl->getGrasp(0));
+    activeRefinementView->showSelectedGrasp(hand, ctrl->getCurrentGraspIfExists());
     choicesValid = true;
 }
 
@@ -185,35 +200,33 @@ void ActivateRefinementState::respondOptionChoice(unsigned int option,
     }
     choicesValid = false;
 
-    GraspPlanningState *grasp_opt = sentChoices[option - stringOptions.size()];
+    if (option >= stringOptions.size() + sentChoices.size()) {
+        sendOptionChoice();
+        return;
+    }
 
-    double graspid = grasp_opt->getAttribute("graspId");
+    double graspid = sentChoices[option - stringOptions.size()];
 
     OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
 
-    int grasp_index = -1;
+    const GraspPlanningState *st = ctrl->getGraspByGraspId(graspid);
 
-    for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
-        if (ctrl->getGrasp(i)->getAttribute("graspId") == graspid) {
-            grasp_index = i;
-            break;
-        }
-    }
-
-    if (grasp_index < 0) {
+    if (!st) {
         DBGA("Grasp not found in current grasps!!");
         DBGA("Rescheduling!");
         choiceTimer->start(2500);
         return;
     } else {
-        const GraspPlanningState *grasp = ctrl->getGrasp(grasp_index);
-        // picked the highlighted option!
+        const GraspPlanningState *grasp = ctrl->setCurrentGraspId(graspid);
+        assert(grasp->getAttribute("graspId") == graspid);
+
         DBGA("Current grasp selected");
         Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
         grasp->execute(refHand);
         ctrl->alignHand();
 
-        if (grasp_index == 0 && grasp->getAttribute("testResult") > 0) {
+        bool was_blue_grasp = (option - stringOptions.size()) == 0;
+        if (was_blue_grasp && grasp->getAttribute("testResult") > 0) {
             BCIService::getInstance()->emitGoToNextState1();
         } else {
             DBGA("Rescheduling!");

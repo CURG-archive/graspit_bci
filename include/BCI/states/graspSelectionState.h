@@ -26,7 +26,7 @@ public:
 
 protected:
     GraspSelectionView *graspSelectionView;
-    std::vector<GraspPlanningState *> sentChoices;
+    std::vector<double> sentChoices;
 
     virtual void generateImageOptions(bool debug = true);
 

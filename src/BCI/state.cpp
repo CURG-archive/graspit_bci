@@ -94,7 +94,7 @@ void State::generateStringImageOptions(bool debug) {
     for (unsigned int i = 0; i < stringOptions.size(); ++i) {
         QImage *img = new QImage(640, 480, QImage::Format_ARGB32_Premultiplied);
         QColor textColor = Qt::white;
-        img->fill(qRgba(0, 0, 0, 255));
+        img->fill(qRgba(0, 0, 0, 0));
         textColor.setAlpha(255);
         setImageText(img, stringOptions[i],
                 textColor);
@@ -107,6 +107,22 @@ void State::generateStringImageOptions(bool debug) {
 
 void State::sendOptionChoice() {
     generateImageOptions();
+    if (imageOptions.size() < 9) {
+        int num_to_add = 9 - imageOptions.size();
+        for (unsigned int i = 0; i < num_to_add; ++i) {
+            QImage *img = new QImage(640, 480, QImage::Format_ARGB32_Premultiplied);
+            QColor textColor = Qt::white;
+            img->fill(qRgba(0, 0, 0, 0));
+            textColor.setAlpha(255);
+            QString dist("distractor");
+            setImageText(img, dist, textColor);
+
+            imageOptions.push_back(img);
+            imageCosts.push_back(0.0);
+            imageDescriptions.push_back("automatic distractor");
+        }
+    }
+
     float confidence = 1.0;
     if (imageOptions.size() != imageDescriptions.size())
         DBGA("imageOptions size != imageDescriptions size");

@@ -5,7 +5,7 @@ using bci_experiment::world_element_tools::getWorld;
 using bci_experiment::OnlinePlannerController;
 
 ConfirmationState::ConfirmationState(BCIControlWindow *_bciControlWindow, QState *parent) :
-        State("ConfirmationState", parent), sentChoice(NULL), bciControlWindow(_bciControlWindow) {
+        State("ConfirmationState", parent), sentChoice(-1), bciControlWindow(_bciControlWindow) {
     confirmationView = new ConfirmationView(bciControlWindow->currentFrame);
     this->addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onNextGrasp()));
     confirmationView->hide();
@@ -37,12 +37,13 @@ void ConfirmationState::onExit(QEvent *e) {
 //!*******************************************
 
 void ConfirmationState::generateImageOptions(bool debug) {
-    if (OnlinePlannerController::getInstance()->getCurrentGrasp()) {
-        if (sentChoice)
-            delete sentChoice;
-
-        sentChoice = new GraspPlanningState(*OnlinePlannerController::getInstance()->getCurrentGrasp());
-        sentChoice->setAttribute("graspId", OnlinePlannerController::getInstance()->getCurrentGrasp()->getAttribute("graspId"));
+    OnlinePlannerController * ctrl = OnlinePlannerController::getInstance();
+    const GraspPlanningState *currentGrasp = ctrl->getCurrentGraspIfExists();
+    if (currentGrasp) {
+        sentChoice = currentGrasp->getAttribute("graspId");
+    } else {
+        sentChoice = -1;
+        return;
     }
 
     for (unsigned int i = 0; i < imageOptions.size(); ++i) {
@@ -57,34 +58,41 @@ void ConfirmationState::generateImageOptions(bool debug) {
 
     stringOptions.push_back(QString("Go Back - RePlan"));
     imageDescriptions.push_back(QString("Go Back - RePlan"));
+    imageCosts.push_back(0.25);
+    generateStringImageOptions();
+
     size_t numDistractors = 8;
 
+    QString debugFileName = "";
+    QImage *img;
+
+    if (debug) {
+        debugFileName = QString("confirmation_state_distractor.png");
+    }
+
+    currentGrasp = ctrl->getCurrentGraspIfExists();
     for (size_t i = 0; i < numDistractors; ++i) {
-        stringOptions.push_back(QString("Distractor"));
+        img = graspItGUI->getIVmgr()->generateImage(confirmationView->getHandView()->getIVObjectRoot(), debugFileName);
+        imageOptions.push_back(img);
+        imageCosts.push_back(0);
         imageDescriptions.push_back(QString("Distractor"));
     }
 
-    generateStringImageOptions(debug);
-
     //! Get grasp planning state
-    QString debugFileName = "";
-    if (debug)
+    if (debug) {
         debugFileName = QString("confirmation_state_grasp.png");
+    }
 
-    QImage *img = graspItGUI->getIVmgr()->generateImage(confirmationView->getHandView()->getIVRoot(), debugFileName);
+    img = graspItGUI->getIVmgr()->generateImage(confirmationView->getHandView()->getIVRoot(), debugFileName);
     imageOptions.push_back(img);
     imageCosts.push_back(.25);
-    imageDescriptions.push_back(QString("GraspID: ") + QString::number(sentChoice->getAttribute("graspId")));
-
-
+    imageDescriptions.push_back(QString("GraspID: ") + QString::number(sentChoice));
     //! Add distractor images here?
 }
 
 void
 ConfirmationState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {
-    //if (!sentChoice)
-    //    return;
-    DBGA("ConfirmationSTate::respondOptionChoice - Entered");
+    DBGA("ConfirmationState::respondOptionChoice - Entered");
     DBGA("Received : " << option << " " << interestLevel.size() - 1);
     if (option == 0) {
         // The 0th option will emit go back to replan and emit the next signal

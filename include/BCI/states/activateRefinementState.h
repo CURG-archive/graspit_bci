@@ -35,7 +35,7 @@ protected:
     ActiveRefinementView *activeRefinementView;
 
     QTimer * choiceTimer;
-    std::vector<GraspPlanningState *> sentChoices;
+    std::vector<double> sentChoices;
     bool choicesValid;
 
     virtual void generateImageOptions(bool debug = true);
