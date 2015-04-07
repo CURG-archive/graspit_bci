@@ -54,7 +54,7 @@ OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
     mMarkSolutions = false;
 	mCurrentBest = NULL;
 	mSimAnn->setParameters(ANNEAL_ONLINE);
-	setRenderType(RENDER_LEGAL);
+    setRenderType(RENDER_ALWAYS);
 	mRepeat = true;
 
 	mGraspTester = new GraspTester(h);
@@ -223,7 +223,7 @@ void OnLinePlanner::startThread()
     showClone(false);
     showSolutionClone(true);
     SimAnnPlanner::startPlanner();
-    setRenderType(RENDER_LEGAL);
+    setRenderType(RENDER_ALWAYS);
     setState(RUNNING);
     DBGA("Started on-line planner");
 }
@@ -498,14 +498,13 @@ OnLinePlanner::graspLoop()
 		}
 	}
 
-    if (mCurrentStep % 50 == 0)
+    if (mCurrentStep % 500 == 0)
     {
         emit update();
-        //emit signalRender(this);
+        render(mProgressClone);
+        //emit signalRender(this);        
     }
 
-
-    render(mProgressClone);
 
 	//DBGP("Grasp loop done");
 }

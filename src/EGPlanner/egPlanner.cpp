@@ -421,7 +421,7 @@ EGPlanner::render(Hand * h)
             if ( mCurrentState && mCurrentState->isLegal() ) mCurrentState->execute(h);
 		} else mRenderCount++;
 	} else if (mRenderType==RENDER_ALWAYS) {
-		mCurrentState->execute();
+        mCurrentState->execute(h);
 	} else if ( mRenderType == RENDER_NEVER ) {
 		return;
 	}
@@ -442,7 +442,6 @@ EGPlanner::setGraspAttribute(int i, const QString & attribute, double value)
   std::list<GraspPlanningState*>::iterator iterator = mBestList.begin();
   std::advance(iterator, i);
   (*iterator)->setAttribute(attribute, value);
-  emit update();
 }
 
 
