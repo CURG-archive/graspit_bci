@@ -32,10 +32,10 @@
   <widget class="QPushButton" name="buttonOk">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>340</y>
-     <width>111</width>
-     <height>41</height>
+     <x>0</x>
+     <y>320</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="palette">
@@ -131,7 +131,10 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>18</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -147,15 +150,18 @@
   <widget class="QPushButton" name="buttonRefineGrasp">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>340</y>
-     <width>111</width>
-     <height>41</height>
+     <x>0</x>
+     <y>390</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>18</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -168,10 +174,10 @@
   <widget class="QPushButton" name="buttonRotateLong">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>560</y>
-     <width>181</width>
-     <height>41</height>
+     <x>0</x>
+     <y>530</y>
+     <width>301</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="palette">
@@ -267,7 +273,10 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>18</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -276,14 +285,17 @@
    <property name="text">
     <string>Rotate Z</string>
    </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="buttonRotateLat">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>500</y>
-     <width>181</width>
-     <height>41</height>
+     <x>0</x>
+     <y>470</y>
+     <width>301</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="palette">
@@ -379,7 +391,10 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>18</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -387,6 +402,9 @@
    </property>
    <property name="text">
     <string>Rotate X</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

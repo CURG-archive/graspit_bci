@@ -19,15 +19,18 @@
   <widget class="QPushButton" name="buttonOk">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>0</x>
      <y>310</y>
-     <width>111</width>
-     <height>41</height>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -40,43 +43,55 @@
   <widget class="QPushButton" name="buttonRotLong">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>440</y>
-     <width>111</width>
-     <height>41</height>
+     <x>0</x>
+     <y>430</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(188, 197, 255);</string>
    </property>
    <property name="text">
-    <string>RotLong</string>
+    <string>Rotate Z</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="buttonRotLat">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>390</y>
-     <width>111</width>
-     <height>41</height>
+     <x>0</x>
+     <y>370</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(255, 205, 251);</string>
    </property>
    <property name="text">
-    <string>RotLat</string>
+    <string>Rotate X</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QFrame" name="previewFrame">
@@ -114,15 +129,18 @@
   <widget class="QPushButton" name="buttonNextGrasp">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>800</y>
-     <width>111</width>
-     <height>41</height>
+     <x>0</x>
+     <y>790</y>
+     <width>301</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
