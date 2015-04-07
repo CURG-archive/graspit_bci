@@ -75,7 +75,7 @@ void ObjectSelectionState::onVisionFinished()
     graspItGUI->getIVmgr()->blinkBackground();
     visionRunning = false;
     bciControlWindow->setBackgroundColor(QColor(255,255,255));
-    sendOptionChoice();
+    //sendOptionChoice();
 }
 
 void ObjectSelectionState::generateImageOptions(bool debug)
@@ -94,7 +94,7 @@ void ObjectSelectionState::generateImageOptions(bool debug)
     {
         GraspableBody *newTarget = OnlinePlannerController::getInstance()->getCurrentTarget();
         WorldController::getInstance()->highlightCurrentBody(newTarget);
-        OnlinePlannerController::getInstance()->emitRender();
+        //OnlinePlannerController::getInstance()->emitRender();
         QGLWidget * glwidget = static_cast<QGLWidget *>(graspItGUI->getIVmgr()->getViewer()->getGLWidget());
         QImage fb = glwidget->grabFrameBuffer();
         QImage * img = new QImage(fb);
