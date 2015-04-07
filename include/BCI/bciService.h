@@ -38,8 +38,8 @@ public:
     void emitRotLat(){emit rotLat();}
     void emitRotLong(){emit rotLong();}
 
-    void emitAnalyzeGrasp(const GraspPlanningState * gps) {emit analyzeGrasp(gps); }
-    void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
+    //void emitAnalyzeGrasp(const GraspPlanningState * gps) {emit analyzeGrasp(gps); }
+    //void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
     void emitRunObjectRecognition(){}
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
@@ -124,8 +124,8 @@ signals:
     void sendString(const QString & s);
 
     // determine reachability of the grasp at this index
-    void analyzeGrasp(const GraspPlanningState * gps);
-    void analyzeNextGrasp();
+    //void analyzeGrasp(const GraspPlanningState * gps);
+    //void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
     void optionChoice(unsigned int option, float confidence,
                       std::vector<float> & interestLevel);

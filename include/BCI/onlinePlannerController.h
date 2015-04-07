@@ -27,7 +27,7 @@ namespace bci_experiment{
 
 
 
-    class OnlinePlannerController : public QObject
+    class OnlinePlannerController : public QThread
     {
         Q_OBJECT
 
@@ -83,7 +83,7 @@ namespace bci_experiment{
 
 
             void sortGrasps();
-            void connectPlannerUpdate(bool enableConnection);
+//            void connectPlannerUpdate(bool enableConnection);
             void resetGraspIndex();
 
             //! Block grasp analysis
@@ -94,6 +94,9 @@ namespace bci_experiment{
 
             bool analysisIsBlocked(){return analysisBlocked;}
             OnLinePlanner * currentPlanner;
+
+    protected:
+	    virtual void run();
 
     private:
 
@@ -131,6 +134,7 @@ namespace bci_experiment{
             bool setPlannerToPaused();
             bool setPlannerToReady();
             void analyzeNextGrasp();
+            void finishedAnalysis();
 
             void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
             void clearObjects();

@@ -37,16 +37,12 @@ namespace bci_experiment
     OnlinePlannerController * OnlinePlannerController::onlinePlannerController = NULL;
 
     OnlinePlannerController* OnlinePlannerController::getInstance()
-    {
-        if(createLock.locked())
-        {
-            assert(0);
-            return NULL;
-        }
+    {       
         QMutexLocker lock(&createLock);
         if(!onlinePlannerController)
         {            
             onlinePlannerController = new OnlinePlannerController();
+	    onlinePlannerController->start();
 	    //            assert(isMainThread(onlinePlannerController));
         }
 
@@ -56,28 +52,28 @@ namespace bci_experiment
 
 
     OnlinePlannerController::OnlinePlannerController(QObject *parent) :
-        QObject(parent),
+        QThread(parent),
         mDbMgr(NULL),
         currentTarget(NULL),
         currentGraspIndex(0),
         graspDemonstrationHand(NULL)
     {
         currentPlanner = planner_tools::createDefaultPlanner();
-        connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()), Qt::QueuedConnection);
+        //connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()), Qt::QueuedConnection);
     }
 
-    void OnlinePlannerController::connectPlannerUpdate(bool enableConnection)
-    {
-        if(enableConnection)
-        {
-            connect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate()), Qt::QueuedConnection);
-        }
-        else
-        {
-            if(!disconnect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate())))
-                DBGA("Failed to disconnect planner");
-        }
-    }
+//    void OnlinePlannerController::connectPlannerUpdate(bool enableConnection)
+//    {
+//        if(enableConnection)
+//        {
+//            connect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate()), Qt::QueuedConnection);
+//        }
+//        else
+//        {
+//            if(!disconnect(currentPlanner, SIGNAL(update()), this, SLOT(plannerTimedUpdate())))
+//                DBGA("Failed to disconnect planner");
+//        }
+//    }
 
     bool OnlinePlannerController::analyzeApproachDir()
     {
@@ -234,7 +230,7 @@ namespace bci_experiment
             currentPlanner->getGraspTester()->getHand()->getGrasp()->setObjectNoUpdate(currentTarget);
 
 
-            connect(currentTarget, SIGNAL(destroyed()), this, SLOT(targetRemoved()));
+            connect(currentTarget, SIGNAL(destroyed()), this, SLOT(targetRemoved()), Qt::QueuedConnection);
         }
 
     }
@@ -313,7 +309,7 @@ namespace bci_experiment
         if(currentPlanner->getState()==READY)
         {
             currentPlanner->startThread();
-            plannerTimedUpdate();
+            //plannerTimedUpdate();
         }
         return true;
     }
@@ -328,7 +324,7 @@ namespace bci_experiment
         {
             initializeTarget();
             bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
-            plannerTimedUpdate();
+            //plannerTimedUpdate();
         }
       else{
 	DBGA("OnlinePlannerController::setPlannerToReady: ERROR Attempted to set planner to ready without valid target");
@@ -471,6 +467,13 @@ namespace bci_experiment
       void unlock(){if (locked_) m_.unlock(); locked_ = false;}
     };
 
+    void OnlinePlannerController::finishedAnalysis()
+    {
+        DBGA("finished analysis");
+        emitRender();
+        analyzeNextGrasp();
+    }
+
     void OnlinePlannerController::analyzeNextGrasp()
     {
 
@@ -520,7 +523,7 @@ namespace bci_experiment
                   //And an evaluation request was emitted for it less than some time ago
                   if(gs->getAttribute("testTime") > expirationTime)
                   {
-                      DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent.");
+                      DBGA("OnlinePlannerController::analyzeNextGrasp::Last attempt to analyze this grasp was too recent. Grasp ID:" << gs->getAttribute("graspId"));
                       //Don't emit another request to analyze.
                       return;
                   }
@@ -535,11 +538,11 @@ namespace bci_experiment
           graspToEvaluate = currentPlanner->getGrasp(firstUnevaluatedIndex);
           assert(graspToEvaluate->getAttribute("testResult") == 0.0);
           //Request analysis and ask to be called gain when analysis is completed.
+          currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
+          DBGA("Emit grasp analysis");
+          BCIService::getInstance()->checkGraspReachability(graspToEvaluate, this, SLOT(finishedAnalysis()));
+      }
 
-      }// end lock scope so that we can manipulate the grasp.
-
-      currentPlanner->setGraspAttribute(firstUnevaluatedIndex, "testTime",  QDateTime::currentDateTime().toTime_t());
-      BCIService::getInstance()->checkGraspReachability(graspToEvaluate, NULL, NULL);
       DBGA("checkGraspReachability: " << currentTime -  QDateTime::currentDateTime().toTime_t());      
     }
 
@@ -599,5 +602,10 @@ namespace bci_experiment
    {
        currentPlanner->updateSolutionList();
    }
+
+  void OnlinePlannerController::run()
+  {
+    exec();
+  }
 
 }
