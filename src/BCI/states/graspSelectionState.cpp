@@ -23,6 +23,7 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
 
     //addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
     addSelfTransition(OnlinePlannerController::getInstance()->currentPlanner,SIGNAL(update()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(OnlinePlannerController::getInstance(),SIGNAL(render()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onPlannerUpdated()));
     addSelfTransition(BCIService::getInstance(), SIGNAL(rotLong()), this, SLOT(onPlannerUpdated()));
     stateName = QString("Grasp Selection");
