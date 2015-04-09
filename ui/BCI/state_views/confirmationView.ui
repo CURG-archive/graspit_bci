@@ -32,15 +32,18 @@
   <widget class="QPushButton" name="buttonBack">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>460</y>
-     <width>221</width>
+     <x>0</x>
+     <y>540</y>
+     <width>301</width>
      <height>81</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
@@ -53,15 +56,18 @@
   <widget class="QPushButton" name="buttonOk">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>350</y>
-     <width>221</width>
+     <x>0</x>
+     <y>360</y>
+     <width>311</width>
      <height>81</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">

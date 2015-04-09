@@ -17,11 +17,12 @@ HandRotationState::HandRotationState(QString name, BCIControlWindow *_bciControl
 void HandRotationState::setRotationAllowed(bool allowed) {
     rotationAllowed = allowed;
 
-    if (allowed) {
-        if (!this->transitions().contains(rotateLatTransition))
-            this->addTransition(rotateLatTransition);
-        if (!this->transitions().contains(rotateLongTransition))
-            this->addTransition(rotateLongTransition);
+    if(allowed)
+    {
+        if(!this->transitions().contains(rotateLatTransition))
+            this->addStateTransition(rotateLatTransition);
+        if(!this->transitions().contains(rotateLongTransition))
+            this->addStateTransition(rotateLongTransition);
 
     }
     else {

@@ -196,5 +196,16 @@ namespace bci_experiment {
             }
         }
 
-    }
+transf getCOGTransform(DynamicBody *b)
+{
+    return b->getTran()*translate_transf(b->getCoG().toSbVec3f());
+}
+
+transf getCenterOfRotation(DynamicBody *b)
+{
+    //return b->getTran();
+    return getCOGTransform(b);
+}
+
+}
 }

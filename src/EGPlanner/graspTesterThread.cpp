@@ -34,163 +34,175 @@
 //#define GRASPITDBG
 #include "debug.h"
 
-GraspTester::GraspTester(Hand *h) {
-    mHand = h;
-    init();
-    mEnergyCalculator = new SearchEnergy();
-    mEnergyCalculator->setType(ENERGY_STRICT_AUTOGRASP);
-    mCurrentStep = 0;
-    mMaxSteps = 1; //run forever
-    mMaxCandidates = 20;
-    mNumCandidates = 0;
+GraspTester::GraspTester(Hand *h)
+{
+	mHand = h;
+	init();
+	mEnergyCalculator = new SearchEnergy();
+	mEnergyCalculator->setType(ENERGY_STRICT_AUTOGRASP);
+	mCurrentStep = 0; mMaxSteps = 1; //run forever
+	mMaxCandidates = 20; mNumCandidates = 0;
 }
 
-GraspTester::~GraspTester() {
-    clearBuffers();
+GraspTester::~GraspTester()
+{
+	clearBuffers();
 }
 
 void
-GraspTester::setEnergyType(SearchEnergyType) {
-    DBGA("Grasp tester only uses STRICT AUTPGRASP energy");
+GraspTester::setEnergyType(SearchEnergyType)
+{
+	DBGA("Grasp tester only uses STRICT AUTPGRASP energy");
 }
 
 bool
-GraspTester::resetPlanner() {
-    if (!EGPlanner::resetPlanner()) return false;
-    clearBuffers();
-    return true;
+GraspTester::resetPlanner()
+{
+	if (!EGPlanner::resetPlanner()) return false;
+	clearBuffers();
+	return true;
 }
 
 void
-GraspTester::mainLoop() {
-    GraspPlanningState *s = popCandidate();
+GraspTester::mainLoop()
+{
+	GraspPlanningState *s = popCandidate();
 
-    if (!s) {
-        DBGP("Empty buffer for tester");
-        msleep(100);
-        return;
-    }
-    s->changeHand(mHand, true);
-    testGrasp(s);
-    DBGP("TESTER: candidate has energy " << s->getEnergy());
-    mHand->breakContacts();
-    if (s->isLegal() && s->getEnergy() < -1.2) {
-        //save the final grasping position that has resulted from autograsp
-        s->setPositionType(SPACE_COMPLETE);
-        s->setPostureType(POSE_DOF);
-        //save the current transform with respect to the target object
-        s->setRefTran(mHand->getGrasp()->getObject()->getTran());
-        s->saveCurrentHandState();
-        postSolution(s);
-        DBGP("Tester posting a solution at iteration " << s->getItNumber());
-    } else {
-        DBGP("Tester removing candidate");
-        delete s;
-    }
+	if (!s) {
+		DBGP("Empty buffer for tester");
+		msleep(100);
+		return;
+	}
+	s->changeHand(mHand,true);
+	testGrasp(s);
+	DBGP("TESTER: candidate has energy " << s->getEnergy());
+	mHand->breakContacts();
+	if (s->isLegal() && s->getEnergy() < -1.2) {
+		//save the final grasping position that has resulted from autograsp
+		s->setPositionType(SPACE_COMPLETE);
+		s->setPostureType(POSE_DOF);
+		//save the current transform with respect to the target object
+    s->setRefTran(mHand->getGrasp()->getObject()->getTran());
+		s->saveCurrentHandState();
+		postSolution(s);
+		DBGP("Tester posting a solution at iteration " << s->getItNumber());
+	} else {
+		DBGP("Tester removing candidate");
+		delete s;
+	}
 }
 
-GraspPlanningState *
-GraspTester::popSolution() {
-    GraspPlanningState *s = NULL;
-    mListMutex.lock();
-    if (!mSolutionList.empty()) {
-        s = mSolutionList.front();
-        mSolutionList.pop_front();
-    }
-    mListMutex.unlock();
-    return s;
+GraspPlanningState*
+GraspTester::popSolution()
+{
+	GraspPlanningState *s = NULL;
+	mListMutex.lock();
+	if ( !mSolutionList.empty() ) {
+		s = mSolutionList.front();
+		mSolutionList.pop_front();
+	}
+	mListMutex.unlock();
+	return s;
 }
 
 void
-GraspTester::postSolution(GraspPlanningState *s) {
-    mListMutex.lock();
-    mSolutionList.push_back(s);
-    mListMutex.unlock();
+GraspTester::postSolution(GraspPlanningState *s)
+{
+	mListMutex.lock();
+	mSolutionList.push_back(s);
+	mListMutex.unlock();
 }
 
-GraspPlanningState *
-GraspTester::popCandidate() {
-    GraspPlanningState *s = NULL;
-    mListMutex.lock();
-    if (!mCandidateList.empty()) {
-        s = mCandidateList.front();
-        mCandidateList.pop_front();
-    }
-    mNumCandidates = (int) mCandidateList.size();
-    mListMutex.unlock();
-    return s;
+GraspPlanningState*
+GraspTester::popCandidate()
+{
+	GraspPlanningState *s = NULL;
+	mListMutex.lock();
+	if ( !mCandidateList.empty() ) {
+		s = mCandidateList.front();
+		mCandidateList.pop_front();
+	}
+	mNumCandidates = (int)mCandidateList.size();
+	mListMutex.unlock();
+	return s;
 }
 
 bool
-GraspTester::postCandidate(GraspPlanningState *s) {
-    mListMutex.lock();
-    if ((int) mCandidateList.size() > mMaxCandidates) {
-        DBGP("Tester buffer size: " << mCandidateList.size());
-        mListMutex.unlock();
-        return false;
-    }
-    mCandidateList.push_back(s);
-    mNumCandidates = (int) mCandidateList.size();
-    mListMutex.unlock();
-    return true;
+GraspTester::postCandidate(GraspPlanningState *s)
+{
+	mListMutex.lock();
+	if ( (int)mCandidateList.size() > mMaxCandidates ) {
+		DBGP("Tester buffer size: " << mCandidateList.size());
+		mListMutex.unlock();
+		return false;
+	}
+	mCandidateList.push_back(s);
+	mNumCandidates = (int)mCandidateList.size();
+	mListMutex.unlock();
+	return true;
 }
 
 void
-GraspTester::clearBuffers() {
-    std::list<GraspPlanningState *>::iterator it;
-    mListMutex.lock();
+GraspTester::clearBuffers()
+{
+	std::list<GraspPlanningState*>::iterator it;
+	mListMutex.lock();
 
-    for (it = mCandidateList.begin(); it != mCandidateList.end(); it++) {
-        delete (*it);
-    }
-    mCandidateList.clear();
-    mNumCandidates = 0;
-    for (it = mSolutionList.begin(); it != mSolutionList.end(); it++) {
-        delete (*it);
-    }
-    mSolutionList.clear();
-    mListMutex.unlock();
+	for (it = mCandidateList.begin(); it!= mCandidateList.end(); it++) {
+		delete (*it);
+	}
+	mCandidateList.clear();
+	mNumCandidates = 0;
+	for (it = mSolutionList.begin(); it!= mSolutionList.end(); it++) {
+		delete (*it);
+	}
+	mSolutionList.clear();
+	mListMutex.unlock();
 }
 
 void
-GraspTester::testGrasp(GraspPlanningState *s) {
-    bool legal;
-    double energy;
-    //test will leave the hand in the tested state, if it is legal!
-    mEnergyCalculator->analyzeState(legal, energy, s, false);
-    if (!legal) {
-        DBGA("Illegal state in tester thread!");
-        s->setLegal(false);
-        DBGA("outputting collisions");
+GraspTester::testGrasp(GraspPlanningState *s)
+{
+	bool legal; double energy;
+	//test will leave the hand in the tested state, if it is legal!
+	mEnergyCalculator->analyzeState(legal, energy, s, false);
+	if (!legal) {
+		DBGA("Illegal state in tester thread!");
+		s->setLegal(false);
+		DBGA("outputting collisions");
 
-        s->execute();
-        CollisionReport colReport;
-        std::vector<Body *> body_list;
-        mHand->getBodyList(&body_list);
-        mHand->getWorld()->getCollisionReport(&colReport, &body_list);
-        CollisionReport::iterator it = colReport.begin();
-        while (it != colReport.end()) {
-            DBGA("Collision between " << it->first->getName().toStdString() << " and " << it->second->getName().toStdString());
-            ++it;
-        }
-        return;
-    }
+		s->execute();		
+		CollisionReport colReport;
+		std::vector<Body *> body_list;
+		mHand->getBodyList(&body_list);
+		mHand->getWorld()->getCollisionReport(&colReport, &body_list);
+		CollisionReport::iterator it = colReport.begin();
+		while(it!=colReport.end()) {
+		  DBGA("Collision between " << it->first->getName().toStdString() << " and " << it->second->getName().toStdString() );
+		  ++it;
+		}
+		return;
+	}
     mHand->saveState();
     double pregrasp_dist = -50.0;
     mHand->autoGrasp(false, -2.0, true);
-    mHand->approachToContact(pregrasp_dist, false);
+    transf newTran = translate_transf(vec3(0,0,pregrasp_dist) * mHand->getApproachTran()) * mHand->getTran();
+    mHand->moveTo(newTran, 100*Contact::THRESHOLD, M_PI/36.0);
+    //mHand->approachToContact(pregrasp_dist, false);
     CollisionReport colReport;
     std::vector<Body *> body_list;
     mHand->getBodyList(&body_list);
     mHand->getWorld()->getCollisionReport(&colReport, &body_list);
-    if (colReport.size() || energy > -1.2) {
-        s->setAttribute("testResult", -2);
+    if(colReport.size() || energy > -2.0)
+    {
+        s->setAttribute("testResult",-2);
         DBGP("Tester state failed energy: " << energy << " GraspID: " << s->getAttribute("graspId"));
     }
-    else {
-        s->setAttribute("testResult", 0);
+    else
+    {
+        s->setAttribute("testResult",0);
         DBGP("Tester succeeded! energy: " << energy << " GraspID: " << s->getAttribute("graspId"));
     }
-    s->setEnergy(energy);
+	s->setEnergy(energy);
     mHand->restoreState();
 }

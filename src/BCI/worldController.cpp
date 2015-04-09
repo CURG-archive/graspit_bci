@@ -4,9 +4,10 @@
 #include "BCI/utils/worldElementTools.h"
 #include "BCI/utils/uiTools.h"
 
-using bci_experiment::world_element_tools::getWorld;
+
 
 namespace bci_experiment {
+	using world_element_tools::getWorld;
 
     WorldController *WorldController::worldController = NULL;
 

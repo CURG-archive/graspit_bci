@@ -68,10 +68,13 @@ namespace bci_experiment {
         void realignHand(Hand *h);
 
 
-        void setNonLinkCollisions(Hand *h, bool on);
-    }
+		void setNonLinkCollisions(Hand * h, bool on);
 
+		transf getCOGTransform(DynamicBody * b);
+
+		transf getCenterOfRotation(DynamicBody * b);
+
+	}
 }
-
 
 #endif

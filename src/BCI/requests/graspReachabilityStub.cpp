@@ -11,6 +11,7 @@
 #include "robot.h"
 #include "debug.h"
 #include <QFileInfo>
+#include "BCI/onlinePlannerController.h"
 
 
 GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel *channel)
@@ -100,7 +101,11 @@ void GraspReachabilityStub::sendRequestImpl() {
     graspReachability_stub.run(request, &response, _rpc, rpcz::new_callback<GraspReachabilityStub>(this, &GraspReachabilityStub::callback));
 }
 
-void GraspReachabilityStub::callbackImpl() {
+void GraspReachabilityStub::callbackImpl()
+{
+    if(bci_experiment::OnlinePlannerController::getInstance()->analysisIsBlocked())
+        return;
+
     QString attribute = QString("testResult");
     EGPlanner *currentWorldPlanner = graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();
     QMutexLocker lock(&currentWorldPlanner->mListAttributeMutex);

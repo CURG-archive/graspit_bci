@@ -27,7 +27,7 @@ class GraspPlanningState;
 namespace bci_experiment {
 
 
-    class OnlinePlannerController : public QObject {
+    class OnlinePlannerController : public QThread {
     Q_OBJECT
 
     public:
@@ -119,6 +119,14 @@ namespace bci_experiment {
 
         void connectPlannerUpdate(bool enableConnection);
 
+        bool analysisIsBlocked() { return analysisBlocked; }
+
+        void blockGraspAnalysis(bool block) { analysisBlocked = block; }
+
+        virtual void run();
+
+            bool renderPending;
+            OnLinePlanner * currentPlanner;
 
     private:
 
@@ -130,20 +138,15 @@ namespace bci_experiment {
 
         void initializeDbInterface();
 
-
-        db_planner::SqlDatabaseManager *mDbMgr;
-        GraspableBody *currentTarget;
-        unsigned int currentGraspIndex;
-        double currentGraspId;
-        OnLinePlanner *currentPlanner;
-        Hand *graspDemonstrationHand;
-
-        bool setAllowedPlanningCollisions();
-
-        bool setPlannerTargets();
-
-        bool sceneLocked;
-
+            db_planner::SqlDatabaseManager * mDbMgr;
+            GraspableBody * currentTarget;
+            unsigned int currentGraspIndex;
+            double currentGraspId;
+            Hand * graspDemonstrationHand;
+            bool setAllowedPlanningCollisions();
+            bool setPlannerTargets();
+            bool sceneLocked;
+            bool analysisBlocked;            
     signals:
 
         void render();
@@ -156,26 +159,17 @@ namespace bci_experiment {
         void plannerTimedUpdate();
 
     public slots:
+            bool setPlannerToRunning();
+            bool setPlannerToStopped();
+            bool setPlannerToPaused();
+            bool setPlannerToReady();
+            void analyzeNextGrasp();
+            void finishedAnalysis();
 
-        bool setPlannerToRunning();
-
-        bool setPlannerToStopped();
-
-        bool setPlannerToPaused();
-
-        bool setPlannerToReady();
-
-        void analyzeNextGrasp();
-
-        void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
-
-        void clearObjects();
-
-        void targetRemoved();
-
-        void emitRender() {
-            emit render();
-        }
+            void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
+            void clearObjects();
+            void targetRemoved();            
+            void emitRender(){if(!renderPending){ emit render(); renderPending = true;}}
     };
 
 }

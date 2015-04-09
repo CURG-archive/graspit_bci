@@ -6,8 +6,9 @@
 using bci_experiment::OnlinePlannerController;
 
 ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
-        QWidget(parent),
-        ui(new Ui::ActiveRefinementView) {
+    QWidget(parent),
+    ui(new Ui::ActiveRefinementView)
+{
     ui->setupUi(this);
 
     connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
@@ -15,19 +16,16 @@ ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
     connect(ui->buttonRotLong, SIGNAL(clicked()), this, SLOT(onRotLong()));
     connect(ui->buttonNextGrasp, SIGNAL(clicked()), this, SLOT(onNextGrasp()));
 
-    SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
-
-    Hand *h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QString viewName = QString("current best grasp");
     //handView = new HandView(mainViewer,h,*parentWindow, viewName);
     createHandView();
-    showSelectedGrasp(h, NULL);
-    showNextGrasp(h, NULL);
 }
 
 
-void ActiveRefinementView::createHandView() {
-    Hand *h = OnlinePlannerController::getInstance()->getGraspDemoHand();
+
+void ActiveRefinementView::createHandView()
+{
+    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
 
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     QString viewName = QString("current best grasp");
@@ -36,39 +34,51 @@ void ActiveRefinementView::createHandView() {
     nextGraspView = new HandView(mainViewer, h, *this->ui->previewNextFrame, nextViewName);
 }
 
-void ActiveRefinementView::onOk() {
+void ActiveRefinementView::onOk()
+{
     BCIService::getInstance()->emitGoToNextState1();
 }
 
-void ActiveRefinementView::onRotLat() {
-    BCIService::getInstance()->emitRotLat();
+void ActiveRefinementView::onRotLat()
+{
+   BCIService::getInstance()->emitRotLat();
 }
 
-void ActiveRefinementView::onRotLong() {
-    BCIService::getInstance()->emitRotLong();
+void ActiveRefinementView::onRotLong()
+{
+   BCIService::getInstance()->emitRotLong();
 }
-
-void ActiveRefinementView::showEvent(QShowEvent *) {
+void ActiveRefinementView::showEvent(QShowEvent *)
+{
+    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     this->currentGraspView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    showSelectedGrasp(h,NULL);
+    showNextGrasp(h,NULL);
 }
 
-void ActiveRefinementView::showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState) {
-    if (graspPlanningState) {
+void ActiveRefinementView::showSelectedGrasp(Hand *hand, const GraspPlanningState *graspPlanningState)
+{
+    if(graspPlanningState)
+    {
         currentGraspView->update(*graspPlanningState, *hand);
     }
 }
 
-void ActiveRefinementView::showNextGrasp(Hand *hand, const GraspPlanningState *graspPlanningState) {
-    if (graspPlanningState) {
+void ActiveRefinementView::showNextGrasp(Hand * hand,  const GraspPlanningState *graspPlanningState)
+{
+    if(graspPlanningState)
+    {
         nextGraspView->update(*graspPlanningState, *hand);
     }
 }
 
-void ActiveRefinementView::onNextGrasp() {
+void ActiveRefinementView::onNextGrasp()
+{
     BCIService::getInstance()->emitNext();
 }
 
-ActiveRefinementView::~ActiveRefinementView() {
+ActiveRefinementView::~ActiveRefinementView()
+{
     delete ui;
 }
 

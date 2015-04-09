@@ -56,9 +56,9 @@ QSignalTransition *State::addSelfTransition(QObject *sender, const char *signal,
     QSignalTransition *newTransition =
             new QSignalTransition(sender, signal);
     QSignalTransition *duplicate =
-            dynamic_cast<QSignalTransition *>(checkForDuplicateTransitions(newTransition));
-    if (!duplicate)
-        addTransition(newTransition);
+            dynamic_cast<QSignalTransition*>(checkForDuplicateTransitions(newTransition));
+    if(!duplicate)
+        addStateTransition(newTransition);
 
     else {
         delete(newTransition);
@@ -195,18 +195,20 @@ State::checkForDuplicateTransitions(QAbstractTransition *transition) {
 }
 
 QSignalTransition *
-State::addTransition(QObject *sender, const char *signal, QAbstractState *target) {
-    QSignalTransition *newTransition =
-            new QSignalTransition(sender, signal);
+State::addStateTransition(QObject * sender, const char * signal,  QAbstractState * target)
+{
+    QSignalTransition * newTransition =
+            new QSignalTransition(sender,signal);
     newTransition->setTargetState(target);
-    this->addTransition(newTransition);
+    this->addStateTransition(newTransition);
     return newTransition;
 }
 
 void
-State::addTransition(QAbstractTransition *transition) {
+State::addStateTransition( QAbstractTransition * transition )
+{
     assert(!checkForDuplicateTransitions(transition));
-    static_cast<QState *>(this)->addTransition(transition);
+    addTransition(transition);
 }
 
 

@@ -9,7 +9,7 @@
 class World;
 
 class Body;
-
+class DynamicBody;
 class Hand;
 
 class transf;
@@ -57,7 +57,7 @@ namespace bci_experiment {
 //! Change the view to focus on all of the graspable bodies in the scene
         void viewGraspableBodies();
 
-        void updateCircularGuides(Hand *hand, Body *object);
+		void updateCircularGuides(Hand * hand, DynamicBody * object);
 
         void destroyGuideSeparator();
 

@@ -92,6 +92,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     endif()
 endif()
 
+################################################
+# Adding magic tree vectorization optimization #
+################################################
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ftree-vectorize -ftree-vectorizer-verbose=2")
 
 ################
 #Core sources  #

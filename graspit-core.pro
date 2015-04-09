@@ -7,7 +7,7 @@
 QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-QMAKE_CXXFLAGS += -std=c++0x -g
+QMAKE_CXXFLAGS += -std=c++0x -g -O3 -ftree-vectorize -ftree-vectorizer-verbose=2
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin
@@ -464,7 +464,6 @@ bci_experiment {
                include/BCI/states/executionState.h \
                include/BCI/states/stoppedExecutionState.h \
                include/BCI/bciService.h \
-               ui/EGPlanner/compliantPlannerDlg.h \
                ui/BCI/binaryCommandView.h \
                ui/BCI/bciControlWindow.h \
                ui/BCI/handView.h \
@@ -489,7 +488,6 @@ bci_experiment {
 
 
    FORMS += ui/BCI/bciStageFrame.ui \
-            ui/BCI/bciStageFrame.ui \
             ui/BCI/BCIControlWindowBase.ui \
             ui/BCI/bciWorldView.ui \
             ui/BCI/bciPreviewView.ui \

@@ -30,11 +30,9 @@ public:
     QSignalTransition *addSelfTransition(QObject *sender, const char *signal, const QObject *receiver, const char *slot);
 
     //Reimplement addTransition interface more safely -- explicitly disallow duplicates.
-    QSignalTransition *addTransition(QObject *sender, const char *signal, QAbstractState *target);
-
-    void addTransition(QAbstractTransition *transition);
-
-    QAbstractTransition *addTransition(QAbstractState *target);
+    QSignalTransition * addStateTransition(QObject * sender, const char * signal,  QAbstractState * target);
+    void addStateTransition ( QAbstractTransition * transition );
+    QAbstractTransition *addStateTransition ( QAbstractState * target );
 
 public slots:
 

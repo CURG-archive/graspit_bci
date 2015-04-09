@@ -24,7 +24,7 @@ public slots:
     virtual void onPlannerUpdated(QEvent *e = NULL);
 
     virtual void nextGrasp(QEvent *e = NULL);
-
+    virtual void updateView();
     void setTimerRunning();
 
     void checkSendOptionChoice();

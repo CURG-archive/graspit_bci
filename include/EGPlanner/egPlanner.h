@@ -70,11 +70,10 @@ class EGPlanner : public QThread {
 Q_OBJECT
 
 protected:
-    EGPlanner() : mListAttributeMutex(QMutex::Recursive) {
-    }
-    //!Contains initialization that is COMMON between this and all subclasses.
-    /*! Class-specific initialization will go in the constructor. */
-    void init();
+    EGPlanner(){}
+	//!Contains initialization that is COMMON between this and all subclasses. 
+	/*! Class-specific initialization will go in the constructor. */
+	void init();
 
     //! This is the hand that the planner is using. Might be a real hand from the GraspIt world or a clone of one
     Hand *mHand;
