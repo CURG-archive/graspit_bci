@@ -128,6 +128,9 @@ namespace bci_experiment {
             bool renderPending;
             OnLinePlanner * currentPlanner;
 
+	void generateGraspSimilarity(std::vector<vec3> & approachDirs,
+	                             std::vector<float> & similarity);
+
     private:
 
         static OnlinePlannerController *onlinePlannerController;

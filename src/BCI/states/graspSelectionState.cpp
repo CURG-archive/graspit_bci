@@ -167,7 +167,7 @@ void GraspSelectionState::generateImageOptions(bool debug) {
     imageCosts.clear();
     sentChoices.clear();
     stringOptions.clear();
-
+    std::vector<vec3> approachDirs;
     stringOptions.push_back(QString("Select Different Object"));
 
     OnlinePlannerController *ctrl = OnlinePlannerController::getInstance();
@@ -176,8 +176,8 @@ void GraspSelectionState::generateImageOptions(bool debug) {
     ctrl->sortGrasps();
     generateStringImageOptions(debug);
     imageDescriptions.push_back(stringOptions[0]);
-    imageCosts.push_back(.5);
-
+    //imageCosts.push_back(.5);
+    approachDirs.push_back(vec3(0,0,0));
     while (!graspSelectionView->getHandView()) {
         DBGA("waiting for handview")
         sleep(1);
@@ -200,7 +200,9 @@ void GraspSelectionState::generateImageOptions(bool debug) {
         sentChoices.push_back(currentGrasp->getAttribute("graspId"));
 
         imageOptions.push_back(img);
-        imageCosts.push_back(.25);
+	// Instead of explicitly setting the image cost, cache the approachDirs so that they can be calculated later. 
+	approachDirs.push_back(currentGrasp->getTotalTran().affine().transpose().row(2));
+        //imageCosts.push_back(.25);
         imageDescriptions.push_back(QString("GraspID: ") + QString::number(currentGrasp->getAttribute("graspId")));
     }
 
@@ -217,10 +219,12 @@ void GraspSelectionState::generateImageOptions(bool debug) {
         while (imageOptions.size() < MIN_IMAGES) {
             QImage *img = graspItGUI->getIVmgr()->generateImage(graspSelectionView->getHandView()->getIVObjectRoot(), debugFileName);
             imageOptions.push_back(img);
-            imageCosts.push_back(0);
+            //imageCosts.push_back(0);
+	    approachDirs.push_back(vec3(0,0,0));
             imageDescriptions.push_back(QString("Distractor"));
         }
     }
+    OnlinePlannerController::getInstance()->generateGraspSimilarity(approachDirs, imageCosts);
 }
 
 void GraspSelectionState::respondOptionChoice(unsigned int option, float confidence, std::vector<float> interestLevel) {

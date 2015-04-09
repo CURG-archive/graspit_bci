@@ -675,5 +675,15 @@ namespace bci_experiment
     exec();
   }
 
+  void OnlinePlannerController::generateGraspSimilarity(std::vector<vec3> & approachDirs,
+							std::vector<float> & similarity)
+  {
+    for(size_t i = 0; i < approachDirs.size(); ++i)
+      for(size_t j = 0; j < approachDirs.size(); ++j)
+	{
+	  similarity.push_back(approachDirs[i] % approachDirs[j]);
+	}
+  }
+
 }
 

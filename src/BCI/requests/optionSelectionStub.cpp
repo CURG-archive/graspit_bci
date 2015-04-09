@@ -49,6 +49,9 @@ void OptionSelectionStub::buildRequest(const std::vector<QImage*> & imageList,
       cio->mutable_description()->set_cost(imageCosts[i]);
       cio->mutable_description()->set_id(i);
   }
+  request.clear_similaritymatrix();
+  for(size_t i = 0; i < imageCosts.size(); ++i)
+    request.add_similaritymatrix(imageCosts[i]);
   request.set_minimumconfidencelevel(minimumConfidence);
 }
 

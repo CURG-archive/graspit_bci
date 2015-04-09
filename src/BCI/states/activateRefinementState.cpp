@@ -145,6 +145,7 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
 
     ctrl->sortGrasps();
     DBGA("Found " << ctrl->getNumGrasps() << " grasps");
+    std::vector<vec3> approachDirs;
 
     for (int i = 0; i < ctrl->getNumGrasps(); ++i) {
         const GraspPlanningState *grasp = ctrl->getGrasp(i);
@@ -172,9 +173,10 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
                 img->save(debugFileName);
             }
         }
-
-        imageOptions.push_back(img);
-        imageCosts.push_back(0.25);
+	// Instead of explicitly setting the image cost, cache the approachDirs so that they can be calculated later. 
+	approachDirs.push_back(grasp->getTotalTran().affine().transpose().row(2));
+	//imageCosts.push_back(0.25);
+        imageOptions.push_back(img);	        
         imageDescriptions.push_back(QString("GraspID: ") + QString::number(grasp->getAttribute("graspId")));
     }
 
@@ -196,11 +198,13 @@ void ActivateRefinementState::generateImageOptions(bool debug) {
             while (imageOptions.size() < MIN_IMAGES) {
                 QImage *img = graspItGUI->getIVmgr()->generateImage(activeRefinementView->getHandView()->getIVObjectRoot(), debugFileName);
                 imageOptions.push_back(img);
-                imageCosts.push_back(0);
+                //imageCosts.push_back(0);
                 imageDescriptions.push_back(QString("Distractor"));
+		approachDirs.push_back(vec3(0,0,0));
             }
         }
     }
+    OnlinePlannerController::getInstance()->generateGraspSimilarity(approachDirs, imageCosts);
     activeRefinementView->showSelectedGrasp(hand, ctrl->getCurrentGraspIfExists());
     choicesValid = true;
 }
