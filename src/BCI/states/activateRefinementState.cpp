@@ -80,7 +80,7 @@ void ActivateRefinementState::updateView()
         QString graspID;
         bciControlWindow->currentState->setText("Refinement State - Grasp:" + graspID.setNum(bestGrasp->getAttribute("graspId")) );
     }
-
+    OnlinePlannerController::getInstance()->renderPending = false;
 
 }
 

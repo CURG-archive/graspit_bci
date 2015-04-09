@@ -94,6 +94,7 @@ namespace bci_experiment{
 
             bool analysisIsBlocked(){return analysisBlocked;}
             OnLinePlanner * currentPlanner;
+            bool renderPending;
 
     protected:
 	    virtual void run();
@@ -115,9 +116,7 @@ namespace bci_experiment{
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();
             bool sceneLocked;
-            bool analysisBlocked;
-
-
+            bool analysisBlocked;            
     signals:
             void render();
 
@@ -138,8 +137,8 @@ namespace bci_experiment{
 
             void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);
             void clearObjects();
-            void targetRemoved();
-            void emitRender(){emit render();}
+            void targetRemoved();            
+            void emitRender(){if(!renderPending){ emit render(); renderPending = true;}}
     };
 
 }

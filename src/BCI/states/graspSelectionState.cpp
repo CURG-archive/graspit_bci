@@ -116,6 +116,7 @@ void GraspSelectionState::onPlannerUpdated()
     }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
     }
+    OnlinePlannerController::getInstance()->renderPending = false;
 }
 
 void GraspSelectionState::onRotateHandLat()

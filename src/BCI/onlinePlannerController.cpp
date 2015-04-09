@@ -56,7 +56,8 @@ namespace bci_experiment
         mDbMgr(NULL),
         currentTarget(NULL),
         currentGraspIndex(0),
-        graspDemonstrationHand(NULL)
+        graspDemonstrationHand(NULL),
+        renderPending(false)
     {
         currentPlanner = planner_tools::createDefaultPlanner();
         //connect(currentPlanner, SIGNAL(update()), this, SLOT(emitRender()), Qt::QueuedConnection);
