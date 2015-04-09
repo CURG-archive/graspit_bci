@@ -58,7 +58,7 @@
 //#define GRASPITDBG
 #include "debug.h"
 
-#define PROF_ENABLED
+//#define PROF_ENABLED
 #include "profiling.h"
 
 PROF_DECLARE(MOVE_DOF);
