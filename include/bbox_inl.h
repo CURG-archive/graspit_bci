@@ -34,7 +34,8 @@ pointBoxDistanceSq(const BoundingBox &box, const position &p)
 {
 	vec3 v = (p - position::ORIGIN) - box.getTran().translation();
 	mat3 RMat;
-	box.getTran().rotation().ToRotationMatrix(RMat);
+    RMat = box.getTran().affine();
+    //box.getTran().rotation().ToRotationMatrix(RMat);
 
     double sqDist = 0.0;
     for (int i=0; i<3; i++) {
