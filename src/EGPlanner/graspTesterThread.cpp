@@ -193,7 +193,7 @@ GraspTester::testGrasp(GraspPlanningState *s)
     std::vector<Body *> body_list;
     mHand->getBodyList(&body_list);
     mHand->getWorld()->getCollisionReport(&colReport, &body_list);
-    if(colReport.size() || energy > -1.2)
+    if(colReport.size() || energy > -2.0)
     {
         s->setAttribute("testResult",-2);
         DBGP("Tester state failed energy: " << energy << " GraspID: " << s->getAttribute("graspId"));
