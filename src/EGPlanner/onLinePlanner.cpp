@@ -389,6 +389,7 @@ OnLinePlanner::mainLoop()
 	double secs = (float)(time - lastCheck) / CLOCKS_PER_SEC;
 
 	if (secs < 0.2) {
+    if (secs < 0.1) {
 		//perform grasp planning all the time
 		graspLoop();
 		return;
