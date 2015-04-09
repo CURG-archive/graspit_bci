@@ -681,6 +681,9 @@ namespace bci_experiment
     for(size_t i = 0; i < approachDirs.size(); ++i)
       for(size_t j = 0; j < approachDirs.size(); ++j)
 	{
+	  if(i == j)
+	    similarity.push_back(1.0f);
+	  else	    	  
 	  similarity.push_back(approachDirs[i] % approachDirs[j]);
 	}
   }
