@@ -121,6 +121,7 @@ void GraspReachabilityStub::callbackImpl()
                 reachabilityScore = 1;
 
             currentWorldPlanner->setGraspAttribute(i, attribute, reachabilityScore);
+	    bci_experiment::OnlinePlannerController::getInstance()->filterSimilarGrasps(gps);
             std::cout << "SetGraspAttribute graspId " << response.graspid() << " attributeString " << reachabilityScore << "\n";
             break;
         }

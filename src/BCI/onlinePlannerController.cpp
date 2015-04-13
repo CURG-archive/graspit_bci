@@ -688,5 +688,46 @@ namespace bci_experiment
 	}
   }
 
+  
+
+  void OnlinePlannerController::filterSimilarGrasps(const GraspPlanningState * targetGrasp)
+  {
+    size_t maxSimilarGrasps = 3;
+
+    std::vector<const GraspPlanningState *> similarGrasps;
+
+    for(size_t ind = 0; ind < currentPlanner->getListSize(); ++ind)
+      {
+	const GraspPlanningState * testGrasp = currentPlanner->getGrasp(ind);
+	Quaternion qvec = testGrasp->getTotalTran().rotation() * targetGrasp->getTotalTran().rotation().inverse();
+	vec3 axis;
+	double angle;
+
+	qvec.ToAngleAxis(angle, axis);
+	if (fabs(angle) < 5.0f/180.0f*M_PI)
+	  {
+	    similarGrasps.push_back(testGrasp);
+	  }
+      }
+    while(similarGrasps.size() > 4)
+      {
+	int minInd = 0;
+	double minGraspID =  similarGrasps[0]->getAttribute("GraspId");
+	//Age out oldest grasps first
+	for(size_t j = 1; j < similarGrasps.size(); ++j)
+	  {
+	    if(minInd > 0)
+	      {
+		if(similarGrasps[j]->getAttribute("GraspId") < minGraspID)
+		  {
+		    minGraspID = similarGrasps[j]->getAttribute("GraspId");
+		    minInd = j;
+		  }	    
+	      }	
+	  }
+	const_cast<GraspPlanningState*>(similarGrasps[minInd])->setAttribute("testResult",-4);
+      }
+  }
+
 }
 

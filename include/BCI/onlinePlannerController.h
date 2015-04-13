@@ -123,6 +123,8 @@ namespace bci_experiment {
 
         void blockGraspAnalysis(bool block) { analysisBlocked = block; }
 
+	void filterSimilarGrasps(const GraspPlanningState * targetGrasp);
+
         virtual void run();
 
             bool renderPending;
