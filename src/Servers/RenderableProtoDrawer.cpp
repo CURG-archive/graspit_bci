@@ -32,12 +32,12 @@ SoNodeList Renderer::getChildByName(SoSeparator * ivRoot, SbName & childName,
     int numPaths = pathList.getLength();
     if (numPaths > maxResultsExpected)
     {
-        DBGA(this->className() << "::getChildByName::Found too many children of node: "
-             << ivRoot->getName().getString()  << " with name: "
-             <<childName.getString() << " " );
-        DBGA(this->className() << "::getChildByName:: Expected:" << maxResultsExpected
-             << " Found:" << numPaths);
-        resultList.append(static_cast<SoNode *>(NULL));
+        //DBGA(this->className() << "::getChildByName::Found too many children of node: "
+        //     << ivRoot->getName().getString()  << " with name: "
+        //     <<childName.getString() << " " );
+        //DBGA(this->className() << "::getChildByName:: Expected:" << maxResultsExpected
+        //     << " Found:" << numPaths);
+        //resultList.append(static_cast<SoNode *>(NULL));
         return resultList;
     }
 
@@ -275,7 +275,7 @@ bool FrameRenderer::renderImpl(SoSeparator * ivRoot, Renderable &renderable)
     if(ivRoot->getNumChildren() && ivRoot->getChild(0)->getTypeId() == SoTransform::getClassTypeId())
     {
         tran = static_cast<SoTransform *>(ivRoot->getChild(0));
-        DBGA("IVRoot child number: " << ivRoot->getNumChildren());
+       // DBGA("IVRoot child number: " << ivRoot->getNumChildren());
     }
     else
     {

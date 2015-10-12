@@ -12,6 +12,7 @@ ConfirmationState::ConfirmationState(BCIControlWindow *_bciControlWindow,QState*
         State("ConfirmationState", parent),bciControlWindow(_bciControlWindow)
 {    
     confirmationView = new ConfirmationView(bciControlWindow->currentFrame);
+    this->addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onNextGrasp()));
     confirmationView->hide();
 }
 
@@ -22,10 +23,14 @@ void ConfirmationState::onEntry(QEvent *e)
     Hand * hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
     confirmationView->setCurrentGrasp(hand,grasp);
     confirmationView->show();
-    bciControlWindow->currentState->setText("Confirmation State");
+    bciControlWindow->currentState->setText("Confirmation");
     OnlinePlannerController::getInstance()->setPlannerToPaused();
 }
 
+void ConfirmationState::onNextGrasp(QEvent *e)
+{
+
+}
 
 void ConfirmationState::onExit(QEvent * e)
 {

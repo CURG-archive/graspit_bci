@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 
   GraspItApp app(argc, argv);
  
-  app.showSplash();
-  QApplication::setOverrideCursor( Qt::waitCursor );
+  //app.showSplash();
+  //QApplication::setOverrideCursor( Qt::waitCursor );
 
   GraspItGUI gui(argc,argv);
   
@@ -82,11 +82,13 @@ int main(int argc, char **argv)
   //default
   GraspItServer server(4765);
   unsigned int portNumber = 4766;
+
   GraspitProtobufServer protobufServer(portNumber);
 
   //REGISTER ROS Services here.
   ros::init(argc, argv, "ros_bci_node");
- 
+
+
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 

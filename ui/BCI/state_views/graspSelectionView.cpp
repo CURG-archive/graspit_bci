@@ -14,16 +14,16 @@ GraspSelectionView::GraspSelectionView(QWidget *parent) :
 
     connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
     connect(ui->buttonRefineGrasp, SIGNAL(clicked()), this, SLOT(onRefineGrasp()));
-    connect(ui->buttonBack, SIGNAL(clicked()), this, SLOT(onBack()));
+    connect(ui->buttonRotateLat, SIGNAL(clicked()), this, SLOT(onRotateLat()));
+    connect(ui->buttonRotateLong, SIGNAL(clicked()), this, SLOT(onRotateLong()));
 
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QFrame *parentWindow = this->ui->renderArea;
     QString viewName = QString("current best grasp");
     handView = new HandView(mainViewer,h,*parentWindow, viewName);
-
     showSpinner();
-    showSelectedGrasp(h,NULL);
+
 
 }
 ///////////////////////////////////////////////////
@@ -33,19 +33,26 @@ void GraspSelectionView::onRefineGrasp()
     BCIService::getInstance()->emitGoToNextState2();
 }
 
+void GraspSelectionView::onRotateLong()
+{
+    BCIService::getInstance()->emitRotLong();
+}
+
 void GraspSelectionView::onOk()
 {
     BCIService::getInstance()->emitGoToNextState1();
 }
 
-void GraspSelectionView::onBack()
+void GraspSelectionView::onRotateLat()
 {
-    BCIService::getInstance()->emitGoToPreviousState();
+    BCIService::getInstance()->emitRotLat();
 }
 
 void GraspSelectionView::showEvent(QShowEvent *)
 {
+    Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    showSelectedGrasp(h,NULL);
 }
 
 ///////////////////////////////////////////////////
@@ -65,9 +72,15 @@ void GraspSelectionView::hideSpinner()
 void GraspSelectionView::showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState)
 {
     hideSpinner();
+
     if(graspPlanningState)
     {
         handView->update(*graspPlanningState, *hand);
+        DBGA("GraspSelectionView::showSelectedGrasp::Showing grasp:" << graspPlanningState->getItNumber());
+    }
+    else
+    {
+        DBGA("GraspSelectionView::showSelectedGrasp::No grasp");
     }
 }
 

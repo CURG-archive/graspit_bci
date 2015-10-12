@@ -20,14 +20,19 @@ public:
     BCIControlWindow(QWidget *parent = 0 )
         :QDialog(parent)
     {
-
+        BCIService::getInstance();
         if(OnlinePlannerController::getInstance()->thread() != this->thread())
             DBGA("OnlinePlannerController not in same thread as BCIControlWindow");
 
 
         setupUi(this);
-    }
 
+    }
+public slots:
+    void redraw()
+    {
+        this->bciWorldView->redraw();
+    }
 };
 
 

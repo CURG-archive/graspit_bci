@@ -110,6 +110,13 @@ GraspitCollision::activateBody(const Body* body, bool active)
 	model->setActive(active);
 }
 
+bool printDebugMsg(const Body* body1, const Body* body2)
+{
+   DBGA("GCOL Warning: collision pair is actually one body - B1: " << body1->getName().toStdString() << " B2: " << body2->getName().toStdString());
+   return false;
+}
+
+
 void 
 GraspitCollision::activatePair(const Body* body1, const Body* body2, bool active)
 {
@@ -121,7 +128,8 @@ GraspitCollision::activatePair(const Body* body1, const Body* body2, bool active
 	}
 	if (model2 == model1) {
 		//bodies are the same
-		DBGA("GCOL Warning: insertion collision pair is actually one body");
+        DBGA("GraspitCollision::ActivatePair");
+         printDebugMsg(body1, body2);
 		model1->setActive(active);
 		return;
 	}
@@ -133,9 +141,21 @@ GraspitCollision::activatePair(const Body* body1, const Body* body2, bool active
 		DBGP("Disable pair: " << model1 << " -- " << model2);
 		mDisabledMap.insert( std::pair<const CollisionModel*, const CollisionModel*>(model1, model2) );
 	} else {
-		//remove from list
+		//remove from list        
+        DisabledIterator rangeIt;
+        std::pair<DisabledIterator, DisabledIterator> range;
+
+       range = mDisabledMap.equal_range(model1);
+       for (rangeIt = range.first; rangeIt != range.second; rangeIt++) {
+           if (rangeIt->second == model2) {
+                mDisabledMap.erase(rangeIt);
+                return;
+           }
+       }
+
 	}
 }
+
 
 bool 
 GraspitCollision::isActive(const Body* body1, const Body* body2)
@@ -152,12 +172,13 @@ GraspitCollision::isActive(const Body* body1, const Body* body2)
 		DBGA("GCOL: model not found");
 		return false;
 	}
-	if (!model1->isActive() || !model2->isActive()) {
+	if (!model1->isActive() || !model2->isActive()) {     
 		return false;
 	}
 	if (model2==model1) {
 		//bodies are the same
-		DBGA("GCOL Warning: collision pair is actually one body");
+    DBGA("GraspitCollision::isActive");
+    printDebugMsg(body1, body2);
 		return model1->isActive();
 	}
 	else if (model2 < model1) {

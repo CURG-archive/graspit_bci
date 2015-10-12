@@ -13,7 +13,7 @@ ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, QState* pare
 void ExecutionState::onEntry(QEvent *e)
 {
     executionView->show();
-    bciControlWindow->currentState->setText("Execution State");
+    bciControlWindow->currentState->setText("Execution");
 
     BCIService::getInstance()->executeGrasp(OnlinePlannerController::getInstance()->getCurrentGrasp(),NULL,NULL);
 }

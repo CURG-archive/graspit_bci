@@ -50,10 +50,11 @@
 OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
 {
 	mSolutionClone = NULL;
+    mProgressClone = NULL;
     mMarkSolutions = false;
 	mCurrentBest = NULL;
 	mSimAnn->setParameters(ANNEAL_ONLINE);
-	setRenderType(RENDER_LEGAL);
+    setRenderType(RENDER_ALWAYS);
 	mRepeat = true;
 
 	mGraspTester = new GraspTester(h);
@@ -63,21 +64,17 @@ OnLinePlanner::OnLinePlanner(Hand *h) : SimAnnPlanner(h)
 
 	//the on-line planner ALWAYS uses a clone for the search but the original hand is saved as the reference hand
 	mRefHand = h;
-	createAndUseClone();//after this point mHand now points to a new clone
+    createSolutionClone();
+    createProgressClone();
+    //createAndUseClone();//after this point mHand now points to a new clone
 	//in case that later we might want to see what the clone is doing
 	mHand->setRenderGeometry(true);
 	//but for now it is hidden
-	showClone(false);
-
+    //showClone(false);
 	//hack - I need a better way to handle collisions when the planner is using a clone
 	//we have three hands we need to take care of: the original hand, this clone and the parallel tester's clone
 	//some of the collisions are turned off by createAndUseClone(), but not this one
-	mHand->getWorld()->toggleCollisions(false, mGraspTester->getHand(), mHand);
-	//so we can distinguish between the two clones
-	mGraspTester->getHand()->setName( mGraspTester->getHand()->getName() + QString(" th") );//this hand is never put in scene graph, for behind the scenes stuff?
-	mHand->setName( mHand->getName() + QString(" pl") );
-    mHand->setTransparency(0.97);//Make the planner hand barely visible just so the user can see something is going on.
-	//this class will actually be used to set the DOF's of the refHand if we are actually performing
+    //this class will actually be used to set the DOF's of the refHand if we are actually performing
 	//grasping tasks.
 	mInterface = new OnLineGraspInterface(mRefHand);
 }
@@ -105,6 +102,7 @@ OnLinePlanner::resetParameters()
 void
 OnLinePlanner::createSolutionClone()
 {
+
 	if(mSolutionClone) {
 		DBGA("Solution clone exists already!");
 		return;
@@ -173,16 +171,81 @@ OnLinePlanner::resetPlanner()
 	return true;
 }
 
+void OnLinePlanner::createProgressClone()
+{
+
+    if(mProgressClone) {
+        DBGA("Solution clone exists already!");
+        return;
+    }
+
+    mProgressClone = new Hand(mRefHand->getWorld(), "Progress clone");
+    mProgressClone->cloneFrom(mRefHand);//CHANGED! was mHand - for some reason this makes setting transparency not tied to mHand??
+    mProgressClone->setTransparency(0.95);//Make the clone that shows the solutions slightly transparent so we can still see the object below it.
+    mProgressClone->showVirtualContacts(false);
+    mProgressClone->setRenderGeometry(true);
+    //solution clone is always added to scene graph
+    World * w = mHand->getWorld();
+    w->addRobot(mProgressClone, true);
+    unsigned int numRob = w->getNumRobots();
+    for (int r = 0; r < numRob; ++ r)
+    {
+        if (mProgressClone == w->getRobot(r))
+            continue;
+        w->toggleCollisions(false, mProgressClone, w->getRobot(r));
+    }
+    mProgressClone->getWorld()->toggleCollisions(true, mProgressClone);
+
+    mProgressClone->setTran( mRefHand->getTran() );//CHANGED!  was mHand
+}
+
+void OnLinePlanner::createAndUseClone()
+{
+    SimAnnPlanner::createAndUseClone();    
+    mHand->getWorld()->toggleCollisions(false, mGraspTester->getHand(), mHand);
+    //so we can distinguish between the two clones
+    mGraspTester->getHand()->setName( mGraspTester->getHand()->getName() + QString(" th") );//this hand is never put in scene graph, for behind the scenes stuff?
+    mHand->setName( mHand->getName() + QString(" pl") );
+    mHand->setTransparency(0.8);//Make the planner hand barely visible just so the user can see something is going on.
+
+}
+
+void OnLinePlanner::startThread()
+{
+    setState(INIT);
+    if(!this->mMultiThread)
+        SimAnnPlanner::startThread();
+    mGraspTester->startPlanner();
+
+    mRefHand->setTransparency(0.7);
+    //this->mHand->moveToThread(this);
+    //mHand->getWorld()->toggleCollisions(true, mHand);
+    showClone(false);
+    showSolutionClone(true);
+    SimAnnPlanner::startPlanner();
+    setRenderType(RENDER_ALWAYS);
+    setState(RUNNING);
+    DBGA("Started on-line planner");
+}
+
+
 void
 OnLinePlanner::startPlanner()
 {
+    createAndUseClone();
+    //mHand->getWorld()->toggleCollisions(true, mHand);
 	DBGP("Starting on-line planner");
-	mRefHand->setTransparency(0.7);
-	SimAnnPlanner::startPlanner();
-	mGraspTester->startPlanner();
-	showClone(true);
-	showSolutionClone(true);
+    mRefHand->setTransparency(0.7);
+    SimAnnPlanner::startPlanner();
+    mGraspTester->startPlanner();
+    mGraspTester->setRenderType(RENDER_NEVER);
+    showClone(true);
+    showSolutionClone(true);
+
+    DBGA("Started on-line planner");
 }
+
+
 
 void
 OnLinePlanner::pausePlanner()
@@ -259,7 +322,11 @@ OnLinePlanner::distanceOutsideApproach(const transf &solTran, const transf &hand
 }
 
 
-
+void OnLinePlanner::setGraspAttribute(int i, const QString &attribute, double value)
+{
+    EGPlanner::setGraspAttribute(i, attribute, value);
+    //this->updateSolutionList();
+}
 
 /*! Keeps the list of solutions sorted according to some metric */
 void
@@ -322,6 +389,7 @@ OnLinePlanner::mainLoop()
 	double secs = (float)(time - lastCheck) / CLOCKS_PER_SEC;
 
 	if (secs < 0.2) {
+    if (secs < 0.1) {
 		//perform grasp planning all the time
 		graspLoop();
 		return;
@@ -362,6 +430,8 @@ OnLinePlanner::mainLoop()
 
 	//retrieve solutions from the tester
 	GraspPlanningState *s;
+    {
+    QMutexLocker lock(&mListAttributeMutex);
 	while ( (s = mGraspTester->popSolution()) != NULL ) {
 		//hack - this is not ideal, but so far I don't have a better solution of how to keep track
 		//of what hand is being used at what time
@@ -372,6 +442,7 @@ OnLinePlanner::mainLoop()
 			mHand->getWorld()->getIVRoot()->addChild( s->getIVRoot() );
 		}
 	}
+    }
 	updateSolutionList();
 
 	//now shape the real hand.
@@ -428,8 +499,14 @@ OnLinePlanner::graspLoop()
 		}
 	}
 
-	if (mCurrentStep % 100 == 0) emit update();
-	render();
+    if (mCurrentStep % 500 == 0)
+    {
+        emit update();
+        render(mProgressClone);
+        //emit signalRender(this);        
+    }
+
+
 	//DBGP("Grasp loop done");
 }
 

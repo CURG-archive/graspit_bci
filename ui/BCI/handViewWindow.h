@@ -83,7 +83,7 @@ public:
   HandViewWindow(QWidget * parent, Hand * h, const QRect & geom, SoNode * IVRoot = NULL, QWidget * stageFrame = NULL);
   void initViews(Hand * h);
   ~HandViewWindow(){
-    for (int i = 0; i < views.size(); ++i)
+    for (unsigned int i = 0; i < views.size(); ++i)
       delete views[i];
     delete cloneHand;
     delete handViewWindow;

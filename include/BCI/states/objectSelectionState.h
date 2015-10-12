@@ -23,7 +23,7 @@ private:
     BCIControlWindow *bciControlWindow;
     ObjectSelectionView *objectSelectionView;
     BCIService *bciService;
-
+    bool visionRunning;
 
 public slots:
 
@@ -31,6 +31,10 @@ public slots:
     void onSelect();
     void onNewObjectFound();
 
+    void onRunVision(QEvent *e = NULL);
+    void onVisionFinished();
+protected:
+    virtual void generateImageOptions(bool debug);
 };
 
 #endif // OBJECTSELECTIONSTATE_H

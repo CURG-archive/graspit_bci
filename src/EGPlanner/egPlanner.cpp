@@ -54,6 +54,7 @@ EGPlanner::EGPlanner(Hand *h)
 	mHand = h;
 	init();
 	mEnergyCalculator = new SearchEnergy();
+
 }
 
 /*! Also sets the state of the planner to INIT, which is default
@@ -77,7 +78,7 @@ EGPlanner::init()
 	mMultiThread = false;
 	mState = INIT;
 	mUsesClone = false;
-	mOut = NULL;
+	mOut = NULL;    
 }
 
 EGPlanner::~EGPlanner()
@@ -119,7 +120,7 @@ EGPlanner::getState()
 	PlannerState s = mState;
 	if (mMultiThread) mControlMutex.unlock();
 	return s;
-}
+ }
 
 /*! This is the part of resetPlanner() that can also be called while
 	the planner is running to cause it to start from the beginning,
@@ -282,10 +283,10 @@ void EGPlanner::threadLoop()
 		PlannerState s = getState();
 		switch(s) {
 			case INIT:
-//				sleep(0.1);
+                sleep(0.1);
 				break;
 			case READY:
-//				sleep(0.1);
+                sleep(0.1);
 				break;
 			case RUNNING:
 				mainLoop();
@@ -330,6 +331,7 @@ EGPlanner::startThread()
 {
 	if (mMultiThread) {
 		DBGA("Can not start thread; already multi-threaded");
+        return;
 	}
 	if (getState()!=INIT) {
 		DBGA("Can not start thread; state is not INIT");
@@ -400,26 +402,26 @@ EGPlanner::pausePlanner()
 }
 
 void
-EGPlanner::render()
+EGPlanner::render(Hand * h)
 {
-	if (mMultiThread) {
+//    if (QThread::currentThread() != mHand->getWorld()->thread()) {
 		//for now, multi-threaded planners are not allowed to render
 		//rendering should only be done by the main thread
-		return;
-	}
+//		return;
+//	}
 	if (mRenderType == RENDER_BEST) {
 		if ( mBestList.empty() ) return;
 		if ( mLastRenderState == mBestList.front() ) return;		
 		mLastRenderState = mBestList.front();
-		mBestList.front()->execute();
+        mBestList.front()->execute(h);
 	} else if (mRenderType == RENDER_LEGAL) {
 		if (mRenderCount >= 20) {
 			DBGP("Render: geom is " << mHand->getRenderGeometry() );
 			mRenderCount = 0;
-			if ( mCurrentState && mCurrentState->isLegal() ) mCurrentState->execute();
+            if ( mCurrentState && mCurrentState->isLegal() ) mCurrentState->execute(h);
 		} else mRenderCount++;
 	} else if (mRenderType==RENDER_ALWAYS) {
-		mCurrentState->execute();
+        mCurrentState->execute(h);
 	} else if ( mRenderType == RENDER_NEVER ) {
 		return;
 	}
@@ -548,7 +550,7 @@ EGPlanner::addToListOfUniqueSolutions(GraspPlanningState *s, std::list<GraspPlan
     {
 		  s->addAttribute("graspId", mCurrentStep);
 		  s->addAttribute("testResult", 0);
-      s->addAttribute("testTime", 0);
+          s->addAttribute("testTime", 0);
     }
 		
 	}  

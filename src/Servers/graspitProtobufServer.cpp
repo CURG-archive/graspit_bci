@@ -26,7 +26,7 @@ GraspitProtobufConnection::~GraspitProtobufConnection()
 void GraspitProtobufConnection::parseMessage()
 {
     if (!readMessage()){
-      DBGA("GraspitProtobufConnection::parseMessage::Failed to parse message")
+      DBGP("GraspitProtobufConnection::parseMessage::Failed to parse message");
       return;
   }
     if(msg->has_drawable_frame())
@@ -51,7 +51,6 @@ bool GraspitProtobufConnection::readMessage()
 
    bool readSucceeded = false;
 
-    unsigned int bytesAvailable = sock->bytesAvailable();
    // Test if there is a valid message in the buffer
    if(message_length && sock->bytesAvailable() >= message_length)
    {
@@ -89,7 +88,7 @@ quint32 GraspitProtobufConnection::getMessageSize()
 {
     // Try to read the message size prefix
     google::protobuf::uint32 message_length = 0;
-    unsigned int prefix_length = sizeof(message_length);
+    int prefix_length = sizeof(message_length);
     QByteArray prefix = sock->peek(prefix_length);
     if(prefix_length == prefix.size())
     {
@@ -108,7 +107,7 @@ quint32 GraspitProtobufConnection::getMessageSize()
 }
 
 
-GraspitProtobufServer::GraspitProtobufServer(unsigned int port_num, QObject * parent ) :
+GraspitProtobufServer::GraspitProtobufServer(unsigned int port_num, QObject * parent ):
     QTcpServer(parent)
 {
     connect(this, SIGNAL(newConnection()), this, SLOT(onConnection()));

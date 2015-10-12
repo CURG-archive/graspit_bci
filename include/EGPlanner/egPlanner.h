@@ -64,7 +64,7 @@ class EGPlanner : public QThread
 {
 	Q_OBJECT
 protected:
-	EGPlanner(){}
+    EGPlanner(){}
 	//!Contains initialization that is COMMON between this and all subclasses. 
 	/*! Class-specific initialization will go in the constructor. */
 	void init();
@@ -92,10 +92,6 @@ protected:
 	//! The last rendered state
 	const GraspPlanningState *mLastRenderState;
 
-	//! A decision is made whether to put in a redraw request to the scene graph.
-	/*! WARNING: when multi-threaded, it is best to avoid ALL rendering 
-		requests issued from inside the planner. */
-	void render();
 
 	//! Time elapsed since last reset, in seconds.
 	double mRunningTime;
@@ -154,6 +150,8 @@ signals:
 		termination user command or by exceeding mMaxSteps or mMaxTime.*/
 	void complete();
 
+    void signalRender(EGPlanner * planner);
+
 public:
 	//! The constructor is desigend NOT to be called by sub-classes.
 	EGPlanner(Hand *h);
@@ -175,7 +173,7 @@ public:
 	virtual void stopPlanner();
 
 	//! Tells the planner to create and use a clone of the hand passed to the constructor
-	void createAndUseClone();
+    virtual void createAndUseClone();
 
 	//! Add (and thus render) or remove (and thus hide) the clone from the world scene graph.
 	virtual void showClone(bool s);
@@ -214,7 +212,7 @@ public:
 	virtual void clearSolutions();
 	
 	//! Set Attribute of grasp;
-	void setGraspAttribute(int i, const QString & attribute, double value);
+    virtual void setGraspAttribute(int i, const QString & attribute, double value);
 
 	int getCurrentStep(){return mCurrentStep;}
 	Hand *getHand(){return mHand;}
@@ -232,6 +230,11 @@ public:
 	void setStatStream(std::ostream *out) const;
   //! Add grasp to solution list
   bool addSolution(GraspPlanningState *s);
+  //! A decision is made whether to put in a redraw request to the scene graph.
+  /*! WARNING: when multi-threaded, it is best to avoid ALL rendering
+      requests issued from inside the planner. */
+  void render(Hand * h = NULL);
+
   QMutex mListAttributeMutex;
 };
 #endif

@@ -186,12 +186,14 @@ GraspTester::testGrasp(GraspPlanningState *s)
     mHand->saveState();
     double pregrasp_dist = -50.0;
     mHand->autoGrasp(false, -2.0, true);
-    mHand->approachToContact(pregrasp_dist, false);
+    transf newTran = translate_transf(vec3(0,0,pregrasp_dist) * mHand->getApproachTran()) * mHand->getTran();
+    mHand->moveTo(newTran, 100*Contact::THRESHOLD, M_PI/36.0);
+    //mHand->approachToContact(pregrasp_dist, false);
     CollisionReport colReport;
     std::vector<Body *> body_list;
     mHand->getBodyList(&body_list);
     mHand->getWorld()->getCollisionReport(&colReport, &body_list);
-    if(colReport.size() || energy > -1.2)
+    if(colReport.size() || energy > -2.0)
     {
         s->setAttribute("testResult",-2);
         DBGP("Tester state failed energy: " << energy << " GraspID: " << s->getAttribute("graspId"));

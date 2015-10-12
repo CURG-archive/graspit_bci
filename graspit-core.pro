@@ -7,7 +7,7 @@
 QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++0x -g -O3 -ftree-vectorize -ftree-vectorizer-verbose=2
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin
@@ -106,6 +106,10 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/graspReachabilityStub.h \
     include/BCI/requests/executeGraspStub.h \
     include/BCI/rosclient.h
+    include/BCI/requests/optionSelectionStub.h \
+
+
+
 
 
 
@@ -194,6 +198,8 @@ SOURCES	+= src/arch.cpp \
     src/BCI/requests/cameraOriginStub.cpp \
     src/BCI/requests/executeGraspStub.cpp \
     src/BCI/rosclient.cpp
+    src/BCI/requests/optionSelectionStub.cpp \
+
 
 
 
@@ -215,8 +221,7 @@ graspit_collision {
 	SOURCES	+= src/Collision/Graspit/collisionModel.cpp \
 			   src/Collision/Graspit/collisionAlgorithms.cpp \
 			   src/Collision/Graspit/graspitCollision.cpp
-} else {
-	error("Collision detection method not specified")
+}else{
 }
 
 #--------------------------------------- User interface: main window and dialogs ---------------------------------
@@ -465,7 +470,6 @@ bci_experiment {
                include/BCI/states/executionState.h \
                include/BCI/states/stoppedExecutionState.h \
                include/BCI/bciService.h \
-               ui/EGPlanner/compliantPlannerDlg.h \
                ui/BCI/binaryCommandView.h \
                ui/BCI/bciControlWindow.h \
                ui/BCI/handView.h \
@@ -490,7 +494,6 @@ bci_experiment {
 
 
    FORMS += ui/BCI/bciStageFrame.ui \
-            ui/BCI/bciStageFrame.ui \
             ui/BCI/BCIControlWindowBase.ui \
             ui/BCI/bciWorldView.ui \
             ui/BCI/bciPreviewView.ui \

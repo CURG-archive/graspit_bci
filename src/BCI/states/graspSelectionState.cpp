@@ -1,6 +1,7 @@
 #include "BCI/states/graspSelectionState.h"
 #include "BCI/bciService.h"
 #include "BCI/onlinePlannerController.h"
+#include <QPushButton>
 
 using bci_experiment::OnlinePlannerController;
 
@@ -21,8 +22,11 @@ GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, QS
     */
 
     //addSelfTransition(BCIService::getInstance(),SIGNAL(next()), this, SLOT(onNext()));
-    addSelfTransition(BCIService::getInstance(),SIGNAL(plannerUpdated()), this, SLOT(onPlannerUpdated()));
-    connect(this, SIGNAL(entered()), OnlinePlannerController::getInstance(), SLOT(setPlannerToReady()));
+    addSelfTransition(OnlinePlannerController::getInstance()->currentPlanner,SIGNAL(update()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(OnlinePlannerController::getInstance(),SIGNAL(render()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(BCIService::getInstance(), SIGNAL(rotLat()), this, SLOT(onPlannerUpdated()));
+    addSelfTransition(BCIService::getInstance(), SIGNAL(rotLong()), this, SLOT(onPlannerUpdated()));
+    stateName = QString("Grasp Selection");
     graspSelectionView = new GraspSelectionView(bciControlWindow->currentFrame);
     graspSelectionView->hide();
 
@@ -33,11 +37,12 @@ void GraspSelectionState::onEntry(QEvent *e)
 {
 
     graspSelectionView->show();
-    bciControlWindow->currentState->setText("Grasp Selection State");
-
+    bciControlWindow->currentState->setText(stateName);
     //loads grasps from the database
-    //OnlinePlannerController::getInstance()->setPlannerToReady();
+    OnlinePlannerController::getInstance()->setPlannerToReady();
     //called so that view will show best grasp from database
+    //OnlinePlannerController::getInstance()->connectPlannerUpdate(true);
+    OnlinePlannerController::getInstance()->analyzeNextGrasp();
     onPlannerUpdated();
 }
 
@@ -45,26 +50,83 @@ void GraspSelectionState::onEntry(QEvent *e)
 void GraspSelectionState::onExit(QEvent *e)
 {
     graspSelectionView->hide();
+    //OnlinePlannerController::getInstance()->connectPlannerUpdate(false);
 }
 
+
+bool GraspSelectionState::setButtonLabel(QString buttonName, QString label)
+{
+    QPushButton * button = graspSelectionView->findChild<QPushButton *>((buttonName));
+    if(button)
+    {
+        button->setText(label);
+        return true;
+    }
+    return false;
+}
+
+
+
+//Currently unused
 void GraspSelectionState::onNext()
 {
-    OnlinePlannerController::getInstance()->incrementGraspIndex();
+    static QTime activeTimer;
+    qint64 minElapsedMSecs = 1200;
+    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+    {
+
+        activeTimer.start();
+        OnlinePlannerController::getInstance()->incrementGraspIndex();
+        const GraspPlanningState * currentGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
+        Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
+
+        if(currentGrasp)
+        {
+            currentGrasp->execute(OnlinePlannerController::getInstance()->getRefHand());
+            OnlinePlannerController::getInstance()->alignHand();
+            graspSelectionView->showSelectedGrasp(hand, currentGrasp);
+            QString graspID;
+            bciControlWindow->currentState->setText(stateName +"- Grasp: " + graspID.setNum(currentGrasp->getAttribute("graspId")) );
+        }
+    }
+
 }
 
 void GraspSelectionState::onPlannerUpdated()
 {
-    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
+    static QTime activeTimer;
+    qint64 minElapsedMSecs = 300;
+    if(!activeTimer.isValid() || activeTimer.elapsed() >= minElapsedMSecs)
+    {
+    DBGA("GraspSelectionState::onPlannerUpdated: " << this->name().toStdString());
+    OnlinePlannerController::getInstance()->sortGrasps();
+    OnlinePlannerController::getInstance()->resetGraspIndex();
+    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
 
     if(bestGrasp)
     {
         graspSelectionView->showSelectedGrasp(hand,bestGrasp);
         QString graspID;
-        bciControlWindow->currentState->setText("Planner Updated: " + graspID.setNum(bestGrasp->getAttribute("graspId")) );
+        bciControlWindow->currentState->setText(stateName + ": Grasp: " + graspID.setNum(bestGrasp->getAttribute("graspId")) );
+    }
+    else
+    {
+        DBGA("GraspSelectionState::onPlannerUpdated::No best grasp found");
     }
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
+    }
+    OnlinePlannerController::getInstance()->renderPending = false;
+}
 
+void GraspSelectionState::onRotateHandLat()
+{
+    HandRotationState::onRotateHandLat();
+}
+
+void GraspSelectionState::onRotateHandLong()
+{
+    HandRotationState::onRotateHandLong();
 }
 
 

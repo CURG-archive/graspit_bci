@@ -6,6 +6,7 @@
 
 class World;
 class Body;
+class DynamicBody;
 class Hand;
 class transf;
 class GraspableBody;
@@ -50,7 +51,7 @@ void viewBodies(std::vector<Body *> & body_vec);
 //! Change the view to focus on all of the graspable bodies in the scene
 void viewGraspableBodies();
 
-void updateCircularGuides(Hand * hand, Body * object);
+void updateCircularGuides(Hand * hand, DynamicBody * object);
 
 void destroyGuideSeparator();
 

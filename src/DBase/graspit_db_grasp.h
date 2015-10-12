@@ -47,12 +47,12 @@ using std::string;
 /*! This is the class to define the data entry of grasps in CGDB
 */
 class GraspitDBGrasp : public db_planner::Grasp{
-	//! Search State stores the actual grasps
+    //! The hand associated with this grasp
+    Hand* mHand;
+    //! Search State stores the actual grasps
 	GraspPlanningState *mPreGrasp, *mFinalGrasp;
 	//! Stores the test scores in cross correlation
 	std::vector<double> mTestScores;
-	//! The hand associated with this grasp
-	Hand* mHand;
 
 public:
 	GraspitDBGrasp(const GraspitDBGrasp& grasp2);

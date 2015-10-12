@@ -106,7 +106,7 @@ GraspCaptureDlg::captureButtonClicked()
 	mWorld->updateGrasps();
 	if (mQualEpsilon->evaluate() < 0.0) {
 		DBGA("NON FORCE CLOSURE");
-		return;
+    //	return;
 	}
 	GraspPlanningState *newState = new GraspPlanningState(mCurrentHand);
 	newState->setPostureType(POSE_DOF, false);

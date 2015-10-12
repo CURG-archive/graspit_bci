@@ -199,7 +199,6 @@ class IVmgr : public QWidget {
   void setShiftDown(SbBool status) {ShiftDown = status;}
   void spaceBar();
   void keyPressed(SoEventCallback *eventCB);
-  void setBackgroundColor(float r, float g, float b);
   
 
 
@@ -256,7 +255,7 @@ public:
   IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);
   ~IVmgr();
 
-
+  void setBackgroundColor(float r, float g, float b);
   void emitProcessWorldPlanner(int i){emit processWorldPlanner(i);}
   void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0,0.0,0.0));
 

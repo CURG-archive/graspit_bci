@@ -114,11 +114,6 @@ namespace Profiling {
 	inline Profiler &getProfiler();
 }
 
-//For now, as we have not yet ported this to Linux
-#ifndef WIN32
-#undef PROF_ENABLED
-#endif
-
 #ifdef PROF_ENABLED
 
 //declarations
@@ -197,9 +192,16 @@ namespace Profiling {
 */
 #else
 // Posix version not yet implemented
-#define UINT64 unsigned int
-#define PROF_GET_TIME(STR) assert(0);
-#define PROF_CONVERT_TO_MICROS(RAW,MICROS) assert(0);
+#include <time.h>
+#include <cstdint>
+#define UINT64 unsigned long long
+
+#define PROF_GET_TIME(STR) struct timespec tp;                             \
+                           clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp);    \
+                           STR = tp.tv_nsec + 1e9*tp.tv_sec;               \
+
+#define PROF_CONVERT_TO_MICROS(RAW,MICROS) MICROS = 1.0e-3*RAW;
+
 #endif
 
 namespace Profiling {

@@ -44,6 +44,7 @@ SimAnnPlanner::SimAnnPlanner(Hand *h)
 	mEnergyCalculator = new SearchEnergy();
 	mSimAnn = new SimAnn();
 	//mSimAnn->writeResults(true);
+
 }
 
 SimAnnPlanner::~SimAnnPlanner()
@@ -136,7 +137,7 @@ SimAnnPlanner::mainLoop()
 			}
 		}
 	}
-	render();
+    emit signalRender(this);
 	mCurrentStep = mSimAnn->getCurrentStep();
 	if (mCurrentStep % 100 == 0 && !mMultiThread) emit update();
 	if (mMaxSteps == 200) {DBGP("Child at " << mCurrentStep << " steps");}

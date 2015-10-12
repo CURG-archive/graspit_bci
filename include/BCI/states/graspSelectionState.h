@@ -15,17 +15,19 @@ class GraspSelectionState: public HandRotationState
 
 public:
     GraspSelectionState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
-
+    QString stateName;
 
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
-
+    virtual bool setButtonLabel(QString buttonName, QString label);
 protected:
     GraspSelectionView *graspSelectionView;
 
 public slots:
     void onNext();
     void onPlannerUpdated();
+    virtual void onRotateHandLat();
+    virtual void onRotateHandLong();
 };
 
 

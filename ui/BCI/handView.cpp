@@ -178,35 +178,50 @@ void HandView::updateGeom(Hand & cloneHand)
   of the bodies in the scenegraph by updating the SoTransform node associated with
   each body. See CopyLinkTransforms for more details. 
 */
+#include "debug.h"
 
 void HandView::update(const GraspPlanningState & s, Hand & cloneHand)
 {
   double testResult = s.getAttribute("testResult");
   double stateID = s.getAttribute("graspId");
-  updateGeom(cloneHand);
+  bool updated = false;
+  SbColor currentBackground;
+  SbColor newBackground;
+  std::string objectName = s.getObject()->getName().toStdString();
+  DBGA("HandView::update::object name" << objectName);
 
-
+  currentBackground = handViewSoQtRenderArea->getBackgroundColor();
   if(testResult > 0.0)
   {
-    handViewSoQtRenderArea->setBackgroundColor(SbColor(.8,1,.8));
+      newBackground = SbColor(.8,1,.8);
+
   }
   else if(testResult <= -1.0)
   {
-    handViewSoQtRenderArea->setBackgroundColor(SbColor(1,0.8,0.8));
+    newBackground = SbColor(1,0.8,0.8);
   }
 
   if(testResult <= 0.0 && testResult >-1.0){
-    handViewSoQtRenderArea->setBackgroundColor(SbColor(1,1.0,1.0));
+    newBackground = SbColor(1,1.0,1.0);
+  }
+
+  if(currentBackground != newBackground)
+  {
+    handViewSoQtRenderArea->setBackgroundColor(newBackground);
+    updated = true;
   }
 
   if(stateID_ != stateID)
   {
+    updateGeom(cloneHand);
+    updated = true;
+
     stateID_ = stateID;
 
     //First copy the current hand state so that it can be restored.
     cloneHand.saveState();
-    std::vector<bool> oldCollisionStatus;
-    bci_experiment::planner_tools::resetHandCollisions(&cloneHand, false, oldCollisionStatus);
+    //std::vector<bool> oldCollisionStatus;
+    //bci_experiment::planner_tools::resetHandCollisions(&cloneHand, false, oldCollisionStatus);
     //cloneHand.getWorld()->toggleCollisions(false, &cloneHand);
     //need to activate the collision on the copied hand using the cloned hand
     //container object
@@ -218,15 +233,17 @@ void HandView::update(const GraspPlanningState & s, Hand & cloneHand)
     copyIVTran(IVObjectGeometry, *s.getObject()->getIVTran());
     //disable collisions between clone hand and everything
     //cloneHand.getWorld()->toggleCollisions(false, &cloneHand, s.getObject());
-    bci_experiment::planner_tools::setCollisionState(&cloneHand, oldCollisionStatus);
+    //bci_experiment::planner_tools::setCollisionState(&cloneHand, oldCollisionStatus);
     //cloneHand.restoreState();
   }
-
-  ivCamera->position = mainViewer_->getCamera()->position;
-  ivCamera->orientation = mainViewer_->getCamera()->orientation;
-  ivCamera->viewAll(IVRoot, handViewSoQtRenderArea->getViewportRegion());
-  mainViewer_->render();
-  handViewSoQtRenderArea->render();
+  if(updated)
+  {
+    ivCamera->position = mainViewer_->getCamera()->position;
+    ivCamera->orientation = mainViewer_->getCamera()->orientation;
+    ivCamera->viewAll(IVRoot, handViewSoQtRenderArea->getViewportRegion());
+    mainViewer_->render();
+    handViewSoQtRenderArea->render();
+  }
 
 }
 
@@ -236,6 +253,16 @@ QString HandView::getViewName()
 {
   return viewName_;
 }
+
+#include <QGLWidget>
+
+void HandView::getSnapShot()
+{
+    QGLWidget * glWidget = dynamic_cast<QGLWidget *>(this->handViewSoQtRenderArea->getGLWidget());
+    QImage image = glWidget->grabFrameBuffer();
+    image.format();
+}
+
 
 HandView::~HandView()
 {

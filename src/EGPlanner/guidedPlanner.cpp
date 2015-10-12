@@ -248,7 +248,7 @@ GuidedPlanner::mainLoop()
 	}
 
 	mCurrentStep = mSimAnn->getCurrentStep();
-	render();
+    emit signalRender(this);
 
 	if (mCurrentStep % 100 == 0) {
 		emit update();

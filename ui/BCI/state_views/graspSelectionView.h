@@ -47,10 +47,8 @@ public:
 public slots:
     void onRefineGrasp();
     void onOk();
-    void onBack();
-
-
-    
+    void onRotateLat();
+    void onRotateLong();
 protected:
     virtual void showEvent(QShowEvent *);
 private:
