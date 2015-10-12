@@ -1,6 +1,8 @@
 #include "BCI/bciService.h"
 #include "BCI/BCIStateMachine.h"
 
+#include <cstdlib>
+#include "graspit_msgs/GetObjectInfo.h"
 #include <QKeyEvent>
 
 BCIService * BCIService::bciServiceInstance = NULL;
@@ -18,7 +20,6 @@ BCIService* BCIService::getInstance()
 
 BCIService::BCIService()
 {
-
 }
 
 void BCIService::init(BCIControlWindow *bciControlWindow)
@@ -48,12 +49,13 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
 void BCIService::runObjectRecognition(QObject * callbackReceiver ,
                                       const char * slot)
 {
-    rosServer.runObjectRecognition(callbackReceiver, slot);
+    //rosRPCZServer.runObjectRecognition(callbackReceiver, slot);
+    rosClient.runObjectRecognition();
 }
 
 void BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
 {
-    rosServer.getCameraOrigin(callbackReceiver, slot);
+    rosRPCZServer.getCameraOrigin(callbackReceiver, slot);
 }
 
 
@@ -61,14 +63,14 @@ void BCIService::checkGraspReachability(const GraspPlanningState * state,
                                         QObject * callbackReceiver,
                                         const char * slot)
 {
-    rosServer.checkGraspReachability(state, callbackReceiver, slot);
+    rosRPCZServer.checkGraspReachability(state, callbackReceiver, slot);
 }
  
 void BCIService::executeGrasp(const GraspPlanningState * gps, 
 			      QObject * callbackReceiver,
 			      const char * slot)
 {
-    rosServer.executeGrasp(gps);
+    rosRPCZServer.executeGrasp(gps);
 }
 
 

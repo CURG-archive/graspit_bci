@@ -59,7 +59,6 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     executionState->addTransition(bciService, SIGNAL(goToNextState1()), stoppedExecutionState);
     executionState->addTransition(bciService, SIGNAL(exec()), stoppedExecutionState);
 
-
     stoppedExecutionState->addTransition(bciService, SIGNAL(goToNextState1()), executionState);
     stoppedExecutionState->addTransition(bciService, SIGNAL(goToNextState2()), objectRecognitionState);
     stoppedExecutionState->addTransition(bciService, SIGNAL(exec()), executionState);

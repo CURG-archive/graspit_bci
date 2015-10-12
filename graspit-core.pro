@@ -104,7 +104,8 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/cameraOriginStub.h \
     include/BCI/requests/graspReachabilityStub.h \
     include/BCI/requests/graspReachabilityStub.h \
-    include/BCI/requests/executeGraspStub.h
+    include/BCI/requests/executeGraspStub.h \
+    include/BCI/rosclient.h
 
 
 
@@ -191,7 +192,8 @@ SOURCES	+= src/arch.cpp \
     src/BCI/requests/graspReachabilityStub.cpp \
     src/BCI/requests/requestStub.cpp \
     src/BCI/requests/cameraOriginStub.cpp \
-    src/BCI/requests/executeGraspStub.cpp
+    src/BCI/requests/executeGraspStub.cpp \
+    src/BCI/rosclient.cpp
 
 
 

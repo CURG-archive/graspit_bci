@@ -5,6 +5,7 @@
 
 #include "BCI/worldController.h"
 #include "Servers/rosRPCZClient.h"
+#include "BCI/rosclient.h"
 
 class GraspableBody;
 class DrawableFrame;
@@ -119,10 +120,16 @@ protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);
 
 private:
+        //singleton pattern, single static instance of the class
         static BCIService * bciServiceInstance;
+
+        //this is singleton, so constructor must be private.
         BCIService();
 
-        RosRPCZClient rosServer;
+        RosClient rosClient;
+
+        // this will go away.
+        RosRPCZClient rosRPCZServer;
 
 
 };

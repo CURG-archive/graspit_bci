@@ -50,6 +50,7 @@
 #include "graspitServer.h"
 #include "graspitProtobufServer.h"
 #include "mainWindow.h"
+#include "ros/ros.h"
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -82,6 +83,9 @@ int main(int argc, char **argv)
   GraspItServer server(4765);
   unsigned int portNumber = 4766;
   GraspitProtobufServer protobufServer(portNumber);
+
+  //REGISTER ROS Services here.
+  ros::init(argc, argv, "ros_bci_node");
  
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));

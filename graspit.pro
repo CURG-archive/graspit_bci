@@ -48,9 +48,18 @@ win32 {
 
 CONFIG += bci_experiment
 
+#---------------------------ROS-----------------------------
+ros {
+  include(ros.pri)
+}
+
 #------------------GraspIt! core files---------------------
 CONFIG += protobuf
 CONFIG += rpcz
+CONFIG += ros
+
 include(graspit-core.pro)
+
+
 
 

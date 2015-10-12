@@ -10,7 +10,6 @@ echo $CGDB_MODEL_ROOT
 #if libraries are not installed on the standard path variable, add them here.
 #libspaths="\"LIBS+=-L/usr/local/libs
 
-
 #Build rpcz
 if [ -d rpcz ] 
 then
@@ -23,7 +22,7 @@ then
     cmake ..
     make    
 fi
-
+cd $GRASPIT
 qmake $libspaths ./graspit.pro 
 cd $GRASPIT
 make -j4
