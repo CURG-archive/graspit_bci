@@ -14,6 +14,8 @@ DESTDIR = bin
 
 UI_DIR = ui
 
+
+
 # ---------------------- Graspit source code ----------------------------------------------
 
 INCLUDEPATH += src src/Collision include include/math include/Planner include/EGPlanner ui ui/Planner ui/EGPlanner include/Servers
@@ -106,7 +108,6 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/graspReachabilityStub.h \
     include/BCI/requests/executeGraspStub.h \
     include/BCI/rosclient.h
-    include/BCI/requests/optionSelectionStub.h \
 
 
 
@@ -198,7 +199,6 @@ SOURCES	+= src/arch.cpp \
     src/BCI/requests/cameraOriginStub.cpp \
     src/BCI/requests/executeGraspStub.cpp \
     src/BCI/rosclient.cpp
-    src/BCI/requests/optionSelectionStub.cpp \
 
 
 

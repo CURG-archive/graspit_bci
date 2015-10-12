@@ -150,7 +150,6 @@ private:
 
 
         static QMutex createLock;
-        BCIService();
 
         //this will go away
         RosRPCZClient * rosServer;

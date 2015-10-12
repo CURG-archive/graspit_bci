@@ -51,7 +51,14 @@ CONFIG += bci_experiment
 #---------------------------ROS-----------------------------
 ros {
   include(ros.pri)
+
 }
+
+LIBS += /opt/ros/hydro/lib/*.so
+
+INCLUDEPATH += /home/jvarley/ros/bci_project_ws/devel/include/graspit_msgs
+
+HEADERS += /home/jvarley/ros/bci_project_ws/devel/include/graspit_msgs/ObjectInfo.h
 
 #------------------GraspIt! core files---------------------
 CONFIG += protobuf

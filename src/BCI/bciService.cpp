@@ -120,11 +120,6 @@ bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
     rosClient.runObjectRecognition();
 }
 
-void BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
-{
-    rosRPCZServer.getCameraOrigin(callbackReceiver, slot);
-
-}
 
 bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
 {        

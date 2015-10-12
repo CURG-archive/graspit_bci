@@ -52,6 +52,8 @@
 #include "mainWindow.h"
 #include "ros/ros.h"
 
+#include "debug.h"
+
 #ifdef Q_WS_WIN
 #include <windows.h>
 #include <wincon.h>
@@ -86,6 +88,7 @@ int main(int argc, char **argv)
   GraspitProtobufServer protobufServer(portNumber);
 
   //REGISTER ROS Services here.
+  DBGA("REGISTERING NODE");
   ros::init(argc, argv, "ros_bci_node");
 
 
