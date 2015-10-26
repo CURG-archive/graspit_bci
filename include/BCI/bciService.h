@@ -6,10 +6,12 @@
 #include "BCI/worldController.h"
 #include "Servers/rosRPCZClient.h"
 
+
 class GraspableBody;
 class DrawableFrame;
 class GraspPlanningState;
 class BCIControlWindow;
+class ControllerSceneManager;
 
 using namespace bci_experiment;
 
@@ -120,6 +122,8 @@ private:
         BCIService();
 
         RosRPCZClient rosServer;
+
+        ControllerSceneManager * controllerSceneManager;
 
 
 };

@@ -1,5 +1,6 @@
 #include "BCI/bciService.h"
 #include "BCI/BCIStateMachine.h"
+#include "BCI/controller_scene/controller_scene_mgr.h"
 
 BCIService * BCIService::bciServiceInstance = NULL;
 

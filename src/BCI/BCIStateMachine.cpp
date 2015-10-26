@@ -17,15 +17,17 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
     bciControlWindow(_bciControlWindow),
     bciService(_bciService)
 {
+    csm = graspItGUI->getIVmgr()->csm;
+
     ObjectRecognitionState *objectRecognitionState = new ObjectRecognitionState(bciControlWindow);
-    ObjectSelectionState *objectSelectionState = new ObjectSelectionState(bciControlWindow);
-    GraspSelectionState *initialGraspSelectionState = new GraspSelectionState(bciControlWindow);
-    OnlinePlanningState * onlinePlanningState = new OnlinePlanningState(bciControlWindow);
-    ActivateRefinementState *activateRefinementState = new ActivateRefinementState(bciControlWindow);
-    GraspSelectionState *finalGraspSelectionState = new GraspSelectionState(bciControlWindow);
-    ConfirmationState *confirmationState = new ConfirmationState(bciControlWindow);
-    ExecutionState *executionState = new ExecutionState(bciControlWindow);
-    StoppedExecutionState *stoppedExecutionState = new StoppedExecutionState(bciControlWindow);
+    ObjectSelectionState *objectSelectionState = new ObjectSelectionState(bciControlWindow, csm);
+    GraspSelectionState *initialGraspSelectionState = new GraspSelectionState(bciControlWindow,csm);
+    OnlinePlanningState * onlinePlanningState = new OnlinePlanningState(bciControlWindow,csm);
+    ActivateRefinementState *activateRefinementState = new ActivateRefinementState(bciControlWindow,csm);
+    GraspSelectionState *finalGraspSelectionState = new GraspSelectionState(bciControlWindow,csm);
+    ConfirmationState *confirmationState = new ConfirmationState(bciControlWindow,csm);
+    ExecutionState *executionState = new ExecutionState(bciControlWindow,csm);
+    StoppedExecutionState *stoppedExecutionState = new StoppedExecutionState(bciControlWindow,csm);
 
     //Add all state transistions that are not self transitions----------------------------
     objectRecognitionState->addTransition(bciService,SIGNAL(goToNextState1()), objectSelectionState);

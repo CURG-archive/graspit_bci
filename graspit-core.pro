@@ -104,7 +104,8 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/cameraOriginStub.h \
     include/BCI/requests/graspReachabilityStub.h \
     include/BCI/requests/graspReachabilityStub.h \
-    include/BCI/requests/executeGraspStub.h
+    include/BCI/requests/executeGraspStub.h \
+    include/mouse.h
 
 
 
@@ -191,7 +192,8 @@ SOURCES	+= src/arch.cpp \
     src/BCI/requests/graspReachabilityStub.cpp \
     src/BCI/requests/requestStub.cpp \
     src/BCI/requests/cameraOriginStub.cpp \
-    src/BCI/requests/executeGraspStub.cpp
+    src/BCI/requests/executeGraspStub.cpp \
+    src/mouse.cpp
 
 
 
@@ -427,6 +429,8 @@ bci_experiment {
               src/BCI/states/handRotationState.cpp \
               src/BCI/states/activateRefinementState.cpp \
               src/BCI/bciService.cpp \
+              src/BCI/controller_scene/controller_scene_mgr.cpp \
+              src/BCI/controller_scene/sprites.cpp \
                 ui/BCI/state_views/objectSelectionView.cpp \
                 ui/BCI/state_views/graspSelectionView.cpp \
                 ui/BCI/state_views/confirmationView.cpp \
@@ -463,6 +467,8 @@ bci_experiment {
                include/BCI/states/executionState.h \
                include/BCI/states/stoppedExecutionState.h \
                include/BCI/bciService.h \
+               include/BCI/controller_scene/controller_scene_mgr.h \
+               include/BCI/controller_scene/sprites.h \
                ui/EGPlanner/compliantPlannerDlg.h \
                ui/BCI/binaryCommandView.h \
                ui/BCI/bciControlWindow.h \

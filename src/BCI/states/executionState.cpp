@@ -2,8 +2,9 @@
 
 #include "BCI/onlinePlannerController.h"
 
-ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, QState* parent)
-    :State("ExecutionState", parent), bciControlWindow(_bciControlWindow)
+ExecutionState::ExecutionState(BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent)
+    : State("ExecutionState", parent), bciControlWindow(_bciControlWindow),
+      csm(_csm)
 {
     executionView = new ExecutionView(bciControlWindow->currentFrame);
     executionView->hide();

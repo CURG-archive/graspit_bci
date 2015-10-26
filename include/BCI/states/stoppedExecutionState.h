@@ -10,14 +10,14 @@
 class StoppedExecutionState:public State
 {
 public:
-    StoppedExecutionState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
+    StoppedExecutionState(BCIControlWindow *_bciControlWindow,ControllerSceneManager *_csm, QState* parent = 0 );
      virtual void onEntry(QEvent *e);
      virtual void onExit(QEvent *e);
 
 private:
     BCIControlWindow *bciControlWindow;
     StoppedExecutionView *stoppedExecutionView;
-
+    ControllerSceneManager *csm;
 };
 
 #endif // STOPPEDEXECUTIONSTATE_H

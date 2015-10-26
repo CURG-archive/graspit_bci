@@ -8,8 +8,8 @@ using bci_experiment::OnlinePlannerController;
 using bci_experiment::WorldController;
 
 
-HandRotationState::HandRotationState(QString name , BCIControlWindow *_bciControlWindow,QState* parent):
-      State(name, parent),bciControlWindow(_bciControlWindow)
+HandRotationState::HandRotationState(QString name , BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent):
+      State(name, parent), bciControlWindow(_bciControlWindow), csm(_csm)
 {
     addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRotateHandLat()));
     addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(onRotateHandLong()));

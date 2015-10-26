@@ -33,6 +33,9 @@
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <QLayout>
 
+#include <Inventor/nodes/SoImage.h>
+
+
 #ifdef Q_WS_X11
   #include <unistd.h>
 #endif
@@ -47,6 +50,11 @@
 #include "SoTorquePointer.h"
 #include "debug.h"
 #include "SoRing.h"
+#include "BCI/controller_scene/controller_scene_mgr.h"
+
+#include "mouse.h"
+
+#include <QtGui>
 
 bool GraspItGUI::initialized = false;
 int GraspItGUI::initResult = SUCCESS;
@@ -110,7 +118,15 @@ GraspItGUI::GraspItGUI(int argc,char **argv)
 	initialized = true;
     // Started transitioning to singleton pattern
     graspItGUI = this;
+
+
+
     initResult = processArgs(argc,argv);
+
+
+
+
+
   }
 }
 

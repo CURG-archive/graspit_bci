@@ -1,12 +1,17 @@
 #include "BCI/states/graspSelectionState.h"
 #include "BCI/bciService.h"
 #include "BCI/onlinePlannerController.h"
+#include "BCI/controller_scene/controller_scene_mgr.h"
+#include "BCI/controller_scene/sprites.h"
 
 using bci_experiment::OnlinePlannerController;
 
 
-GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow,QState* parent):
-    State("GraspSelectionState", parent),bciControlWindow(_bciControlWindow)
+GraspSelectionState::GraspSelectionState(BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent):
+    State("GraspSelectionState", parent),
+    bciControlWindow(_bciControlWindow),
+    csm(_csm)
+
 {
     /* What should next do?
 
@@ -40,12 +45,30 @@ void GraspSelectionState::onEntry(QEvent *e)
     //called so that view will show best grasp from database
     onPlannerUpdated();
     OnlinePlannerController::getInstance()->setPlannerToRunning();
+
+    csm->clearTargets();
+
+    Target *t1 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), 0.35, 0.25, 0.0);
+    Target *t2 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), -1.1, 0.25, 0.0);
+    Target *t3 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), -1.1, -1.0, 0.0);
+    Target *t4 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), 0.35, -1.0, 0.0);
+
+    QObject::connect(t1, SIGNAL(hit()), this, SLOT(onNext()));
+    QObject::connect(t2, SIGNAL(hit()), this, SLOT(emit_goToActivateRefinementState()));
+    QObject::connect(t3, SIGNAL(hit()), this, SLOT(emit_goToConfirmationState()));
+    QObject::connect(t4, SIGNAL(hit()), this, SLOT(emit_goToObjectSelectionState()));
+
+    csm->addTarget(t1);
+    csm->addTarget(t2);
+    csm->addTarget(t3);
+    csm->addTarget(t4);
 }
 
 
 void GraspSelectionState::onExit(QEvent *e)
 {
     graspSelectionView->hide();
+    csm->clearTargets();
 }
 
 void GraspSelectionState::onNext()
