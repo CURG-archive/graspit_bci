@@ -276,7 +276,7 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
 
   // Create the viewer
   myViewer = new StereoViewer(parent);
-
+  myViewer->setDoubleBuffer(true);
   //this->setFocusProxy(myViewer->getWidget());
 
   sceneRoot = new SoSeparator;
@@ -407,130 +407,6 @@ void IVmgr::updateControlSceneState2()
 void IVmgr::updateControlScene()
 {
     csm->update();
-}
-
-void IVmgr::setImage(){
-//    image->filename = "show_image2.png";
-
-//    QImage qimg;
-//    convert(image->image, qimg);
-//    QTransform rotating;
-//    //rotating.rotate(rand()%360);
-//    rotating.rotate(180);
-//    qimg = qimg.transformed(rotating);
-//    convert(qimg, image->image);
-}
-
-void IVmgr::convert(const QImage& p, SoSFImage& img) const
-{
-    SbVec2s size;
-    size[0] = p.width();
-    size[1] = p.height();
-
-    int buffersize = p.numBytes();
-    int numcomponents = 0;
-    QVector<QRgb> table = p.colorTable();
-    if (!table.isEmpty()) {
-        if (p.hasAlphaChannel()) {
-            if (p.allGray())
-                numcomponents = 2;
-            else
-                numcomponents = 4;
-        }
-        else {
-            if (p.allGray())
-                numcomponents = 1;
-            else
-                numcomponents = 3;
-        }
-    }
-    else {
-        numcomponents = buffersize / (size[0] * size[1]);
-    }
-
-    // allocate image data
-    img.setValue(size, numcomponents, NULL);
-
-    unsigned char * bytes = img.startEditing(size, numcomponents);
-
-    int width  = (int)size[0];
-    int height = (int)size[1];
-
-    for (int y = 0; y < height; y++)
-    {
-        unsigned char * line = &bytes[width*numcomponents*(height-(y+1))];
-        for (int x = 0; x < width; x++)
-        {
-            QRgb rgb = p.pixel(x,y);
-            switch (numcomponents)
-            {
-            default:
-                break;
-            case 1:
-                line[0] = qGray( rgb );
-                break;
-            case 2:
-                line[0] = qGray( rgb );
-                line[1] = qAlpha( rgb );
-                break;
-            case 3:
-                line[0] = qRed( rgb );
-                line[1] = qGreen( rgb );
-                line[2] = qBlue( rgb );
-                break;
-            case 4:
-                line[0] = qRed( rgb );
-                line[1] = qGreen( rgb );
-                line[2] = qBlue( rgb );
-                line[3] = qAlpha( rgb );
-                break;
-            }
-
-            line += numcomponents;
-        }
-    }
-
-    img.finishEditing();
-}
-
-void IVmgr::convert(const SoSFImage& p, QImage& img) const
-{
-    SbVec2s size;
-    int numcomponents;
-
-    const unsigned char * bytes = p.getValue(size, numcomponents);
-
-    int width  = (int)size[0];
-    int height = (int)size[1];
-
-    img = QImage(width, height, QImage::Format_RGB32);
-    QRgb * bits = (QRgb*) img.bits();
-
-    for (int y = 0; y < height; y++)
-    {
-        const unsigned char * line = &bytes[width*numcomponents*(height-(y+1))];
-        for (int x = 0; x < width; x++)
-        {
-            switch (numcomponents)
-            {
-            default:
-            case 1:
-                *bits++ = qRgb(line[0], line[0], line[0]);
-                break;
-            case 2:
-                *bits++ = qRgba(line[0], line[0], line[0], line[1]);
-                break;
-            case 3:
-                *bits++ = qRgb(line[0], line[1], line[2]);
-                break;
-            case 4:
-                *bits++ = qRgba(line[0], line[1], line[2], line[3]);
-                break;
-            }
-
-            line += numcomponents;
-        }
-    }
 }
 
 void IVmgr::setBackgroundColor(float r, float g, float b){
@@ -2156,4 +2032,40 @@ void IVmgr::setStereo(bool s)
 
 void IVmgr::flipStereo()
 {
+}
+
+SoSeparator *  makeCircleSep(const QString & name)
+{
+  SoSeparator * circleSep = new SoSeparator;
+  circleSep->setName(name.toStdString().c_str());
+  SoTransform * circTran = new SoTransform;
+  circTran->rotation.setValue(SbVec3f(1,0,0),-M_PI/2);
+  circleSep->addChild(circTran);
+  circleSep->addChild(new SoMaterial);
+  SoCone * circGeom(new SoCone);
+  circGeom->removePart(SoCone::BOTTOM);
+  circleSep->addChild(circGeom);
+
+  static_cast<SoSeparator *>(SoSeparator::getByName("hud"))->addChild(circleSep);
+
+  return circleSep;
+}
+
+void
+IVmgr::drawCircle(const QString & circleName, double x, double y, float radius, SbColor & color,
+                   double thickness, double transparency)
+{
+  //x = x* myViewer->getViewportRegion().getViewportAspectRatio();
+  QString circleSepName(circleName + "sep");
+  SoSeparator * circleSep = static_cast<SoSeparator *>(SoSeparator::getByName(circleSepName.toStdString().c_str()));
+  if(!circleSep)
+    circleSep = makeCircleSep(circleName + "sep");
+  SoTransform * circTran = static_cast<SoTransform * >(circleSep->getChild(0));
+  circTran->translation.setValue(x,y, -2*(1-thickness));
+  SoMaterial * circMat = static_cast<SoMaterial * >(circleSep->getChild(1));
+  circMat->diffuseColor.setValue(color);
+  circMat->transparency.setValue(transparency);
+  SoCone * circGeom = static_cast<SoCone * >(circleSep->getChild(2));
+  circGeom->bottomRadius = 2*radius;
+  //circGeom->height = 1/thickness;
 }

@@ -13,14 +13,28 @@ class HandRotationState:public State
     Q_OBJECT
 
 public:
+
     HandRotationState(const QString name ,BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm,QState* parent = 0);
+
 protected:
     BCIControlWindow *bciControlWindow;
+    QSignalTransition * rotateLatTransition;
+    QSignalTransition * rotateLongTransition;
+    bool rotationAllowed;
+
     ControllerSceneManager *csm;
+
 public slots:
-    void onRotateHandLat();
-    void onRotateHandLong();
-    void onHandRotationStateEntry();
+    virtual void onRotateHandLat();
+    virtual void onRotateHandLong();
+    virtual void onHandRotationStateEntry();
+
+//    void onRotateHandLat();
+//    void onRotateHandLong();
+//    void onHandRotationStateEntry();
+
+    void setRotationAllowed(bool allowed);
+    bool getRotationAllowed(){return rotationAllowed;}
 
 };
 

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>289</height>
+    <width>297</width>
+    <height>864</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,11 +19,22 @@
   <widget class="QPushButton" name="buttonOk">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>190</y>
-     <width>98</width>
-     <height>27</height>
+     <x>0</x>
+     <y>310</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(195, 255, 192);</string>
    </property>
    <property name="text">
     <string>Ok</string>
@@ -32,36 +43,64 @@
   <widget class="QPushButton" name="buttonRotLong">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>250</y>
-     <width>98</width>
-     <height>27</height>
+     <x>0</x>
+     <y>430</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(188, 197, 255);</string>
+   </property>
    <property name="text">
-    <string>RotLong</string>
+    <string>Rotate Z</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="buttonRotLat">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>220</y>
-     <width>98</width>
-     <height>27</height>
+     <x>0</x>
+     <y>370</y>
+     <width>301</width>
+     <height>61</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 205, 251);</string>
+   </property>
    <property name="text">
-    <string>RotLat</string>
+    <string>Rotate X</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QFrame" name="previewFrame">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>20</y>
-     <width>191</width>
-     <height>151</height>
+     <x>0</x>
+     <y>0</y>
+     <width>301</width>
+     <height>301</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -69,6 +108,46 @@
    </property>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="previewNextFrame">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>490</y>
+     <width>301</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="buttonNextGrasp">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>790</y>
+     <width>301</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>16</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:rgb(255, 155, 155)</string>
+   </property>
+   <property name="text">
+    <string>Next Grasp</string>
    </property>
   </widget>
  </widget>

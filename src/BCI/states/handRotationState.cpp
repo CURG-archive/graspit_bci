@@ -9,23 +9,46 @@ using bci_experiment::WorldController;
 
 
 HandRotationState::HandRotationState(QString name , BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent):
-      State(name, parent), bciControlWindow(_bciControlWindow), csm(_csm)
+      State(name, parent), bciControlWindow(_bciControlWindow), csm(_csm), rotationAllowed(true)
 {
-    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRotateHandLat()));
-    addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(onRotateHandLong()));
+    rotateLatTransition = addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(onRotateHandLat()));
+    rotateLongTransition = addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(onRotateHandLong()));
     addSelfTransition(this,SIGNAL(entered()), this, SLOT(onHandRotationStateEntry()));
     DBGA("HandRotationState");
+}
+
+void HandRotationState::setRotationAllowed(bool allowed)
+{
+    rotationAllowed = allowed;
+
+    if(allowed)
+    {
+        if(!this->transitions().contains(rotateLatTransition))
+            this->addStateTransition(rotateLatTransition);
+        if(!this->transitions().contains(rotateLongTransition))
+            this->addStateTransition(rotateLongTransition);
+
+    }
+    else
+    {
+        if(this->transitions().contains(rotateLatTransition))
+            this->removeTransition(rotateLatTransition);
+        if(this->transitions().contains(rotateLongTransition))
+            this->removeTransition(rotateLongTransition);
+    }
 }
 
 
 void HandRotationState::onRotateHandLong()
 {
-    OnlinePlannerController::getInstance()->rotateHandLong();
+    if(rotationAllowed)
+        OnlinePlannerController::getInstance()->rotateHandLong();
 }
 
 void HandRotationState::onRotateHandLat()
 {
-    OnlinePlannerController::getInstance()->rotateHandLat();
+    if(rotationAllowed)
+        OnlinePlannerController::getInstance()->rotateHandLat();
 }
 
 void HandRotationState::onHandRotationStateEntry()

@@ -197,6 +197,36 @@ Body::cloneFrom(const Body* original)
 	//create a CLONE of all geometry
 	for (int i=0; i<numGeomChildren; i++) {
 		IVGeomRoot->addChild( original->getIVGeomRoot()->getChild(i) );
+        //Replace any Separators or groups
+        SoSearchAction *findExistingSeparators = new SoSearchAction;
+
+        findExistingSeparators->setInterest(SoSearchAction::ALL);
+        findExistingSeparators->setFind(SoSearchAction::TYPE);
+        findExistingSeparators->setType(SoGroup::getClassTypeId(), true);
+        findExistingSeparators->apply(IVGeomRoot);
+        SoPathList sepList = findExistingSeparators->getPaths();
+        std::list<SoPath *> sortedPathList;
+
+        for (int i=0; i < sepList.getLength(); i++) {
+            std::list<SoPath*>::iterator pi = sortedPathList.begin();
+            for(; pi != sortedPathList.end(); ++pi)
+            {
+               if((*sepList[i]).getLength() > (*pi)->getLength())
+                   break;
+            }
+            sortedPathList.insert(pi, sepList[i]);
+        }
+
+        for(std::list<SoPath*>::iterator sortedIter = sortedPathList.begin(); sortedIter != sortedPathList.end(); ++sortedIter)
+        {
+          if ((*sortedIter)->getLength() < 2)
+              continue;
+          SoGroup * tailParent = static_cast<SoGroup *>((*sortedIter)->getNodeFromTail(1));
+          SoNode * tail = (*sortedIter)->getTail();
+          SoNode  * tailCopy = tail->copy(false);
+          tailParent->replaceChild(tail, tailCopy);
+        }
+        delete findExistingSeparators;
 	}
     addIVMat(false);//CHANGED! From TRUE, now they all don't look to same transparency
 
@@ -535,6 +565,20 @@ Body::addIVMat(bool clone)
 	IVMat->emissiveColor.setIgnored(true);
 	IVMat->shininess.setIgnored(true);
 
+    IVMat->setName(SbName("BodyTransparencyMat"));
+
+    //Remove any existing body transparency materials
+    SoSearchAction *findExistingMats = new SoSearchAction;
+
+    findExistingMats->setInterest(SoSearchAction::ALL);
+    findExistingMats->setFind(SoSearchAction::NAME);
+    findExistingMats->setName(SbName("BodyTransparencyMat"));
+    findExistingMats->apply(IVGeomRoot);
+    for (int i=0; i < findExistingMats->getPaths().getLength(); i++) {
+        SoGroup * tailParent = (SoGroup *)findExistingMats->getPaths()[i]->getNodeFromTail(1);
+        tailParent->removeChild((SoGroup *)findExistingMats->getPaths()[i]->getTail());
+    }
+    delete findExistingMats;
 
 	if (clone) {
 		//clone's IVMat really does nothing except die with the clone
@@ -711,7 +755,23 @@ Body::getTransparency() const
 void
 Body::setTransparency(float t)
 {
-  IVMat->transparency = t;
+//    SoSearchAction *sa = new SoSearchAction;
+//    sa->setInterest(SoSearchAction::ALL);
+//    sa->setType(SoMaterial::getClassTypeId());
+//    sa->apply(IVGeomRoot);
+
+//    if (sa->getPaths().getLength() == 0) {
+//        return;
+//    } else {
+//        for (int i=0; i<sa->getPaths().getLength(); i++) {
+//            SoMaterial * mat = dynamic_cast<SoMaterial * >(sa->getPaths()[i]->getTail());
+//            if (!mat)
+//                    return;
+//            mat->transparency.setValue(t);
+//        }
+//    }
+//    delete sa;
+    IVMat->transparency.setValue(t);
 }
 
 

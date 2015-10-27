@@ -68,6 +68,17 @@ void ExecuteGraspStub::buildRequest(const GraspPlanningState * gps)
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_y(ry);
     request.mutable_grasp()->mutable_final_grasp_hand_state()->mutable_hand_pose()->mutable_orientation()->set_z(rz);
 
+
+    double moveDist = -50.0;
+    transf pregraspHandTransform = (translate_transf(vec3(0,0,moveDist) * gps->getHand()->getApproachTran()) * gps->readPosition()->getCoreTran());
+    tx = pregraspHandTransform.translation().x();
+    ty = pregraspHandTransform.translation().y();
+    tz = pregraspHandTransform.translation().z();
+    rw = pregraspHandTransform.rotation().w;
+    rx = pregraspHandTransform.rotation().x;
+    ry = pregraspHandTransform.rotation().y;
+    rz = pregraspHandTransform.rotation().z;
+
     request.mutable_grasp()->mutable_pre_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_x(tx);
     request.mutable_grasp()->mutable_pre_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_y(ty);
     request.mutable_grasp()->mutable_pre_grasp_hand_state()->mutable_hand_pose()->mutable_position()->set_z(tz);

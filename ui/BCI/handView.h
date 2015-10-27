@@ -133,16 +133,18 @@ private:
 
   int stateID_;
 
+  QString objectName_;
+  QString handName_;
+
   //---------------Constructor Helpers-------------------
   SoSeparator * initIVHandGeometry(Hand * h);
   SoSeparator *initIVObjectGeometry(Hand * h);
   SoTransformSeparator *initIVLightSeparator();
   SoCamera *initIVCamera();
-
+  Hand * mHand();
   //---------------Update Helpers------------------------
   void copyLinkTransforms(Hand * h, SoSeparator * handIVRoot);
   void copyIVTran(SoSeparator * parentNode, const SoTransform & ivTran);
-
 
 public:
 
@@ -150,6 +152,9 @@ public:
    
   void update(const GraspPlanningState & s, Hand & cloneHand);
 
+  void updateGeom(Hand & h);
+
+  void getSnapShot();
 
   //---------------Getters/Setters-----------------------
   QString getViewName();

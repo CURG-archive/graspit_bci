@@ -16,7 +16,7 @@ class ObjectRecognitionStub: public Request
 {
     Q_OBJECT
 public:
-    ObjectRecognitionStub(rpcz::rpc_channel * channel);
+    ObjectRecognitionStub(rpcz::rpc_channel * channel, char * channel_name = "ObjectRecognitionService");
 
 signals:
     void addToWorld(const QString model_filename, const QString object_name, const QString object_pose);

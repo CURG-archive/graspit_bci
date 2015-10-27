@@ -2,26 +2,27 @@
 #define GRASPSELECTIONSTATE_H
 
 
-#include "BCI/state.h"
+#include "BCI/states/handRotationState.h"
 
 #include <QSignalTransition>
 #include "debug.h"
 #include "BCI/bciControlWindow.h"
 #include "BCI/state_views/graspSelectionView.h"
 
-class GraspSelectionState:public State
+class GraspSelectionState: public HandRotationState
 {
     Q_OBJECT
 
 public:
-    GraspSelectionState(BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent = 0 );
 
+    GraspSelectionState(BCIControlWindow *_bciControlWindow,ControllerSceneManager *_csm, QState* parent = 0 );
+    QString stateName;
 
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
+    virtual bool setButtonLabel(QString buttonName, QString label);
 
-private:
-    BCIControlWindow *bciControlWindow;
+protected:
     GraspSelectionView *graspSelectionView;
     ControllerSceneManager *csm;
 
@@ -33,10 +34,15 @@ public slots:
     void emit_goToObjectSelectionState(){emit goToObjectSelectionState();}
     void emit_goToConfirmationState(){emit goToConfirmationState();}
 
+    virtual void onRotateHandLat();
+    virtual void onRotateHandLong();
+
 signals:
     void goToActivateRefinementState();
     void goToObjectSelectionState();
     void goToConfirmationState();
+
+
 
 };
 

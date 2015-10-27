@@ -83,3 +83,22 @@ void GraspItApp::closeSplash()
 {
     if (splash) delete splash;
 }
+
+bool GraspItApp::notify(QObject * obj, QEvent * evt)
+{
+    try {
+        return QApplication::notify(obj, evt);
+    } catch (std::exception &e) {
+        qFatal("Error %s sending event %s to object %s (%s)",
+            e.what(), typeid(*evt).name(), qPrintable(obj->objectName()),
+            typeid(*obj).name());
+    } catch (...) {
+        qFatal("Error <unknown> sending event %s to object %s (%s)",
+            typeid(*evt).name(), qPrintable(obj->objectName()),
+            typeid(*obj).name());
+    }
+
+    // qFatal aborts, so this isn't really necessary
+    // but you might continue if you use a different logging lib
+    return false;
+}

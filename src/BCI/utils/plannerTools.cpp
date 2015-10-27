@@ -30,8 +30,8 @@ namespace bci_experiment
         bool testGraspCollisions(Hand * h, const GraspPlanningState * s)
         {
           bool result = false;
-          std::vector<bool> currentCollisionState;
-          resetHandCollisions(h, true, currentCollisionState);
+          //std::vector<bool> currentCollisionState;
+          //resetHandCollisions(h, true, currentCollisionState);
           s->execute(h);
           World * w = getWorld();
           w->toggleCollisions(false, h, s->getObject());
@@ -39,8 +39,8 @@ namespace bci_experiment
             result = true;
           if(testPreGraspCollisions(h, -50.0))
             result = true;
-
-          setCollisionState(h, currentCollisionState);
+          w->toggleCollisions(true, h, s->getObject());
+          //setCollisionState(h, currentCollisionState);
           return result;
         }
 
@@ -92,7 +92,7 @@ namespace bci_experiment
 
         void importGraspsFromDBMgr( OnLinePlanner * mPlanner, db_planner::DatabaseManager * mDbMgr)
         {
-            Hand*mHand = mPlanner->getRefHand();
+            Hand*mHand = mPlanner->getHand();
 
             // Get corresponding model from database
             std::vector<db_planner::Model*> modelList;
@@ -112,7 +112,9 @@ namespace bci_experiment
             mDbMgr->GetGrasps(*modelList.back(), GraspitDBGrasp::getHandDBName(mHand).toStdString(), &grasps);
 
             mHand->saveState();
-
+            bool collisionState = getWorld()->collisionsAreOff(mPlanner->getHand());
+            getWorld()->toggleCollisions(true, mPlanner->getHand());
+            bool targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
             // Load the grasps into the grasp planner list.
             unsigned int numGrasps = std::min<unsigned int>(grasps.size(), 10);
             for (unsigned int gNum = 0; gNum < numGrasps; ++gNum)
@@ -121,8 +123,15 @@ namespace bci_experiment
                                        (grasps[gNum])->getFinalGraspPlanningState());
 
                 s->setObject(mHand->getGrasp()->getObject());
-                s->setRefTran(mHand->getGrasp()->getObject()->getTran());
+                s->setRefTran(mHand->getGrasp()->getObject()->getTran(), false);
+                targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
+
                 float testResult = -2*bci_experiment::planner_tools::testGraspCollisions(mHand, s);
+                while(targetsOff)
+                {
+                    getWorld()->toggleCollisions(true, mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
+                    targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
+                }
                 s->addAttribute("graspId", gNum);
                 s->addAttribute("testResult", testResult);
                 s->addAttribute("testTime", 0);
@@ -131,9 +140,11 @@ namespace bci_experiment
 
             //reorders the solutions we have found.
             mPlanner->updateSolutionList();
-
+            targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
             //needed to return hand to aligned with object, since it was used to testGraspCollisions
+            getWorld()->toggleCollisions(!collisionState, mPlanner->getHand());
             mHand->restoreState();
+            targetsOff = getWorld()->collisionsAreOff(mPlanner->getHand(), mPlanner->getHand()->getGrasp()->getObject());
 
         }
 

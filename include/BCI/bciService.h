@@ -6,12 +6,17 @@
 #include "BCI/worldController.h"
 #include "Servers/rosRPCZClient.h"
 
+#include <QMutex>
+#include <vector>
+class QImage;
+class QString;
 
 class GraspableBody;
 class DrawableFrame;
 class GraspPlanningState;
 class BCIControlWindow;
 class ControllerSceneManager;
+
 
 using namespace bci_experiment;
 
@@ -21,7 +26,7 @@ class BCIService:public QObject
     Q_OBJECT
 
 public:
-
+    ~BCIService(){delete rosServer;}
     void emitGoToNextState1(){emit goToNextState1();}
     void emitGoToNextState2(){emit goToNextState2();}
     void emitGoToPreviousState(){emit goToPreviousState();}
@@ -36,37 +41,47 @@ public:
     void emitRotLat(){emit rotLat();}
     void emitRotLong(){emit rotLong();}
 
-    void emitAnalyzeGrasp(const GraspPlanningState * gps) {emit analyzeGrasp(gps); }
-    void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
+    //void emitAnalyzeGrasp(const GraspPlanningState * gps) {emit analyzeGrasp(gps); }
+    //void emitAnalyzeNextGrasp() {emit analyzeNextGrasp(); }
     void emitRunObjectRecognition(){}
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
-    //called when active planner is updated
-    void onPlannerUpdated(){emit plannerUpdated();}
+    void emitOptionChoice(unsigned int option, float confidence,
+                          std::vector<float> & interestLevel);
+
+
 
     //ros server calls
+    bool runObjectRetreival(QObject *callbackReceiver, const char *slot);
+
+    bool runObjectRecognition(QObject * callbackReceiver , const char * slot);
 
 
-    void runObjectRecognition(QObject * callbackReceiver , const char * slot);
-
-
-    void getCameraOrigin(QObject * callbackReceiver, const char * slot);
+    bool getCameraOrigin(QObject * callbackReceiver, const char * slot);
 
 
 
-    void checkGraspReachability(const GraspPlanningState * state,
+    bool checkGraspReachability(const GraspPlanningState * state,
                                             QObject * callbackReceiver,
                                             const char * slot);
 
 
-    void executeGrasp(const GraspPlanningState * gps,
+    bool executeGrasp(const GraspPlanningState * gps,
                                   QObject * callbackReceiver,
                                   const char * slot);
+
+    bool sendOptionChoices(std::vector<QImage*> & images,
+                           std::vector<QString> & optionDescriptions,
+                           std::vector<float> &imageCosts, float minimumConfidence);
 
     static BCIService* getInstance();
 
     void init(BCIControlWindow *bciControlWindow);
+public slots:
+    //called when active planner is updated
+    void onPlannerUpdated(){emit plannerUpdated();}
+
 signals:
 
     //tell state machine to go to next state
@@ -112,16 +127,21 @@ signals:
     void sendString(const QString & s);
 
     // determine reachability of the grasp at this index
-    void analyzeGrasp(const GraspPlanningState * gps);
-    void analyzeNextGrasp();
+    //void analyzeGrasp(const GraspPlanningState * gps);
+    //void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
+    void optionChoice(unsigned int option, float confidence,
+                      std::vector<float> & interestLevel);
 
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *evt);
 
 private:
         static BCIService * bciServiceInstance;
+        static QMutex createLock;
         BCIService();
 
-        RosRPCZClient rosServer;
+        RosRPCZClient * rosServer;
 
         ControllerSceneManager * controllerSceneManager;
 

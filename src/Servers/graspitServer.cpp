@@ -51,17 +51,20 @@
 #include <QMutexLocker>
 #include "BCI/bciService.h"
 
+
+
 //helper function to get current world planner
 EGPlanner* currentWorldPlanner(){ return graspItGUI->getIVmgr()->getWorld()->getCurrentPlanner();}
 
 
 
-ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
-  Q3Socket( parent, name )
+ClientSocket::ClientSocket( QObject *parent, QTcpSocket * socket, unsigned int maximum_len) :
+  QObject( parent),
+  sock(socket),
+  maxLen(maximum_len)
 {
-      connect( this, SIGNAL(readyRead()), SLOT(readClient()) );
-      connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
-      setSocket( sock );
+      connect( sock, SIGNAL(readyRead()), this, SLOT(readClient()) );
+      connect( sock, SIGNAL(connectionClosed()), this, SLOT(connectionClosed()) );
 }
 
 
@@ -87,7 +90,7 @@ ClientSocket::~ClientSocket()
 int
 ClientSocket::readBodyIndList(std::vector<Body *> &bodyVec)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   int i,numBodies,bodNum;
   bool ok;
   World *world = graspItGUI->getIVmgr()->getWorld();
@@ -168,7 +171,7 @@ int ClientSocket::readTransf(transf * tr){
 int
 ClientSocket::readRobotIndList(std::vector<Robot *> &robVec)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   int i,robNum,numRobots;
   bool ok;
   World *world = graspItGUI->getIVmgr()->getWorld();
@@ -232,11 +235,13 @@ ClientSocket::readClient()
 
   bool ok;
 
-  while ( canReadLine() ) {
-    line = readLine();
+  while ( sock->canReadLine() ) {
+    line = sock->readLine();
     line.truncate(line.length()-1); //strip newline character
     lineStrList =
       QStringList::split(' ',line);
+    if (!lineStrList.size() > 0)
+        return;
     strPtr = lineStrList.begin();
 
 #ifdef GRASPITDBG
@@ -406,11 +411,11 @@ ClientSocket::readClient()
 
     else if ((*strPtr) == "getPlannerTarget"){
       strPtr+=1;
-      QTextStream os (this) ;
+      QTextStream os(sock) ;
       os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getGrasp()->getObject()->getName() << "\n";
     } 
     else if ((*strPtr) == "setPlannerTarget"){
-      QTextStream os(this);
+      QTextStream os(sock);
       os << setPlannerTarget(*(strPtr+1)) << "\n";
       strPtr+=2;
 
@@ -436,7 +441,7 @@ ClientSocket::readClient()
     {
       strPtr += 1;
       addPointCloud();
-      //QTextStream os(this);  
+      //QTextStream os(sock);
       //os << addPointCloud() <<" \n";
 
     }
@@ -476,7 +481,7 @@ ClientSocket::readClient()
       connect(graspItGUI->getIVmgr(), SIGNAL( processWorldPlanner(int) ), this, SLOT( outputPlannerResults(int)));
       connect(graspItGUI->getIVmgr(), SIGNAL( runObjectRecognition() ), this, SLOT( runObjectRecognition() ));
       connect(graspItGUI->getIVmgr(), SIGNAL( sendString(const QString &) ), this, SLOT( sendString(const QString &) ));	  
-      QTextStream os(this);
+      QTextStream os(sock);
       os << "1 \n";
       os.flush();
     }
@@ -510,7 +515,7 @@ void ClientSocket::drawCircle()
   
   SbColor circleColor(r,g,b);
   
-  //graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
+  graspItGUI->getIVmgr()->drawCircle(circleName, x, y, radius, circleColor, thickness, transparency);
 }
 
 void ClientSocket::drawCursor()
@@ -541,12 +546,11 @@ void ClientSocket::setGraspAttribute()
   	  {
 
         currentWorldPlanner()->setGraspAttribute(i,attributeString, value);
-      std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
-
+        std::cout << "SetGraspAttribute graspId " << graspIdentifier << " attributeString " << value << "\n";
+        break;
     }
   }
-  lock.unlock();
-  analyzeNextGrasp();
+   analyzeNextGrasp();
 }
 
 /*!
@@ -558,7 +562,7 @@ void ClientSocket::setGraspAttribute()
 void
 ClientSocket::sendAverageContacts(Body* bod)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   std::list<Contact *> contactList;
   std::list<Contact *>::iterator cp;
   int i,numContacts;
@@ -592,7 +596,7 @@ ClientSocket::sendAverageContacts(Body* bod)
 void
 ClientSocket::sendBodyName(Body* bod)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   std::cout << "sending " << bod->getName().latin1() << "\n";
   os << bod->getName().latin1() << "\n";
 }
@@ -604,7 +608,7 @@ ClientSocket::sendBodyName(Body* bod)
 void
 ClientSocket::sendRobotName(Robot* rob)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   std::cout << "sending " << rob->getName().latin1() << "\n";
   os << rob->getName().latin1() << "\n";
 }
@@ -620,7 +624,7 @@ ClientSocket::sendRobotName(Robot* rob)
 void
 ClientSocket::sendContacts(Body *bod,int numData)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   std::list<Contact *> contactList;
   std::list<Contact *>::iterator cp;
   vec3 loc;
@@ -656,7 +660,7 @@ ClientSocket::sendContacts(Body *bod,int numData)
 void
 ClientSocket::sendDOFVals(Robot *rob)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   int i;
 
   os << rob->getNumDOF() << "\n";
@@ -677,7 +681,7 @@ ClientSocket::readDOFVals()
 {
   Robot *rob;
   double *val,*stepby;
-  QTextStream os(this);
+  QTextStream os(sock);
   int numDOF,i,robNum;
   bool ok=TRUE;
 
@@ -776,7 +780,7 @@ ClientSocket::readDOFForces(Robot *rob)
   double val;
   bool ok;
  // QTextStream is(this);
-  QTextStream os(this);
+  QTextStream os(sock);
   int numDOF,i;
 
   if (strPtr == lineStrList.end()) return FAILURE;
@@ -848,7 +852,7 @@ ClientSocket::moveBody(Body *bod)
 void
 ClientSocket::moveDynamicBodies(double timeStep)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   if (timeStep<0)
     timeStep = graspItGUI->getIVmgr()->getWorld()->getTimeStep();
 
@@ -868,7 +872,7 @@ ClientSocket::moveDynamicBodies(double timeStep)
 void
 ClientSocket::computeNewVelocities(double timeStep)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   int result = graspItGUI->getIVmgr()->getWorld()->computeNewVelocities(timeStep);
   os << result << "\n";
 }
@@ -889,7 +893,7 @@ ClientSocket::updatePlannerParams(QStringList & qsl)
 void
 ClientSocket::outputPlannerResults(int solution_index)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   //Test for existence of planner
   if(!currentWorldPlanner()){
     os << "No Planner Set \n";
@@ -914,24 +918,24 @@ ClientSocket::outputPlannerResults(int solution_index)
 */
 void ClientSocket::runObjectRecognition()
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   os << "runObjectRecognition \n";
   return;
 }
 
 void ClientSocket::sendString(const QString & message)
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   os << message << "\n";
   os.flush();
-  flush();
+  sock->flush();
   return;
 }
 
 void 
 ClientSocket::outputCurrentGrasp()
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   GraspPlanningState g(graspItGUI->getIVmgr()->getWorld()->getCurrentHand());
   g.setPostureType(POSE_DOF, false);
   g.saveCurrentHandState();
@@ -960,33 +964,8 @@ ClientSocket::readTorques()
 }
 */
 
-/*!
-  Starts a TCP server that listens on port \a port.  \a backlog specifies
-  the number of pending connections the server can have.
-*/
-GraspItServer::GraspItServer(Q_UINT16 port, int backlog,
-			     QObject *parent,const char *name) : 
-  Q3ServerSocket(port,backlog,parent,name)
-{
-  if (!ok()) {
-    qWarning("Failed to bind to port");
-  }
-}
-
-/*! 
-  Creates a new ClientSocket to handle communication with this client.
-*/
-void
-GraspItServer::newConnection(int socket)
-{
-  (void)new ClientSocket(socket, this);
-  
 
 
-#ifdef GRASPITDBG
-  std::cout << "new connection" << std::endl;
-#endif
-}
 
 
 //Body transforms are sent backwards by the planner for some reason compared to the overloading
@@ -1000,7 +979,7 @@ void ClientSocket::setBodyTransf(){
 		readTransf(&object_pose);
 		(*bp)->setTran(object_pose);
 	}
-	QTextStream os(this);
+    QTextStream os(sock);
 	os << "1 \n";
 	os.flush();
 }
@@ -1008,7 +987,7 @@ void ClientSocket::setBodyTransf(){
 void ClientSocket::sendBodyTransf(){
 	std::vector <Body *> bd;
 	readBodyIndList(bd);
-	QTextStream os(this);
+    QTextStream os(sock);
 	for(std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp){
 		//this is a hack around the overloading for standard strings and not qstrings.  
 		//this should be templated
@@ -1025,7 +1004,7 @@ void ClientSocket::sendBodyTransf(){
 void ClientSocket::removeBodies(bool graspable){
   std::vector <Body *> bd;
   readBodyIndList(bd);
-  QTextStream os(this);
+  QTextStream os(sock);
   for(std::vector<Body *>::iterator bp = bd.begin(); bp != bd.end(); ++bp){
     if(!graspable || (*bp)->inherits("GraspableBody") )
       graspItGUI->getIVmgr()->getWorld()->destroyElement(*bp, true);    
@@ -1041,7 +1020,7 @@ Body *addToWorld(const QString & relative_model_dir, const QString & model_type,
 }
 
 void ClientSocket::addGraspableBody(const QString & bodyName, const QString & objectName){
-  QTextStream os(this);
+  QTextStream os(sock);
   Body * b = addToWorld(QString("models/objects/"), "GraspableBody", bodyName);
   if(!b)
      b = addToWorld("models/object_database/", QString("GraspableBody"), bodyName);
@@ -1053,13 +1032,13 @@ void ClientSocket::addGraspableBody(const QString & bodyName, const QString & ob
 
 
 void ClientSocket::addObstacle(const QString & bodyName){
-  QTextStream os(this);
+  QTextStream os(sock);
   os << (addToWorld("models/obstacles/", "Body", bodyName)!=NULL) << '\n';
 }
 
 void ClientSocket::getCurrentHandTran()
 {
-  QTextStream os(this);
+  QTextStream os(sock);
   os << graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->getTran() << "\n";
   
 }
@@ -1070,7 +1049,7 @@ bool ClientSocket::verifyInput(int minimum_arg_number){
   for (int iter = 0; iter < minimum_arg_number; ++iter)
     {
       if (strPtr_copy == lineStrList.end()){
-	QTextStream os(this);
+    QTextStream os(sock);
 	os << 0 << '\n';
 	std::cout << "verifyInput failed \n";
 	return false;
@@ -1310,7 +1289,7 @@ bool ClientSocket::addPointCloud()
 
 void ClientSocket::analyzeGrasp(const GraspPlanningState * gps)
 {  
-	QTextStream os(this);
+    QTextStream os(sock);
 	os << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
   std::cout << "analyzeGrasp " << gps->getAttribute("graspId") << " " << *gps << "\n";
 }
@@ -1382,7 +1361,7 @@ bool ClientSocket::setRobotColor()
 
 void ClientSocket::analyzeApproachDir(GraspPlanningState * gs)
 {
-	QTextStream os(this);
+    QTextStream os(sock);
 	os << "analyzeApproachDirection " << *gs << " \n";
   os.flush();
   delete gs;
@@ -1414,4 +1393,42 @@ bool ClientSocket::setBodyColor()
     world->getBody(bodyNum)->setEmissiveColor(color);
 
     return true;
+}
+
+
+
+/*!
+  Starts a TCP server that listens on port \a port.  \a backlog specifies
+  the number of pending connections the server can have.
+*/
+GraspItServer::GraspItServer(unsigned int port_num, QObject * parent ):
+port_num(port_num)
+{
+this->start();
+}
+
+
+/*!
+  Creates a new ClientSocket to handle communication with this client.
+*/
+void
+GraspItServer::onConnection()
+{
+    QTcpSocket *clientQTcpSocketConnection = server->nextPendingConnection();
+    DBGA("GraspitServer::onConnection:: new connection");
+    ClientSocket *newGraspitConnection = new ClientSocket(NULL, clientQTcpSocketConnection);
+    connect(clientQTcpSocketConnection, SIGNAL(disconnected()),newGraspitConnection, SLOT(deleteLater()));
+
+#ifdef GRASPITDBG
+  std::cout << "new connection" << std::endl;
+#endif
+}
+
+void
+GraspItServer::run()
+{
+    server = new QTcpServer();
+    connect(server, SIGNAL(newConnection()), this, SLOT(onConnection()));
+    server->listen(QHostAddress::Any,port_num);
+    exec();
 }

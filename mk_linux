@@ -23,7 +23,7 @@ then
     cmake ..
     make    
 fi
-
+cd $GRASPIT
 qmake $libspaths ./graspit.pro 
 cd $GRASPIT
 make -j4

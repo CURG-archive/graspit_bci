@@ -175,7 +175,7 @@ GraspItGUI::processArgs(int argc, char** argv)
       break;
     case 'w':
       filename = graspitRoot + QString("/worlds/")+ QString(optarg) +
-	QString(".wld");
+    QString(".xml");
       if (ivmgr->getWorld()->load(filename)==FAILURE)
 	++errflag;
       else
@@ -214,7 +214,9 @@ GraspItGUI::startMainLoop()
 {	
   SoQt::show(mainWindow->mWindow);
   mainWindow->setMainWorld(ivmgr->getWorld());
-  mainWindow->mWindow->resize(QSize(1070,937));  
+  mainWindow->mWindow->resize(QSize(1070,937));
+  if(ivmgr->getWorld()->getNumRobots() > 0)
+      mainWindow->bciActionView();
   SoQt::mainLoop();
 }  
 

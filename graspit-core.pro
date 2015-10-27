@@ -7,7 +7,7 @@
 QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=c++0x -g -O3 -ftree-vectorize -ftree-vectorizer-verbose=2
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin
@@ -102,10 +102,9 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/requestStub.h \
     include/BCI/requests/objectRecognitionStub.h \
     include/BCI/requests/cameraOriginStub.h \
-    include/BCI/requests/graspReachabilityStub.h \
-    include/BCI/requests/graspReachabilityStub.h \
-    include/BCI/requests/executeGraspStub.h \
-    include/mouse.h
+    include/BCI/requests/optionSelectionStub.h \
+    include/BCI/requests/executeGraspStub.h
+
 
 
 
@@ -184,16 +183,17 @@ SOURCES	+= src/arch.cpp \
 	src/EGPlanner/onLineGraspInterface.cpp \
 	src/EGPlanner/listPlanner.cpp \
         src/Servers/graspitServer.cpp \
-    src/SoRing.cpp \
-    ui/BCI/state_views/graspView.cpp \
-    ui/BCI/qtWaitingSpinner.cpp \
-    src/BCI/worldController.cpp \
-    src/BCI/requests/objectRecognitionStub.cpp \
-    src/BCI/requests/graspReachabilityStub.cpp \
-    src/BCI/requests/requestStub.cpp \
-    src/BCI/requests/cameraOriginStub.cpp \
-    src/BCI/requests/executeGraspStub.cpp \
-    src/mouse.cpp
+        src/SoRing.cpp \
+        ui/BCI/state_views/graspView.cpp \
+        ui/BCI/qtWaitingSpinner.cpp \
+        src/BCI/worldController.cpp \
+        src/BCI/requests/objectRecognitionStub.cpp \
+        src/BCI/requests/graspReachabilityStub.cpp \
+        src/BCI/requests/requestStub.cpp \
+        src/BCI/requests/cameraOriginStub.cpp \
+        src/BCI/requests/optionSelectionStub.cpp \
+        src/BCI/requests/executeGraspStub.cpp
+
 
 
 
@@ -215,8 +215,7 @@ graspit_collision {
 	SOURCES	+= src/Collision/Graspit/collisionModel.cpp \
 			   src/Collision/Graspit/collisionAlgorithms.cpp \
 			   src/Collision/Graspit/graspitCollision.cpp
-} else {
-	error("Collision detection method not specified")
+}else{
 }
 
 #--------------------------------------- User interface: main window and dialogs ---------------------------------
@@ -494,7 +493,6 @@ bci_experiment {
 
 
    FORMS += ui/BCI/bciStageFrame.ui \
-            ui/BCI/bciStageFrame.ui \
             ui/BCI/BCIControlWindowBase.ui \
             ui/BCI/bciWorldView.ui \
             ui/BCI/bciPreviewView.ui \

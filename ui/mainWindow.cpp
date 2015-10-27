@@ -1305,8 +1305,8 @@ void MainWindow::bciActionView()
     //RosRPCZClient *rosClient = new RosRPCZClient();
     //rosClient->runObjectRecognition();
 
-    BCIControlWindow *bciControlWindow = new BCIControlWindow(mWindow);
-    bciControlWindow->show();
+    BCIControlWindow *bciControlWindow = new BCIControlWindow(mWindow);    
+    bciControlWindow->showMaximized();
 
     BCIService::getInstance()->init(bciControlWindow);
 

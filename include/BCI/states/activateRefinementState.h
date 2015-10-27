@@ -22,6 +22,10 @@ public slots:
     virtual void onPlannerUpdated(QEvent *e = NULL);
     void emit_goToConfirmationState();
 
+    virtual void nextGrasp(QEvent *e = NULL);
+    virtual void updateView();
+    void setTimerRunning();
+
 protected:
     ActiveRefinementView *activeRefinementView;
 

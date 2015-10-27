@@ -209,7 +209,6 @@ class IVmgr : public QWidget {
   void setShiftDown(SbBool status) {ShiftDown = status;}
   void spaceBar();
   void keyPressed(SoEventCallback *eventCB);
-  void setBackgroundColor(float r, float g, float b);
   
 
 
@@ -255,7 +254,6 @@ public slots:
   void saveNextImage();
   void saveCameraPos();
   void restoreCameraPos();  
-  void setImage();
   void updateControlSceneState0();
   void updateControlSceneState1();
   void updateControlSceneState2();
@@ -271,8 +269,7 @@ public:
   IVmgr(QWidget *parent=0,const char *name=0,Qt::WFlags f=0);
   ~IVmgr();
 
-  void convert(const SoSFImage& p, QImage& img) const;
-  void convert(const QImage& p, SoSFImage& img) const;
+  void setBackgroundColor(float r, float g, float b);
 
   void emitProcessWorldPlanner(int i){emit processWorldPlanner(i);}
   void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0,0.0,0.0));
@@ -327,6 +324,11 @@ public:
   void setDBMgr(db_planner::DatabaseManager*){}
 #endif
   void setStereoWindow(QWidget *parent);
+
+  void drawCircle(const QString & stringName, double x, double y, float scale, SbColor & color,
+                  double transparency, double thickness);
+
+
 
 };
 
