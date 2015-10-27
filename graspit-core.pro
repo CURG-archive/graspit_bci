@@ -103,6 +103,7 @@ HEADERS	+= include/barrett.h \
     include/BCI/requests/objectRecognitionStub.h \
     include/BCI/requests/cameraOriginStub.h \
     include/BCI/requests/optionSelectionStub.h \
+    include/BCI/requests/graspReachabilityStub.h \
     include/BCI/requests/executeGraspStub.h
 
 
