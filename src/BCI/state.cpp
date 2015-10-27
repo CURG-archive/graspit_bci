@@ -126,9 +126,9 @@ void State::sendOptionChoice()
     if(imageOptions.size() != imageCosts.size())
         DBGA("imageOptions size != imageCosts size");
 
-    BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
-    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
-                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
+//    BCIService::getInstance()->sendOptionChoices(imageOptions, imageDescriptions, imageCosts, confidence);
+//    connect(BCIService::getInstance(), SIGNAL(optionChoice(unsigned int, float, std::vector<float> & )),
+//                            this, SLOT(respondOptionChoice(unsigned int, float, std::vector<float> &)));
 
 }
 

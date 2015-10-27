@@ -111,7 +111,6 @@ void ActivateRefinementState::updateView()
 
 void ActivateRefinementState::onPlannerUpdated(QEvent * e)
 {
-    DBGA("ActivateRefinementState::onPlannerUpdated-- entered");
     updateView();
     OnlinePlannerController::getInstance()->analyzeNextGrasp();
 }

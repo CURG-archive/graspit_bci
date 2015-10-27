@@ -4,6 +4,8 @@
 
 #include "debug.h"
 
+#include <cstdlib>
+#include "graspit_msgs/GetObjectInfo.h"
 #include <QKeyEvent>
 #include <QMutex>
 
@@ -31,9 +33,7 @@ BCIService* BCIService::getInstance()
 
 BCIService::BCIService()
 {
-DBGA("Built BCIService");
-//rosServer = NULL;
-    rosServer = new RosRPCZClient();
+
 }
 
 void BCIService::init(BCIControlWindow *bciControlWindow)
@@ -87,13 +87,6 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
                 DBGA("Planner timed update running: " << OnlinePlannerController::getInstance()->timedUpdateRunning);
             }
         }        
-        if(keyEvent->key() == Qt::Key::Key_J)
-        {
-            std::vector<float> interestLevel;
-            interestLevel.push_back(.5);
-            emitOptionChoice(1,.5, interestLevel);
-            DBGA("BCIService");
-        }
         return true;
     }
     else
@@ -105,33 +98,24 @@ bool BCIService::eventFilter(QObject * obj, QEvent* evt)
 bool BCIService::runObjectRetreival(QObject * callbackReceiver,
                                     const char * slot)
 {
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    return rosServer->runObjectRetrieval(callbackReceiver, slot);
+    DBGA("BCIService::runObjectRetreival");
+    rosClient.sendObjectRecognitionRequest();
+    return true;
 }
 
 bool BCIService::runObjectRecognition(QObject * callbackReceiver ,
                                       const char * slot)
 {
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    return rosServer->runObjectRecognition(callbackReceiver, slot);
+    DBGA("BCIService::runObjectRecognition");
+    rosClient.sendObjectRecognitionRequest();
+    return true;
 }
 
+
 bool BCIService::getCameraOrigin(QObject * callbackReceiver, const char * slot)
-{        
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    return rosServer->getCameraOrigin(callbackReceiver, slot);
+{
+    rosClient.sendGetCameraOriginRequest();
+    return true;
 }
 
 
@@ -139,40 +123,15 @@ bool BCIService::checkGraspReachability(const GraspPlanningState * state,
                                         QObject * callbackReceiver,
                                         const char * slot)
 {
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    return rosServer->checkGraspReachability(state, callbackReceiver, slot);
+    rosClient.sendCheckGraspReachabilityRequest(state);
+    return true;
 }
  
 bool BCIService::executeGrasp(const GraspPlanningState * gps,
 			      QObject * callbackReceiver,
 			      const char * slot)
 {
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    return rosServer->executeGrasp(gps, callbackReceiver, slot);
+    rosClient.executeGrasp(gps);
+    return true;
 }
 
-bool BCIService::sendOptionChoices(std::vector<QImage*> & images,
-                           std::vector<QString> & optionDescriptions, std::vector<float> & imageCosts,
-                           float minimumConfidence)
-{
-    if(!rosServer)
-    {
-        DBGA("invalid ros server");
-        return false;
-    }
-    //return rosServer->sendOptionChoices(images, optionDescriptions, imageCosts, minimumConfidence);
-}
-
-void BCIService::emitOptionChoice(unsigned int option, float confidence,
-                                 std::vector<float> & interestLevel)
-{
-    emit optionChoice(option, confidence, interestLevel);
-}

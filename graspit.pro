@@ -32,6 +32,11 @@ CONFIG += cgdb
 
 #------------------system-specific libraries---------------
 CONFIG +=  $$COLLISION $$LAPACK
+ros {
+  include(ros.pri)
+
+}
+CONFIG += ros
 
 graspitdbg {
     CONFIG += debug
@@ -48,9 +53,25 @@ win32 {
 
 CONFIG += bci_experiment
 
+#---------------------------ROS-----------------------------
+ros {
+  include(ros.pri)
+
+}
+
+LIBS += /opt/ros/hydro/lib/*.so
+
+INCLUDEPATH += /home/jvarley/ros/bci_project_ws/devel/include/graspit_msgs
+
+HEADERS += /home/jvarley/ros/bci_project_ws/devel/include/graspit_msgs/ObjectInfo.h
+
 #------------------GraspIt! core files---------------------
 CONFIG += protobuf
 CONFIG += rpcz
+
+
 include(graspit-core.pro)
+
+
 
 

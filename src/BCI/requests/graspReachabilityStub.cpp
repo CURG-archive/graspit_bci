@@ -14,6 +14,7 @@
 #include "BCI/onlinePlannerController.h"
 
 
+
 GraspReachabilityStub::GraspReachabilityStub(rpcz::rpc_channel * channel)
     :graspReachability_stub(channel, "CheckGraspReachabilityService")
 {
@@ -32,7 +33,7 @@ void GraspReachabilityStub::buildRequest(const GraspPlanningState * gps)
     QString filename = gps->getObject()->getFilename();
     QFileInfo modelFileInfo(filename);
 
-    request.mutable_grasp()->mutable_object()->set_model(modelFileInfo.baseName());
+    request.mutable_grasp()->mutable_object()->set_model(modelFileInfo.baseName());//??
 
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_x(gps->getObject()->getTran().translation().x());
     request.mutable_grasp()->mutable_object()->mutable_pose()->mutable_position()->set_y(gps->getObject()->getTran().translation().y());

@@ -455,6 +455,7 @@ OnLinePlanner::mainLoop()
 //	}
     }
 	DBGP("On-line main loop done");
+    }
 }
 
 void
