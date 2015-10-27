@@ -32,6 +32,11 @@ CONFIG += cgdb
 
 #------------------system-specific libraries---------------
 CONFIG +=  $$COLLISION $$LAPACK
+ros {
+  include(ros.pri)
+
+}
+CONFIG += ros
 
 graspitdbg {
     CONFIG += debug
@@ -63,7 +68,7 @@ HEADERS += /home/jvarley/ros/bci_project_ws/devel/include/graspit_msgs/ObjectInf
 #------------------GraspIt! core files---------------------
 CONFIG += protobuf
 CONFIG += rpcz
-CONFIG += ros
+
 
 include(graspit-core.pro)
 

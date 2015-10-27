@@ -87,8 +87,6 @@ int main(int argc, char **argv)
 
   GraspitProtobufServer protobufServer(portNumber);
 
-  //REGISTER ROS Services here.
-  DBGA("REGISTERING NODE");
   ros::init(argc, argv, "ros_bci_node");
 
 

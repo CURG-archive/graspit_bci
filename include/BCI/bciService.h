@@ -28,7 +28,8 @@ class BCIService:public QObject
     Q_OBJECT
 
 public:
-    ~BCIService(){delete rosServer;}
+    ~BCIService(){}
+
     void emitGoToNextState1(){emit goToNextState1();}
     void emitGoToNextState2(){emit goToNextState2();}
     void emitGoToPreviousState(){emit goToPreviousState();}
@@ -49,9 +50,6 @@ public:
 
     void emitAnalyzeApproachDir(GraspPlanningState * gs){emit analyzeApproachDir(gs);}
 
-    void emitOptionChoice(unsigned int option, float confidence,
-                          std::vector<float> & interestLevel);
-
 
 
     //ros server calls
@@ -59,9 +57,7 @@ public:
 
     bool runObjectRecognition(QObject * callbackReceiver , const char * slot);
 
-
     bool getCameraOrigin(QObject * callbackReceiver, const char * slot);
-
 
 
     bool checkGraspReachability(const GraspPlanningState * state,
@@ -73,9 +69,6 @@ public:
                                   QObject * callbackReceiver,
                                   const char * slot);
 
-    bool sendOptionChoices(std::vector<QImage*> & images,
-                           std::vector<QString> & optionDescriptions,
-                           std::vector<float> &imageCosts, float minimumConfidence);
 
     static BCIService* getInstance();
 
@@ -128,12 +121,8 @@ signals:
     //void runObjectRecognition();
     void sendString(const QString & s);
 
-    // determine reachability of the grasp at this index
-    //void analyzeGrasp(const GraspPlanningState * gps);
-    //void analyzeNextGrasp();
     void analyzeApproachDir(GraspPlanningState * gps);
-    void optionChoice(unsigned int option, float confidence,
-                      std::vector<float> & interestLevel);
+
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);
@@ -142,17 +131,13 @@ private:
         //singleton pattern, single static instance of the class
         static BCIService * bciServiceInstance;
 
-
         //this is singleton, so constructor must be private.
         BCIService();
 
         RosClient rosClient;
 
-
         static QMutex createLock;
 
-        //this will go away
-        RosRPCZClient * rosServer;
 
 
 
