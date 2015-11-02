@@ -15,9 +15,6 @@ ActivateRefinementState::ActivateRefinementState(BCIControlWindow *_bciControlWi
     addSelfTransition(BCIService::getInstance(), SIGNAL(next()), this, SLOT(nextGrasp()));
     addSelfTransition(OnlinePlannerController::getInstance(),SIGNAL(render()), this, SLOT(updateView()));
 
-    //addSelfTransition(BCIService::getInstance(),SIGNAL(rotLat()), this, SLOT(setTimerRunning()));
-    //addSelfTransition(BCIService::getInstance(),SIGNAL(rotLong()), this, SLOT(setTimerRunning()));
-
     activeRefinementView = new ActiveRefinementView(bciControlWindow->currentFrame);
     activeRefinementView->hide();
 }
@@ -36,14 +33,25 @@ void ActivateRefinementState::onEntry(QEvent *e)
     OnlinePlannerController::getInstance()->blockGraspAnalysis(false);
 
     csm->clearTargets();
-    Target *t2 = new Target(csm->control_scene_separator, QString("sprites/rotateLat.png"), -1.1, 0.25, 0.0);
-    Target *t3 = new Target(csm->control_scene_separator, QString("sprites/rotateLong.png"), -1.1, -1.0, 0.0);
-    Target *t4 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), 0.35, -1.0, 0.0);
+    std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/target_next.png"),
+                                                                       0.35, .25, 0.0));
+    std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/rotateLat.png"),
+                                                                       -1.1, 0.25, 0.0));
+    std::shared_ptr<Target>  t3 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/rotateLong.png"),
+                                                                        -1.1, -1.0, 0.0));
+    std::shared_ptr<Target>  t4 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/target_confirm_grasp.png"),
+                                                                        0.35, -1.0, 0.0));
 
-    QObject::connect(t2, SIGNAL(hit()), this, SLOT(onRotateHandLat()));
-    QObject::connect(t3, SIGNAL(hit()), this, SLOT(onRotateHandLong()));
-    QObject::connect(t4, SIGNAL(hit()), this, SLOT(emit_goToConfirmationState()));
+    QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(nextGrasp()));
+    QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(onRotateHandLat()));
+    QObject::connect(t3.get(), SIGNAL(hit()), this, SLOT(onRotateHandLong()));
+    QObject::connect(t4.get(), SIGNAL(hit()), this, SLOT(emit_goToConfirmationState()));
 
+    csm->addTarget(t1);
     csm->addTarget(t2);
     csm->addTarget(t3);
     csm->addTarget(t4);
@@ -58,8 +66,9 @@ void ActivateRefinementState::setTimerRunning()
 
 void ActivateRefinementState::onExit(QEvent *e)
 {
+    csm->clearTargets();
     activeRefinementView->hide();
-     OnlinePlannerController::getInstance()->setPlannerToPaused();
+    OnlinePlannerController::getInstance()->setPlannerToPaused();
     OnlinePlannerController::getInstance()->stopTimedUpdate();
     OnlinePlannerController::getInstance()->blockGraspAnalysis(true);
 }
@@ -81,6 +90,7 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
         OnlinePlannerController::getInstance()->alignHand();
         updateView();
     }
+    csm->setCursorPosition(-1,0,0);
 }
 
 void ActivateRefinementState::updateView()

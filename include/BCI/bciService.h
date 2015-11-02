@@ -7,6 +7,7 @@
 #include "Servers/rosRPCZClient.h"
 
 #include "BCI/rosclient.h"
+#include<Inventor/Qt/SoQtRenderArea.h>
 
 #include <QMutex>
 #include <vector>
@@ -59,7 +60,6 @@ public:
 
     bool getCameraOrigin(QObject * callbackReceiver, const char * slot);
 
-
     bool checkGraspReachability(const GraspPlanningState * state,
                                             QObject * callbackReceiver,
                                             const char * slot);
@@ -73,6 +73,8 @@ public:
     static BCIService* getInstance();
 
     void init(BCIControlWindow *bciControlWindow);
+    SoQtRenderArea *bciRenderArea;
+
 public slots:
     //called when active planner is updated
     void onPlannerUpdated(){emit plannerUpdated();}

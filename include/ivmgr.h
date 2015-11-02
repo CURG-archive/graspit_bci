@@ -186,10 +186,6 @@ class IVmgr : public QWidget {
   //! The main and only interface for the CGDB; all interaction with the CGDB should go through this.
   db_planner::DatabaseManager *mDBMgr;
 
-  SoImage *image;// = new SoImage;
-
-
-
 
   void setupPointers();
   void transRot(DraggerInfo *dInfo);

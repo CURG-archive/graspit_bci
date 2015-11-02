@@ -35,8 +35,11 @@ public slots:
 
     void onRunVision(QEvent *e = NULL);
     void onVisionFinished();
-protected:
-    virtual void generateImageOptions(bool debug);
+
+
+signals:
+    void goToNextState();
+
 };
 
 #endif // OBJECTSELECTIONSTATE_H

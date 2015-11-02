@@ -327,10 +327,10 @@ namespace bci_experiment
             bool targetsOff = getWorld()->collisionsAreOff(currentPlanner->getHand(), currentPlanner->getHand()->getGrasp()->getObject());
             //plannerTimedUpdate();
         }
-      else{
-	DBGA("OnlinePlannerController::setPlannerToReady: ERROR Attempted to set planner to ready without valid target");
-      }
-
+        else
+        {
+            DBGA("OnlinePlannerController::setPlannerToReady: ERROR Attempted to set planner to ready without valid target");
+        }
         return true;
     }
 

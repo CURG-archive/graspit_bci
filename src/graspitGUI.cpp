@@ -52,8 +52,6 @@
 #include "SoRing.h"
 #include "BCI/controller_scene/controller_scene_mgr.h"
 
-#include "mouse.h"
-
 #include <QtGui>
 
 bool GraspItGUI::initialized = false;

@@ -28,6 +28,10 @@ protected:
     SoTransform * imageTran;
     QString filename;
 
+    short renderAreaWidth;
+    short renderAreaHeight;
+
+
 
 
     void convert(const QImage& p, SoSFImage& img) const;
@@ -35,9 +39,12 @@ protected:
 
 public:
     Sprite(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_);
-    virtual ~Sprite();
-    virtual void update(int state);
+    virtual ~Sprite() {};
+    virtual void update(int state, short renderAreaWidth, short renderAreaHeight)=0;
     bool intersects(QRectF *other_rect);
+
+
+    bool valid;
 
     QRectF *bounding_rect;
     SoAnnotation *sprite_root;
@@ -55,8 +62,9 @@ protected:
 
 public:
     Target(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_);
+    virtual ~Target();
+    void update(int state, short renderAreaWidth, short renderAreaHeight);
     void setHit();
-    void update(int state);
 
 signals:
         void hit();
@@ -69,7 +77,9 @@ class Cursor: public Sprite
         Q_OBJECT ;
 public:
     Cursor(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_);
-    void update(int state);
+    void setXYTheta(double x_, double y_, double theta_);
+    void update(int state, short renderAreaWidth, short renderAreaHeight);
+
 };
 
 #endif

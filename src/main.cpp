@@ -74,10 +74,14 @@ int main(int argc, char **argv)
 #endif
 #endif
 
+  ROS_INFO("Initializing Ros Node");
+  ros::init(argc, argv, "ros_bci_node");
+  ROS_INFO("Ros Node Initialized");
+
   GraspItApp app(argc, argv);
  
-  //app.showSplash();
-  //QApplication::setOverrideCursor( Qt::waitCursor );
+  app.showSplash();
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
   GraspItGUI gui(argc,argv);
 
@@ -115,7 +119,6 @@ int main(int argc, char **argv)
 
   GraspitProtobufServer protobufServer(portNumber);
 
-  ros::init(argc, argv, "ros_bci_node");
 
 
   app.setMainWidget(gui.getMainWindow()->mWindow);

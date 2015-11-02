@@ -7,6 +7,8 @@
 #include "BCI/controller_scene/controller_scene_mgr.h"
 #include "BCI/controller_scene/sprites.h"
 
+#include <memory>
+
 using bci_experiment::world_element_tools::getWorld;
 using bci_experiment::OnlinePlannerController;
 
@@ -22,8 +24,10 @@ ConfirmationState::ConfirmationState(BCIControlWindow *_bciControlWindow, Contro
 
 void ConfirmationState::onEntry(QEvent *e)
 {
+
     const GraspPlanningState *grasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
     Hand * hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
+    OnlinePlannerController::getInstance()->destroyGuides();
     confirmationView->setCurrentGrasp(hand,grasp);
     confirmationView->show();
     bciControlWindow->currentState->setText("Confirmation");
@@ -31,11 +35,15 @@ void ConfirmationState::onEntry(QEvent *e)
 
     csm->clearTargets();
 
-    Target *t1 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), 0.35, 0.25, 0.0);
-    Target *t2 = new Target(csm->control_scene_separator, QString("sprites/target_next.png"), -1.1, 0.25, 0.0);
+    std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/target_confirm_grasp.png"),
+                                                                       0.35, 0.25, 0.0));
+    std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/target_go_back.png"),
+                                                                       -1.1, 0.25, 0.0));
 
-    QObject::connect(t1, SIGNAL(hit()), this, SLOT(emit_goToExecutionState()));
-    QObject::connect(t2, SIGNAL(hit()), this, SLOT(emit_goToPreviousState()));
+    QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(emit_goToExecutionState()));
+    QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(emit_goToPreviousState()));
 
     csm->addTarget(t1);
     csm->addTarget(t2);
@@ -49,9 +57,10 @@ void ConfirmationState::onNextGrasp(QEvent *e)
 
 void ConfirmationState::onExit(QEvent * e)
 {
+    csm->clearTargets();
     Q_UNUSED(e);
     confirmationView->hide();
-    csm->clearTargets();
+
 }
 
 

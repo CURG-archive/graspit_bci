@@ -28,13 +28,14 @@ class BCIWorldView : public QWidget
 public:
     explicit BCIWorldView(QWidget *parent = 0);
     ~BCIWorldView();
+    SoQtRenderArea * renderArea;
     void redraw();
 public slots:
     void drawGuides();
     
 private:
     Ui::BCIWorldView *ui;
-    SoQtRenderArea * renderArea;
+
 };
 
 #endif // BCIWORLDVIEW_H

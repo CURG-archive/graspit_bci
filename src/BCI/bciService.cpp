@@ -38,6 +38,7 @@ BCIService::BCIService()
 
 void BCIService::init(BCIControlWindow *bciControlWindow)
 {
+    bciRenderArea = bciControlWindow->bciWorldView->renderArea;
     //builds and starts a qtStateMachine
     BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);    
     connect(this, SIGNAL(plannerUpdated()), bciControlWindow, SLOT(redraw()));

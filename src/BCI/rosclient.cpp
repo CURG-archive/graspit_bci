@@ -23,6 +23,7 @@ RosClient::RosClient()
      :recognizeObjectsActionClient("recognize_objections_action", true),
       analzeGraspReachabilityActionClient("analyze_grasp_action", true)
 {
+    ROS_INFO("Ros Client starting to come up...");
     n = new ros::NodeHandle("");
 
     grasp_execution_pubisher = n->advertise<graspit_msgs::Grasp>("/graspit/grasps", 5);
@@ -30,23 +31,23 @@ RosClient::RosClient()
     get_camera_origin=n->serviceClient<get_camera_origin::GetCameraOrigin>("get_camera_origin");
 
     ROS_INFO("Ros Client waiting for ros action servers to come up...");
-    if(recognizeObjectsActionClient.waitForServer(ros::Duration(5)))
-    {
-       ROS_INFO("Object Recognition Action Server is Running");
-    }
-    else
-    {
-       ROS_INFO("Object Recognition Action Server is Not Running");
-    }
+//    if(recognizeObjectsActionClient.waitForServer(ros::Duration(5)))
+//    {
+//       ROS_INFO("Object Recognition Action Server is Running");
+//    }
+//    else
+//    {
+//       ROS_INFO("Object Recognition Action Server is Not Running");
+//    }
 
-    if(analzeGraspReachabilityActionClient.waitForServer(ros::Duration(5)))
-    {
-       ROS_INFO("analzeGraspReachabilityAction Server is Running");
-    }
-    else
-    {
-       ROS_INFO("analzeGraspReachabilityAction Server is Not Running");
-    }
+//    if(analzeGraspReachabilityActionClient.waitForServer(ros::Duration(5)))
+//    {
+//       ROS_INFO("analzeGraspReachabilityAction Server is Running");
+//    }
+//    else
+//    {
+//       ROS_INFO("analzeGraspReachabilityAction Server is Not Running");
+//    }
 
     connect(
         this,

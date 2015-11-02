@@ -10,20 +10,26 @@ GraspSelectionView::GraspSelectionView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    spinner = new QtWaitingSpinner(10,7,3,15,ui->renderArea);
-
-    connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
-    connect(ui->buttonRefineGrasp, SIGNAL(clicked()), this, SLOT(onRefineGrasp()));
-    connect(ui->buttonRotateLat, SIGNAL(clicked()), this, SLOT(onRotateLat()));
-    connect(ui->buttonRotateLong, SIGNAL(clicked()), this, SLOT(onRotateLong()));
+    currentGraspSpinner = new QtWaitingSpinner(10,7,3,15,ui->renderArea);
+    nextGraspSpinner = new QtWaitingSpinner(10,7,3,15,ui->nextRenderArea);
 
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QFrame *parentWindow = this->ui->renderArea;
     QString viewName = QString("current best grasp");
-    handView = new HandView(mainViewer,h,*parentWindow, viewName);
-    showSpinner();
+    selectedHandView = new HandView(mainViewer,h,*parentWindow, viewName);
 
+    QFrame *nextParentWindow = this->ui->nextRenderArea;
+    QString nextViewName = QString("next grasp");
+    nextHandView = new HandView(mainViewer,h,*nextParentWindow, nextViewName);
+
+    currentGraspSpinner->setSpeed(1.5);
+    currentGraspSpinner->start();
+    currentGraspSpinner->move(currentGraspSpinner->parentWidget()->geometry().center()/2.0);
+
+    nextGraspSpinner->setSpeed(1.5);
+    nextGraspSpinner->start();
+    nextGraspSpinner->move(currentGraspSpinner->parentWidget()->geometry().center()/2.0);
 
 }
 ///////////////////////////////////////////////////
@@ -33,54 +39,47 @@ void GraspSelectionView::onRefineGrasp()
     BCIService::getInstance()->emitGoToNextState2();
 }
 
-void GraspSelectionView::onRotateLong()
-{
-    BCIService::getInstance()->emitRotLong();
-}
-
 void GraspSelectionView::onOk()
 {
     BCIService::getInstance()->emitGoToNextState1();
 }
 
-void GraspSelectionView::onRotateLat()
-{
-    BCIService::getInstance()->emitRotLat();
-}
-
 void GraspSelectionView::showEvent(QShowEvent *)
 {
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    handView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
+    selectedHandView->updateGeom(*OnlinePlannerController::getInstance()->getGraspDemoHand());
     showSelectedGrasp(h,NULL);
+    showNextGrasp(h, NULL);
 }
 
-///////////////////////////////////////////////////
-//hide/show spinner and handView
-void GraspSelectionView::showSpinner()
-{
-    spinner->setSpeed(1.5);
-    spinner->start();
-    spinner->move(spinner->parentWidget()->geometry().center()/2.0);
-}
-
-void GraspSelectionView::hideSpinner()
-{
-    spinner->hide();
-}
 
 void GraspSelectionView::showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState)
 {
-    hideSpinner();
+    currentGraspSpinner->hide();
 
     if(graspPlanningState)
     {
-        handView->update(*graspPlanningState, *hand);
+        selectedHandView->update(*graspPlanningState, *hand);
         DBGA("GraspSelectionView::showSelectedGrasp::Showing grasp:" << graspPlanningState->getItNumber());
     }
     else
     {
         DBGA("GraspSelectionView::showSelectedGrasp::No grasp");
+    }
+}
+
+void GraspSelectionView::showNextGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState)
+{
+    nextGraspSpinner->hide();
+
+    if(graspPlanningState)
+    {
+        nextHandView->update(*graspPlanningState, *hand);
+        DBGA("GraspSelectionView::showNextGrasp::Showing grasp:" << graspPlanningState->getItNumber());
+    }
+    else
+    {
+        DBGA("GraspSelectionView::showNextGrasp::No grasp");
     }
 }
 

@@ -282,8 +282,6 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   sceneRoot = new SoSeparator;
   sceneRoot->ref();
 
-  image = new SoImage;
-
   //add this before the mouseEventCB which otherwise captures the click!
   draggerRoot = new SoSeparator;
   sceneRoot->addChild(draggerRoot);
@@ -324,7 +322,6 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   myViewer->setSceneGraph(sceneRoot);
   myViewer->setTransparencyType(SoGLRenderAction::DELAYED_BLEND);
   myViewer->setBackgroundColor(SbColor(1,1,1));
-
   SoRotationXYZ *imageRot = new SoRotationXYZ;
   imageRot->angle = M_PI/2;
   imageRot->axis = SoRotationXYZ::X;
@@ -338,7 +335,7 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   pcam->position = SbVec3f(0, 0, 10);
   pcam->nearDistance = 0.1;
   pcam->farDistance = 11;
-  
+
   hudSeparator->addChild(pcam);
   std::cout << " Camera height " << pcam->height.getValue() << "\n";
   std::cout << " aspectRatio " << pcam->aspectRatio.getValue() << "\n";

@@ -7,7 +7,7 @@
 QT +=  qt3support opengl network
 
 CONFIG += qt warn_on exceptions assistant
-QMAKE_CXXFLAGS += -std=c++0x -g -O3 -ftree-vectorize -ftree-vectorizer-verbose=2
+QMAKE_CXXFLAGS += -std=c++0x -g -O3 -ftree-vectorize -ftree-vectorizer-verbose=0
 INCLUDEPATH += $(QTDIR)/include $(COINDIR)/include qhull
 
 DESTDIR = bin
@@ -101,15 +101,12 @@ HEADERS	+= include/barrett.h \
         include/Servers/graspitServer.h \
         include/SoRing.h \
         include/BCI/worldController.h \
-    include/BCI/requests/requestStub.h \
-    include/BCI/requests/objectRecognitionStub.h \
-    include/BCI/requests/cameraOriginStub.h \
-
-    include/BCI/requests/optionSelectionStub.h \
-
-    include/BCI/requests/graspReachabilityStub.h \
-    include/BCI/requests/executeGraspStub.h \
-    include/BCI/rosclient.h
+        include/BCI/requests/requestStub.h \
+        include/BCI/requests/objectRecognitionStub.h \
+        include/BCI/requests/cameraOriginStub.h \
+        include/BCI/requests/graspReachabilityStub.h \
+        include/BCI/requests/executeGraspStub.h \
+        include/BCI/rosclient.h
 
 
 
@@ -190,7 +187,6 @@ SOURCES	+= src/arch.cpp \
 	src/EGPlanner/onLineGraspInterface.cpp \
 	src/EGPlanner/listPlanner.cpp \
         src/Servers/graspitServer.cpp \
-
         src/SoRing.cpp \
         ui/BCI/state_views/graspView.cpp \
         ui/BCI/qtWaitingSpinner.cpp \
@@ -199,9 +195,7 @@ SOURCES	+= src/arch.cpp \
         src/BCI/requests/graspReachabilityStub.cpp \
         src/BCI/requests/requestStub.cpp \
         src/BCI/requests/cameraOriginStub.cpp \
-        src/BCI/requests/optionSelectionStub.cpp \
         src/BCI/requests/executeGraspStub.cpp \
-
         src/BCI/rosclient.cpp
 
 
@@ -435,7 +429,6 @@ bci_experiment {
               ui/BCI/handView.cpp \
               ui/BCI/bciWorldView.cpp \
               ui/BCI/bciPreviewView.cpp \
-              src/BCI/states/onlinePlanningState.cpp \
               src/BCI/states/handRotationState.cpp \
               src/BCI/states/activateRefinementState.cpp \
               src/BCI/bciService.cpp \
@@ -446,7 +439,6 @@ bci_experiment {
                 ui/BCI/state_views/confirmationView.cpp \
                 src/BCI/states/placementLocationSelectionState.cpp \
                 ui/BCI/state_views/placementLocationSelectionView.cpp \
-                src/BCI/states/objectRecognitionState.cpp \
                 ui/BCI/state_views/objectRecognitionView.cpp \
                 ui/BCI/control_views/singleBandControl.cpp \
                 src/BCI/states/executionState.cpp \
@@ -469,11 +461,9 @@ bci_experiment {
                include/BCI/states/objectSelectionState.h \
                include/BCI/states/placementLocationSelectionState.h \
                include/BCI/states/confirmationState.h \
-               include/BCI/states/onlinePlanningState.h \
                include/BCI/states/handRotationState.h \
                include/BCI/states/graspSelectionState.h \
                include/BCI/states/activateRefinementState.h \
-               include/BCI/states/objectRecognitionState.h \
                include/BCI/states/executionState.h \
                include/BCI/states/stoppedExecutionState.h \
                include/BCI/bciService.h \

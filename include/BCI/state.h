@@ -27,30 +27,17 @@ public:
 public slots:
     void setName( const QString& name ) { m_name = name; }
     void setPrefix( const QString& prefix ) { m_prefix = prefix; }    
-    virtual void sendOptionChoice();
-    virtual void respondOptionChoice(unsigned int option, float confidence, std::vector<float> &interestLevel);
-    void disconnectOptionChoice();
-
 
 
 protected:
     virtual void onEntry( QEvent* e );
     virtual void onExit( QEvent* e );
-    virtual void setImageText(QImage * image, QString & text,
-                              const QColor & fontColor);
-    virtual void generateImageOptions(bool debug = true);
-    virtual void generateStringImageOptions(bool debug = true);
     QAbstractTransition *checkForDuplicateTransitions(QAbstractTransition * transition);
 
 protected:
     QString m_name;
     QString m_prefix;
-    std::vector<QImage *> imageOptions;
-    std::vector<QString> imageDescriptions;
 
-    std::vector<QString> stringOptions;
-    std::vector<float> defaultCosts;
-    std::vector<float> imageCosts;    
 };
 
 
