@@ -47,7 +47,6 @@ void ObjectSelectionState::onEntry(QEvent *e)
         visionRunning = true;
         bciControlWindow->currentState->setText("Object Selection: Running Recognition");
         onVisionFinished();
-        bciControlWindow->setBackgroundColor(QColor(255,0,0));
     }
     else
     {
@@ -59,18 +58,24 @@ void ObjectSelectionState::onEntry(QEvent *e)
 
     csm->clearTargets();
     std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_next.png"),
-                                                                      -1.1, -1.0, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                      -1.1, -1.0, 0.0, QString("Next\nObject")));
 
     std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_select.png"),
-                                                                      0.35, -1.0, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                      0.35, -1.0, 0.0, QString("Select\nObject")));
+
+    std::shared_ptr<Target>  t3 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+                                                                       QString("sprites/target_background.png"),
+                                                                      0.35, 0.5, 0.0, QString("Rerun\nVision")));
 
     QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(onNext()));
     QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(onSelect()));
+    QObject::connect(t3.get(), SIGNAL(hit()), this, SLOT(onRunVision()));
 
     csm->addTarget(t1);
     csm->addTarget(t2);
+    csm->addTarget(t3);
 }
 
 void ObjectSelectionState::onRunVision(QEvent * e)
@@ -81,7 +86,7 @@ void ObjectSelectionState::onRunVision(QEvent * e)
         {
             bciControlWindow->currentState->setText("Object Selection: Running Recognition");
             visionRunning = true;
-            bciControlWindow->setBackgroundColor(QColor(255,0,0));        }
+        }
         else
             bciControlWindow->currentState->setText("Object Selection: Failed");
     }
@@ -92,13 +97,10 @@ void ObjectSelectionState::onVisionFinished()
     bciControlWindow->currentState->setText("Object Selection: Running Finished");
     graspItGUI->getIVmgr()->blinkBackground();
     visionRunning = false;
-    bciControlWindow->setBackgroundColor(QColor(255,255,255));
-    //sendOptionChoice();
 }
 
 void ObjectSelectionState::onExit(QEvent *e)
 {
-    bciControlWindow->setBackgroundColor(QColor(255,255,255));
     WorldController::getInstance()->unhighlightAllBodies();
     OnlinePlannerController::getInstance()->setSceneLocked(true);
     objectSelectionView->hide();

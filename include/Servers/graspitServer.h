@@ -134,6 +134,7 @@ private:
   bool addPointCloud();
   bool exec();
   bool next();
+  bool recievedStateMsg();
 
   bool setCameraOrigin();
   void drawCircle();

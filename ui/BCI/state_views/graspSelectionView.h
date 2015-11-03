@@ -45,9 +45,6 @@ public:
     void showNextGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState);
     ~GraspSelectionView();
 
-public slots:
-    void onRefineGrasp();
-    void onOk();
 protected:
     virtual void showEvent(QShowEvent *);
 private:

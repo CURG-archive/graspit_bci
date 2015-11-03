@@ -7,6 +7,7 @@
 #include <Inventor/nodes/SoMaterial.h>
 #include "BCI/bciService.h"
 
+#include "qpainter.h"
 #include <iostream>
 
 #define PI 3.14159265
@@ -108,10 +109,15 @@ void Cursor::update(int state, short renderAreaWidth_, short renderAreaHeight_)
 
 }
 
-Target::Target(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_)
+Target::Target(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_, QString target_text)
     : Sprite(control_scene_separator, filename, x_, y_, theta_),
       steps_since_last_hit(500)
-{
+{    
+    QPainter p(qimage);
+    p.setPen(QPen(Qt::lightGray));
+    p.setFont(QFont("Times", 28, QFont::Bold));
+    p.drawText(qimage->rect(), Qt::AlignCenter, target_text.toStdString().c_str());
+    convert(*qimage, image->image);
 }
 
 Target::~Target()

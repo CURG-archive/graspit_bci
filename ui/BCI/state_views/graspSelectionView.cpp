@@ -30,18 +30,6 @@ GraspSelectionView::GraspSelectionView(QWidget *parent) :
     nextGraspSpinner->setSpeed(1.5);
     nextGraspSpinner->start();
     nextGraspSpinner->move(currentGraspSpinner->parentWidget()->geometry().center()/2.0);
-
-}
-///////////////////////////////////////////////////
-//Button Callbacks
-void GraspSelectionView::onRefineGrasp()
-{
-    BCIService::getInstance()->emitGoToNextState2();
-}
-
-void GraspSelectionView::onOk()
-{
-    BCIService::getInstance()->emitGoToNextState1();
 }
 
 void GraspSelectionView::showEvent(QShowEvent *)

@@ -36,11 +36,11 @@ void ConfirmationState::onEntry(QEvent *e)
     csm->clearTargets();
 
     std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_confirm_grasp.png"),
-                                                                       0.35, 0.25, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                       0.35, 0.25, 0.0, QString("Confirm\nGrasp")));
     std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_go_back.png"),
-                                                                       -1.1, 0.25, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                       -1.1, 0.25, 0.0, QString("Go Back")));
 
     QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(emit_goToExecutionState()));
     QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(emit_goToPreviousState()));

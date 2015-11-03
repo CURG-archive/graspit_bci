@@ -35,6 +35,10 @@ public:
     void emitGoToNextState2(){emit goToNextState2();}
     void emitGoToPreviousState(){emit goToPreviousState();}
 
+    void emitGoToStateLow(){emit goToStateLow();}
+    void emitGoToStateMedium(){emit goToStateMedium();}
+    void emitGoToStateHigh(){emit goToStateHigh();}
+
 
     void emitExec(){emit exec();}
     void emitNext(){emit next();}
@@ -125,6 +129,9 @@ signals:
 
     void analyzeApproachDir(GraspPlanningState * gps);
 
+    void goToStateLow();
+    void goToStateMedium();
+    void goToStateHigh();
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);

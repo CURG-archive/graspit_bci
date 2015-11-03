@@ -88,12 +88,6 @@ void ControllerSceneManager::handleMouseButtonEvent(void *, SoEventCallback *eve
       double x = event->getPosition().getValue()[0]/500.0 - renderAreaWidth/1000.0;
       double y = event->getPosition().getValue()[1]/500.0 - renderAreaHeight/1000.0;
 
-//      std::cout << "width: " << renderAreaWidth << std::endl;
-//      std::cout << "height: " << renderAreaHeight << std::endl;
-//      std::cout << "click_X: " << event->getPosition().getValue()[0] << std::endl;
-//      std::cout << "click_Y: " << event->getPosition().getValue()[1] << std::endl;
-//      std::cout << "x: " << x << std::endl;
-//      std::cout << "y: " << y << std::endl;
       current_control_scene_manager->setCursorPosition(x, y, 0);
   }
 

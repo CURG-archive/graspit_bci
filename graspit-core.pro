@@ -493,17 +493,14 @@ bci_experiment {
 
 
 
-   FORMS += ui/BCI/bciStageFrame.ui \
+   FORMS += \
             ui/BCI/BCIControlWindowBase.ui \
             ui/BCI/bciWorldView.ui \
-            ui/BCI/bciPreviewView.ui \
-            ui/BCI/binaryCommandView.ui \
             ui/BCI/state_views/objectSelectionView.ui \
             ui/BCI/state_views/graspSelectionView.ui \
     ui/BCI/state_views/confirmationView.ui \
     ui/BCI/state_views/placementLocationSelectionView.ui \
     ui/BCI/state_views/objectRecognitionView.ui \
-    ui/BCI/control_views/singleBandControl.ui \
     ui/BCI/state_views/executionView.ui \
     ui/BCI/state_views/stoppedExecutionView.ui \
 ui/BCI/state_views/activeRefinementView.ui

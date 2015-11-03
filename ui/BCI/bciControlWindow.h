@@ -26,6 +26,10 @@ public:
 
 
         setupUi(this);
+        //this->setBackgroundColor(QColor("1F2A36"));
+        //this->setBackgroundColor(QColor::fromRgb(97, 126, 158));
+        this->setBackgroundColor(QColor::fromRgb(112,128,144));
+
 
     }
 public slots:

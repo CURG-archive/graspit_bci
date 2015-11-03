@@ -44,6 +44,10 @@ void BCIService::init(BCIControlWindow *bciControlWindow)
     connect(this, SIGNAL(plannerUpdated()), bciControlWindow, SLOT(redraw()));
     connect(OnlinePlannerController::getInstance(), SIGNAL(render()), bciControlWindow, SLOT(redraw()));
     bciStateMachine->start();
+
+    QObject::connect(this, SIGNAL(goToStateLow()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState0()));
+    QObject::connect(this, SIGNAL(goToStateMedium()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState1()));
+    QObject::connect(this, SIGNAL(goToStateHigh()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState2()));
 }
 
 bool BCIService::eventFilter(QObject * obj, QEvent* evt)

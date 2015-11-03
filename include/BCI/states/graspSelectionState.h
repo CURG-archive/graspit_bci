@@ -30,9 +30,11 @@ public slots:
     void onNext();
     void onPlannerUpdated();
 
+
     void emit_goToActivateRefinementState(){emit goToActivateRefinementState();}
     void emit_goToObjectSelectionState(){emit goToObjectSelectionState();}
     void emit_goToConfirmationState(){emit goToConfirmationState();}
+
 
 signals:
     void goToActivateRefinementState();

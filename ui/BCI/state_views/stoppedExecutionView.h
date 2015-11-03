@@ -14,10 +14,6 @@ class StoppedExecutionView : public QWidget
 public:
     explicit StoppedExecutionView(QWidget *parent = 0);
     ~StoppedExecutionView();
-
-public slots:
-    void onContinueExecutionClicked();
-    void onStartOverClicked();
     
 private:
     Ui::StoppedExecutionView *ui;

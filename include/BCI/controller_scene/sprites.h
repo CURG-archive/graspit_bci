@@ -61,7 +61,7 @@ protected:
     int steps_since_last_hit;
 
 public:
-    Target(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_);
+    Target(SoAnnotation * control_scene_separator, QString filename, double x_, double y_, double theta_, QString target_text);
     virtual ~Target();
     void update(int state, short renderAreaWidth, short renderAreaHeight);
     void setHit();

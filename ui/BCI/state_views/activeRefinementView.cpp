@@ -11,13 +11,6 @@ ActiveRefinementView::ActiveRefinementView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
-    connect(ui->buttonRotLat, SIGNAL(clicked()), this, SLOT(onRotLat()));
-    connect(ui->buttonRotLong, SIGNAL(clicked()), this, SLOT(onRotLong()));
-    connect(ui->buttonNextGrasp, SIGNAL(clicked()), this, SLOT(onNextGrasp()));
-
-    QString viewName = QString("current best grasp");
-    //handView = new HandView(mainViewer,h,*parentWindow, viewName);
     createHandView();
 }
 
@@ -34,20 +27,6 @@ void ActiveRefinementView::createHandView()
     nextGraspView = new HandView(mainViewer, h, *this->ui->previewNextFrame, nextViewName);
 }
 
-void ActiveRefinementView::onOk()
-{
-    BCIService::getInstance()->emitGoToNextState1();
-}
-
-void ActiveRefinementView::onRotLat()
-{
-   BCIService::getInstance()->emitRotLat();
-}
-
-void ActiveRefinementView::onRotLong()
-{
-   BCIService::getInstance()->emitRotLong();
-}
 void ActiveRefinementView::showEvent(QShowEvent *)
 {
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
@@ -70,11 +49,6 @@ void ActiveRefinementView::showNextGrasp(Hand * hand,  const GraspPlanningState 
     {
         nextGraspView->update(*graspPlanningState, *hand);
     }
-}
-
-void ActiveRefinementView::onNextGrasp()
-{
-    BCIService::getInstance()->emitNext();
 }
 
 ActiveRefinementView::~ActiveRefinementView()

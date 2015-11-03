@@ -106,6 +106,7 @@ int main(int argc, char **argv)
   QObject::connect(slowButton, SIGNAL(clicked()), gui.getIVmgr(), SLOT(updateControlSceneState1()));
   QObject::connect(fastButton, SIGNAL(clicked()), gui.getIVmgr(), SLOT(updateControlSceneState2()));
 
+
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), gui.getIVmgr(), SLOT(updateControlScene()));
   timer.start(1000 / 30);
@@ -118,7 +119,6 @@ int main(int argc, char **argv)
   unsigned int portNumber = 4766;
 
   GraspitProtobufServer protobufServer(portNumber);
-
 
 
   app.setMainWidget(gui.getMainWindow()->mWindow);

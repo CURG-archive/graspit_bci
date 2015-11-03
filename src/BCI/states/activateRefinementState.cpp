@@ -34,17 +34,17 @@ void ActivateRefinementState::onEntry(QEvent *e)
 
     csm->clearTargets();
     std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_next.png"),
-                                                                       0.35, .25, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                       0.35, .25, 0.0, QString("Next")));
     std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/rotateLat.png"),
-                                                                       -1.1, 0.25, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                       -1.1, 0.25, 0.0, QString("Rotate\nLat")));
     std::shared_ptr<Target>  t3 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/rotateLong.png"),
-                                                                        -1.1, -1.0, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                        -1.1, -1.0, 0.0, QString("Rotate\nLong")));
     std::shared_ptr<Target>  t4 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_confirm_grasp.png"),
-                                                                        0.35, -1.0, 0.0));
+                                                                       QString("sprites/target_background.png"),
+                                                                        0.35, -1.0, 0.0, QString("Confirm\nGrasp")));
 
     QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(nextGrasp()));
     QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(onRotateHandLat()));
