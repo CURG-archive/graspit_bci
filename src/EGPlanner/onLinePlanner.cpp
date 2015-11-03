@@ -453,10 +453,11 @@ OnLinePlanner::mainLoop()
 //		if (mSolutionClone) s->execute(mSolutionClone);
 //		if (mMarkSolutions) s->setIVMarkerColor(1,1,0);
 //	}
-
-	DBGP("On-line main loop done");
     }
-}
+	DBGP("On-line main loop done");
+   }
+
+
 
 void
 OnLinePlanner::graspLoop()
@@ -506,6 +507,7 @@ OnLinePlanner::graspLoop()
         render(mProgressClone);
         //emit signalRender(this);        
     }
+
 
 
 	//DBGP("Grasp loop done");

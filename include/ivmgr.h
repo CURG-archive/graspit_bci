@@ -39,10 +39,15 @@
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <QThread>
 
+
 struct VCReportType;
 class SbVec3f;
 class transf;
 class position;
+class SoImage;
+class SoSFImage;
+class SoAnnotation;
+class ControllerSceneManager;
 
 class QWidget;
 class SoQtExaminerViewer;
@@ -181,6 +186,7 @@ class IVmgr : public QWidget {
   //! The main and only interface for the CGDB; all interaction with the CGDB should go through this.
   db_planner::DatabaseManager *mDBMgr;
 
+
   void setupPointers();
   void transRot(DraggerInfo *dInfo);
   void revoluteJointChanged(DraggerInfo *dInfo);
@@ -244,6 +250,10 @@ public slots:
   void saveNextImage();
   void saveCameraPos();
   void restoreCameraPos();  
+  void updateControlSceneState0();
+  void updateControlSceneState1();
+  void updateControlSceneState2();
+  void updateControlScene();
 
 
 signals:
@@ -256,6 +266,7 @@ public:
   ~IVmgr();
 
   void setBackgroundColor(float r, float g, float b);
+
   void emitProcessWorldPlanner(int i){emit processWorldPlanner(i);}
   void blinkBackground(int mSecDuration = 100, int times = 1, SbColor newColor = SbColor(0.0,0.0,0.0));
 
@@ -266,6 +277,7 @@ public:
    */
   World *getWorld() const {return world;}
 
+  ControllerSceneManager *csm;
   /*!
     Returns a pointer to the Inventor examiner viewer.
   */

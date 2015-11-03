@@ -13,48 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="buttonContinueExecution">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>50</y>
-     <width>221</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(195, 255, 192);</string>
-   </property>
-   <property name="text">
-    <string>Continue Execution</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="buttonStartOver">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>180</y>
-     <width>221</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 155, 155);</string>
-   </property>
-   <property name="text">
-    <string>Start Planning Over</string>
-   </property>
-  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -26,7 +26,7 @@
 /*! \file
   \brief Implements the IVmgr class which handles 3D user interaction.
 */
-
+#include <Inventor/nodes/SoRotationXYZ.h>
 #include <map>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +39,7 @@
 #include <QApplication>
 #include <QThread>
 #include <QKeyEvent>
-
+#include <QImage>
 
 #include <Inventor/SoDB.h>
 #include <Inventor/SoInput.h>
@@ -101,6 +101,7 @@
 #include <Inventor/nodes/SoCallback.h>
 #include <Inventor/Qt/SoQt.h>
 
+#include "BCI/controller_scene/controller_scene_mgr.h"
 
 #include <QTimer>
 #include <QtOpenGL/QGLWidget>
@@ -119,6 +120,7 @@
 #include "world.h"
 #include "mainWindow.h"
 #include "matvec3D.h"
+#include <Inventor/nodes/SoImage.h>
 
 //hmmm not sure this is right
 #include "graspitGUI.h"
@@ -310,6 +312,8 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   wireFrameRoot = new SoSeparator;
   sceneRoot->addChild(wireFrameRoot);
 
+
+
   //comment these out if only single-threaded operation will be used
   //myViewer->setRenderMutex(&mRenderMutex);
   //world->setRenderMutex(&mRenderMutex);
@@ -318,16 +322,20 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   myViewer->setSceneGraph(sceneRoot);
   myViewer->setTransparencyType(SoGLRenderAction::DELAYED_BLEND);
   myViewer->setBackgroundColor(SbColor(1,1,1));
-  
-  SoAnnotation * hudSeparator = new SoAnnotation;
+  SoRotationXYZ *imageRot = new SoRotationXYZ;
+  imageRot->angle = M_PI/2;
+  imageRot->axis = SoRotationXYZ::X;
+
+  SoAnnotation *hudSeparator = new SoAnnotation;
   hudSeparator->renderCaching=SoSeparator::OFF;
   hudSeparator->setName("hud");
+  sceneRoot->addChild(imageRot);
   sceneRoot->addChild(hudSeparator);
   SoOrthographicCamera * pcam = new SoOrthographicCamera;
   pcam->position = SbVec3f(0, 0, 10);
   pcam->nearDistance = 0.1;
   pcam->farDistance = 11;
-  
+
   hudSeparator->addChild(pcam);
   std::cout << " Camera height " << pcam->height.getValue() << "\n";
   std::cout << " aspectRatio " << pcam->aspectRatio.getValue() << "\n";
@@ -337,8 +345,32 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   SoCallback * disableZTestNode = new SoCallback();
   disableZTestNode->setCallback(disableZCulling);
   hudSeparator->addChild(disableZTestNode);
+
+  // Create the image node using
+  // the file "./sillyFace.rgb"
+  // as source.
+//  SoTransform * imageTran = new SoTransform;
+//  //imageTran->translation.setValue(SbVec3f(-1,0,0));
+//  //imageTran->rotation.setValue(SbVec3f(0,0,1),-M_PI/2);
+
+//  //imageTran->rotation.setValue(SbVec3f(0,0,1),90.0);
+//  SoMaterial * imagematerial = new SoMaterial;
+//  imagematerial->transparency = 0.0;
+//  //hudSeparator->addChild((imageTran));
+
+//  hudSeparator->addChild(imagematerial);
+//  //hudSeparator->addChild((imageRot));
+
+//  //SoImage *image = new SoImage;
+//  image->filename = "show_image.png";
+//  //image->filename = "transparent.png";
+//  hudSeparator->addChild(image);
+
+//  QImage qimg = QImage("show_image.png");
+
+
   // Adds a green cone to demonstrate static geometry.
-/*
+ /*
   SoMaterial * greenmaterial = new SoMaterial;
   greenmaterial->diffuseColor.setValue(0, 1.0, 0.0);
   greenmaterial->transparency = 0.0;
@@ -347,12 +379,31 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   //testTran->translation.setValue(0,100000,0);
   //hudSeparator->addChild(testTran);
   hudSeparator->addChild(new SoCone);
-*/
+ */
+  csm = new ControllerSceneManager(hudSeparator);
 
 
   myViewer->viewAll();
   mDBMgr = NULL;
   mDBMgr = NULL;
+}
+
+void IVmgr::updateControlSceneState0()
+{
+    csm->setState(0);
+}
+void IVmgr::updateControlSceneState1()
+{
+    csm->setState(1);
+}
+void IVmgr::updateControlSceneState2()
+{
+    csm->setState(2);
+}
+
+void IVmgr::updateControlScene()
+{
+    csm->update();
 }
 
 void IVmgr::setBackgroundColor(float r, float g, float b){
@@ -643,7 +694,7 @@ IVmgr::hilightObjContact(int contactNum)
 	if ((int)contactForceBlinkerVec.size() > contactNum) {
 		contactForceBlinkerVec[contactNum]->on = true;
 	} else {
-		DBGA("Highlight blinker " << contactNum << " requested, but only " 
+        DBGA("Highlight blinker " << contactNum << " requested, but only "
 			<< contactForceBlinkerVec.size() << " present.");
 	}
 }

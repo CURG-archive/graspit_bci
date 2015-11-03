@@ -437,6 +437,10 @@ ClientSocket::readClient()
       strPtr+=1;
       next();
     }
+    else if ((*strPtr) == "state"){
+      strPtr+=1;
+      recievedStateMsg();
+    }
     else if ((*strPtr) == "addPointCloud")
     {
       strPtr += 1;
@@ -1083,6 +1087,29 @@ bool ClientSocket::exec()
 bool ClientSocket::next()
 {
     BCIService::getInstance()->emitNext();
+    return true;
+}
+
+bool ClientSocket::recievedStateMsg()
+{
+    //strPtr++;
+    std::cout << "Received a message!!!" << std::endl;
+    //std::cout <<  (*strPtr).toStdString.c_str() << std::endl;
+    bool ok;
+    int state = (*strPtr).toInt(&ok);
+    if(state==1)
+    {
+        BCIService::getInstance()->emitGoToStateLow();
+    }
+    else if(state==2)
+    {
+        BCIService::getInstance()->emitGoToStateMedium();
+    }
+    else if(state==3)
+    {
+        BCIService::getInstance()->emitGoToStateHigh();
+    }
+
     return true;
 }
 

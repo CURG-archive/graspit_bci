@@ -14,9 +14,6 @@ class ExecutionView : public QWidget
 public:
     explicit ExecutionView(QWidget *parent = 0);
     ~ExecutionView();
-
-public slots:
-    void onStopButtonPressed();
     
 private:
     Ui::ExecutionView *ui;

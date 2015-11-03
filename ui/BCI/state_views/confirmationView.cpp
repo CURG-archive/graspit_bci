@@ -17,10 +17,6 @@ ConfirmationView::ConfirmationView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
-    connect(ui->buttonOk, SIGNAL(clicked()), this, SLOT(onOk()));
-    connect(ui->buttonBack, SIGNAL(clicked()), this, SLOT(onBack()));
-
     SoQtExaminerViewer *mainViewer = graspItGUI->getIVmgr()->getViewer();
     Hand * h = OnlinePlannerController::getInstance()->getGraspDemoHand();
     QFrame *parentWindow = this->ui->previewFrame;
@@ -44,13 +40,3 @@ ConfirmationView::~ConfirmationView()
     delete ui;
 }
 
-
-void ConfirmationView::onOk()
-{
-    BCIService::getInstance()->emitGoToNextState1();
-}
-
-void ConfirmationView::onBack()
-{
-    BCIService::getInstance()->emitGoToNextState2();
-}

@@ -11,6 +11,7 @@
 
 #include "ivmgr.h"
 
+class ControllerSceneManager;
 
 class BCIStateMachine
 {
@@ -22,7 +23,10 @@ public:
 private:
     BCIControlWindow *bciControlWindow;
     BCIService *bciService;
+    ControllerSceneManager *csm;
+
     QStateMachine stateMachine;
+
 
 };
 

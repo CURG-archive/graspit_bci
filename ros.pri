@@ -17,11 +17,11 @@
 
 LIBS += /opt/ros/hydro/lib/*.so
 
-INCLUDEPATH += /home/armuser/ros/bci_project_ws/devel/include/graspit_msgs
-HEADERS += /home/armuser/ros/bci_project_ws/devel/include/graspit_msgs/
+INCLUDEPATH += ~/ros/bci_project_ws/devel/include/graspit_msgs
+HEADERS += ~/ros/bci_project_ws/devel/include/graspit_msgs/
 
-INCLUDEPATH += /home/armuser/ros/bci_project_ws/devel/include/moveit_trajectory_planner
+INCLUDEPATH += ~/ros/bci_project_ws/devel/include/moveit_trajectory_planner
 HEADERS += /home/armuser/ros/bci_project_ws/devel/include/moveit_trajectory_planner/
 
-INCLUDEPATH += /home/armuser/ros/bci_project_ws/devel/include/get_camera_origin
-HEADERS += /home/armuser/ros/bci_project_ws/devel/include/get_camera_origin/
+INCLUDEPATH += ~/ros/bci_project_ws/devel/include/get_camera_origin
+HEADERS += ~/ros/bci_project_ws/devel/include/get_camera_origin/

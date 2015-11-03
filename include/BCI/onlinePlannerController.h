@@ -96,6 +96,8 @@ namespace bci_experiment{
             OnLinePlanner * currentPlanner;
             bool renderPending;
 
+            unsigned int currentGraspIndex;
+
     protected:
 	    virtual void run();
 
@@ -111,7 +113,7 @@ namespace bci_experiment{
 
             db_planner::SqlDatabaseManager * mDbMgr;
             GraspableBody * currentTarget;                        
-            unsigned int currentGraspIndex;
+
             Hand * graspDemonstrationHand;
             bool setAllowedPlanningCollisions();
             bool setPlannerTargets();

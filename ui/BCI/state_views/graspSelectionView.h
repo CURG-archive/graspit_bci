@@ -42,21 +42,19 @@ class GraspSelectionView : public QWidget
 public:
     explicit GraspSelectionView(QWidget *parent = 0);
     void showSelectedGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState);
+    void showNextGrasp(Hand *hand ,const GraspPlanningState *graspPlanningState);
     ~GraspSelectionView();
 
-public slots:
-    void onRefineGrasp();
-    void onOk();
-    void onRotateLat();
-    void onRotateLong();
 protected:
     virtual void showEvent(QShowEvent *);
 private:
-     void showSpinner();
-     void hideSpinner();
+     void showSpinners();
+     void hideSpinners();
 
-     QtWaitingSpinner* spinner;
-     HandView *handView;
+     QtWaitingSpinner* currentGraspSpinner;
+     QtWaitingSpinner* nextGraspSpinner;
+     HandView *selectedHandView;
+     HandView *nextHandView;
 
     Ui::GraspSelectionView *ui;
 };

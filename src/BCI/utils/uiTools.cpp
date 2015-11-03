@@ -302,10 +302,16 @@ namespace bci_experiment
         {
             SoSeparator * pointerRoot =
                     GraspItGUI::getInstance()->getIVmgr()->getWorld()->getIVRoot();
-            SoSeparator * guideSeparator = static_cast<SoSeparator *>
-                    (pointerRoot->getByName("BCIGuideSeparator"));
-            if(guideSeparator)
-                pointerRoot->removeChild(guideSeparator);
+            if (pointerRoot)
+            {
+                SoSeparator * guideSeparator = static_cast<SoSeparator *>
+                        (pointerRoot->getByName("BCIGuideSeparator"));
+                if(guideSeparator)
+                {
+                    pointerRoot->removeChild(guideSeparator);
+                }
+            }
+
         }
     }
 }

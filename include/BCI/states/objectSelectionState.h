@@ -15,7 +15,7 @@ class ObjectSelectionState:public State
     Q_OBJECT
 
 public:
-    ObjectSelectionState(BCIControlWindow *_bciControlWindow,  QState* parent = 0 );
+    ObjectSelectionState(BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent = 0 );
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
 
@@ -23,7 +23,9 @@ private:
     BCIControlWindow *bciControlWindow;
     ObjectSelectionView *objectSelectionView;
     BCIService *bciService;
+    ControllerSceneManager *csm;
     bool visionRunning;
+
 
 public slots:
 
@@ -33,8 +35,11 @@ public slots:
 
     void onRunVision(QEvent *e = NULL);
     void onVisionFinished();
-protected:
-    virtual void generateImageOptions(bool debug);
+
+
+signals:
+    void goToNextState();
+
 };
 
 #endif // OBJECTSELECTIONSTATE_H

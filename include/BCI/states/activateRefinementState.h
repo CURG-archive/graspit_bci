@@ -13,17 +13,24 @@ class ActivateRefinementState: public HandRotationState
     Q_OBJECT
 
 public:
-    ActivateRefinementState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
+    ActivateRefinementState(BCIControlWindow *_bciControlWindow, ControllerSceneManager *_csm, QState* parent = 0 );
+
 
 public slots:
     virtual void onEntry(QEvent *e);
     virtual void onExit(QEvent *e);
     virtual void onPlannerUpdated(QEvent *e = NULL);
+    void emit_goToConfirmationState();
+
     virtual void nextGrasp(QEvent *e = NULL);
     virtual void updateView();
     void setTimerRunning();
+
 protected:
     ActiveRefinementView *activeRefinementView;
+
+private:
+    ControllerSceneManager *csm;
 
 
 };

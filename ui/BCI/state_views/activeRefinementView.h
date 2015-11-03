@@ -20,13 +20,6 @@ public:
     void showNextGrasp(Hand *hand, const GraspPlanningState *graspPlanningState);
     ~ActiveRefinementView();
 
-
-public slots:
-    void onOk();
-    void onRotLat();
-    void onRotLong();
-    void onNextGrasp();
-
     
 protected:
     virtual void showEvent(QShowEvent *);

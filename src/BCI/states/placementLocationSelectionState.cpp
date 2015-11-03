@@ -2,8 +2,8 @@
 
 
 
-PlacementLocationSelectionState::PlacementLocationSelectionState(BCIControlWindow *_bciControlWindow, QState* parent)
-    :State("PlacementLocationSelectionState", parent), bciControlWindow(_bciControlWindow)
+PlacementLocationSelectionState::PlacementLocationSelectionState(BCIControlWindow *_bciControlWindow,ControllerSceneManager *_csm, QState* parent)
+    :State("PlacementLocationSelectionState", parent), bciControlWindow(_bciControlWindow), csm(_csm)
 {
 
 }
@@ -14,6 +14,7 @@ void PlacementLocationSelectionState::onEntry(QEvent *e)
     bciControlWindow->currentFrame->show();
 
     bciControlWindow->currentState->setText("Placement Location Selection State");
+
 }
 
 

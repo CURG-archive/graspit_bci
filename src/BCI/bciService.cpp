@@ -1,11 +1,14 @@
 #include "BCI/bciService.h"
 #include "BCI/BCIStateMachine.h"
+#include "BCI/controller_scene/controller_scene_mgr.h"
+
 #include "debug.h"
 
 #include <cstdlib>
 #include "graspit_msgs/GetObjectInfo.h"
 #include <QKeyEvent>
 #include <QMutex>
+
 
 BCIService * BCIService::bciServiceInstance = NULL;
 QMutex BCIService::createLock;
@@ -35,11 +38,16 @@ BCIService::BCIService()
 
 void BCIService::init(BCIControlWindow *bciControlWindow)
 {
+    bciRenderArea = bciControlWindow->bciWorldView->renderArea;
     //builds and starts a qtStateMachine
     BCIStateMachine *bciStateMachine = new BCIStateMachine(bciControlWindow,this);    
     connect(this, SIGNAL(plannerUpdated()), bciControlWindow, SLOT(redraw()));
     connect(OnlinePlannerController::getInstance(), SIGNAL(render()), bciControlWindow, SLOT(redraw()));
     bciStateMachine->start();
+
+    QObject::connect(this, SIGNAL(goToStateLow()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState0()));
+    QObject::connect(this, SIGNAL(goToStateMedium()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState1()));
+    QObject::connect(this, SIGNAL(goToStateHigh()), graspItGUI->getIVmgr(), SLOT(updateControlSceneState2()));
 }
 
 bool BCIService::eventFilter(QObject * obj, QEvent* evt)

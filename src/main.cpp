@@ -50,6 +50,9 @@
 #include "graspitServer.h"
 #include "graspitProtobufServer.h"
 #include "mainWindow.h"
+
+#include <QtGui>"
+
 #include "ros/ros.h"
 
 #include "debug.h"
@@ -71,13 +74,43 @@ int main(int argc, char **argv)
 #endif
 #endif
 
+  ROS_INFO("Initializing Ros Node");
+  ros::init(argc, argv, "ros_bci_node");
+  ROS_INFO("Ros Node Initialized");
+
   GraspItApp app(argc, argv);
  
-  //app.showSplash();
-  //QApplication::setOverrideCursor( Qt::waitCursor );
+  app.showSplash();
+  QApplication::setOverrideCursor( Qt::waitCursor );
 
   GraspItGUI gui(argc,argv);
-  
+
+  QPushButton * spinButton = new QPushButton("Spin");
+  QPushButton * slowButton = new QPushButton("Move Slow");
+  QPushButton * fastButton = new QPushButton("Move Fast");
+
+  spinButton->setDefault(true);
+  slowButton->setDefault(true);
+  fastButton->setDefault(true);
+
+  QDialogButtonBox *cursorControlBox = new QDialogButtonBox(Qt::Vertical);
+  cursorControlBox->setCaption(QString("Cursor Control Box"));
+
+  cursorControlBox->addButton(spinButton, QDialogButtonBox::ActionRole);
+  cursorControlBox->addButton(slowButton, QDialogButtonBox::ActionRole);
+  cursorControlBox->addButton(fastButton, QDialogButtonBox::ActionRole);
+  cursorControlBox->resize(QSize(200,100));
+  cursorControlBox->show();
+
+  QObject::connect(spinButton, SIGNAL(clicked()), gui.getIVmgr(), SLOT(updateControlSceneState0()));
+  QObject::connect(slowButton, SIGNAL(clicked()), gui.getIVmgr(), SLOT(updateControlSceneState1()));
+  QObject::connect(fastButton, SIGNAL(clicked()), gui.getIVmgr(), SLOT(updateControlSceneState2()));
+
+
+  QTimer timer;
+  QObject::connect(&timer, SIGNAL(timeout()), gui.getIVmgr(), SLOT(updateControlScene()));
+  timer.start(1000 / 30);
+
   //This is the GraspIt TCP server. It can be used to connect to GraspIt from
   //external programs, such as Matlab.
   //On some machines, the Q3Socket segfaults at exit, so this is commented out by
@@ -87,8 +120,6 @@ int main(int argc, char **argv)
 
   GraspitProtobufServer protobufServer(portNumber);
 
-  ros::init(argc, argv, "ros_bci_node");
-
 
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
@@ -96,8 +127,11 @@ int main(int argc, char **argv)
   app.closeSplash();
   QApplication::restoreOverrideCursor();
 
+
   if (!gui.terminalFailure()) {
 	  gui.startMainLoop();
   }
+
+
   return 0;
 }

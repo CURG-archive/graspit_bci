@@ -10,7 +10,7 @@ class ConfirmationState:public State
     Q_OBJECT
 
 public:
-    ConfirmationState(BCIControlWindow *_bciControlWindow, QState* parent = 0 );
+    ConfirmationState(BCIControlWindow *_bciControlWindow,ControllerSceneManager *_csm, QState* parent = 0 );
 
      virtual void onEntry(QEvent *e);
      virtual void onExit(QEvent *e);
@@ -21,6 +21,16 @@ public slots:
 private:
     ConfirmationView* confirmationView;
     BCIControlWindow *bciControlWindow;
+    ControllerSceneManager *csm;
+
+public slots:
+
+    void emit_goToExecutionState(){emit goToExecutionState();}
+    void emit_goToPreviousState(){emit goToPreviousState();}
+
+signals:
+    void goToExecutionState();
+    void goToPreviousState();
 };
 
 

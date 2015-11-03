@@ -7,7 +7,7 @@
 #include "Servers/rosRPCZClient.h"
 
 #include "BCI/rosclient.h"
-
+#include<Inventor/Qt/SoQtRenderArea.h>
 
 #include <QMutex>
 #include <vector>
@@ -18,6 +18,7 @@ class GraspableBody;
 class DrawableFrame;
 class GraspPlanningState;
 class BCIControlWindow;
+class ControllerSceneManager;
 
 
 using namespace bci_experiment;
@@ -33,6 +34,10 @@ public:
     void emitGoToNextState1(){emit goToNextState1();}
     void emitGoToNextState2(){emit goToNextState2();}
     void emitGoToPreviousState(){emit goToPreviousState();}
+
+    void emitGoToStateLow(){emit goToStateLow();}
+    void emitGoToStateMedium(){emit goToStateMedium();}
+    void emitGoToStateHigh(){emit goToStateHigh();}
 
 
     void emitExec(){emit exec();}
@@ -59,7 +64,6 @@ public:
 
     bool getCameraOrigin(QObject * callbackReceiver, const char * slot);
 
-
     bool checkGraspReachability(const GraspPlanningState * state,
                                             QObject * callbackReceiver,
                                             const char * slot);
@@ -73,6 +77,8 @@ public:
     static BCIService* getInstance();
 
     void init(BCIControlWindow *bciControlWindow);
+    SoQtRenderArea *bciRenderArea;
+
 public slots:
     //called when active planner is updated
     void onPlannerUpdated(){emit plannerUpdated();}
@@ -123,6 +129,9 @@ signals:
 
     void analyzeApproachDir(GraspPlanningState * gps);
 
+    void goToStateLow();
+    void goToStateMedium();
+    void goToStateHigh();
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *evt);
@@ -139,6 +148,8 @@ private:
         static QMutex createLock;
 
 
+
+        ControllerSceneManager * controllerSceneManager;
 
 
 };
