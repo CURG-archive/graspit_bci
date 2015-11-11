@@ -1,6 +1,7 @@
 #include "graspSelectionView.h"
 #include "ui_graspSelectionView.h"
 #include "BCI/bciService.h"
+#include "debug.h"
 
 using bci_experiment::OnlinePlannerController;
 

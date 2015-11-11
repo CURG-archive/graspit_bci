@@ -50,6 +50,7 @@
 #include <Inventor/fields/SoSFVec3f.h>
 #include <QMutexLocker>
 #include "BCI/bciService.h"
+#include "debug.h"
 
 
 
@@ -1093,7 +1094,7 @@ bool ClientSocket::next()
 bool ClientSocket::recievedStateMsg()
 {
     //strPtr++;
-    std::cout << "Received a message!!!" << std::endl;
+    //std::cout << "Received a message!!!" << std::endl;
     //std::cout <<  (*strPtr).toStdString.c_str() << std::endl;
     bool ok;
     int state = (*strPtr).toInt(&ok);

@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "BCI/worldController.h"
-#include "Servers/rosRPCZClient.h"
+
 
 #include "BCI/rosclient.h"
 #include<Inventor/Qt/SoQtRenderArea.h>

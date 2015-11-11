@@ -101,11 +101,6 @@ HEADERS	+= include/barrett.h \
         include/Servers/graspitServer.h \
         include/SoRing.h \
         include/BCI/worldController.h \
-        include/BCI/requests/requestStub.h \
-        include/BCI/requests/objectRecognitionStub.h \
-        include/BCI/requests/cameraOriginStub.h \
-        include/BCI/requests/graspReachabilityStub.h \
-        include/BCI/requests/executeGraspStub.h \
         include/BCI/rosclient.h
 
 
@@ -191,11 +186,6 @@ SOURCES	+= src/arch.cpp \
         ui/BCI/state_views/graspView.cpp \
         ui/BCI/qtWaitingSpinner.cpp \
         src/BCI/worldController.cpp \
-        src/BCI/requests/objectRecognitionStub.cpp \
-        src/BCI/requests/graspReachabilityStub.cpp \
-        src/BCI/requests/requestStub.cpp \
-        src/BCI/requests/cameraOriginStub.cpp \
-        src/BCI/requests/executeGraspStub.cpp \
         src/BCI/rosclient.cpp
 
 
@@ -400,16 +390,8 @@ protobuf {
   include(protobuf.pri)
 }
 
-#-------------------------------------- RPCZ -------------------------------------------------------------
-rpcz {
-  # add message files here
-  #PROTOS2 = geometry_msgs.proto graspable_object.proto run_recognition.proto
-  # add message path here
-  #PROTOPATH2 = ./rpcz_services
-  include(rpcz.pri)
 
-
-}
+LIBS += -lboost_thread -lboost_program_options
 
 #-------------------------------------- BCI Experiment code -----------------------------------------------------------
 bci_experiment {

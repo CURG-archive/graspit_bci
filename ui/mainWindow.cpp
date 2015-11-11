@@ -83,7 +83,6 @@
 #include "BCI/bciControlWindow.h"
 #include "BCI/BCIStateMachine.h"
 #include "BCI/bciService.h"
-#include "Servers/rosRPCZClient.h"
 
 //------------------------------------ CONSTRUCTOR AND DESTRUCTOR -------------------------------------
 
