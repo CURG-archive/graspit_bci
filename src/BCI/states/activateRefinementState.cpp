@@ -33,9 +33,9 @@ void ActivateRefinementState::onEntry(QEvent *e)
     OnlinePlannerController::getInstance()->blockGraspAnalysis(false);
 
     csm->clearTargets();
-    std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
-                                                                       QString("sprites/target_background.png"),
-                                                                       0.35, .25, 0.0, QString("Next")));
+//    std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
+//                                                                       QString("sprites/target_background.png"),
+//                                                                       0.35, .25, 0.0, QString("Next")));
     std::shared_ptr<Target>  t2 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
                                                                        QString("sprites/target_background.png"),
                                                                        -1.1, 0.25, 0.0, QString("Rotate\nLat")));
@@ -44,14 +44,14 @@ void ActivateRefinementState::onEntry(QEvent *e)
                                                                         -1.1, -1.0, 0.0, QString("Rotate\nLong")));
     std::shared_ptr<Target>  t4 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
                                                                        QString("sprites/target_background.png"),
-                                                                        0.35, -1.0, 0.0, QString("Confirm\nGrasp")));
+                                                                        0.35, -1.0, 0.0, QString("Finished\nRefinement")));
 
-    QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(nextGrasp()));
+    //QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(nextGrasp()));
     QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(onRotateHandLat()));
     QObject::connect(t3.get(), SIGNAL(hit()), this, SLOT(onRotateHandLong()));
     QObject::connect(t4.get(), SIGNAL(hit()), this, SLOT(emit_goToConfirmationState()));
 
-    csm->addTarget(t1);
+    //csm->addTarget(t1);
     csm->addTarget(t2);
     csm->addTarget(t3);
     csm->addTarget(t4);
@@ -84,7 +84,8 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
 {
     if(OnlinePlannerController::getInstance()->getNumGrasps())
     {
-        const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);
+        OnlinePlannerController::getInstance()->incrementGraspIndex();
+        const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
         Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
         nextGrasp->execute(refHand);
         OnlinePlannerController::getInstance()->alignHand();
@@ -97,8 +98,10 @@ void ActivateRefinementState::updateView()
 {
     OnlinePlannerController::getInstance()->sortGrasps();
     const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
+    //const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
+    const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getNextGrasp();
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    const GraspPlanningState *nextGrasp = bestGrasp;
+    //const GraspPlanningState *nextGrasp = bestGrasp;
     if(OnlinePlannerController::getInstance()->getNumGrasps())
     {
         nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);

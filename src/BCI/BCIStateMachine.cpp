@@ -47,8 +47,8 @@ BCIStateMachine::BCIStateMachine(BCIControlWindow *_bciControlWindow, BCIService
 //    initialGraspSelectionState->addSelfTransition(bciService,SIGNAL(rotLong()), initialGraspSelectionState, SLOT(onNext()));
 //    initialGraspSelectionState->addStateTransition(bciService,SIGNAL(rotLat()), objectSelectionState);
 
-    activateRefinementState->addStateTransition(bciService, SIGNAL(goToNextState1()), confirmationState);
-    activateRefinementState->addStateTransition(bciService, SIGNAL(exec()), confirmationState);
+    activateRefinementState->addStateTransition(bciService, SIGNAL(goToNextState1()), initialGraspSelectionState);
+    activateRefinementState->addStateTransition(bciService, SIGNAL(exec()), initialGraspSelectionState);
 
 //    finalGraspSelectionState->addStateTransition(bciService, SIGNAL(goToNextState1()),confirmationState);
 //    finalGraspSelectionState->addStateTransition(bciService, SIGNAL(exec()),confirmationState);

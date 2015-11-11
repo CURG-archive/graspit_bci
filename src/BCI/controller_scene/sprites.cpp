@@ -51,6 +51,9 @@ void Cursor::setXYTheta(double x_, double y_, double theta_)
     QTransform rotating;
     rotating.rotate(theta);
 
+//    image->horAlignment = SoImage::CENTER;
+//    image->vertAlignment = SoImage::CENTER;
+
     int orig_height = qimage->height();
     int orig_width = qimage->width();
 
@@ -219,6 +222,11 @@ bool Sprite::intersects(QRectF *other_rect)
     double other_center_x = other_rect->x() + (other_rect->width())/2.0 ;
     double other_center_y = other_rect->y() + (other_rect->width())/2.0 ;
     double other_radius = (other_rect->width())/2.0;
+
+    if (bounding_rect->isNull() || !this->valid)
+    {
+        return false;
+    }
 
     double my_center_x = bounding_rect->x() + (bounding_rect->width())/2.0 ;
     double my_center_y = bounding_rect->y() + (bounding_rect->width())/2.0 ;

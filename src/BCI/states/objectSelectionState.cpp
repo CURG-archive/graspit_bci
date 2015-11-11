@@ -67,7 +67,7 @@ void ObjectSelectionState::onEntry(QEvent *e)
 
     std::shared_ptr<Target>  t3 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
                                                                        QString("sprites/target_background.png"),
-                                                                      0.35, 0.5, 0.0, QString("Rerun\nVision")));
+                                                                      0.35, 0.25, 0.0, QString("Rerun\nVision")));
 
     QObject::connect(t1.get(), SIGNAL(hit()), this, SLOT(onNext()));
     QObject::connect(t2.get(), SIGNAL(hit()), this, SLOT(onSelect()));
@@ -121,6 +121,7 @@ void ObjectSelectionState::onNext()
         GraspableBody *newTarget = OnlinePlannerController::getInstance()->incrementCurrentTarget();
         WorldController::getInstance()->highlightCurrentBody(newTarget);
     }
+    csm->setCursorPosition(-1,0,0);
 }
 
 

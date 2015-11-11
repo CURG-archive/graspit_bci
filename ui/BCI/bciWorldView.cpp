@@ -36,6 +36,10 @@ BCIWorldView::BCIWorldView(QWidget *parent) :
     renderArea->render();
     renderArea->show();
 
+
+
+
+
 }
 
 void BCIWorldView::redraw()

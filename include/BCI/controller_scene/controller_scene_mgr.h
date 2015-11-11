@@ -27,8 +27,10 @@ protected:
     int state;
     Cursor *cursor;
     std::vector<std::shared_ptr<Target>> targets;
+    std::vector<std::shared_ptr<Target>> temp_targets;
 
     boost::recursive_mutex mtx_;
+
     void lock() {
         mtx_.lock();
     }

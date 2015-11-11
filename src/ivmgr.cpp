@@ -121,7 +121,7 @@
 #include "mainWindow.h"
 #include "matvec3D.h"
 #include <Inventor/nodes/SoImage.h>
-
+#include "BCI/bciService.h"
 //hmmm not sure this is right
 #include "graspitGUI.h"
 
@@ -331,10 +331,16 @@ IVmgr::IVmgr(QWidget *parent, const char *name, Qt::WFlags f) :
   hudSeparator->setName("hud");
   sceneRoot->addChild(imageRot);
   sceneRoot->addChild(hudSeparator);
-  SoOrthographicCamera * pcam = new SoOrthographicCamera;
+  pcam = new SoOrthographicCamera;
   pcam->position = SbVec3f(0, 0, 10);
   pcam->nearDistance = 0.1;
   pcam->farDistance = 11;
+
+  //myViewer->setViewportRegion(pcam->getViewportBounds(myViewer->getViewportRegion()));
+
+  //SbViewportRegion vr = pcam->getViewportBounds(myViewer->getViewportRegion());
+
+  //pcam->viewBoundingBox(pcam->aspectRatio,0.1);
 
   hudSeparator->addChild(pcam);
   std::cout << " Camera height " << pcam->height.getValue() << "\n";
@@ -404,6 +410,20 @@ void IVmgr::updateControlSceneState2()
 void IVmgr::updateControlScene()
 {
     csm->update();
+    std::cout << "updating view region"<< std::endl;
+    //SbViewportRegion vr = pcam->getViewportBounds(BCIService::getInstance()->bciRenderArea->getViewportRegion());
+    SbViewportRegion vr = BCIService::getInstance()->bciRenderArea->getViewportRegion();
+    SbVec2s vr_size = vr.getViewportSizePixels();
+    SbVec2s win_size =  vr.getWindowSize();
+
+
+    std::cout << vr_size.getValue()[0] << std::endl;
+    std::cout << vr_size.getValue()[1] << std::endl;
+    std::cout << win_size.getValue()[0] << std::endl;
+    std::cout << win_size.getValue()[1] << std::endl;
+
+    //pcam->viewBoundingBox();
+    BCIService::getInstance()->bciRenderArea->setViewportRegion(pcam->getViewportBounds(BCIService::getInstance()->bciRenderArea->getViewportRegion()));
 }
 
 void IVmgr::setBackgroundColor(float r, float g, float b){

@@ -367,6 +367,10 @@ namespace bci_experiment
 
     void OnlinePlannerController::incrementGraspIndex()
     {
+        if (currentPlanner->getListSize()==0)
+        {
+            return;
+        }
         currentGraspIndex = (currentGraspIndex + 1)%(currentPlanner->getListSize());
     }
 
@@ -434,6 +438,17 @@ namespace bci_experiment
     const GraspPlanningState * OnlinePlannerController::getCurrentGrasp()
     {
         return getGrasp(currentGraspIndex);
+    }
+
+    const GraspPlanningState * OnlinePlannerController::getNextGrasp()
+    {
+        int index = currentGraspIndex + 1;
+        if (index >= currentPlanner->getListSize())
+        {
+            index = 0;
+        }
+
+        return getGrasp(index);
     }
 
     bool OnlinePlannerController::stopTimedUpdate()

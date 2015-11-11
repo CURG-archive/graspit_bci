@@ -66,6 +66,7 @@ namespace bci_experiment{
             const GraspPlanningState * getGrasp(int index);
             unsigned int getNumGrasps();
             const GraspPlanningState * getCurrentGrasp();
+            const GraspPlanningState * getNextGrasp();
             bool timedUpdateRunning;
             bool stopTimedUpdate();
             bool startTimedUpdate();
