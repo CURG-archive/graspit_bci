@@ -24,7 +24,6 @@ ConfirmationState::ConfirmationState(BCIControlWindow *_bciControlWindow, Contro
 
 void ConfirmationState::onEntry(QEvent *e)
 {
-
     const GraspPlanningState *grasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
     Hand * hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
     OnlinePlannerController::getInstance()->destroyGuides();
@@ -33,7 +32,7 @@ void ConfirmationState::onEntry(QEvent *e)
     bciControlWindow->currentState->setText("Confirmation");
     OnlinePlannerController::getInstance()->setPlannerToPaused();
 
-    csm->clearTargets();
+
 
     std::shared_ptr<Target>  t1 = std::shared_ptr<Target> (new Target(csm->control_scene_separator,
                                                                        QString("sprites/target_background.png"),

@@ -84,7 +84,8 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
 {
     if(OnlinePlannerController::getInstance()->getNumGrasps())
     {
-        const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);
+        OnlinePlannerController::getInstance()->incrementGraspIndex();
+        const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
         Hand *refHand = OnlinePlannerController::getInstance()->getRefHand();
         nextGrasp->execute(refHand);
         OnlinePlannerController::getInstance()->alignHand();
@@ -96,9 +97,11 @@ void ActivateRefinementState::nextGrasp(QEvent *e)
 void ActivateRefinementState::updateView()
 {
     OnlinePlannerController::getInstance()->sortGrasps();
-    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
+    //const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getGrasp(0);
+    const GraspPlanningState *bestGrasp = OnlinePlannerController::getInstance()->getCurrentGrasp();
+    const GraspPlanningState *nextGrasp = OnlinePlannerController::getInstance()->getNextGrasp();
     Hand *hand = OnlinePlannerController::getInstance()->getGraspDemoHand();
-    const GraspPlanningState *nextGrasp = bestGrasp;
+    //const GraspPlanningState *nextGrasp = bestGrasp;
     if(OnlinePlannerController::getInstance()->getNumGrasps())
     {
         nextGrasp = OnlinePlannerController::getInstance()->getGrasp(1);

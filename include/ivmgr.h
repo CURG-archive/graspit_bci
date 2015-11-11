@@ -83,6 +83,7 @@ class GWS;
 class GWSprojection;
 class QualityMeasure;
 struct DraggerInfo;
+class SoOrthographicCamera;
 
 namespace db_planner {
 	class DatabaseManager;
@@ -278,6 +279,7 @@ public:
   World *getWorld() const {return world;}
 
   ControllerSceneManager *csm;
+  SoOrthographicCamera * pcam;
   /*!
     Returns a pointer to the Inventor examiner viewer.
   */
